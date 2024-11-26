@@ -14,7 +14,7 @@ use crate::{
 /// # Arguments:
 ///
 /// * `options`: A reference to a `ParserOptions` struct, which contains various options for parsing
-/// module information.
+///     module information.
 ///
 /// # Returns:
 ///
