@@ -1,3 +1,4 @@
+#![allow(clippy::all, missing_docs, unknown_lints)]
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
@@ -44,4 +45,9 @@ diesel::joinable!(info_file -> directory (directory_id));
 diesel::joinable!(info_file -> location (location_id));
 diesel::joinable!(location -> directory (directory_id));
 
-diesel::allow_tables_to_appear_in_same_query!(author, directory, info_file, location,);
+diesel::allow_tables_to_appear_in_same_query!(
+    author,
+    directory,
+    info_file,
+    location,
+);
