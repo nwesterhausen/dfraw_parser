@@ -14,21 +14,21 @@ use super::{ObjectType, RawModuleLocation};
 /// * `module_name`: The name of the raw module the raw is from.
 /// * `module_version`: The version of the raw module the raw is from.
 /// * `raw_file_path`: The `raw_file_path` property is a string that represents the path to the file
-/// containing the raw data. It specifies the location of the file on the file system.
+///     containing the raw data. It specifies the location of the file on the file system.
 /// * `raw_identifier`: The raw identifier is a unique identifier for the raw data. It is typically
-/// found at the top of the raw text file and is used to identify and reference the specific raw data.
+///     found at the top of the raw text file and is used to identify and reference the specific raw data.
 /// * `object_type`: The `object_type` property represents the type of the raw data. It could be a
-/// creature, plant, or any other type specified in the raw text file.
+///     creature, plant, or any other type specified in the raw text file.
 /// * `raw_module_location`: The `raw_module_location` property represents the location of the owning
-/// raw module. It can have one of the following values:
+///     raw module. It can have one of the following values:
 ///
 ///     - `RawModuleLocation::InstalledMods`: The raw module is located in the `installed_mods` folder.
 ///     - `RawModuleLocation::Mods`: The raw module is located in the `mods` folder.
 ///     - `RawModuleLocation::Vanilla`: The raw module is located in the `vanilla` folder.
 ///
 /// * `hidden`: The `hidden` property is a boolean value that indicates whether the raw metadata should
-/// be hidden or not when exporting. By default, it is set to `true`, meaning that the raw metadata will
-/// be hidden unless specified in the `ParsingOptions` struct.
+///     be hidden or not when exporting. By default, it is set to `true`, meaning that the raw metadata will
+///     be hidden unless specified in the `ParsingOptions` struct.
 #[derive(Serialize, Deserialize, Clone, Debug, Default, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
