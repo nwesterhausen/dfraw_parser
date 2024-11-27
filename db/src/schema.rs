@@ -42,7 +42,7 @@ diesel::table! {
 
 diesel::table! {
     metadata (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         object_id -> Text,
         name -> Text,
         version -> Text,
@@ -55,7 +55,7 @@ diesel::table! {
 
 diesel::table! {
     object_type (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         name -> Text,
     }
 }

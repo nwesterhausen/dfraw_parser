@@ -1,11 +1,11 @@
 -- Your SQLite goes here
 CREATE TABLE object_type (
-  id integer PRIMARY KEY autoincrement,
+  id integer NOT NULL PRIMARY KEY autoincrement,
   name text NOT NULL
 );
 
 CREATE TABLE metadata (
-  id integer PRIMARY KEY autoincrement,
+  id integer NOT NULL PRIMARY KEY autoincrement,
   -- the special object_id string
   object_id text NOT NULL,
   name text NOT NULL,
