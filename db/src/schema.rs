@@ -35,6 +35,38 @@ diesel::table! {
 }
 
 diesel::table! {
+    gait (id) {
+        id -> Integer,
+        type_id -> Integer,
+        name -> Text,
+        max_speed -> Integer,
+        energy_use -> Integer,
+    }
+}
+
+diesel::table! {
+    gait_modifier (id) {
+        id -> Integer,
+        name -> Text,
+    }
+}
+
+diesel::table! {
+    gait_modifier_value (gait_modifier_id, name) {
+        gait_modifier_id -> Integer,
+        name -> Text,
+        value -> Integer,
+    }
+}
+
+diesel::table! {
+    gait_type (id) {
+        id -> Integer,
+        name -> Text,
+    }
+}
+
+diesel::table! {
     info_file (id) {
         id -> Integer,
         object_id -> Text,
@@ -156,6 +188,8 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(gait -> gait_type (type_id));
+diesel::joinable!(gait_modifier_value -> gait_modifier (gait_modifier_id));
 diesel::joinable!(info_file -> author (author_id));
 diesel::joinable!(info_file -> steam_data (steam_data_id));
 diesel::joinable!(metadata -> module (module_id));
@@ -174,6 +208,10 @@ diesel::allow_tables_to_appear_in_same_query!(
     body_size,
     color,
     directory,
+    gait,
+    gait_modifier,
+    gait_modifier_value,
+    gait_type,
     info_file,
     info_file_conflicts_ids,
     info_file_requires_after,
