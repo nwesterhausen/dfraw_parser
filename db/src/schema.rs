@@ -9,6 +9,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    body_size (id) {
+        id -> Integer,
+        years -> Integer,
+        days -> Integer,
+        size_cm3 -> Integer,
+    }
+}
+
+diesel::table! {
     color (id) {
         id -> Integer,
         foreground -> Integer,
@@ -162,6 +171,7 @@ diesel::joinable!(steam_data_tag -> steam_tag (steam_tag_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     author,
+    body_size,
     color,
     directory,
     info_file,
