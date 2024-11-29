@@ -8,9 +8,7 @@ CREATE TABLE directory (
 -- Required location table reference
 CREATE TABLE location (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  -- M:1 relationship, foreign key
-  directory_id INTEGER NOT NULL REFERENCES directory(id)
+  name TEXT NOT NULL
 );
 
 -- Author table
@@ -37,3 +35,12 @@ CREATE TABLE info_file (
   name TEXT NOT NULL,
   description TEXT NOT NULL
 );
+
+-- Insert the location values
+INSERT INTO
+  location (name)
+VALUES
+  ("mods"),
+  ("installed_mods"),
+  ("vanilla"),
+  ("unknown/unset");

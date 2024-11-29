@@ -36,7 +36,6 @@ diesel::table! {
     location (id) {
         id -> Integer,
         name -> Text,
-        directory_id -> Integer,
     }
 }
 
@@ -63,7 +62,6 @@ diesel::table! {
 diesel::joinable!(info_file -> author (author_id));
 diesel::joinable!(info_file -> directory (directory_id));
 diesel::joinable!(info_file -> location (location_id));
-diesel::joinable!(location -> directory (directory_id));
 diesel::joinable!(metadata -> location (module_location_id));
 diesel::joinable!(metadata -> object_type (object_type_id));
 

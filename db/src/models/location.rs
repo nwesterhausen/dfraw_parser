@@ -14,6 +14,4 @@ pub struct Location {
     pub id: i32,
     /// The name of the location
     pub name: String,
-    /// The directory where the location is found
-    pub directory_id: i32,
 }
