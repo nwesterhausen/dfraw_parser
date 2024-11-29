@@ -84,7 +84,7 @@ diesel::table! {
         id -> Integer,
         name -> Text,
         description -> Text,
-        loction_id -> Integer,
+        location_id -> Integer,
         directory_id -> Integer,
         info_file_id -> Nullable<Integer>,
     }
@@ -144,7 +144,7 @@ diesel::joinable!(metadata -> module (module_id));
 diesel::joinable!(metadata -> object_type (object_type_id));
 diesel::joinable!(module -> directory (directory_id));
 diesel::joinable!(module -> info_file (info_file_id));
-diesel::joinable!(module -> location (loction_id));
+diesel::joinable!(module -> location (location_id));
 diesel::joinable!(steam_data_key_value_tag -> steam_data (steam_data_id));
 diesel::joinable!(steam_data_key_value_tag -> steam_tag (steam_tag_id));
 diesel::joinable!(steam_data_metadata -> steam_data (steam_data_id));

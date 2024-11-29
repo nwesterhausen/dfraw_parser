@@ -3,7 +3,7 @@ CREATE TABLE module (
   id integer NOT NULL PRIMARY KEY autoincrement,
   name text NOT NULL,
   description text NOT NULL,
-  loction_id integer NOT NULL REFERENCES location(id),
+  location_id integer NOT NULL REFERENCES location(id),
   directory_id integer NOT NULL REFERENCES directory(id),
   info_file_id integer REFERENCES info_file(id)
 );
