@@ -68,12 +68,58 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    steam_data (id) {
+        id -> Integer,
+        file_id -> Text,
+        title -> Nullable<Text>,
+        description -> Nullable<Text>,
+        changelog -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    steam_data_key_value_tag (id) {
+        id -> Integer,
+        steam_data_id -> Integer,
+        steam_tag_id -> Integer,
+        value -> Text,
+    }
+}
+
+diesel::table! {
+    steam_data_metadata (id) {
+        id -> Integer,
+        steam_data_id -> Integer,
+        metadata -> Text,
+    }
+}
+
+diesel::table! {
+    steam_data_tag (steam_data_id, steam_tag_id) {
+        steam_data_id -> Integer,
+        steam_tag_id -> Integer,
+    }
+}
+
+diesel::table! {
+    steam_tag (id) {
+        id -> Integer,
+        name -> Text,
+    }
+}
+
 diesel::joinable!(info_file -> author (author_id));
 diesel::joinable!(metadata -> module (module_id));
 diesel::joinable!(metadata -> object_type (object_type_id));
 diesel::joinable!(module -> directory (directory_id));
 diesel::joinable!(module -> info_file (info_file_id));
 diesel::joinable!(module -> location (loction_id));
+diesel::joinable!(steam_data_key_value_tag -> steam_data (steam_data_id));
+diesel::joinable!(steam_data_key_value_tag -> steam_tag (steam_tag_id));
+diesel::joinable!(steam_data_metadata -> steam_data (steam_data_id));
+diesel::joinable!(steam_data_tag -> steam_data (steam_data_id));
+diesel::joinable!(steam_data_tag -> steam_tag (steam_tag_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     author,
@@ -83,4 +129,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     metadata,
     module,
     object_type,
+    steam_data,
+    steam_data_key_value_tag,
+    steam_data_metadata,
+    steam_data_tag,
+    steam_tag,
 );
