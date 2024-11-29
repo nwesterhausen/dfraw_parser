@@ -1,5 +1,7 @@
 pub mod author;
+pub mod color;
 pub mod directory;
+pub mod gait;
 pub mod info_file;
 pub mod location;
 pub mod metadata;
