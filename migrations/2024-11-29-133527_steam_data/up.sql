@@ -8,6 +8,11 @@ CREATE TABLE steam_data (
   changelog text
 );
 
+ALTER TABLE
+  info_file
+ADD
+  COLUMN steam_data_id integer REFERENCES steam_data(id);
+
 CREATE TABLE steam_tag (
   id integer NOT NULL PRIMARY KEY autoincrement,
   name text NOT NULL

@@ -27,6 +27,35 @@ diesel::table! {
         author_id -> Integer,
         name -> Text,
         description -> Text,
+        steam_data_id -> Nullable<Integer>,
+    }
+}
+
+diesel::table! {
+    info_file_conflicts_ids (info_file_id, conflicts_info_file_id) {
+        info_file_id -> Integer,
+        conflicts_info_file_id -> Integer,
+    }
+}
+
+diesel::table! {
+    info_file_requires_after (info_file_id, requires_info_file_id) {
+        info_file_id -> Integer,
+        requires_info_file_id -> Integer,
+    }
+}
+
+diesel::table! {
+    info_file_requires_before (info_file_id, requires_info_file_id) {
+        info_file_id -> Integer,
+        requires_info_file_id -> Integer,
+    }
+}
+
+diesel::table! {
+    info_file_requires_ids (info_file_id, requires_info_file_id) {
+        info_file_id -> Integer,
+        requires_info_file_id -> Integer,
     }
 }
 
@@ -110,6 +139,7 @@ diesel::table! {
 }
 
 diesel::joinable!(info_file -> author (author_id));
+diesel::joinable!(info_file -> steam_data (steam_data_id));
 diesel::joinable!(metadata -> module (module_id));
 diesel::joinable!(metadata -> object_type (object_type_id));
 diesel::joinable!(module -> directory (directory_id));
@@ -125,6 +155,10 @@ diesel::allow_tables_to_appear_in_same_query!(
     author,
     directory,
     info_file,
+    info_file_conflicts_ids,
+    info_file_requires_after,
+    info_file_requires_before,
+    info_file_requires_ids,
     location,
     metadata,
     module,
