@@ -1,0 +1,12 @@
+diff --git a/db/src/schema.rs b/db/src/schema.rs
+index bd17174..d3836ad 100644
+--- a/db/src/schema.rs
++++ b/db/src/schema.rs
+@@ -1,6 +1,7 @@
++#![allow(clippy::all, missing_docs, unknown_lints)]
+ // @generated automatically by Diesel CLI.
+ 
+ diesel::table! {
+     author (id) {
+         id -> Integer,
+         name -> Text,

@@ -115,7 +115,7 @@ impl RawModuleLocation {
                             .unwrap_or_default()
                             .to_string_lossy(),
                     );
-                    return Self::from_sourced_directory(path_string.as_str());
+                    Self::from_sourced_directory(path_string.as_str())
                 }
                 None => Self::Unknown,
             },
