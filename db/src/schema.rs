@@ -9,6 +9,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    color (id) {
+        id -> Integer,
+        foreground -> Integer,
+        background -> Integer,
+        brightness -> Integer,
+    }
+}
+
+diesel::table! {
     directory (id) {
         id -> Integer,
         name -> Text,
@@ -153,6 +162,7 @@ diesel::joinable!(steam_data_tag -> steam_tag (steam_tag_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     author,
+    color,
     directory,
     info_file,
     info_file_conflicts_ids,
