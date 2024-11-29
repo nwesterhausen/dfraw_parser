@@ -20,10 +20,6 @@ CREATE TABLE author (
 -- Info file table finally
 CREATE TABLE info_file (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  -- M:1 relationship, foreign key
-  location_id INTEGER NOT NULL REFERENCES location(id),
-  -- M:1 relationship, foreign key
-  directory_id INTEGER NOT NULL REFERENCES directory(id),
   -- specially formatted text, may remove in the future
   object_id TEXT NOT NULL,
   numeric_version INTEGER NOT NULL,

@@ -19,8 +19,6 @@ diesel::table! {
 diesel::table! {
     info_file (id) {
         id -> Integer,
-        location_id -> Integer,
-        directory_id -> Integer,
         object_id -> Text,
         numeric_version -> Integer,
         display_version -> Text,
@@ -48,7 +46,18 @@ diesel::table! {
         raw_identifier -> Text,
         object_type_id -> Integer,
         raw_file_path -> Text,
-        module_location_id -> Integer,
+        module_id -> Integer,
+    }
+}
+
+diesel::table! {
+    module (id) {
+        id -> Integer,
+        name -> Text,
+        description -> Text,
+        loction_id -> Integer,
+        directory_id -> Integer,
+        info_file_id -> Nullable<Integer>,
     }
 }
 
@@ -60,10 +69,11 @@ diesel::table! {
 }
 
 diesel::joinable!(info_file -> author (author_id));
-diesel::joinable!(info_file -> directory (directory_id));
-diesel::joinable!(info_file -> location (location_id));
-diesel::joinable!(metadata -> location (module_location_id));
+diesel::joinable!(metadata -> module (module_id));
 diesel::joinable!(metadata -> object_type (object_type_id));
+diesel::joinable!(module -> directory (directory_id));
+diesel::joinable!(module -> info_file (info_file_id));
+diesel::joinable!(module -> location (loction_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     author,
@@ -71,5 +81,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     info_file,
     location,
     metadata,
+    module,
     object_type,
 );
