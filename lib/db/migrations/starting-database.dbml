@@ -1,0 +1,789 @@
+// Type of object
+Table object_type {
+  id int [pk, increment]
+  identifier text [note: 'How its defined in the raw file, e.g. CREATURE or ITEM_AMMO']
+  description text [note: 'Human-readable, English description, e.g. Creature or Ammo Item']
+}
+
+Table biome {
+  id int [pk, increment]
+  identifier text
+  description text
+}
+
+// Author
+Table author {
+  id int [pk, increment]
+  name text
+}
+
+// Location table meant for the "official" locations
+// Vanilla, downloaded mods, installed mods
+Table location {
+  id int [pk, increment]
+  identifier text
+  path text
+  relative_path text
+}
+
+// Module info, mostly from info.txt
+// This is for the entire "module" or folder of raws
+Table module {
+  id int [pk, increment]
+  identifier text
+  name text
+  description text
+  version text
+  numerical_version int
+  earliest_compat_version text
+  earliest_compat_numerical_version int
+  steam_data int [ref: > steam_data.id]
+}
+
+// Answers the "requires module" field
+Table module_required_module {
+  module_id int [ref: > module.id]
+  required_module_id int [ref: > module.id]
+
+  indexes {
+    (module_id, required_module_id) [pk]
+  }
+}
+
+// Answers the "conflicts with module" field
+Table module_conflicts_with_module {
+  module_id int [ref: > module.id]
+  conflicting_module_id int [ref: > module.id]
+
+  indexes {
+    (module_id, conflicting_module_id) [pk]
+  }
+}
+
+// Answers the "required before" field
+Table module_required_before_module {
+  module_id int [ref: > module.id]
+  required_before_module_id int [ref: > module.id]
+
+  indexes {
+    (module_id, required_before_module_id) [pk]
+  }
+}
+
+// Answers the "required after" field
+Table module_required_after_module {
+  module_id int [ref: > module.id]
+  required_after_module_id int [ref: > module.id]
+
+  indexes {
+    (module_id, required_after_module_id) [pk]
+  }
+}
+
+
+// Metadata for a single raw file
+Table raw_metadata {
+  id int [pk, increment]
+  identifier text
+  module int [ref: > module.id ]
+  module_location int [ref: > location.id]
+  object_type int [ref: > object_type.id]
+  raw_file_path text
+}
+
+// Steam data, optional and any field can be filled
+Table steam_data {
+  id int [pk, increment]
+  file_id text // This is a u64
+  title text
+  description text
+  changelog text
+}
+
+Table steam_tag {
+  id int [pk, increment]
+  name text
+  has_value bit
+}
+
+Table steam_data_2_tag {
+  steam_data_id int [ref: > steam_data.id]
+  steam_tag_id int [ref: > steam_tag.id]
+
+  indexes {
+    (steam_data_id, steam_tag_id) [pk]
+  }
+}
+
+Table steam_data_2_value_tag {
+  steam_data_id int [ref: > steam_data.id]
+  steam_tag_id int [ref: > steam_tag.id]
+  value text
+  indexes {
+    (steam_data_id, steam_tag_id) [pk]
+  }
+}
+
+// Raw Data Descriptions
+Table creature {
+  id int [increment]
+  metadata int [ref: > raw_metadata.id]
+  identifier text
+  tile int [ref: > tile.id]
+  frequency int
+  cluster_number int [ref: > min_max_data.id]
+  population_number int [ref: > min_max_data.id]
+  underground_depth int [ref: > min_max_data.id]
+  general_baby_name int [ref: > name_data.id]
+  name int [ref: > name_data.id]
+  copy_tags_from_identifier text [note: 'The identifier of the creature to copy']
+
+  indexes {
+    id [pk]
+    (id, identifier)
+    identifier
+  }
+}
+
+Table apply_creature_variation_step {
+  creature_id int [ref: > creature.id]
+  raw_step_text text
+}
+
+Table select_creature_variation_step {
+  creature_id int [ref: > creature.id]
+  raw_step_text text
+}
+
+Table creature_pref_strings {
+  creature_id int [ref: > creature.id]
+  pref_string text
+
+  indexes {
+    (creature_id, pref_string) [pk]
+  }
+}
+
+Table creature_2_biome {
+  creature_id int [ref: > creature.id]
+  biome_id int [ref: > biome.id]
+
+  indexes {
+    (creature_id, biome_id) [pk]
+  }
+}
+
+Table creature_2_tags {
+  creature_id int [ref: > creature.id]
+  raw_tag_id int [ref: > raw_tag.id]
+
+  indexes {
+    (creature_id, raw_tag_id) [pk]
+  }
+}
+
+Table creature_2_caste {
+  creature_id int [ref: > creature.id]
+  caste_id int [ref: > caste.id]
+
+  indexes {
+    (creature_id, caste_id) [pk]
+  }
+}
+
+Table caste {
+  id int [pk, increment]
+  description text
+  baby_name int [ref: > name_data.id]
+  caste_name int [ref: > name_data.id]
+  child_name int [ref: > name_data.id]
+  clutch_size int [ref: > min_max_data.id]
+  litter_size int [ref: > min_max_data.id]
+  max_age int [ref: > min_max_data.id]
+  baby int
+  child int
+  difficult int
+  egg_size int
+  grass_trample int
+  grazer int
+  low_light_vision int
+  pet_value int
+  pop_ratio int
+  change_body_size_percentage int
+  body_size int [ref: > body_size.id]
+  milkable int [ref: > milkable.id]
+  tile int [ref: > tile.id]
+}
+
+Table tile {
+  id int [pk, increment]
+  character text
+  alt_character text
+  color int [ref: > color.id]
+  glow_character text
+  glow_color int [ref: > color.id]
+}
+
+Table milkable {
+  id int [pk, increment]
+  material int [ref: > material_data.id]
+  frequency int
+
+  indexes {
+    (material, frequency)
+    (id, material, frequency)
+  }
+}
+
+Table body_size {
+  id int [pk, increment]
+  size_cm3 int
+  years int
+  days int
+}
+
+Table gait_type {
+  id int [pk, increment]
+  identifier text
+}
+
+Table gait {
+  id int [pk, increment]
+  gait_type int [ref: > gait_type.id]
+  identifier text
+  max_speed int
+  energy_use int
+}
+
+Table caste_2_gait {
+  caste_id int [ref: > caste.id]
+  gait_id int [ref: > gait.id]
+
+  indexes {
+    (caste_id, gait_id) [pk]
+  }
+}
+
+Table creature_class {
+  id int [pk, increment]
+  identifier text
+  description text
+}
+
+Table caste_2_creature_class {
+  caste_id int [ref: > caste.id]
+  creature_class_id int [ref: > creature_class.id]
+
+  indexes {
+    (caste_id, creature_class_id) [pk]
+  }
+}
+
+Table caste_2_tags {
+  caste_id int [ref: > caste.id]
+  raw_tag_id int [ref: > raw_tag.id]
+
+  indexes {
+    (caste_id, raw_tag_id) [pk]
+  }
+}
+
+Table raw_tag {
+  id int [pk, increment]
+  identifier text
+  name text
+  description text
+  has_value bit
+  has_complex_value bit
+  raw_value text [note: 'This is for the raw value from the tag, if it has it. Not parsed or reasoned out just straight from the raws (for now ?)']
+}
+
+Table min_max_data {
+  id int [pk, increment]
+  minimum int [not null]
+  maximum int [not null]
+}
+
+Table name_data {
+  id int [pk, increment]
+  singular text
+  plural text
+  adjective text
+}
+
+Table material_data {
+  id int [pk, increment]
+  identifier text
+  state int [ref: > state_of_matter.id]
+}
+
+Table state_of_matter {
+  id int [pk, increment]
+  state text
+}
+
+Table color {
+  id int [pk, increment]
+  identifier text
+  foreground int
+  background int
+  brightness int
+}
+
+Table temperature_data {
+  id int [pk, increment]
+  specific_heat int
+  ignition_point int
+  melting_point int
+  boiling_point int
+  heat_damage_point int
+  cold_damage_point int
+  material_fixed_temperature int
+}
+
+Table color_modification {
+  id int [pk, increment]
+  modification text [note: "AS_IS is the only one?"]
+}
+
+Table creature_effect {
+  id int [pk, increment]
+  severity int
+  probability int
+  start int
+  peak int
+  end int
+  dwf_stretch int
+}
+
+Table creature_effect_2_body_part_category {
+  creature_effect_id int [ref: > creature_effect.id]
+  body_part_category text
+}
+
+Table creature_effect_2_body_part_type {
+  creature_effect_id int [ref: > creature_effect.id]
+  body_part_type text
+}
+
+Table creature_effect_2_body_part_token {
+  creature_effect_id int [ref: > creature_effect.id]
+  body_part_token text
+}
+Table creature_effect_2_tags {
+  creature_effect_id int [ref: > creature_effect.id]
+  raw_tag_id int [ref: > raw_tag.id]
+
+  indexes {
+    (creature_effect_id, raw_tag_id) [pk]
+  }
+}
+
+Table dimension_data {
+  id int [increment]
+  x int
+  y int
+
+  indexes {
+    id [pk]
+    (x, y)
+  }
+}
+
+Table entity {
+  id int [increment]
+  metadata int [ref: > raw_metadata.id]
+  identifier text
+  creature int [ref: > creature.id]
+  translation text
+  exclusive_start_biome int [ref: > biome.id]
+  max_pop_number int [default: 0]
+  max_site_pop_number int [default: 0]
+  max_starting_civ_number int [default: 0]
+  friendly_color int [ref: > color.id]
+  religion text
+  land_holder_trigger text
+  active_season text
+  banditry float
+  progress_trigger_population int [default: 0]
+  progress_trigger_production int [default: 0]
+  progress_trigger_trade int [default: 0]
+  progress_trigger_population_siege int [default: 0]
+  progress_trigger_production_siege int [default: 0]
+  progress_trigger_trade_siege int [default: 0]
+}
+
+Table entity_2_ethic {
+  // make this relational later
+  entity_id int [ref: > entity.id]
+  identifier text
+  value text
+}
+
+Table entity_2_value {
+  // make this relational later
+  entity_id int [ref: > entity.id]
+  identifier text
+  strength int
+}
+
+Table entity_2_variable_value {
+  // make this relational later
+  entity_id int [ref: > entity.id]
+  identifier text
+  strength int [ref: > min_max_data.id]
+}
+
+Table entity_2_site_variable_position {
+  entity_id int [ref: > entity.id]
+  position_id int [ref: > position.id]
+
+  indexes {
+    (entity_id, position_id) [pk, unique]
+  }
+}
+
+Table entity_2_variable_position {
+  entity_id int [ref: > entity.id]
+  position_id int [ref: > position.id]
+
+  indexes {
+    (entity_id, position_id) [pk, unique]
+  }
+}
+
+Table entity_2_position {
+  entity_id int [ref: > entity.id]
+  position_id int [ref: > position.id]
+
+  indexes {
+    (entity_id, position_id) [pk, unique]
+  }
+}
+
+Table position {
+  id int [pk, increment]
+  identifier text
+  appointed_by text
+  color int [ref: > color.id]
+  commander text
+  demand_max int [default: 0]
+  execution_skill text
+  gender text
+  land_holder int [default: 0]
+  land_name text
+  mandate_max int [default: 0]
+  name int [ref: > name_data.id]
+  name_male int [ref: > name_data.id]
+  name_female int [ref: > name_data.id]
+  number int [default: -1, note: 'Set -1 for AS_NEEDED']
+  precedence int [default: -1, note: 'Set -1 for NONE']
+  replaced_by text
+  required_bedroom int [default: 0]
+  required_boxes int [default: 0]
+  required_cabinets int [default: 0]
+  required_dining int [default: 0]
+  required_office int [default: 0]
+  required_racks int [default: 0]
+  required_stands int [default: 0]
+  required_tomb int [default: 0]
+  required_population int [default: 0]
+  spouse_name int [ref: > name_data.id]
+  spouse_name_male int [ref: > name_data.id]
+  spouse_name_female int [ref: > name_data.id]
+  squad text
+  succession text
+}
+
+Table position_2_tag {
+  position_id int [ref: > position.id]
+  raw_tag_id int [ref: > raw_tag.id]
+
+  indexes {
+    (position_id, raw_tag_id) [pk, unique]
+  }
+}
+
+Table position_responsibility {
+  id int [pk, increment]
+  identifier text
+  description text
+}
+
+Table position_2_responsibility {
+  position_id int [ref: > position.id]
+  responsibility_id int [ref: > position_responsibility.id]
+
+  indexes {
+    (position_id, responsibility_id) [pk, unique]
+  }
+}
+
+Table position_2_rejecteded_creature {
+  position_id int [ref: > position.id]
+  creature_id int [ref: > creature.id]
+
+  indexes {
+    (position_id, creature_id) [pk, unique]
+  }
+}
+
+Table position_2_rejected_creature_class {
+  position_id int [ref: > position.id]
+  creature_class_id int [ref: > creature_class.id]
+
+  indexes {
+    (position_id, creature_class_id) [pk, unique]
+  }
+}
+
+Table position_2_allowed_creature {
+  position_id int [ref: > position.id]
+  creature_id int [ref: > creature.id]
+
+  indexes {
+    (position_id, creature_id) [pk, unique]
+  }
+}
+
+Table position_2_allowed_creature_class {
+  position_id int [ref: > position.id]
+  creature_class_id int [ref: > creature_class.id]
+
+  indexes {
+    (position_id, creature_class_id) [pk, unique]
+  }
+}
+
+Table entity_2_religious_sphere_alignment {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  alignment text
+
+  indexes {
+    id [pk]
+    (entity_id, alignment)
+  }
+}
+
+Table entity_2_religious_sphere {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  sphere text
+
+  indexes {
+    id [pk]
+    (entity_id, sphere)
+  }
+}
+
+Table entity_item_cull_symbol {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  symbol text
+  value text
+
+  indexes {
+    id [pk]
+    (entity_id, symbol)
+    (entity_id, symbol, value) [unique]
+    (symbol, value)
+  }
+}
+
+Table entity_item_subselect_symbol {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  symbol text
+  value text
+
+  indexes {
+    id [pk]
+    (entity_id, symbol)
+    (entity_id, symbol, value) [unique]
+    (symbol, value)
+  }
+}
+
+Table entity_item_select_symbol {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  symbol text
+  value text
+
+  indexes {
+    id [pk]
+    (entity_id, symbol)
+    (entity_id, symbol, value) [unique]
+    (symbol, value)
+  }
+}
+
+Table entity_item_improvement_modifier {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  improvement text
+  modifier int
+
+  indexes {
+    id [pk]
+    (entity_id, improvement)
+    (entity_id, improvement, modifier) [unique]
+    (improvement, modifier)
+  }
+}
+
+Table entity_art_image_element_modifier {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  image_element text
+  modifier int
+
+  indexes {
+    id [pk]
+    (entity_id, image_element)
+    (entity_id, image_element, modifier) [unique]
+    (image_element, modifier)
+  }
+}
+
+Table entity_art_facet_modifier {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  art_facet text
+  modifier int
+
+  indexes {
+    id [pk]
+    (entity_id, art_facet)
+    (entity_id, art_facet, modifier) [unique]
+    (art_facet, modifier)
+  }
+}
+
+Table entity_currency {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  currency text
+  value int
+
+  indexes {
+    id [pk]
+    (entity_id, currency)
+    (entity_id, currency, value) [unique]
+    (currency, value)
+  }
+}
+
+Table entity_2_permitted_reaction {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  reaction text
+
+  indexes {
+    id [pk]
+    (entity_id, reaction)
+  }
+}
+
+Table entity_2_permitted_job {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  job text
+
+  indexes {
+    id [pk]
+    (entity_id, job)
+  }
+}
+
+Table entity_2_permitted_building {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  building text
+
+  indexes {
+    id [pk]
+    (entity_id, building)
+  }
+}
+
+Table entity_2_world_construction {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  construction text
+
+  indexes {
+    id [pk]
+    (entity_id, construction)
+  }
+}
+
+Table entity_2_tolerated_site {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  site text
+
+  indexes {
+    id [pk]
+    (entity_id, site)
+  }
+}
+
+Table entity_2_liked_site {
+  id int [increment]
+  entity_id int [ref: > entity.id]
+  site text
+
+  indexes {
+    id [pk]
+    (entity_id, site)
+  }
+}
+
+Table entity_2_start_biome {
+  entity_id int [ref: > entity.id]
+  biome_id int [ref: > biome.id]
+
+  indexes {
+    (entity_id, biome_id) [pk]
+  }
+}
+
+Table entity_2_settlement_biome {
+  entity_id int [ref: > entity.id]
+  biome_id int [ref: > biome.id]
+
+  indexes {
+    (entity_id, biome_id) [pk]
+  }
+}
+
+Table entity_2_biome_support {
+  entity_id int [ref: > entity.id]
+  biome_support_id int [ref: > biome_support.id]
+
+  indexes {
+    (entity_id, biome_support_id) [pk]
+  }
+}
+
+Table biome_support {
+  id int [increment]
+  biome int [ref: > biome.id]
+  support int
+
+  indexes {
+    id [pk]
+    (biome, support)
+  }
+}
+
+Table entity_2_tag {
+  entity_id int [ref: > entity.id]
+  raw_tag_id int [ref: > raw_tag.id]
+
+  indexes {
+    (entity_id, raw_tag_id) [pk]
+  }
+}

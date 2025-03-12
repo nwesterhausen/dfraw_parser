@@ -21,19 +21,21 @@ crate-type = ["rlib", "cdylib"]
 encoding_rs = "0.8.34"
 # Used to be able to force reading the raw files as Latin1 (has a BuffReader we use).
 encoding_rs_io = "0.1"
-itertools = "0.13.0"
+include_dir = "0.7.4"
+itertools = "0.14.0"
 # Generates static/reusabled regex for parsing the raw text files.
 lazy-regex = "3.1.0"
 # Used for making a shared static ref to the Latin1 encoding.
 once_cell = "1.19.0"
 # Quick-xml is used to parse legends export files.
-quick-xml = "0.35.0"
+quick-xml = "0.37.2"
+rusqlite = { version = "0.34.0" , features = ["bundled"]}
 # We slugify the names of the raw files to make them easier to work with.
 slug = "0.1.5"
 # Specta is used for generating TypeScript bindings. And whatever bindings specta supports in the future.
 specta = "=2.0.0-rc.13"
 # Error type creation helper.
-thiserror = "1"
+thiserror = "2.0.12"
 # Tracing is used for logging.
 tracing = "0.1.40"
 # Typetag is a helper for serializing traits

@@ -433,6 +433,10 @@ pub fn main() -> Result<(), lexopt::Error> {
     if args.print_summary {
         options.log_summary();
     }
+    
+    // Database stuff
+    dfraw_json_parser::database::init_db();
+    return Ok(());
 
     // Parse the raws
     let result = parse(&options).map_err(|e| {

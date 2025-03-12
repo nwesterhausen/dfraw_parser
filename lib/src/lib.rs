@@ -13,6 +13,7 @@ pub mod raw_definitions;
 pub mod regex;
 pub mod traits;
 pub mod utilities;
+pub mod database;
 
 pub use error::Parser as ParserError;
 pub use parsed_definitions::*;
