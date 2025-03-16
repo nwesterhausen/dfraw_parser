@@ -1,8 +1,5 @@
-use rusqlite::{Connection, Result};
-use std::fs;
-use std::path::Path;
 use include_dir::{include_dir, Dir};
-use std::{sync::Mutex, collections::HashMap};
+use rusqlite::{Connection, Result};
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/db/migrations");
 
@@ -34,7 +31,10 @@ pub fn load_database(filename: &str) -> Result<Connection> {
 /// # Errors
 ///
 /// If the SQL fails to execute.
-pub(super) fn apply_sql_file(conn: &Connection, sql: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub(super) fn apply_sql_file(
+    conn: &Connection,
+    sql: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     conn.execute_batch(sql)?;
     Ok(())
 }
@@ -107,13 +107,22 @@ pub(super) fn apply_migrations() -> Result<(), Box<dyn std::error::Error>> {
 
     migrations.sort_by_key(|&(version, _, _)| version);
 
-    tracing::info!("Applying {} database migration{}", migrations.len(), if migrations.len() == 1 { "" } else { "s" });
+    tracing::info!(
+        "Applying {} database migration{}",
+        migrations.len(),
+        if migrations.len() == 1 { "" } else { "s" }
+    );
 
     for (version, description, sql) in migrations {
         if version > current_version {
             tracing::info!("Applying migration v{} {}", version, description);
             if let Err(e) = apply_sql_file(&conn, sql) {
-                tracing::error!("Failed to apply migration v{} {}: {}", version, description, e);
+                tracing::error!(
+                    "Failed to apply migration v{} {}: {}",
+                    version,
+                    description,
+                    e
+                );
                 return Err(e);
             }
             if let Err(e) = conn.execute(&format!("PRAGMA user_version = {};", version), []) {
@@ -121,7 +130,12 @@ pub(super) fn apply_migrations() -> Result<(), Box<dyn std::error::Error>> {
                 return Err(Box::new(e));
             }
         } else {
-            tracing::debug!("Skipping migration v{} {} as it is not newer than current version {}", version, description, current_version);
+            tracing::debug!(
+                "Skipping migration v{} {} as it is not newer than current version {}",
+                version,
+                description,
+                current_version
+            );
         }
     }
 

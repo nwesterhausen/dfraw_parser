@@ -2,9 +2,11 @@
 use once_cell::sync::Lazy;
 use rusqlite::Connection;
 use std::sync::Mutex;
-use tracing::info;
 use std::time::Instant;
+use tracing::info;
 
+/// The supporting functions to insert data into the database.
+pub(crate) mod data;
 /// The SQLite database module. Has helper functions relevant to our application.
 pub(crate) mod sqlite;
 
@@ -23,20 +25,20 @@ fn get_db_conn() -> std::sync::MutexGuard<'static, Connection> {
 }
 
 /// Initialize the database.
-/// 
+///
 /// This function will load the SQLite database, and apply all migrations to it.
-/// 
+///
 /// # Returns
-/// 
+///
 /// An empty `Result` if successful.
-/// 
+///
 /// # Errors
-/// 
+///
 /// If the database fails to initialize.
 pub fn init_db() -> Result<(), Box<dyn std::error::Error>> {
     info!("Initializing database at {}", DB_FILE);
     let start_time = Instant::now();
-    
+
     sqlite::apply_migrations()?;
 
     let duration = start_time.elapsed();
