@@ -1,6 +1,6 @@
-use include_dir::{include_dir, Dir};
 use crate::database::sqlite;
 use crate::database::sqlite::{apply_sql, get_user_version};
+use include_dir::{include_dir, Dir};
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/db/migrations");
 
@@ -76,11 +76,16 @@ pub(super) fn apply_migrations() -> Result<(), Box<dyn std::error::Error>> {
     for (version, description, sql) in migrations {
         tracing::info!("Applying migration {:03} {}", version, description);
         if let Err(e) = apply_sql(sql) {
-            tracing::error!("Failed to apply migration {:03} {}: {}", version, description, e);
-            return Err(e);
+            tracing::error!(
+                "Failed to apply migration {:03} {}: {}",
+                version,
+                description,
+                e
+            );
+            return Err(Box::new(e));
         }
         if let Err(e) = sqlite::set_user_version(version) {
-            tracing::error!("Failed to update user_version to {:03}: {}", version, e);
+            tracing::error!("Failed to update user_version to '{}': {}", version, e);
             return Err(Box::new(e));
         }
     }

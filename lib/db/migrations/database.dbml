@@ -281,20 +281,31 @@ Table caste_2_creature_class {
 
 Table caste_2_tags {
   caste_id int [ref: > caste.id]
-  tag_2_value int [ref: > raw_tag.id]
+  raw_tag_id int [ref: > raw_tag.id]
 
   indexes {
-    (caste_id, tag_2_value) [pk]
+    (caste_id, raw_tag_id) [pk]
   }
+}
+
+Table raw_tag_type {
+  id int [pk, increment]
+  name text [not null, note: The type of raw tag, e.g. CASTE or CREATURE etc.]
+  description text [note: A description of the tag type.]
 }
 
 Table raw_tag {
   id int [pk, increment]
-  identifier text
+  identifier text [not null]
   name text
   description text
-  has_value bit
-  has_complex_value bit
+  has_value bit [not null, default: 0]
+  has_complex_value bit [not null, default: 0]
+  raw_tag_type_id int [not null, ref: > raw_tag_type.id]
+
+  indexes {
+    (identifier, raw_tag_type_id) [unique]
+  }
 }
 
 Table tag_2_value {
@@ -317,6 +328,17 @@ Table raw_tag_complex_value {
   indexes {
     raw_tag_id
     identifier
+  }
+}
+
+Table complex_tag_2_value {
+  id int [pk, increment]
+  complex_tag_id int [not null, ref: > raw_tag_complex_value.id]
+  value text [not null]
+
+  indexes {
+    complex_tag_id
+    (complex_tag_id, value)
   }
 }
 
@@ -402,410 +424,10 @@ Table creature_effect_2_tags {
 }
 
 Table dimension_data {
-  id int [increment]
   x int
   y int
 
   indexes {
-    id [pk]
-    (x, y)
-  }
-}
-
-Table entity {
-  id int [increment]
-  metadata int [ref: > raw_metadata.id]
-  identifier text
-  creature int [ref: > creature.id]
-  translation text
-  exclusive_start_biome int [ref: > biome.id]
-  max_pop_number int [default: 0]
-  max_site_pop_number int [default: 0]
-  max_starting_civ_number int [default: 0]
-  friendly_color int [ref: > color.id]
-  religion text
-  land_holder_trigger text
-  active_season text
-  banditry float
-  progress_trigger_population int [default: 0]
-  progress_trigger_production int [default: 0]
-  progress_trigger_trade int [default: 0]
-  progress_trigger_population_siege int [default: 0]
-  progress_trigger_production_siege int [default: 0]
-  progress_trigger_trade_siege int [default: 0]
-}
-
-Table entity_2_ethic {
-  // make this relational later
-  entity_id int [ref: > entity.id]
-  identifier text
-  value text
-}
-
-Table entity_2_value {
-  // make this relational later
-  entity_id int [ref: > entity.id]
-  identifier text
-  strength int
-}
-
-Table entity_2_variable_value {
-  // make this relational later
-  entity_id int [ref: > entity.id]
-  identifier text
-  strength int [ref: > min_max_data.id]
-}
-
-Table entity_2_site_variable_position {
-  entity_id int [ref: > entity.id]
-  position_id int [ref: > position.id]
-
-  indexes {
-    (entity_id, position_id) [pk, unique]
-  }
-}
-
-Table entity_2_variable_position {
-  entity_id int [ref: > entity.id]
-  position_id int [ref: > position.id]
-
-  indexes {
-    (entity_id, position_id) [pk, unique]
-  }
-}
-
-Table entity_2_position {
-  entity_id int [ref: > entity.id]
-  position_id int [ref: > position.id]
-
-  indexes {
-    (entity_id, position_id) [pk, unique]
-  }
-}
-
-Table position {
-  id int [pk, increment]
-  identifier text
-  appointed_by text
-  color int [ref: > color.id]
-  commander text
-  demand_max int [default: 0]
-  execution_skill text
-  gender text
-  land_holder int [default: 0]
-  land_name text
-  mandate_max int [default: 0]
-  name int [ref: > name_data.id]
-  name_male int [ref: > name_data.id]
-  name_female int [ref: > name_data.id]
-  number int [default: -1, note: 'Set -1 for AS_NEEDED']
-  precedence int [default: -1, note: 'Set -1 for NONE']
-  replaced_by text
-  required_bedroom int [default: 0]
-  required_boxes int [default: 0]
-  required_cabinets int [default: 0]
-  required_dining int [default: 0]
-  required_office int [default: 0]
-  required_racks int [default: 0]
-  required_stands int [default: 0]
-  required_tomb int [default: 0]
-  required_population int [default: 0]
-  spouse_name int [ref: > name_data.id]
-  spouse_name_male int [ref: > name_data.id]
-  spouse_name_female int [ref: > name_data.id]
-  squad text
-  succession text
-}
-
-Table position_2_tag {
-  position_id int [ref: > position.id]
-  raw_tag_id int [ref: > raw_tag.id]
-
-  indexes {
-    (position_id, raw_tag_id) [pk, unique]
-  }
-}
-
-Table position_responsibility {
-  id int [pk, increment]
-  identifier text
-  description text
-}
-
-Table position_2_responsibility {
-  position_id int [ref: > position.id]
-  responsibility_id int [ref: > position_responsibility.id]
-
-  indexes {
-    (position_id, responsibility_id) [pk, unique]
-  }
-}
-
-Table position_2_rejecteded_creature {
-  position_id int [ref: > position.id]
-  creature_id int [ref: > creature.id]
-
-  indexes {
-    (position_id, creature_id) [pk, unique]
-  }
-}
-
-Table position_2_rejected_creature_class {
-  position_id int [ref: > position.id]
-  creature_class_id int [ref: > creature_class.id]
-
-  indexes {
-    (position_id, creature_class_id) [pk, unique]
-  }
-}
-
-Table position_2_allowed_creature {
-  position_id int [ref: > position.id]
-  creature_id int [ref: > creature.id]
-
-  indexes {
-    (position_id, creature_id) [pk, unique]
-  }
-}
-
-Table position_2_allowed_creature_class {
-  position_id int [ref: > position.id]
-  creature_class_id int [ref: > creature_class.id]
-
-  indexes {
-    (position_id, creature_class_id) [pk, unique]
-  }
-}
-
-Table entity_2_religious_sphere_alignment {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  alignment text
-
-  indexes {
-    id [pk]
-    (entity_id, alignment)
-  }
-}
-
-Table entity_2_religious_sphere {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  sphere text
-
-  indexes {
-    id [pk]
-    (entity_id, sphere)
-  }
-}
-
-Table entity_item_cull_symbol {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  symbol text
-  value text
-
-  indexes {
-    id [pk]
-    (entity_id, symbol)
-    (entity_id, symbol, value) [unique]
-    (symbol, value)
-  }
-}
-
-Table entity_item_subselect_symbol {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  symbol text
-  value text
-
-  indexes {
-    id [pk]
-    (entity_id, symbol)
-    (entity_id, symbol, value) [unique]
-    (symbol, value)
-  }
-}
-
-Table entity_item_select_symbol {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  symbol text
-  value text
-
-  indexes {
-    id [pk]
-    (entity_id, symbol)
-    (entity_id, symbol, value) [unique]
-    (symbol, value)
-  }
-}
-
-Table entity_item_improvement_modifier {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  improvement text
-  modifier int
-
-  indexes {
-    id [pk]
-    (entity_id, improvement)
-    (entity_id, improvement, modifier) [unique]
-    (improvement, modifier)
-  }
-}
-
-Table entity_art_image_element_modifier {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  image_element text
-  modifier int
-
-  indexes {
-    id [pk]
-    (entity_id, image_element)
-    (entity_id, image_element, modifier) [unique]
-    (image_element, modifier)
-  }
-}
-
-Table entity_art_facet_modifier {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  art_facet text
-  modifier int
-
-  indexes {
-    id [pk]
-    (entity_id, art_facet)
-    (entity_id, art_facet, modifier) [unique]
-    (art_facet, modifier)
-  }
-}
-
-Table entity_currency {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  currency text
-  value int
-
-  indexes {
-    id [pk]
-    (entity_id, currency)
-    (entity_id, currency, value) [unique]
-    (currency, value)
-  }
-}
-
-Table entity_2_permitted_reaction {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  reaction text
-
-  indexes {
-    id [pk]
-    (entity_id, reaction)
-  }
-}
-
-Table entity_2_permitted_job {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  job text
-
-  indexes {
-    id [pk]
-    (entity_id, job)
-  }
-}
-
-Table entity_2_permitted_building {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  building text
-
-  indexes {
-    id [pk]
-    (entity_id, building)
-  }
-}
-
-Table entity_2_world_construction {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  construction text
-
-  indexes {
-    id [pk]
-    (entity_id, construction)
-  }
-}
-
-Table entity_2_tolerated_site {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  site text
-
-  indexes {
-    id [pk]
-    (entity_id, site)
-  }
-}
-
-Table entity_2_liked_site {
-  id int [increment]
-  entity_id int [ref: > entity.id]
-  site text
-
-  indexes {
-    id [pk]
-    (entity_id, site)
-  }
-}
-
-Table entity_2_start_biome {
-  entity_id int [ref: > entity.id]
-  biome_id int [ref: > biome.id]
-
-  indexes {
-    (entity_id, biome_id) [pk]
-  }
-}
-
-Table entity_2_settlement_biome {
-  entity_id int [ref: > entity.id]
-  biome_id int [ref: > biome.id]
-
-  indexes {
-    (entity_id, biome_id) [pk]
-  }
-}
-
-Table entity_2_biome_support {
-  entity_id int [ref: > entity.id]
-  biome_support_id int [ref: > biome_support.id]
-
-  indexes {
-    (entity_id, biome_support_id) [pk]
-  }
-}
-
-Table biome_support {
-  id int [increment]
-  biome int [ref: > biome.id]
-  support int
-
-  indexes {
-    id [pk]
-    (biome, support)
-  }
-}
-
-Table entity_2_tag {
-  entity_id int [ref: > entity.id]
-  raw_tag_id int [ref: > raw_tag.id]
-
-  indexes {
-    (entity_id, raw_tag_id) [pk]
+    (x, y) [pk]
   }
 }

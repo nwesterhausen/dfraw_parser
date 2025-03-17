@@ -1,185 +1,117 @@
 -- Seeds the Biome table
-INSERT INTO
-  biome (identifier, description)
-VALUES
-  ('MOUNTAIN', 'Mountain'),
-  ('MOUNTAINS', 'Mountains'),
-  ('GLACIER', 'Glacier'),
-  ('TUNDRA', 'Tundra'),
-  (
-    'SWAMP_TEMPERATE_FRESHWATER',
-    'Swamp Temperate Freshwater'
-  ),
-  (
-    'SWAMP_TEMPERATE_SALTWATER',
-    'Swamp Temperate Saltwater'
-  ),
-  (
-    'MARSH_TEMPERATE_FRESHWATER',
-    'Marsh Temperate Freshwater'
-  ),
-  (
-    'MARSH_TEMPERATE_SALTWATER',
-    'Marsh Temperate Saltwater'
-  ),
-  (
-    'SWAMP_TROPICAL_FRESHWATER',
-    'Swamp Tropical Freshwater'
-  ),
-  (
-    'SWAMP_TROPICAL_SALTWATER',
-    'Swamp Tropical Saltwater'
-  ),
-  ('SWAMP_MANGROVE', 'Swamp Mangrove'),
-  (
-    'MARSH_TROPICAL_FRESHWATER',
-    'Marsh Tropical Freshwater'
-  ),
-  (
-    'MARSH_TROPICAL_SALTWATER',
-    'Marsh Tropical Saltwater'
-  ),
-  ('FOREST_TAIGA', 'Forest Taiga'),
-  ('TAIGA', 'Taiga'),
-  (
-    'FOREST_TEMPERATE_CONIFER',
-    'Forest Temperate Conifer'
-  ),
-  (
-    'FOREST_TEMPERATE_BROADLEAF',
-    'Forest Temperate Broadleaf'
-  ),
-  (
-    'FOREST_TROPICAL_CONIFER',
-    'Forest Tropical Conifer'
-  ),
-  (
-    'FOREST_TROPICAL_DRY_BROADLEAF',
-    'Forest Tropical Dry Broadleaf'
-  ),
-  (
-    'FOREST_TROPICAL_MOIST_BROADLEAF',
-    'Forest Tropical Moist Broadleaf'
-  ),
-  ('GRASSLAND_TEMPERATE', 'Grassland Temperate'),
-  ('SAVANNA_TEMPERATE', 'Savanna Temperate'),
-  ('SHRUBLAND_TEMPERATE', 'Shrubland Temperate'),
-  ('GRASSLAND_TROPICAL', 'Grassland Tropical'),
-  ('SAVANNA_TROPICAL', 'Savanna Tropical'),
-  ('SHRUBLAND_TROPICAL', 'Shrubland Tropical'),
-  ('DESERT_BADLAND', 'Desert Badland'),
-  ('DESERT_ROCK', 'Desert Rock'),
-  ('DESERT_SAND', 'Desert Sand'),
-  ('OCEAN_TROPICAL', 'Ocean Tropical'),
-  ('OCEAN_TEMPERATE', 'Ocean Temperate'),
-  ('OCEAN_ARCTIC', 'Ocean Arctic'),
-  (
-    'POOL_TEMPERATE_FRESHWATER',
-    'Pool Temperate Freshwater'
-  ),
-  (
-    'POOL_TEMPERATE_BRACKISHWATER',
-    'Pool Temperate Brackishwater'
-  ),
-  (
-    'POOL_TEMPERATE_SALTWATER',
-    'Pool Temperate Saltwater'
-  ),
-  (
-    'POOL_TROPICAL_FRESHWATER',
-    'Pool Tropical Freshwater'
-  ),
-  (
-    'POOL_TROPICAL_BRACKISHWATER',
-    'Pool Tropical Brackishwater'
-  ),
-  (
-    'POOL_TROPICAL_SALTWATER',
-    'Pool Tropical Saltwater'
-  ),
-  (
-    'LAKE_TEMPERATE_FRESHWATER',
-    'Lake Temperate Freshwater'
-  ),
-  (
-    'LAKE_TEMPERATE_BRACKISHWATER',
-    'Lake Temperate Brackishwater'
-  ),
-  (
-    'LAKE_TEMPERATE_SALTWATER',
-    'Lake Temperate Saltwater'
-  ),
-  (
-    'LAKE_TROPICAL_FRESHWATER',
-    'Lake Tropical Freshwater'
-  ),
-  (
-    'LAKE_TROPICAL_BRACKISHWATER',
-    'Lake Tropical Brackishwater'
-  ),
-  (
-    'LAKE_TROPICAL_SALTWATER',
-    'Lake Tropical Saltwater'
-  ),
-  (
-    'RIVER_TEMPERATE_FRESHWATER',
-    'River Temperate Freshwater'
-  ),
-  (
-    'RIVER_TEMPERATE_BRACKISHWATER',
-    'River Temperate Brackishwater'
-  ),
-  (
-    'RIVER_TEMPERATE_SALTWATER',
-    'River Temperate Saltwater'
-  ),
-  (
-    'RIVER_TROPICAL_FRESHWATER',
-    'River Tropical Freshwater'
-  ),
-  (
-    'RIVER_TROPICAL_BRACKISHWATER',
-    'River Tropical Brackishwater'
-  ),
-  (
-    'RIVER_TROPICAL_SALTWATER',
-    'River Tropical Saltwater'
-  ),
-  ('SUBTERRANEAN_WATER', 'Subterranean Water'),
-  ('SUBTERRANEAN_CHASM', 'Subterranean Chasm'),
-  ('SUBTERRANEAN_LAVA', 'Subterranean Lava'),
-  ('ALL_MAIN', 'All Main'),
-  ('ANY_LAND', 'Any Land'),
-  ('ANY_OCEAN', 'Any Ocean'),
-  ('ANY_LAKE', 'Any Lake'),
-  ('ANY_TEMPERATE_LAKE', 'Any Temperate Lake'),
-  ('ANY_TROPICAL_LAKE', 'Any Tropical Lake'),
-  ('ANY_RIVER', 'Any River'),
-  ('ANY_TEMPERATE_RIVER', 'Any Temperate River'),
-  ('ANY_TROPICAL_RIVER', 'Any Tropical River'),
-  ('ANY_POOL', 'Any Pool'),
-  ('NOT_FREEZING', 'Not Freezing'),
-  ('ANY_TEMPERATE', 'Any Temperate'),
-  ('ANY_TROPICAL', 'Any Tropical'),
-  ('ANY_FOREST', 'Any Forest'),
-  ('ANY_SHRUBLAND', 'Any Shrubland'),
-  ('ANY_GRASSLAND', 'Any Grassland'),
-  ('ANY_SAVANNA', 'Any Savanna'),
-  ('ANY_TEMPERATE_FOREST', 'Any Temperate Forest'),
-  ('ANY_TROPICAL_FOREST', 'Any Tropical Forest'),
-  (
-    'ANY_TEMPERATE_BROADLEAF',
-    'Any Temperate Broadleaf'
-  ),
-  (
-    'ANY_TROPICAL_BROADLEAF',
-    'Any Tropical Broadleaf'
-  ),
-  ('ANY_WETLAND', 'Any Wetland'),
-  ('ANY_TEMPERATE_WETLAND', 'Any Temperate Wetland'),
-  ('ANY_TROPICAL_WETLAND', 'Any Tropical Wetland'),
-  ('ANY_TROPICAL_MARSH', 'Any Tropical Marsh'),
-  ('ANY_TEMPERATE_MARSH', 'Any Temperate Marsh'),
-  ('ANY_TROPICAL_SWAMP', 'Any Tropical Swamp'),
-  ('ANY_TEMPERATE_SWAMP', 'Any Temperate Swamp'),
-  ('ANY_DESERT', 'Any Desert');
+INSERT INTO biome (identifier, description)
+VALUES ('MOUNTAIN', 'Mountain'),
+       ('MOUNTAINS', 'Mountains'),
+       ('GLACIER', 'Glacier'),
+       ('TUNDRA', 'Tundra'),
+       ('SWAMP_TEMPERATE_FRESHWATER',
+        'Swamp Temperate Freshwater'),
+       ('SWAMP_TEMPERATE_SALTWATER',
+        'Swamp Temperate Saltwater'),
+       ('MARSH_TEMPERATE_FRESHWATER',
+        'Marsh Temperate Freshwater'),
+       ('MARSH_TEMPERATE_SALTWATER',
+        'Marsh Temperate Saltwater'),
+       ('SWAMP_TROPICAL_FRESHWATER',
+        'Swamp Tropical Freshwater'),
+       ('SWAMP_TROPICAL_SALTWATER',
+        'Swamp Tropical Saltwater'),
+       ('SWAMP_MANGROVE', 'Swamp Mangrove'),
+       ('MARSH_TROPICAL_FRESHWATER',
+        'Marsh Tropical Freshwater'),
+       ('MARSH_TROPICAL_SALTWATER',
+        'Marsh Tropical Saltwater'),
+       ('FOREST_TAIGA', 'Forest Taiga'),
+       ('TAIGA', 'Taiga'),
+       ('FOREST_TEMPERATE_CONIFER',
+        'Forest Temperate Conifer'),
+       ('FOREST_TEMPERATE_BROADLEAF',
+        'Forest Temperate Broadleaf'),
+       ('FOREST_TROPICAL_CONIFER',
+        'Forest Tropical Conifer'),
+       ('FOREST_TROPICAL_DRY_BROADLEAF',
+        'Forest Tropical Dry Broadleaf'),
+       ('FOREST_TROPICAL_MOIST_BROADLEAF',
+        'Forest Tropical Moist Broadleaf'),
+       ('GRASSLAND_TEMPERATE', 'Grassland Temperate'),
+       ('SAVANNA_TEMPERATE', 'Savanna Temperate'),
+       ('SHRUBLAND_TEMPERATE', 'Shrubland Temperate'),
+       ('GRASSLAND_TROPICAL', 'Grassland Tropical'),
+       ('SAVANNA_TROPICAL', 'Savanna Tropical'),
+       ('SHRUBLAND_TROPICAL', 'Shrubland Tropical'),
+       ('DESERT_BADLAND', 'Desert Badland'),
+       ('DESERT_ROCK', 'Desert Rock'),
+       ('DESERT_SAND', 'Desert Sand'),
+       ('OCEAN_TROPICAL', 'Ocean Tropical'),
+       ('OCEAN_TEMPERATE', 'Ocean Temperate'),
+       ('OCEAN_ARCTIC', 'Ocean Arctic'),
+       ('POOL_TEMPERATE_FRESHWATER',
+        'Pool Temperate Freshwater'),
+       ('POOL_TEMPERATE_BRACKISHWATER',
+        'Pool Temperate Brackishwater'),
+       ('POOL_TEMPERATE_SALTWATER',
+        'Pool Temperate Saltwater'),
+       ('POOL_TROPICAL_FRESHWATER',
+        'Pool Tropical Freshwater'),
+       ('POOL_TROPICAL_BRACKISHWATER',
+        'Pool Tropical Brackishwater'),
+       ('POOL_TROPICAL_SALTWATER',
+        'Pool Tropical Saltwater'),
+       ('LAKE_TEMPERATE_FRESHWATER',
+        'Lake Temperate Freshwater'),
+       ('LAKE_TEMPERATE_BRACKISHWATER',
+        'Lake Temperate Brackishwater'),
+       ('LAKE_TEMPERATE_SALTWATER',
+        'Lake Temperate Saltwater'),
+       ('LAKE_TROPICAL_FRESHWATER',
+        'Lake Tropical Freshwater'),
+       ('LAKE_TROPICAL_BRACKISHWATER',
+        'Lake Tropical Brackishwater'),
+       ('LAKE_TROPICAL_SALTWATER',
+        'Lake Tropical Saltwater'),
+       ('RIVER_TEMPERATE_FRESHWATER',
+        'River Temperate Freshwater'),
+       ('RIVER_TEMPERATE_BRACKISHWATER',
+        'River Temperate Brackishwater'),
+       ('RIVER_TEMPERATE_SALTWATER',
+        'River Temperate Saltwater'),
+       ('RIVER_TROPICAL_FRESHWATER',
+        'River Tropical Freshwater'),
+       ('RIVER_TROPICAL_BRACKISHWATER',
+        'River Tropical Brackishwater'),
+       ('RIVER_TROPICAL_SALTWATER',
+        'River Tropical Saltwater'),
+       ('SUBTERRANEAN_WATER', 'Subterranean Water'),
+       ('SUBTERRANEAN_CHASM', 'Subterranean Chasm'),
+       ('SUBTERRANEAN_LAVA', 'Subterranean Lava'),
+       ('ALL_MAIN', 'All Main'),
+       ('ANY_LAND', 'Any Land'),
+       ('ANY_OCEAN', 'Any Ocean'),
+       ('ANY_LAKE', 'Any Lake'),
+       ('ANY_TEMPERATE_LAKE', 'Any Temperate Lake'),
+       ('ANY_TROPICAL_LAKE', 'Any Tropical Lake'),
+       ('ANY_RIVER', 'Any River'),
+       ('ANY_TEMPERATE_RIVER', 'Any Temperate River'),
+       ('ANY_TROPICAL_RIVER', 'Any Tropical River'),
+       ('ANY_POOL', 'Any Pool'),
+       ('NOT_FREEZING', 'Not Freezing'),
+       ('ANY_TEMPERATE', 'Any Temperate'),
+       ('ANY_TROPICAL', 'Any Tropical'),
+       ('ANY_FOREST', 'Any Forest'),
+       ('ANY_SHRUBLAND', 'Any Shrubland'),
+       ('ANY_GRASSLAND', 'Any Grassland'),
+       ('ANY_SAVANNA', 'Any Savanna'),
+       ('ANY_TEMPERATE_FOREST', 'Any Temperate Forest'),
+       ('ANY_TROPICAL_FOREST', 'Any Tropical Forest'),
+       ('ANY_TEMPERATE_BROADLEAF',
+        'Any Temperate Broadleaf'),
+       ('ANY_TROPICAL_BROADLEAF',
+        'Any Tropical Broadleaf'),
+       ('ANY_WETLAND', 'Any Wetland'),
+       ('ANY_TEMPERATE_WETLAND', 'Any Temperate Wetland'),
+       ('ANY_TROPICAL_WETLAND', 'Any Tropical Wetland'),
+       ('ANY_TROPICAL_MARSH', 'Any Tropical Marsh'),
+       ('ANY_TEMPERATE_MARSH', 'Any Temperate Marsh'),
+       ('ANY_TROPICAL_SWAMP', 'Any Tropical Swamp'),
+       ('ANY_TEMPERATE_SWAMP', 'Any Temperate Swamp'),
+       ('ANY_DESERT', 'Any Desert');

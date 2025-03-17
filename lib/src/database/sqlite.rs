@@ -1,4 +1,3 @@
-
 use rusqlite::{Connection, Result};
 
 /// Load a SQLite database from a file.
@@ -29,9 +28,7 @@ pub(super) fn load_database(filename: &str) -> Result<Connection> {
 /// # Errors
 ///
 /// If the SQL fails to execute.
-pub(super) fn apply_sql(
-    sql: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub(super) fn apply_sql(sql: &str) -> Result<(), rusqlite::Error> {
     let conn = super::get_db_conn();
     conn.execute_batch(sql)?;
     Ok(())
@@ -72,7 +69,6 @@ pub(crate) fn get_user_version() -> Result<i32, rusqlite::Error> {
 ///
 /// If the SQL fails to execute.
 pub(super) fn set_user_version(version: i32) -> Result<(), rusqlite::Error> {
-    let conn = super::get_db_conn();
-    conn.execute("PRAGMA user_version = ?;", [version])?;
-    Ok(())
+    let pragma_sql = format!("PRAGMA user_version = {};", version);
+    apply_sql(&pragma_sql)
 }

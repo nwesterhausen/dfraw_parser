@@ -435,7 +435,13 @@ pub fn main() -> Result<(), lexopt::Error> {
     }
 
     // Database stuff
-    dfraw_json_parser::database::init_db();
+    match dfraw_json_parser::database::init_db() {
+        Ok(_) => {}
+        Err(e) => {
+            tracing::error!("Failed to initialize database: {e:?}");
+            panic!("Failed to initialize database: {e:?}");
+        }
+    }
 
     // Parse the raws
     let result = parse(&options).map_err(|e| {
