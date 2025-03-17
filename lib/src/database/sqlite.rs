@@ -10,12 +10,12 @@ use rusqlite::{Connection, Result};
 /// # Returns
 ///
 /// A `rusqlite::Connection` to the database.
-pub fn load_database(filename: &str) -> Result<Connection> {
+pub(super) fn load_database(filename: &str) -> Result<Connection> {
     let conn = Connection::open(filename)?;
     Ok(conn)
 }
 
-/// Apply a SQL file to a SQLite database.
+/// Apply sql to a SQLite database.
 ///
 /// # Arguments
 ///
@@ -29,10 +29,10 @@ pub fn load_database(filename: &str) -> Result<Connection> {
 /// # Errors
 ///
 /// If the SQL fails to execute.
-pub(super) fn apply_sql_file(
-    conn: &Connection,
+pub(super) fn apply_sql(
     sql: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let conn = super::get_db_conn();
     conn.execute_batch(sql)?;
     Ok(())
 }
@@ -51,8 +51,28 @@ pub(super) fn apply_sql_file(
 /// # Errors
 ///
 /// If the SQL fails to execute.
-pub fn get_user_version(conn: &Connection) -> Result<i32, rusqlite::Error> {
+pub(crate) fn get_user_version() -> Result<i32, rusqlite::Error> {
+    let conn = super::get_db_conn();
     let mut stmt = conn.prepare("PRAGMA user_version;")?;
     let version: i32 = stmt.query_row([], |row| row.get(0))?;
     Ok(version)
+}
+
+/// Set the user version of a SQLite database, via the `PRAGMA user_version = ?;` statement.
+///
+/// # Arguments
+///
+/// * `version` - The new user version to set.
+///
+/// # Returns
+///
+/// An empty `Result` if successful.
+///
+/// # Errors
+///
+/// If the SQL fails to execute.
+pub(super) fn set_user_version(version: i32) -> Result<(), rusqlite::Error> {
+    let conn = super::get_db_conn();
+    conn.execute("PRAGMA user_version = ?;", [version])?;
+    Ok(())
 }
