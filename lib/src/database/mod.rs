@@ -5,10 +5,10 @@ use std::sync::Mutex;
 use std::time::Instant;
 use tracing::info;
 
-/// The supporting functions to insert data into the database.
-pub(crate) mod data;
 /// The SQLite database module. Has helper functions relevant to our application.
 pub(crate) mod sqlite;
+/// The migration module. Contains the functions to apply migrations to the database.
+pub(crate) mod migrate;
 
 /// The name of the SQLite database file.
 pub const DB_FILE: &str = "dfraw-db.sqlite";
@@ -39,7 +39,7 @@ pub fn init_db() -> Result<(), Box<dyn std::error::Error>> {
     info!("Initializing database at {}", DB_FILE);
     let start_time = Instant::now();
 
-    sqlite::apply_migrations()?;
+    migrate::apply_migrations()?;
 
     let duration = start_time.elapsed();
     info!("Database initialized in {:?}", duration);
