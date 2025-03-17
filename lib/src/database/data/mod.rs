@@ -12,7 +12,8 @@ use crate::Creature;
 ///
 /// # Errors
 /// - `Error`: If the insertion fails.
-fn insert_creature(creature: Creature) -> Result<(), Error> {
+fn insert_creature(creature: Creature) {
     // Implementation goes here
-    Ok(())
+
+    // Return an error if the insertion fails
 }
