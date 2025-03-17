@@ -281,10 +281,10 @@ Table caste_2_creature_class {
 
 Table caste_2_tags {
   caste_id int [ref: > caste.id]
-  raw_tag_id int [ref: > raw_tag.id]
+  tag_2_value int [ref: > raw_tag.id]
 
   indexes {
-    (caste_id, raw_tag_id) [pk]
+    (caste_id, tag_2_value) [pk]
   }
 }
 
@@ -295,7 +295,29 @@ Table raw_tag {
   description text
   has_value bit
   has_complex_value bit
-  raw_value text [note: 'This is for the raw value from the tag, if it has it. Not parsed or reasoned out just straight from the raws (for now ?)']
+}
+
+Table tag_2_value {
+  id int [pk, increment]
+  raw_tag_id int [ref: > raw_tag.id]
+  value text [note: 'The value of the tag. For complex values, store an object as a JSON string.']
+  raw_value text [note: 'The literal value following the tag in the raw file.']
+  indexes {
+    (raw_tag_id, value) [pk]
+  }
+}
+
+Table raw_tag_complex_value {
+  id integer [pk, increment]
+  raw_tag_id integer [not null, ref: > raw_tag.id]
+  identifier text [not null]
+  name text [not null]
+  description text
+
+  indexes {
+    raw_tag_id
+    identifier
+  }
 }
 
 Table min_max_data {

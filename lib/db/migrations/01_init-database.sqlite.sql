@@ -286,9 +286,18 @@ CREATE TABLE raw_tag (
   name TEXT,
   description TEXT,
   has_value INTEGER,
-  has_complex_value INTEGER,
-  raw_value TEXT
+  has_complex_value INTEGER
 );
+
+CREATE TABLE tag_2_value (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  raw_tag_id INTEGER,
+  value TEXT,
+  raw_value TEXT,
+  FOREIGN KEY (raw_tag_id) REFERENCES raw_tag(id)
+);
+
+CREATE INDEX idx_raw_tag_id_2_value ON tag_2_value (raw_tag_id, value);
 
 CREATE TABLE min_max_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
