@@ -1,5 +1,6 @@
 use tracing::{debug, warn};
 
+use crate::traits::Insertable;
 use crate::{
     creature::Creature,
     creature_variation::CreatureVariation,
@@ -310,6 +311,8 @@ impl UnprocessedRaw {
             }
         }
 
+        tracing::info!("creature.to_insert_sql():\n{}", creature.to_insert_sql());
+        panic!();
         Ok(Box::new(creature))
     }
 

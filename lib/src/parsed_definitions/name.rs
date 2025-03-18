@@ -1,5 +1,7 @@
 //! Name struct for singular, plural, and adjective names (or any combination thereof)
 
+use crate::traits::Insertable;
+
 /// A name with a singular, plural, and adjective form
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
 #[serde(rename_all = "camelCase")]
@@ -158,5 +160,23 @@ impl Name {
             plural: name_plural.to_string(),
             adjective: None,
         }
+    }
+}
+impl Insertable for Name {
+    fn to_insert_sql(&self) -> String {
+        // Escape single quotes in strings by doubling them
+        let singular = self.singular.replace('\'', "''");
+        let plural = self.plural.replace('\'', "''");
+
+        // Handle the optional adjective field
+        let adjective_sql = match &self.adjective {
+            Some(adj) => format!("'{}'", adj.replace('\'', "''")),
+            None => "NULL".to_string(),
+        };
+
+        format!(
+            "INSERT INTO name_data (singular, plural, adjective) VALUES ('{}', '{}', {})",
+            singular, plural, adjective_sql
+        )
     }
 }

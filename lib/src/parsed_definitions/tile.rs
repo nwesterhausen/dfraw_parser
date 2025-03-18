@@ -92,6 +92,19 @@ impl Tile {
             .as_ref()
             .map_or("", |alt_character| alt_character)
     }
+
+    /// Returns the glow character of the tile
+    ///
+    /// # Returns
+    ///
+    /// * `&str` - The glow character of the tile
+    #[must_use]
+    pub fn get_glow_character(&self) -> &str {
+        self.glow_character
+            .as_ref()
+            .map_or("", |glow_character| glow_character)
+    }
+
     /// Returns the color of the tile
     ///
     /// # Returns

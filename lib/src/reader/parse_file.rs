@@ -12,7 +12,7 @@ use crate::{
     regex::RAW_TOKEN_RE,
     tags::{GraphicTypeTag, ModificationTag},
     tile_page::TilePage,
-    traits::RawObject,
+    traits::{Insertable, RawObject},
     utilities::try_get_file,
     InfoFile, ParserError,
 };

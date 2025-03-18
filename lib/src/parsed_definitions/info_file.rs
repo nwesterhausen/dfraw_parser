@@ -9,6 +9,8 @@ use encoding_rs_io::DecodeReaderBytesBuilder;
 use slug::slugify;
 use tracing::{debug, error, trace, warn};
 
+use super::steam_data::SteamData;
+use crate::traits::Insertable;
 use crate::{
     constants::DF_ENCODING,
     metadata::RawModuleLocation,
@@ -16,8 +18,6 @@ use crate::{
     utilities::{get_parent_dir_name, try_get_file},
     ParserError,
 };
-
-use super::steam_data::SteamData;
 
 /// Represents the `info.txt` file for a raw module
 #[derive(serde::Serialize, serde::Deserialize, Default, Clone, Debug, specta::Type)]
@@ -465,5 +465,31 @@ impl InfoFile {
     /// ```
     pub fn set_module_name(&mut self, arg: &str) {
         self.name = String::from(arg);
+    }
+}
+
+impl Insertable for InfoFile {
+    fn to_insert_sql(&self) -> String {
+        // Escape single quotes in text fields to prevent SQL injection
+        let identifier = self.identifier.replace('\'', "''");
+        let name = self.name.replace('\'', "''");
+        let description = self.description.replace('\'', "''");
+        let version = self.displayed_version.replace('\'', "''");
+        let earliest_compat_version = self
+            .earliest_compatible_displayed_version
+            .replace('\'', "''");
+        let author = self.author.replace('\'', "''");
+
+        // Generate SQL for inserting the module record
+        format!(
+            "INSERT INTO module (identifier, name, description, version, numerical_version, earliest_compat_version, earliest_compat_numerical_version) VALUES ('{}', '{}', '{}', '{}', {}, '{}', {});",
+            identifier,
+            name,
+            description,
+            version,
+            self.numeric_version,
+            earliest_compat_version,
+            self.earliest_compatible_numeric_version
+        )
     }
 }

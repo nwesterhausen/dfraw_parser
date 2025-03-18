@@ -1,5 +1,7 @@
 //! A module containing the `BodySize` struct and its implementation.
 
+use crate::traits::Insertable;
+
 /// A struct representing a body size in the format `years:days:size_cm3`
 #[allow(clippy::module_name_repetitions)]
 #[derive(
@@ -33,5 +35,14 @@ impl BodySize {
             };
         }
         Self::default()
+    }
+}
+
+impl Insertable for BodySize {
+    fn to_insert_sql(&self) -> String {
+        format!(
+            "INSERT INTO body_size (years, days, size_cm3) VALUES ({}, {}, {})",
+            self.years, self.days, self.size_cm3
+        )
     }
 }

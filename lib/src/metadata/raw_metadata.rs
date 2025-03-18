@@ -160,6 +160,16 @@ impl Metadata {
         &self.module_object_id
     }
 
+    /// Get the [ObjectType] of the raw data.
+    ///
+    /// # Returns
+    ///
+    /// * The [ObjectType] of the raw data.
+    #[must_use]
+    pub const fn get_object_type(&self) -> &ObjectType {
+        &self.object_type
+    }
+
     /// Set the `object_type` of the metadata at creation.
     ///
     /// # Arguments

@@ -1,5 +1,7 @@
 //! A module containing the `Color` struct and its implementations.
 
+use crate::traits::Insertable;
+
 /// A struct representing a color in the format "foreground:background:brightness".
 #[allow(clippy::module_name_repetitions)]
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
@@ -41,5 +43,44 @@ impl Color {
     #[must_use]
     pub const fn is_default(&self) -> bool {
         self.foreground == 0 && self.background == 0 && self.brightness == 0
+    }
+
+    /// Returns the foreground color.
+    ///
+    /// # Returns
+    ///
+    /// * The foreground color.
+    #[must_use]
+    pub const fn get_foreground(&self) -> u8 {
+        self.foreground
+    }
+
+    /// Returns the background color.
+    ///
+    /// # Returns
+    ///
+    /// * The background color.
+    #[must_use]
+    pub const fn get_background(&self) -> u8 {
+        self.background
+    }
+
+    /// Returns the brightness.
+    ///
+    /// # Returns
+    ///
+    /// * The brightness.
+    #[must_use]
+    pub const fn get_brightness(&self) -> u8 {
+        self.brightness
+    }
+}
+
+impl Insertable for Color {
+    fn to_insert_sql(&self) -> String {
+        format!(
+            "INSERT INTO color (foreground, background, brightness) VALUES ({}, {}, {})",
+            self.foreground, self.background, self.brightness
+        )
     }
 }

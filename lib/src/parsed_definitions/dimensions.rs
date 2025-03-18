@@ -1,5 +1,6 @@
 //! A module containing the `Dimensions` struct and its implementations.
 
+use crate::traits::Insertable;
 use tracing::{error, warn};
 
 /// A struct representing a Dimensions object.
@@ -115,5 +116,14 @@ impl Dimensions {
     #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.is_default()
+    }
+}
+
+impl Insertable for Dimensions {
+    fn to_insert_sql(&self) -> String {
+        format!(
+            "INSERT OR IGNORE INTO dimension_data (x, y) VALUES ({}, {})",
+            self.x, self.y
+        )
     }
 }

@@ -1,4 +1,5 @@
 //! Temperature properties of a material
+use crate::traits::Insertable;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
 #[serde(rename_all = "camelCase")]
@@ -109,5 +110,50 @@ impl Temperatures {
     /// * `value` - The material fixed temperature to set
     pub fn update_material_fixed_temperature(&mut self, value: u32) {
         self.material_fixed_temperature = Some(value);
+    }
+}
+
+impl Insertable for Temperatures {
+    fn to_insert_sql(&self) -> String {
+        // Handle all optional fields, using NULL when None
+        let specific_heat = match self.specific_heat {
+            Some(value) => value.to_string(),
+            None => "NULL".to_string(),
+        };
+
+        let ignition_point = match self.ignition_point {
+            Some(value) => value.to_string(),
+            None => "NULL".to_string(),
+        };
+
+        let melting_point = match self.melting_point {
+            Some(value) => value.to_string(),
+            None => "NULL".to_string(),
+        };
+
+        let boiling_point = match self.boiling_point {
+            Some(value) => value.to_string(),
+            None => "NULL".to_string(),
+        };
+
+        let heat_damage_point = match self.heat_damage_point {
+            Some(value) => value.to_string(),
+            None => "NULL".to_string(),
+        };
+
+        let cold_damage_point = match self.cold_damage_point {
+            Some(value) => value.to_string(),
+            None => "NULL".to_string(),
+        };
+
+        let material_fixed_temperature = match self.material_fixed_temperature {
+            Some(value) => value.to_string(),
+            None => "NULL".to_string(),
+        };
+
+        format!(
+            "INSERT INTO temperature_data (specific_heat, ignition_point, melting_point, boiling_point, heat_damage_point, cold_damage_point, material_fixed_temperature) VALUES ({}, {}, {}, {}, {}, {}, {})",
+            specific_heat, ignition_point, melting_point, boiling_point, heat_damage_point, cold_damage_point, material_fixed_temperature
+        )
     }
 }

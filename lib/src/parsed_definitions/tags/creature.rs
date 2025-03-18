@@ -1168,3 +1168,89 @@ Self::TriggerableGroup { .. } |
         }
     }
 }
+
+impl CreatureTag {
+    /// Get the text identifier for the token (e.g. `ARTIFICIAL_HIVEABLE`).
+    ///
+    /// # Returns
+    ///
+    /// The text identifier for the token
+    #[must_use]
+    pub fn get_identifier(&self) -> &str {
+        match self {
+            Self::AltTile { .. } => "ALTTILE",
+            Self::ApplyCreatureVariation { .. } => "APPLY_CREATURE_VARIATION",
+            Self::ApplyCurrentCreatureVariation => "APPLY_CURRENT_CREATURE_VARIATION",
+            Self::ArtificialHiveable => "ARTIFICIAL_HIVEABLE",
+            Self::Biome { .. } => "BIOME",
+            Self::Caste { .. } => "CASTE",
+            Self::ChangeFrequencyPercent { .. } => "CHANGE_FREQUENCY_PERC",
+            Self::ClusterNumber { .. } => "CLUSTER_NUMBER",
+            Self::CopyTagsFrom { .. } => "COPY_TAGS_FROM",
+            Self::CreatureSoldierTile { .. } => "CREATURE_SOLDIER_TILE",
+            Self::CreatureTile { .. } => "CREATURE_TILE",
+            Self::Color { .. } => "COLOR",
+            Self::DoesNotExist => "DOES_NOT_EXIST",
+            Self::EquipmentWagon => "EQUIPMENT_WAGON",
+            Self::Evil => "EVIL",
+            Self::Fanciful => "FANCIFUL",
+            Self::Frequency { .. } => "FREQUENCY",
+            Self::GeneralBabyName { .. } => "GENERAL_BABY_NAME",
+            Self::GeneralChildName { .. } => "GENERAL_CHILD_NAME",
+            Self::Generated => "GENERATED",
+            Self::GlowColor { .. } => "GLOWCOLOR",
+            Self::GlowTile { .. } => "GLOWTILE",
+            Self::Good => "GOOD",
+            Self::GoToEnd => "GO_TO_END",
+            Self::GoToStart => "GO_TO_START",
+            Self::GoToTag { .. } => "GO_TO_TAG",
+            Self::HarvestProduct { .. } => "HARVEST_PRODUCT",
+            Self::LargeRoaming => "LARGE_ROAMING",
+            Self::LocalPopsControllable => "LOCAL_POPS_CONTROLLABLE",
+            Self::LocalPopsProduceHeroes => "LOCAL_POPS_PRODUCE_HEROES",
+            Self::LooseClusters => "LOOSE_CLUSTERS",
+            Self::Mundane => "MUNDANE",
+            Self::Name { .. } => "NAME",
+            Self::PlusMaterial { .. } => "PLUS_MATERIAL",
+            Self::PopulationNumber { .. } => "POPULATION_NUMBER",
+            Self::PrefString { .. } => "PREFSTRING",
+            Self::ProfessionName { .. } => "PROFESSION_NAME",
+            Self::RemoveMaterial { .. } => "REMOVE_MATERIAL",
+            Self::RemoveTissue { .. } => "REMOVE_TISSUE",
+            Self::Savage => "SAVAGE",
+            Self::SelectAdditionalCaste { .. } => "SELECT_ADDITIONAL_CASTE",
+            Self::SelectCaste { .. } => "SELECT_CASTE",
+            Self::SelectMaterial { .. } => "SELECT_MATERIAL",
+            Self::SelectTissue { .. } => "SELECT_TISSUE",
+            Self::SlainSpeech { .. } => "SLAIN_CASTE",
+            Self::SmellTrigger { .. } => "SMELL_TRIGGER",
+            Self::SoldierAltTile { .. } => "SOLDIER_ALTTILE",
+            Self::SourceHfid { .. } => "SOURCE_HFID",
+            Self::Sphere { .. } => "SPHERE",
+            Self::Tissue { .. } => "TISSUE",
+            Self::TriggerableGroup { .. } => "TRIGGERABLE_GROUP",
+            Self::Ubiquitous => "UBIQUITOUS",
+            Self::UndergroundDepth { .. } => "UNDERGROUND_DEPTH",
+            Self::UseCaste { .. } => "USE_CASTE",
+            Self::UseMaterial { .. } => "USE_MATERIAL",
+            Self::UseMaterialTemplate { .. } => "USE_MATERIAL_TEMPLATE",
+            Self::UseTissue { .. } => "USE_TISSUE",
+            Self::UseTissueTemplate { .. } => "USE_TISSUE_TEMPLATE",
+            Self::Utterances => "UTTERNANCES",
+            Self::VerminEater => "VERMIN_EATER",
+            Self::VerminFish => "VERMIN_FISH",
+            Self::VerminGrounder => "VERMIN_GROUNDER",
+            Self::VerminRotter => "VERMIN_ROTTER",
+            Self::VerminSoil => "VERMIN_SOIL",
+            Self::VerminSoilColony => "VERMIN_SOIL_COLONY",
+            // Legend-only tokens
+            Self::MatesToBreed => "MATES_TO_BREED",
+            Self::TwoGenders => "TWO_GENDERS",
+            Self::AllCastesAlive => "ALL_CASTES_ALIVE",
+            Self::SmallRace => "SMALL_RACE",
+            Self::OccursAsEntityRace => "OCCURS_AS_ENTITY_RACE",
+            Self::Equipment => "EQUIPMENT",
+            Self::Unknown => "UNKNOWN",
+        }
+    }
+}

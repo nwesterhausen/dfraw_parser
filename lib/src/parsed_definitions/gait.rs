@@ -3,6 +3,7 @@
 use tracing::warn;
 
 use crate::tags::{GaitModifierTag, GaitTypeTag};
+use crate::traits::Insertable;
 
 /// Gaits are a way to describe how a creature moves. Defined in the raws with:
 ///
@@ -166,5 +167,32 @@ impl Gait {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.gait_type == GaitTypeTag::Unknown
+    }
+}
+
+impl Insertable for Gait {
+    fn to_insert_sql(&self) -> String {
+        // Convert GaitTypeTag to the identifier string expected in the gait_type table
+        let gait_type_identifier = match &self.gait_type {
+            GaitTypeTag::Walk => "WALK",
+            GaitTypeTag::Crawl => "CRAWL",
+            GaitTypeTag::Climb => "CLIMB",
+            GaitTypeTag::Swim => "SWIM",
+            GaitTypeTag::Fly => "FLY",
+            GaitTypeTag::Other(s) => s,
+            GaitTypeTag::Unknown => "UNKNOWN",
+        };
+
+        // Escape single quotes in strings to prevent SQL injection
+        let escaped_name = self.name.replace('\'', "''");
+        let escaped_type = gait_type_identifier.replace('\'', "''");
+
+        format!(
+            "INSERT INTO gait (gait_type, identifier, max_speed, energy_use) VALUES \
+            ((SELECT id FROM gait_type WHERE identifier = '{escaped_type}'), \
+            '{escaped_name}', {max_speed}, {energy_use})",
+            max_speed = self.max_speed,
+            energy_use = self.energy_use,
+        )
     }
 }

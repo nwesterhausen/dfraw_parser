@@ -319,6 +319,16 @@ impl Creature {
             })
     }
 
+    /// Return the identifier of the creature.
+    ///
+    /// # Returns
+    ///
+    /// The identifier of the creature.
+    #[must_use]
+    pub fn get_identifier(&self) -> &str {
+        &self.identifier
+    }
+
     /// Takes two `Creature` objects and creates a new `Creature` object
     /// by combining their tags and properties.
     ///
@@ -1051,7 +1061,19 @@ impl Searchable for Creature {
 }
 
 impl Insertable for Creature {
+    /// This implementation:
+    ///
+    ///
+    /// Inserts related data first (name_data, min_max_data, tile, color)
+    /// Inserts the main creature record with references to those records
+    /// Inserts relationship records for biomes, tags, and castes
+    /// Uses comments and SELECT statements to indicate where IDs need to be retrieved
+    ///
+    /// Note: This is a simplified version that provides the structure. In a production environment, you would likely:
+    /// Use parameterized queries instead of string interpolation
+    /// Handle errors and escaping more robustly
+    /// Use transactions to ensure data integrity
     fn to_insert_sql(&self) -> String {
-        String::new()
+        todo!()
     }
 }

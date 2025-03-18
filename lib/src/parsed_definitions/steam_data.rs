@@ -1,5 +1,6 @@
 //! Additional data specific to the steam workshop that may be included in the `info.txt` file for a raw module.
 
+use crate::traits::Insertable;
 use serde::{Deserialize, Serialize};
 
 /// The additional data specific to the steam workshop
@@ -111,5 +112,38 @@ impl SteamData {
         if let Some(self_metadata) = &mut self.metadata {
             self_metadata.push(String::from(metadata));
         }
+    }
+}
+
+impl Insertable for SteamData {
+    fn to_insert_sql(&self) -> String {
+        // Handle Option fields, using NULL for None values
+        let title = match &self.title {
+            Some(t) => format!("'{}'", t.replace('\'', "''")),
+            None => "NULL".to_string(),
+        };
+
+        let description = match &self.description {
+            Some(d) => format!("'{}'", d.replace('\'', "''")),
+            None => "NULL".to_string(),
+        };
+
+        let changelog = match &self.changelog {
+            Some(c) => format!("'{}'", c.replace('\'', "''")),
+            None => "NULL".to_string(),
+        };
+
+        // Use NULL for file_id if it's 0
+        let file_id = if self.file_id == 0 {
+            "NULL".to_string()
+        } else {
+            self.file_id.to_string()
+        };
+
+        // Generate SQL for inserting the steam_data record
+        format!(
+            "INSERT INTO steam_data (file_id, title, description, changelog) VALUES ({}, {}, {}, {});",
+            file_id, title, description, changelog
+        )
     }
 }
