@@ -421,3 +421,9 @@ Table dimension_data {
     (x, y) [pk]
   }
 }
+
+Table condition {
+  id INTEGER PRIMARY KEY
+  name TEXT NOT NULL UNIQUE    // The string representation of the condition enum
+  description TEXT             // Description based on the enum comments
+}
