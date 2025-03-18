@@ -281,13 +281,6 @@ CREATE TABLE creature_2_biome
     FOREIGN KEY (biome_id) REFERENCES biome (id)
 );
 
-CREATE TABLE raw_tag_type
-(
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT NOT NULL,
-    description TEXT
-);
-
 CREATE TABLE raw_tag
 (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -296,9 +289,8 @@ CREATE TABLE raw_tag
     description       TEXT,
     has_value         INTEGER NOT NULL DEFAULT 0,
     has_complex_value INTEGER NOT NULL DEFAULT 0,
-    raw_tag_type_id   INTEGER NOT NULL,
-    FOREIGN KEY (raw_tag_type_id) REFERENCES raw_tag_type (id),
-    UNIQUE (identifier, raw_tag_type_id)
+    object_type INTEGER NOT NULL,
+    FOREIGN KEY (object_type) REFERENCES object_type (id)
 );
 
 CREATE TABLE creature_2_tags

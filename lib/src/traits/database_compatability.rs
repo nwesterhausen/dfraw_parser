@@ -8,7 +8,6 @@
 /// This trait is used to insert a new record into the database.
 ///
 /// It provides a method to get the SQL required to insert the record into the database.
-#[typetag::serde(tag = "type")]
 pub trait Insertable {
     /// Returns the SQL required to insert the record into the database.
     fn to_insert_sql(&self) -> String;
@@ -19,7 +18,6 @@ pub trait Insertable {
 /// It provides methods to query the database and return the object.
 ///
 /// More methods to be added if needed.
-#[typetag::serde(tag = "type")]
 pub trait Queryable {
     /// Will query the database and return the object, by its identifier.
     fn get_by_identifier(identifier: &str) -> Option<Self>

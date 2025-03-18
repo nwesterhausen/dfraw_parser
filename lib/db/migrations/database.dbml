@@ -288,12 +288,6 @@ Table caste_2_tags {
   }
 }
 
-Table raw_tag_type {
-  id int [pk, increment]
-  name text [not null, note: The type of raw tag, e.g. CASTE or CREATURE etc.]
-  description text [note: A description of the tag type.]
-}
-
 Table raw_tag {
   id int [pk, increment]
   identifier text [not null]
@@ -301,11 +295,7 @@ Table raw_tag {
   description text
   has_value bit [not null, default: 0]
   has_complex_value bit [not null, default: 0]
-  raw_tag_type_id int [not null, ref: > raw_tag_type.id]
-
-  indexes {
-    (identifier, raw_tag_type_id) [unique]
-  }
+  object_type int [not null, ref: > object_type.id]
 }
 
 Table tag_2_value {

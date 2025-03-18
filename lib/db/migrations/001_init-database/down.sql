@@ -19,7 +19,6 @@ DROP TABLE IF EXISTS gait_type;
 DROP TABLE IF EXISTS creature_2_caste;
 DROP TABLE IF EXISTS creature_2_tags;
 DROP TABLE IF EXISTS raw_tag;
-DROP TABLE IF EXISTS raw_tag_type;
 DROP TABLE IF EXISTS creature_2_biome;
 DROP TABLE IF EXISTS creature_pref_strings;
 DROP TABLE IF EXISTS select_creature_variation_step;

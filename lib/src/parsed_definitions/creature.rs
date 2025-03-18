@@ -4,6 +4,7 @@
 
 use tracing::{debug, trace, warn};
 
+use crate::traits::Insertable;
 use crate::{
     caste::Caste,
     default_checks,
@@ -1046,5 +1047,11 @@ impl Searchable for Creature {
         vec.push(self.identifier.clone());
 
         clean_search_vec(vec.as_slice())
+    }
+}
+
+impl Insertable for Creature {
+    fn to_insert_sql(&self) -> String {
+        String::new()
     }
 }
