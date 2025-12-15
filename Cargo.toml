@@ -12,7 +12,7 @@ unreachable_patterns = "warn"
 [workspace.lints.clippy]
 module_name_repetition = "allow"
 enum_glob_use = { level = "deny", priority = -1 }
-pedantic= { level = "deny", priority = 0 }
+pedantic= { level = "deny", priority = -2 }
 nursery = { level = "deny", priority = 1 }
 unwrap_used = { level = "deny", priority = 2 }
 
