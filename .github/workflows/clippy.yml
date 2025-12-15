@@ -112,7 +112,7 @@ jobs:
       #       core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
       - name: Vanilla Raws Cache
         id: vanilla-raws-cache
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
         with:
           key: vanilla-raws-${{ vars.DF_VERSION }}
           path: /home/runner/vanilla-raws
