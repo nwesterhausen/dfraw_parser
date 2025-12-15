@@ -185,7 +185,7 @@ pub enum EntityTag {
     /// What language raw the entity uses.
     ///
     /// - If an entity lacks this tag, translations are drawn randomly from all translation files. Multiple translation tags will only
-    /// result in the last one being used. Migrants will sometimes arrive with no name.
+    ///   result in the last one being used. Migrants will sometimes arrive with no name.
     /// - If `GEN_DIVINE` is entered, the entity will use a generated divine language, that is, the same language that is used for the names of angels.
     ///
     /// e.g. `[TRANSLATION:DWARF]`

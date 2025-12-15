@@ -81,21 +81,18 @@ pub fn read_raw_file_type<P: AsRef<Path>>(input_path: &P) -> Result<ObjectType, 
                 captured_value
             );
 
-            // Match the front part of the tag
-            match captured_key {
-                // We are only concerned with the \[OBJECT\] key
-                "OBJECT" => {
-                    trace!(
-                        "read_raw_file_type: {} is a {} raw file",
-                        raw_filename,
-                        captured_value
-                    );
-                    return Ok(OBJECT_TOKEN_MAP
-                        .get(captured_value)
-                        .cloned()
-                        .unwrap_or_default());
-                }
-                &_ => (),
+            // Match the front part of the tag (right now we only want the \[OBJECT\] key)
+            // If we need to check for more later, use a match statment instead of this if.
+            if captured_key == "OBJECT" {
+                trace!(
+                    "read_raw_file_type: {} is a {} raw file",
+                    raw_filename,
+                    captured_value
+                );
+                return Ok(OBJECT_TOKEN_MAP
+                    .get(captured_value)
+                    .cloned()
+                    .unwrap_or_default());
             }
         }
     }

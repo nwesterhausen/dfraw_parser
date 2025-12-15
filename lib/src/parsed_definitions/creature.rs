@@ -152,9 +152,9 @@ impl Creature {
     /// # Arguments
     ///
     /// * `identifier`: A string that represents the identifier of the creature. It is used to uniquely
-    /// identify the creature.
+    ///   identify the creature.
     /// * `metadata`: The `metadata` parameter is of type `RawMetadata` and is used to provide
-    /// additional information about the raws the `Creature` is found in.
+    ///   additional information about the raws the `Creature` is found in.
     ///
     /// # Returns
     ///
@@ -325,7 +325,7 @@ impl Creature {
     ///
     /// * `creature`: A reference to the creature that will receive the copied tags.
     /// * `creature_to_copy_from`: A reference to the Creature object from which we want to copy the
-    /// tags.
+    ///   tags.
     ///
     /// # Returns
     ///

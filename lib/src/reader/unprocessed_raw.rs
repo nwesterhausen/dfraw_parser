@@ -205,7 +205,7 @@ impl UnprocessedRaw {
     /// # Arguments
     ///
     /// * `creature_variations` - all possible creature variations to apply (this should be able to be
-    /// reused between all `resolve` calls, so we pass a reference here instead of re-creating it each time)
+    ///   reused between all `resolve` calls, so we pass a reference here instead of re-creating it each time)
     /// * `all_raws` - All the raws to use when resolving the raws
     ///
     /// # Returns

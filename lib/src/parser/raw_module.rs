@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::path::Path;
 
 use tracing::{debug, info};
@@ -107,10 +108,7 @@ pub fn parse_module<P: AsRef<Path>>(
                 let file_name = file_path.file_name().unwrap_or_default();
                 let file_name_str = file_name.to_str().unwrap_or_default();
 
-                if Path::new(file_name_str)
-                    .extension()
-                    .map_or(false, |ext| ext.eq_ignore_ascii_case("txt"))
-                {
+                if Path::new(file_name_str).extension() == Some(OsStr::new("txt")) {
                     match parse_raw_file(&file_path, options) {
                         Ok(mut file_parse_results) => {
                             results.append(&mut file_parse_results.parsed_raws);
@@ -141,10 +139,7 @@ pub fn parse_module<P: AsRef<Path>>(
                 let file_name = file_path.file_name().unwrap_or_default();
                 let file_name_str = file_name.to_str().unwrap_or_default();
 
-                if Path::new(file_name_str)
-                    .extension()
-                    .map_or(false, |ext| ext.eq_ignore_ascii_case("txt"))
-                {
+                if Path::new(file_name_str).extension() == Some(OsStr::new("txt")) {
                     match parse_raw_file(&file_path, options) {
                         Ok(mut graphics) => {
                             results.append(&mut graphics.parsed_raws);

@@ -453,14 +453,13 @@ impl SpriteGraphic {
             }
         };
 
-        let primary_condition =
-        ConditionTag::from_token(condition.as_str()).map_or_else(|| {
-                             warn!(
-                             "parse_creature_statue_from_token: Failed to parse {} as primary_condition in {}",
-                             condition, token
-                         );
-                             ConditionTag::None
-                         }, |parsed_condition| parsed_condition);
+        let primary_condition = ConditionTag::from_token(condition.as_str()).unwrap_or_else(|| {
+            warn!(
+                "parse_creature_statue_from_token: Failed to parse {} as primary_condition in {}",
+                condition, token
+            );
+            ConditionTag::None
+        });
 
         Some(Self {
             primary_condition,
@@ -542,25 +541,19 @@ impl SpriteGraphic {
             ColorModificationTag::from_token(v)
         });
 
-        let primary_condition = ConditionTag::from_token(condition.as_str()).map_or_else(
-            || {
-                warn!(
-                    "Failed to parse {} as primary_condition in {}",
-                    condition, token
-                );
-                ConditionTag::None
-            },
-            |parsed_condition| parsed_condition,
-        );
+        let primary_condition = ConditionTag::from_token(condition.as_str()).unwrap_or_else(|| {
+            warn!(
+                "Failed to parse {} as primary_condition in {}",
+                condition, token
+            );
+            ConditionTag::None
+        });
 
         let secondary_condition = split.next().map_or(ConditionTag::None, |v| {
-            ConditionTag::from_token(v).map_or_else(
-                || {
-                    warn!("Failed to parse {} as secondary_condition in {}", v, token);
-                    ConditionTag::None
-                },
-                |condition| condition,
-            )
+            ConditionTag::from_token(v).unwrap_or_else(|| {
+                warn!("Failed to parse {} as secondary_condition in {}", v, token);
+                ConditionTag::None
+            })
         });
 
         if primary_condition == ConditionTag::None {
@@ -656,30 +649,24 @@ impl SpriteGraphic {
             ColorModificationTag::from_token(v)
         });
 
-        let primary_condition = ConditionTag::from_token(condition).map_or_else(
-            || {
+        let primary_condition = ConditionTag::from_token(condition).unwrap_or_else(|| {
+            warn!(
+                "Failed to parse {} as primary_condition in {}",
+                condition,
+                split.join(":")
+            );
+            ConditionTag::None
+        });
+
+        let secondary_condition = split.get(5).map_or(ConditionTag::None, |v| {
+            ConditionTag::from_token(v).unwrap_or_else(|| {
                 warn!(
-                    "Failed to parse {} as primary_condition in {}",
-                    condition,
+                    "Failed to parse {} as secondary_condition in {}",
+                    v,
                     split.join(":")
                 );
                 ConditionTag::None
-            },
-            |parsed_condition| parsed_condition,
-        );
-
-        let secondary_condition = split.get(5).map_or(ConditionTag::None, |v| {
-            ConditionTag::from_token(v).map_or_else(
-                || {
-                    warn!(
-                        "Failed to parse {} as secondary_condition in {}",
-                        v,
-                        split.join(":")
-                    );
-                    ConditionTag::None
-                },
-                |condition| condition,
-            )
+            })
         });
 
         if primary_condition == ConditionTag::None {

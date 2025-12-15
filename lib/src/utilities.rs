@@ -531,7 +531,7 @@ pub fn summarize_raws(raws: &[Box<dyn RawObject>]) -> HashMap<ObjectType, usize>
 /// Arguments:
 ///
 /// * `summary`: A `HashMap<ObjectType, usize>` where the key is the object type and the value is the number of
-/// objects of that type.
+///   objects of that type.
 pub fn log_summary<S: BuildHasher>(summary: &HashMap<ObjectType, usize, S>) {
     let total = summary.values().sum::<usize>();
 
@@ -628,7 +628,7 @@ pub fn parse_min_max_range(value: &str) -> Result<[u32; 2], ParseIntError> {
 ///
 /// * `all_raws`: A slice of `Box<dyn RawObject>`, which represents a collection of raw objects.
 /// * `object_ids_to_purge`: A slice of string references representing the object IDs that need to be
-/// purged from the `all_raws` vector.
+///   purged from the `all_raws` vector.
 ///
 /// Returns:
 ///
@@ -753,10 +753,10 @@ pub fn clone_raw_object_box(box_ref: &Box<dyn RawObject>) -> Box<dyn RawObject> 
 ///
 /// * `all_raws`: A slice of boxed objects that implement the `RawObject` trait.
 /// * `limit`: The `limit` parameter specifies the maximum number of items to be included in each page
-/// of the result.
+///   of the result.
 /// * `page`: The `page` parameter represents the page number of the data you want to retrieve. It is
-/// used to calculate the starting and ending positions of the data based on the `limit` parameter. The
-/// first page is represented by page number 1, so if you want to retrieve data from the first page
+///   used to calculate the starting and ending positions of the data based on the `limit` parameter. The
+///   first page is represented by page number 1, so if you want to retrieve data from the first page
 ///
 /// Returns:
 ///
@@ -1246,7 +1246,7 @@ pub fn singularly_apply_creature_variation(
 /// Arguments:
 ///
 /// * `raw_object`: The `raw_object` parameter is a reference to an object that implements the
-/// `Searchable` trait.
+///   `Searchable` trait.
 ///
 /// Returns:
 ///
