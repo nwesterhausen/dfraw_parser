@@ -297,10 +297,9 @@ fn write_output_file<P: AsRef<Path>>(
     let file = match std::fs::File::create(output_path) {
         Ok(file) => file,
         Err(e) => {
-            return Err(lexopt::Error::Custom(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
+            return Err(lexopt::Error::Custom(Box::new(std::io::Error::other(
                 format!("Failed to create output file: {e:?}"),
-            ))))
+            ))));
         }
     };
 
@@ -314,46 +313,40 @@ fn write_output_file<P: AsRef<Path>>(
     if pretty_print {
         if skip_info_files {
             serde_json::to_writer_pretty(file, &parse_results.raws).map_err(|e| {
-                lexopt::Error::Custom(Box::new(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    format!("Failed to write output file: {e:?}"),
-                )))
+                lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
+                    "Failed to write output file: {e:?}"
+                ))))
             })?;
         } else if skip_raws {
             serde_json::to_writer_pretty(file, &parse_results.info_files).map_err(|e| {
-                lexopt::Error::Custom(Box::new(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    format!("Failed to write output file: {e:?}"),
-                )))
+                lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
+                    "Failed to write output file: {e:?}"
+                ))))
             })?;
         } else {
             serde_json::to_writer_pretty(file, &parse_results).map_err(|e| {
-                lexopt::Error::Custom(Box::new(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    format!("Failed to write output file: {e:?}"),
-                )))
+                lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
+                    "Failed to write output file: {e:?}"
+                ))))
             })?;
         }
     } else if skip_info_files {
         serde_json::to_writer(file, &parse_results.raws).map_err(|e| {
-            lexopt::Error::Custom(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to write output file: {e:?}"),
-            )))
+            lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
+                "Failed to write output file: {e:?}"
+            ))))
         })?;
     } else if skip_raws {
         serde_json::to_writer(file, &parse_results.info_files).map_err(|e| {
-            lexopt::Error::Custom(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to write output file: {e:?}"),
-            )))
+            lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
+                "Failed to write output file: {e:?}"
+            ))))
         })?;
     } else {
         serde_json::to_writer(file, &parse_results).map_err(|e| {
-            lexopt::Error::Custom(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to write output file: {e:?}"),
-            )))
+            lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
+                "Failed to write output file: {e:?}"
+            ))))
         })?;
     }
 
@@ -436,10 +429,9 @@ pub fn main() -> Result<(), lexopt::Error> {
 
     // Parse the raws
     let result = parse(&options).map_err(|e| {
-        lexopt::Error::Custom(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("Failed to parse raws: {e:?}"),
-        )))
+        lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
+            "Failed to parse raws: {e:?}"
+        ))))
     })?;
 
     // Print a summary of the parsed raws

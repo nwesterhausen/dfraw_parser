@@ -104,13 +104,13 @@ pub fn write_json_string_vec_to_file<P: AsRef<Path>>(strings_vec: &[String], out
                 error!("write_json_string_vec_to_file: {}\n{:?}", write_error, e);
                 return;
             }
-        };
+        }
         match stream.flush() {
             Ok(_x) => (),
             Err(e) => {
                 error!("write_json_string_vec_to_file: {}\n{:?}", write_error, e);
             }
-        };
+        }
         return;
     }
 
@@ -143,14 +143,13 @@ pub fn write_json_string_vec_to_file<P: AsRef<Path>>(strings_vec: &[String], out
             error!("write_json_string_vec_to_file: {}\n{:?}", write_error, e);
             return;
         }
-    };
-
+    }
     match stream.flush() {
         Ok(_x) => (),
         Err(e) => {
             error!("write_json_string_vec_to_file: {}\n{:?}", write_error, e);
         }
-    };
+    }
 }
 
 /// The function `raws_to_string` converts a vector of raw objects into a JSON string representation.

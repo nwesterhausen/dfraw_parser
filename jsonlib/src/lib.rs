@@ -43,8 +43,8 @@ Raw file module folders are located in 3 locations that this library recognizes:
 
 - `$df_game_dir/data/vanilla`: the vanilla raws are here
 - `$df_game_dir/data/installed_mods`: the workshop mods which have been used in generating a world
-are here. They are considered installed because they are in use by at least one world. (Note: these
-are never removed even if you delete all worlds which use them.)
+  are here. They are considered installed because they are in use by at least one world. (Note: these
+  are never removed even if you delete all worlds which use them.)
 - `$df_game_dir/mods`: the workshop mods are stored here to be available when creating a world
 
 ### Info Text File
