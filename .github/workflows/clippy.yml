@@ -20,22 +20,22 @@ jobs:
           egress-policy: audit
 
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Install dependencies (for 'tauri' flag)
-        # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev \
-              build-essential \
-              curl \
-              wget \
-              file \
-              libssl-dev \
-              libgtk-3-dev \
-              libayatana-appindicator3-dev \
-              librsvg2-dev
-          sudo apt-get install -y javascriptcoregtk-4.1 \
-              libsoup-3.0 \
-              webkit2gtk-4.1
+      # - name: Install dependencies (for 'tauri' flag)
+      #   # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libwebkit2gtk-4.0-dev \
+      #         build-essential \
+      #         curl \
+      #         wget \
+      #         file \
+      #         libssl-dev \
+      #         libgtk-3-dev \
+      #         libayatana-appindicator3-dev \
+      #         librsvg2-dev
+      #     sudo apt-get install -y javascriptcoregtk-4.1 \
+      #         libsoup-3.0 \
+      #         webkit2gtk-4.1
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@2e7f9ec7921547d4b46598398ca573513895d0bd # 0.0.4
       - uses: dtolnay/rust-toolchain@d8352f6b1d2e870bc5716e7a6d9b65c4cc244a1a # master
@@ -66,22 +66,22 @@ jobs:
           egress-policy: audit
 
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
-      - name: Install dependencies (for 'tauri' flag)
-        # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev \
-              build-essential \
-              curl \
-              wget \
-              file \
-              libssl-dev \
-              libgtk-3-dev \
-              libayatana-appindicator3-dev \
-              librsvg2-dev
-          sudo apt-get install -y javascriptcoregtk-4.1 \
-              libsoup-3.0 \
-              webkit2gtk-4.1
+      # - name: Install dependencies (for 'tauri' flag)
+      #   # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libwebkit2gtk-4.0-dev \
+      #         build-essential \
+      #         curl \
+      #         wget \
+      #         file \
+      #         libssl-dev \
+      #         libgtk-3-dev \
+      #         libayatana-appindicator3-dev \
+      #         librsvg2-dev
+      #     sudo apt-get install -y javascriptcoregtk-4.1 \
+      #         libsoup-3.0 \
+      #         webkit2gtk-4.1
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@2e7f9ec7921547d4b46598398ca573513895d0bd # 0.0.4
       - uses: dtolnay/rust-toolchain@d8352f6b1d2e870bc5716e7a6d9b65c4cc244a1a # master
@@ -94,7 +94,7 @@ jobs:
       - name: Generate Type Bindings
         run: |
           cargo build
-          cargo test --all-features
+          cargo test
           bunx @biomejs/biome format --write jsonlib/bindings/*.ts
       - name: Check for changes
         run: |

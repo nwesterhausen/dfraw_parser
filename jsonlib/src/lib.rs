@@ -17,13 +17,6 @@ key in the token against a long list of ones it knows about. Any matches are uti
 build its own representation of the raw. Optionally you can turn this result into JSON using
 the `serde_json` library. Or I guess turn it into anything serde supports.
 
-## Tauri Support
-
-This library was built to provide raw parsing for another project, Overseer's Reference Manual,
-which creates a tauri app that lets the user look at the raws on their machine in a searchable
-and filterable manner. The "tauri" feature flag enables functions which will emit parsing progress
-back to the tauri window.
-
 ## Glossary of Terms
 
 ### Raw
@@ -67,19 +60,6 @@ for the steam workshop if it is a mod downloaded from the steam workshop.
 
 pub use dfraw_parser::*;
 
-#[cfg(feature = "tauri")]
-/// # Tauri Support
-///
-/// This has functions for interacting with the Tauri application.
-///
-/// This provides the same library functions but also allows for sending progress updates to the Tauri application.
-///
-/// The main functions:
-///
-/// - `parse`: Parses the raws in the provided location path, and returns a vector of boxed dynamic raw objects.
-/// - `parse_to_json`: Parses the raws in the provided location path, and returns a vector of JSON strings.
-mod tauri_lib;
-
 /// This has utility functions for file operations and directory traversal.
 ///
 /// The functions provide functionality for working with directories, files, and paths.
@@ -92,44 +72,3 @@ mod tauri_lib;
 /// - `write_json_string_vec_to_file`: Writes a vector of strings to a file, with each string on a separate line.
 /// - `raws_to_string`: Converts a vector of raw objects to a JSON string representation.
 pub mod util;
-
-#[cfg(feature = "tauri")]
-pub use tauri_lib::ProgressDetails;
-#[cfg(feature = "tauri")]
-pub use tauri_lib::ProgressPayload;
-#[cfg(feature = "tauri")]
-pub use tauri_lib::ProgressTask;
-
-#[cfg(feature = "tauri")]
-#[allow(clippy::too_many_lines)]
-/// Parse a directory of raws, and return a JSON string of the parsed raws. While parsing, this will
-/// emit tauri events to the supplied window. The event has title `PROGRESS` and uses the `ProgressPayload`
-/// object for the payload.
-///
-/// Set the `options` appropriately for the job you want to perform.
-///
-/// The payload supplies the current progress as a float and the name of the current folder to parse.
-///
-/// Properties:
-///
-/// * `options`: The `ParserOptions` to use for parsing.
-/// * `window`: A `tauri::Window` to emit `PROGRESS` events to.
-///
-/// Returns:
-///
-/// A JSON string with details on all raws in the game path.
-///
-/// # Errors
-///
-/// * `ParserError::Io` - If we can't read the raws from the Dwarf Fortress directory (various reasons)
-/// * `ParserError::InvalidPath` - If the path to the Dwarf Fortress directory is invalid
-///
-/// Other errors which are returned from the called functions within this function are not propagated, because the
-/// only "full" blocker is if the Dwarf Fortress directory is invalid.
-pub fn parse_with_tauri_emit(
-    options: &metadata::ParserOptions,
-    window: tauri::Window,
-) -> Result<ParseResult, ParserError> {
-    let mut progress_helper = tauri_lib::ProgressHelper::with_tauri_window(window);
-    tauri_lib::parse(options, &mut progress_helper)
-}

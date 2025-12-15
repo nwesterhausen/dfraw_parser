@@ -16,9 +16,6 @@ name = "dfraw_json_parser"
 path = "src/lib.rs"
 crate-type = ["rlib"]
 
-[features]
-tauri = ["dep:tauri"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -28,11 +25,6 @@ tracing = "0.1.40"
 typetag = "0.2"
 walkdir = "2"
 specta-typescript = "0.0.9"
-
-# Tauri feature dependency needs tauri lib
-[dependencies.tauri]
-version = "=2.0.0-beta.23"
-optional = true
 
 [dependencies.specta]
 version = "2.0.0-rc.22"
