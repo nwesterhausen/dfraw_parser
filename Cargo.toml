@@ -1,7 +1,7 @@
 [workspace]
 
 members = ["lib", "cli", "jsonlib"]
-resolver = "2"
+resolver = "3"
 
 # Some very strict lints.
 [workspace.lints.rust]

@@ -31,7 +31,7 @@ quick-xml = "0.35.0"
 # We slugify the names of the raw files to make them easier to work with.
 slug = "0.1.5"
 # Specta is used for generating TypeScript bindings. And whatever bindings specta supports in the future.
-specta = "=2.0.0-rc.13"
+specta = "2.0.0-rc.22"
 # Error type creation helper.
 thiserror = "1"
 # Tracing is used for logging.
