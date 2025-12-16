@@ -254,6 +254,74 @@ impl Caste {
     pub fn get_identifier(&self) -> &str {
         &self.identifier
     }
+    #[must_use]
+    pub fn get_description(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+    #[must_use]
+    pub fn get_pet_value(&self) -> Option<u32> {
+        self.pet_value
+    }
+    #[must_use]
+    pub fn get_baby_age(&self) -> Option<u32> {
+        self.baby
+    }
+    #[must_use]
+    pub fn get_child_age(&self) -> Option<u32> {
+        self.child
+    }
+    #[must_use]
+    pub fn get_difficulty(&self) -> Option<u32> {
+        self.difficulty
+    }
+    #[must_use]
+    pub fn get_egg_size(&self) -> Option<u32> {
+        self.egg_size
+    }
+    #[must_use]
+    pub fn get_pop_ratio(&self) -> Option<u32> {
+        self.pop_ratio
+    }
+    #[must_use]
+    pub fn get_clutch_size(&self) -> Option<[u32; 2]> {
+        self.clutch_size
+    }
+    #[must_use]
+    pub fn get_litter_size(&self) -> Option<[u32; 2]> {
+        self.litter_size
+    }
+    #[must_use]
+    pub fn get_max_age(&self) -> Option<[u32; 2]> {
+        self.max_age
+    }
+    #[must_use]
+    pub fn get_baby_name(&self) -> Option<&Name> {
+        self.baby_name.as_ref()
+    }
+    #[must_use]
+    pub fn get_child_name(&self) -> Option<&Name> {
+        self.child_name.as_ref()
+    }
+    #[must_use]
+    pub fn get_caste_name(&self) -> Option<&Name> {
+        self.caste_name.as_ref()
+    }
+    #[must_use]
+    pub fn get_tile(&self) -> Option<&Tile> {
+        self.tile.as_ref()
+    }
+    #[must_use]
+    pub fn get_body_sizes(&self) -> &[BodySize] {
+        self.body_size.as_deref().unwrap_or(&[])
+    }
+    #[must_use]
+    pub fn get_creature_classes(&self) -> &[String] {
+        self.creature_class.as_deref().unwrap_or(&[])
+    }
+    #[must_use]
+    pub fn get_gaits(&self) -> &[Gait] {
+        self.gaits.as_deref().unwrap_or(&[])
+    }
     /// Function to remove a tag from the creature.
     ///
     /// # Arguments

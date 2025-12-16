@@ -1388,6 +1388,7 @@ name = "sqlite_lib"
 version = "0.1.0"
 dependencies = [
  "const_format",
+ "dfraw_parser",
  "pollster",
  "tracing",
  "tracing-subscriber",

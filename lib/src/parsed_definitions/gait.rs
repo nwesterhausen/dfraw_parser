@@ -167,4 +167,14 @@ impl Gait {
     pub fn is_empty(&self) -> bool {
         self.gait_type == GaitTypeTag::Unknown
     }
+    /// Returns the type tag of the gait
+    #[must_use]
+    pub fn get_type(&self) -> &GaitTypeTag {
+        &self.gait_type
+    }
+    /// Returns the max speed of the gait
+    #[must_use]
+    pub fn get_max_speed(&self) -> u32 {
+        self.max_speed
+    }
 }
