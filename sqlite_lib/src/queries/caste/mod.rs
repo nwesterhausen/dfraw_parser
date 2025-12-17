@@ -1,6 +1,9 @@
 //! Queries for interacting with `[CASTE]` objects
 
-mod get;
-mod insert;
+pub mod get;
+mod get_sql;
+pub mod insert;
+mod insert_sql;
 
-pub use get::*;
+pub use get_sql::*;
+pub use insert_sql::*;

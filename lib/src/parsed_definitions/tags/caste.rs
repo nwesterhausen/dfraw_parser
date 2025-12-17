@@ -4,7 +4,15 @@ use crate::metadata::ObjectType;
 
 /// Tokens that can be found in a creature's caste definitions.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 pub enum CasteTag {
     /// Prevents tamed creature from being made available for adoption, instead allowing it to automatically adopt whoever it wants.

@@ -6,7 +6,9 @@
 ///
 /// # Errors
 /// Returns an error if any of the SQL statements fail.
-pub async fn initialize_database(db: &turso::Database) -> Result<(), turso::Error> {
+pub async fn initialize_database(
+    db: &turso::Database,
+) -> Result<(), std::boxed::Box<dyn std::error::Error>> {
     let conn = db.connect()?;
     // Enable foreign key constraints
     conn.execute("PRAGMA foreign_keys = ON;", ()).await?;
@@ -20,6 +22,8 @@ pub async fn initialize_database(db: &turso::Database) -> Result<(), turso::Erro
     conn.execute(super::reference::REF_BIOMES_TABLE, ()).await?;
     conn.execute(super::reference::REF_CASTE_TOKEN_FLAGS, ())
         .await?;
+    // Reference data
+    super::insert_ref_caste_flags(&conn).await?;
 
     // Metadata tables
     conn.execute(super::metadata::RAW_MODULES_TABLE, ()).await?;
@@ -34,24 +38,18 @@ pub async fn initialize_database(db: &turso::Database) -> Result<(), turso::Erro
         .await?;
 
     conn.execute(super::caste::CASTES_TABLE, ()).await?;
+    conn.execute(super::caste::CASTE_FLAGS_TABLE, ()).await?;
+    conn.execute(super::caste::CASTE_VALUE_FLAGS_TABLE, ())
+        .await?;
     conn.execute(super::caste::CASTE_ATTACKS_TABLE, ()).await?;
     conn.execute(super::caste::CASTE_ATTACK_TRIGGERS_TABLE, ())
-        .await?;
-    conn.execute(super::caste::CASTE_BEACH_FREQUENCIES_TABLE, ())
         .await?;
     conn.execute(super::caste::CASTE_BODY_APPEARANCE_MODIFIERS_TABLE, ())
         .await?;
     conn.execute(super::caste::CASTE_BODY_DETAIL_PLANS_TABLE, ())
         .await?;
-    conn.execute(super::caste::CASTE_BODY_GLOSSES_TABLE, ())
-        .await?;
     conn.execute(super::caste::CASTE_BODY_SIZES_TABLE, ())
         .await?;
-    conn.execute(super::caste::CASTE_CREATURE_CLASSES_TABLE, ())
-        .await?;
-    conn.execute(super::caste::CASTE_BODY_DETAIL_PLANS_TABLE, ())
-        .await?;
-    conn.execute(super::caste::CASTE_FLAGS_TABLE, ()).await?;
     conn.execute(super::caste::CASTE_GAITS, ()).await?;
     conn.execute(super::caste::CASTE_TILES_TABLE, ()).await?;
 

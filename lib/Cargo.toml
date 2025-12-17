@@ -30,8 +30,9 @@ once_cell = "1.19.0"
 quick-xml = "0.35.0"
 # We slugify the names of the raw files to make them easier to work with.
 slug = "0.1.5"
-# Specta is used for generating TypeScript bindings. And whatever bindings specta supports in the future.
-specta = "2.0.0-rc.22"
+# Create iterators from enums
+strum = "0.27"
+strum_macros = "0.27"
 # Error type creation helper.
 thiserror = "1"
 # Tracing is used for logging.
@@ -52,3 +53,10 @@ features = ["derive"]
 version = "0.11.2"
 default-features = true
 features = ["macros"]
+
+
+# Specta is used for generating TypeScript bindings. And whatever bindings specta supports in the future.
+[dependencies.specta]
+version = "2.0.0-rc.22"
+default-features = true
+features = ["derive"]

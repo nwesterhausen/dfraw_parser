@@ -44,22 +44,29 @@ CREATE TABLE castes (
 
 pub const CASTE_FLAGS_TABLE: &str = r"
 CREATE TABLE caste_flags (
+    id INTEGER PRIMARY KEY,
     caste_id INTEGER NOT NULL,
     flag_id INTEGER NOT NULL,
 
-    PRIMARY KEY (caste_id, flag_id),
     FOREIGN KEY (caste_id) REFERENCES castes(id),
     FOREIGN KEY (flag_id) REFERENCES ref_caste_token_flags(id)
-);";
+);
+CREATE INDEX idx_caste_flags ON caste_flags (caste_id, flag_id)";
 
-pub const CASTE_CREATURE_CLASSES_TABLE: &str = r"
-CREATE TABLE caste_creature_classes (
+pub const CASTE_VALUE_FLAGS_TABLE: &str = r"
+CREATE TABLE caste_value_flags (
+id INTEGER PRIMARY KEY,
     caste_id INTEGER NOT NULL,
-    class_name TEXT NOT NULL,
+    flag_id INTEGER NOT NULL,
 
-    PRIMARY KEY (caste_id, class_name),
-    FOREIGN KEY (caste_id) REFERENCES castes(id)
-);";
+    -- Values are either a string or a number
+    value_string TEXT,
+    value_int INTEGER,
+
+    FOREIGN KEY (caste_id) REFERENCES castes(id),
+    FOREIGN KEY (flag_id) REFERENCES ref_caste_token_flags(id)
+);
+CREATE INDEX idx_caste_value_flags ON caste_flags (caste_id, flag_id)";
 
 pub const CASTE_ATTACKS_TABLE: &str = r"
 CREATE TABLE caste_attacks (
@@ -78,15 +85,6 @@ CREATE TABLE caste_attack_triggers (
     population INTEGER DEFAULT 0,
     exported_wealth INTEGER DEFAULT 0,
     created_wealth INTEGER DEFAULT 0,
-
-    FOREIGN KEY (caste_id) REFERENCES castes(id)
-);";
-
-pub const CASTE_BEACH_FREQUENCIES_TABLE: &str = r"
-CREATE TABLE caste_beach_frequencies (
-    id INTEGER PRIMARY KEY,
-    caste_id INTEGER NOT NULL,
-    beach_frequency INTEGER DEFAULT 0,
 
     FOREIGN KEY (caste_id) REFERENCES castes(id)
 );";
@@ -113,7 +111,7 @@ CREATE TABLE caste_body_detail_plans (
     caste_id INTEGER NOT NULL,
     body_plan TEXT,
 
-    -- Arguments are like in the raw, separated by ';'
+    -- Arguments straight from the raw for now
     arguments TEXT,
 
     FOREIGN KEY (caste_id) REFERENCES castes(id)
@@ -126,14 +124,6 @@ CREATE TABLE caste_body_sizes (
     years INTEGER NOT NULL,
     days INTEGER NOT NULL,
     size_cm3 INTEGER NOT NULL, -- The 'size' value
-
-    FOREIGN KEY (caste_id) REFERENCES castes(id)
-);";
-
-pub const CASTE_BODY_GLOSSES_TABLE: &str = r"
-CREATE TABLE caste_body_glosses (
-    caste_id INTEGER NOT NULL,
-    gloss_text TEXT NOT NULL,
 
     FOREIGN KEY (caste_id) REFERENCES castes(id)
 );";

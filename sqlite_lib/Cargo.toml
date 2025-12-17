@@ -7,6 +7,7 @@ edition = "2024"
 const_format = "0.2.35"
 tracing = "0.1.43"
 turso = "0.3.2"
+strum = "0.27"
 
 [dependencies.dfraw_parser]
 path = "../lib"

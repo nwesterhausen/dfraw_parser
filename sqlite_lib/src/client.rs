@@ -27,7 +27,7 @@ impl DbClient {
     ///
     /// # Errors
     /// Returns an error if the database cannot be initialized.
-    pub async fn init(&self) -> Result<(), turso::Error> {
+    pub async fn init(&self) -> Result<(), std::boxed::Box<dyn std::error::Error>> {
         let conn = self.get_connection()?;
 
         if util::get_schema_version(&conn).await? == db_init::LATEST_SCHEMA_VERSION {

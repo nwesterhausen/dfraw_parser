@@ -5,5 +5,5 @@ CREATE TABLE tiles (
     alt_character TEXT,           -- [CASTE_ALTTILE]
     color TEXT,                   -- [CASTE_COLOR]
     glow_character TEXT,          -- [CASTE_GLOWTILE]
-    glow_color TEXT,              -- [CASTE_GLOWCOLOR]
+    glow_color TEXT               -- [CASTE_GLOWCOLOR]
 );";
