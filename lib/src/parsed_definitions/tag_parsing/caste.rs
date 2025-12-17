@@ -1424,14 +1424,11 @@ impl TagOperations for CasteTag {
                 })
             }
             Self::Pus { .. } => {
-                // Grab `material_state` from the end
-                let material_state = (*values.last().unwrap_or(&"")).to_string();
+                // Grab `state` from the end
+                let state = (*values.last().unwrap_or(&"")).to_string();
                 // Set `material` to `simple_value` + the remains of `value`
                 let material = (*values.get(..values.len() - 1).unwrap_or_default()).join(":");
-                Some(Self::Pus {
-                    material,
-                    material_state,
-                })
+                Some(Self::Pus { material, state })
             }
             Self::RelativeSize { .. } => {
                 // Appears as `RELATIVE_SIZE:SomeBodyPartSelector:SomeBodyPart:100`

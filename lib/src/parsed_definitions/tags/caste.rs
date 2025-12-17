@@ -1549,7 +1549,7 @@ pub enum CasteTag {
         /// The material of the pus
         material: String,
         /// The material state of the pus
-        material_state: String,
+        state: String,
     },
     /// Specifies a new relative size for a part than what is stated in the body plan. For example, dwarves have larger livers.
     ///
@@ -1875,6 +1875,7 @@ pub enum CasteTag {
     /// * `sound_range`: The range of the sound (in tiles)
     /// * `sound_interval`: A delay before the sound is produced again (in ticks)
     /// * `requires_breathing`: Whether the creature needs to breathe to make the sound
+    ///   (indicated by `VOCALIZATION` for true or `NONE` for false)
     /// * `first_person`: The first-person description of the sound
     /// * `third_person`: The third-person description of the sound
     /// * `out_of_sight`: The out-of-sight description of the sound

@@ -4,8 +4,8 @@
 pub const REF_OBJECT_TYPE_TABLE: &str = r"
 CREATE TABLE ref_object_types (
     id INTEGER PRIMARY KEY,
-    token TEXT NOT NULL UNIQUE,  -- e.g., 'CREATURE', 'ITEM_WEAPON'
-    name TEXT NOT NULL           -- e.g., 'Creature', 'Weapon (Item)'
+    token TEXT NOT NULL UNIQUE  -- e.g., 'CREATURE', 'ITEM_WEAPON'
+    --,name TEXT NOT NULL           -- e.g., 'Creature', 'Weapon (Item)'
 );";
 
 /// SQL statement to create the `ref_module_locations` table.
@@ -35,4 +35,15 @@ pub const REF_CASTE_TOKEN_FLAGS: &str = r"
 CREATE TABLE ref_caste_token_flags (
     id INTEGER PRIMARY KEY,
     token TEXT NOT NULL UNIQUE  -- e.g., 'AMPHIBIOUS', 'FLIER', 'WEBIMMUNE'
+);";
+
+pub const REF_LAIR_TOKEN_FLAGS: &str = r"
+CREATE TABLE ref_lair_token_flags (
+    id INTEGER PRIMARY KEY,
+    token TEXT NOT NULL UNIQUE
+);";
+pub const REF_SECRETION_TRIGGERS: &str = r"
+CREATE TABLE ref_secretion_triggers (
+    id INTEGER PRIMARY KEY,
+    token TEXT NOT NULL UNIQUE
 );";

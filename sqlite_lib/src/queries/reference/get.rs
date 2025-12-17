@@ -14,7 +14,7 @@ impl DbClient {
     /// # Errors
     ///
     /// Will error if a database lookup fails
-    pub async fn get_caste_flag_by_token(
+    pub async fn get_caste_flag_id_by_token(
         &self,
         token: &str,
     ) -> Result<i64, Box<dyn std::error::Error>> {

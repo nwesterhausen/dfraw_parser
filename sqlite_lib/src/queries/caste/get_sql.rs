@@ -86,4 +86,14 @@ pub const GET_BY_ID: &str = concatcp!(GET_ALL_CASTES, " WHERE c.id = ?1");
 /// 2. caste identifier
 pub const GET_ID_BY_CREATURE_AND_IDENTIFIER: &str = r"
 SELECT id FROM castes
-WHERE creature_id = ?1 AND identifier = ?2";
+WHERE creature_id = ?1 AND identifier = ?2;";
+
+/// Get body detail plan id for specific caste and plan name
+pub const GET_BODY_DETAIL_PLAN_BY_CASTE_ID_AND_NAME: &str = r"
+SELECT id FROM caste_body_detail_plans
+WHERE caste_id = ?1 AND name = ?2;";
+
+/// Get caste name reocrd id for specific caste id and tag position
+pub const GET_CASTE_NAME_ID_BY_CASTE_ID_AND_POSITION: &str = r"
+SELECT id FROM caste_names
+WHERE caste_id = ?1 AND tag_position = ?2;";
