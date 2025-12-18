@@ -1,3 +1,5 @@
+//! Helper methods for misc queries.
+
 mod body_part_group;
 mod creature_caste;
 mod item_material;

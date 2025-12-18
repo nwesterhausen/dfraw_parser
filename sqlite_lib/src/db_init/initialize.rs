@@ -22,15 +22,15 @@ pub async fn initialize_database(
     conn.execute(super::reference::REF_MODULE_LOCATIONS_TABLE, ())
         .await?;
     conn.execute(super::reference::REF_BIOMES_TABLE, ()).await?;
-    conn.execute(super::reference::REF_CASTE_TOKEN_FLAGS, ())
+    conn.execute(super::reference::REF_CASTE_TOKEN_TAGS, ())
         .await?;
-    conn.execute(super::reference::REF_LAIR_TOKEN_FLAGS, ())
+    conn.execute(super::reference::REF_LAIR_TOKEN_TAGS, ())
         .await?;
     conn.execute(super::reference::REF_SECRETION_TRIGGERS, ())
         .await?;
     // Reference data
-    super::insert_ref_caste_flags(&conn).await?;
-    super::insert_ref_lair_flags(&conn).await?;
+    super::insert_ref_caste_tags(&conn).await?;
+    super::insert_ref_lair_tags(&conn).await?;
     super::insert_ref_secretion_triggers(&conn).await?;
     super::insert_ref_object_types(&conn).await?;
 
@@ -98,8 +98,8 @@ async fn create_caste_tables(
     conn: &Connection,
 ) -> Result<(), std::boxed::Box<dyn std::error::Error>> {
     conn.execute(super::caste::CASTES_TABLE, ()).await?;
-    conn.execute(super::caste::CASTE_FLAGS_TABLE, ()).await?;
-    conn.execute(super::caste::CASTE_VALUE_FLAGS_TABLE, ())
+    conn.execute(super::caste::CASTE_TAGS_TABLE, ()).await?;
+    conn.execute(super::caste::CASTE_VALUE_TAGS_TABLE, ())
         .await?;
     conn.execute(super::caste::CASTE_ATTACKS_TABLE, ()).await?;
     conn.execute(super::caste::CASTE_ATTACK_TRIGGERS_TABLE, ())
@@ -111,8 +111,6 @@ async fn create_caste_tables(
     conn.execute(super::caste::CASTE_MATERIAL_TAGS_TABLE, ())
         .await?;
     conn.execute(super::caste::CASTE_ITEM_TAGS_TABLE, ())
-        .await?;
-    conn.execute(super::caste::CASTE_BODY_SIZES_TABLE, ())
         .await?;
     conn.execute(super::caste::CASTE_GAITS, ()).await?;
     conn.execute(super::caste::CASTE_TILES_TABLE, ()).await?;

@@ -1,3 +1,5 @@
+//! SQL and helper methods for misc tables.
+
 pub mod get;
 mod get_sql;
 mod insert_sql;

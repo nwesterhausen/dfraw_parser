@@ -25,13 +25,13 @@ pub async fn insert_ref_object_types(conn: &Connection) -> Result<(), Box<dyn st
     let mut count_rows = conn
         .query("SELECT COUNT(*) FROM ref_object_types;", ())
         .await?;
-    let total_object_type_flags: u64 = count_rows
+    let total_object_type_tags: u64 = count_rows
         .next()
         .await?
-        .ok_or("Unable to verify count of object_type_flags")?
+        .ok_or("Unable to verify count of object_type_tags")?
         .get(0)?;
 
-    tracing::info!("Inserted {total_object_type_flags} tokens into `ref_object_types` table");
+    tracing::info!("Inserted {total_object_type_tags} tokens into `ref_object_types` table");
 
     Ok(())
 }

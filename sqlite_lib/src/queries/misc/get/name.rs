@@ -1,4 +1,4 @@
-use turso::{Connection, Rows, params};
+use turso::{Connection, params};
 
 use crate::queries::misc::{
     GET_NAME_ID_BY_SINGULAR_PLURAL, GET_NAME_ID_BY_SINGULAR_PLURAL_ADJECTIVE, INSERT_DYNAMIC_NAME,
