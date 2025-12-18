@@ -17,19 +17,42 @@ pub async fn initialize_database(
 
     // Apply the table structure
     // Reference tables
-    conn.execute(super::reference::REF_OBJECT_TYPE_TABLE, ())
-        .await?;
-    conn.execute(super::reference::REF_MODULE_LOCATIONS_TABLE, ())
-        .await?;
     conn.execute(super::reference::REF_BIOMES_TABLE, ()).await?;
     conn.execute(super::reference::REF_CASTE_TOKEN_TAGS, ())
         .await?;
+    conn.execute(super::reference::REF_CONDITION_TOKEN_TAGS, ())
+        .await?;
+    conn.execute(
+        super::reference::REF_CREATURE_EFFECT_PROPERTY_TOKEN_TAGS,
+        (),
+    )
+    .await?;
+    conn.execute(super::reference::REF_CREATURE_EFFECT_TOKEN_TAGS, ())
+        .await?;
+    conn.execute(super::reference::REF_CREATURE_TOKEN_TAGS, ())
+        .await?;
+    conn.execute(super::reference::REF_CREATURE_VARIATION_TOKEN_TAGS, ())
+        .await?;
+    conn.execute(super::reference::REF_ENTITY_TOKEN_TAGS, ())
+        .await?;
     conn.execute(super::reference::REF_LAIR_TOKEN_TAGS, ())
+        .await?;
+    conn.execute(super::reference::REF_MODULE_LOCATIONS_TABLE, ())
+        .await?;
+    conn.execute(super::reference::REF_OBJECT_TYPE_TABLE, ())
         .await?;
     conn.execute(super::reference::REF_SECRETION_TRIGGERS, ())
         .await?;
+
     // Reference data
+    super::insert_ref_biome_tags(&conn).await?;
     super::insert_ref_caste_tags(&conn).await?;
+    super::insert_ref_condition_tags(&conn).await?;
+    super::insert_ref_creature_effect_property_tags(&conn).await?;
+    super::insert_ref_creature_effect_tags(&conn).await?;
+    super::insert_ref_creature_tags(&conn).await?;
+    super::insert_ref_creature_variation_tags(&conn).await?;
+    super::insert_ref_entity_tags(&conn).await?;
     super::insert_ref_lair_tags(&conn).await?;
     super::insert_ref_secretion_triggers(&conn).await?;
     super::insert_ref_object_types(&conn).await?;

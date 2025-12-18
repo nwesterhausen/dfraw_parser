@@ -51,5 +51,5 @@ pub const CREATURE_BIOMES_TABLE: &str = r"
      biome_tag_id INTEGER NOT NULL,
      PRIMARY KEY (creature_id, biome_tag_id),
      FOREIGN KEY (creature_id) REFERENCES creatures(id),
-     FOREIGN KEY (biome_tag_id) REFERENCES ref_biomes(id)
+     FOREIGN KEY (biome_tag_id) REFERENCES ref_biome_token_tags(id)
  );";

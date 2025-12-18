@@ -53,10 +53,9 @@ pub const REF_MODULE_LOCATIONS_TABLE: &str = r"
 /// - `token` (TEXT NOT NULL UNIQUE) — biome token (e.g., `GLACIER`, `ANY_LAND`)
 /// - `name` (TEXT NOT NULL) — human-readable biome name
 pub const REF_BIOMES_TABLE: &str = r"
- CREATE TABLE ref_biomes (
+ CREATE TABLE ref_biome_token_tags (
      id INTEGER PRIMARY KEY,
-     token TEXT NOT NULL UNIQUE,
-     name TEXT NOT NULL
+     token TEXT NOT NULL UNIQUE
  );";
 
 /// `ref_caste_token_tags`
@@ -99,6 +98,42 @@ pub const REF_LAIR_TOKEN_TAGS: &str = r"
 /// - `token` (TEXT NOT NULL UNIQUE) — secretion trigger token
 pub const REF_SECRETION_TRIGGERS: &str = r"
  CREATE TABLE ref_secretion_triggers (
+     id INTEGER PRIMARY KEY,
+     token TEXT NOT NULL UNIQUE
+ );";
+
+pub const REF_CREATURE_TOKEN_TAGS: &str = r"
+ CREATE TABLE ref_creature_token_tags (
+     id INTEGER PRIMARY KEY,
+     token TEXT NOT NULL UNIQUE
+ );";
+
+pub const REF_CREATURE_VARIATION_TOKEN_TAGS: &str = r"
+ CREATE TABLE ref_creature_variation_token_tags (
+     id INTEGER PRIMARY KEY,
+     token TEXT NOT NULL UNIQUE
+ );";
+
+pub const REF_ENTITY_TOKEN_TAGS: &str = r"
+ CREATE TABLE ref_entity_token_tags (
+     id INTEGER PRIMARY KEY,
+     token TEXT NOT NULL UNIQUE
+ );";
+
+pub const REF_CONDITION_TOKEN_TAGS: &str = r"
+ CREATE TABLE ref_condition_token_tags (
+     id INTEGER PRIMARY KEY,
+     token TEXT NOT NULL UNIQUE
+ );";
+
+pub const REF_CREATURE_EFFECT_TOKEN_TAGS: &str = r"
+ CREATE TABLE ref_creature_effect_token_tags (
+     id INTEGER PRIMARY KEY,
+     token TEXT NOT NULL UNIQUE
+ );";
+
+pub const REF_CREATURE_EFFECT_PROPERTY_TOKEN_TAGS: &str = r"
+ CREATE TABLE ref_creature_effect_property_token_tags (
      id INTEGER PRIMARY KEY,
      token TEXT NOT NULL UNIQUE
  );";
