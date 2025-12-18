@@ -9,7 +9,15 @@ use crate::{
 
 /// An enum representing a creature tag.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 pub enum CreatureTag {
     /// If set, the creature will blink between its `[Tile]` and its `[AltTile]`.

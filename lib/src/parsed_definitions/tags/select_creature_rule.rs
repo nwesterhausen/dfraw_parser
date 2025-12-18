@@ -1,7 +1,16 @@
 //! The rules for selecting a creature
 
 /// The rules for selecting a creature
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    specta::Type,
+    strum_macros::EnumIter,
+)]
 pub enum SelectCreatureRuleTag {
     /// Selects a previously defined caste
     SelectCaste(String),

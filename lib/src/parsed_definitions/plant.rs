@@ -397,7 +397,7 @@ impl RawObject for Plant {
                     self.biomes = Some(Vec::new());
                 }
                 if let Some(biomes) = &mut self.biomes {
-                    biomes.push(biome.clone());
+                    biomes.push(*biome);
                 }
             }
             PlantTag::UndergroundDepth => {
@@ -439,7 +439,7 @@ impl RawObject for Plant {
                 }
             }
             _ => {
-                self.add_tag(tag.clone());
+                self.add_tag(*tag);
             }
         }
     }

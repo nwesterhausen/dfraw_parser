@@ -4,7 +4,16 @@ use tracing::warn;
 
 /// The color modification of the tile
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type, Copy,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 #[serde(rename_all = "camelCase")]
 pub enum ColorModificationTag {

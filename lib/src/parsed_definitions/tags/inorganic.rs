@@ -2,7 +2,16 @@
 
 /// Tags that can be used in inorganic raws.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum InorganicTag {
     /// Used on metals, causes the metal to be made into wafers instead of bars.

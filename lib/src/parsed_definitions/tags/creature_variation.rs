@@ -6,7 +6,16 @@ use crate::raw_definitions::CREATURE_VARIATION_TOKENS;
 
 /// An enum representing a creature variation tag.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum CreatureVariationTag {
     /// A tag to add a new tag to the creature.
@@ -52,6 +61,6 @@ impl CreatureVariationTag {
         if tag == &Self::Unknown {
             warn!("Unknown creature variation (CV) tag: {}", key);
         }
-        tag.clone()
+        *tag
     }
 }
