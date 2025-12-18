@@ -1,3 +1,4 @@
+use crate::util::build_batch_insert;
 use dfraw_parser::metadata::ObjectType;
 use strum::IntoEnumIterator;
 use turso::Connection;
@@ -8,19 +9,21 @@ use turso::Connection;
 ///
 /// Will error if there's a database error.
 pub async fn insert_ref_object_types(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
-    // string for holding all the batched sql statments
-    let mut batch_sql = String::new();
+    // collect token strings then build a batched INSERT using the util helper
+    let mut values: Vec<&str> = Vec::new();
 
-    for caste_token in ObjectType::iter() {
-        let Some(token) = caste_token.get_key() else {
+    for object_type in ObjectType::iter() {
+        let Some(token) = object_type.get_key() else {
             continue;
         };
-
-        let insert_sql = format!("INSERT INTO ref_object_types (token) VALUES ('{token}');");
-        batch_sql.push_str(&insert_sql);
+        values.push(token);
     }
 
-    conn.execute_batch(&batch_sql).await?;
+    let batch_sql = build_batch_insert("ref_object_types", "token", &values);
+
+    if !batch_sql.is_empty() {
+        conn.execute_batch(&batch_sql).await?;
+    }
 
     let mut count_rows = conn
         .query("SELECT COUNT(*) FROM ref_object_types;", ())

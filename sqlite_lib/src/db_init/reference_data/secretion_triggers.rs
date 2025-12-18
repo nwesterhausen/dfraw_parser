@@ -1,3 +1,4 @@
+use crate::util::build_batch_insert;
 use turso::Connection;
 
 /// Inserts all the known values for secretion triggers.
@@ -8,15 +9,12 @@ use turso::Connection;
 pub async fn insert_ref_secretion_triggers(
     conn: &Connection,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // string for holding all the batched sql statments
-    let mut batch_sql = String::new();
+    let tokens = ["CONTINUOUS", "EXERTION", "EXTREME_EMOTION"];
+    let batch_sql = build_batch_insert("ref_secretion_triggers", "token", &tokens);
 
-    for token in ["CONTINUOUS", "EXERTION", "EXTREME_EMOTION"] {
-        let insert_sql = format!("INSERT INTO ref_secretion_triggers (token) VALUES ('{token}');");
-        batch_sql.push_str(&insert_sql);
+    if !batch_sql.is_empty() {
+        conn.execute_batch(&batch_sql).await?;
     }
-
-    conn.execute_batch(&batch_sql).await?;
 
     let mut count_rows = conn
         .query("SELECT COUNT(*) FROM ref_secretion_triggers;", ())

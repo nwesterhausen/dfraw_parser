@@ -1,3 +1,4 @@
+use crate::util::build_batch_insert;
 use dfraw_parser::tags::BiomeTag;
 use strum::IntoEnumIterator;
 use turso::Connection;
@@ -8,19 +9,17 @@ use turso::Connection;
 ///
 /// Will error if there's a database error.
 pub async fn insert_ref_biome_tags(conn: &Connection) -> Result<(), Box<dyn std::error::Error>> {
-    // string for holding all the batched sql statements
-    let mut batch_sql = String::new();
+    // collect token strings then build a batched INSERT using the util helper
+    let mut values: Vec<&str> = Vec::new();
 
     for tag in BiomeTag::iter() {
         let Some(token) = tag.get_key() else {
             continue;
         };
-
-        // escape single quotes in token just in case
-        let escaped = token.replace('\'', "''");
-        let insert_sql = format!("INSERT INTO ref_biome_token_tags (token) VALUES ('{escaped}');");
-        batch_sql.push_str(&insert_sql);
+        values.push(token);
     }
+
+    let batch_sql = build_batch_insert("ref_biome_token_tags", "token", &values);
 
     if !batch_sql.is_empty() {
         conn.execute_batch(&batch_sql).await?;
