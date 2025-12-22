@@ -24,7 +24,7 @@ jobs:
       #     script: |
       #       core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
       #       core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       # - name: Install dependencies (for 'tauri' flag)
       #   # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
       #   run: |
@@ -76,7 +76,7 @@ jobs:
       #     script: |
       #       core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL || '');
       #       core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       # - name: Run sccache-cache
       #   uses: mozilla-actions/sccache-action@2e7f9ec7921547d4b46598398ca573513895d0bd # 0.0.4
       - uses: dtolnay/rust-toolchain@d8352f6b1d2e870bc5716e7a6d9b65c4cc244a1a # master
@@ -85,7 +85,7 @@ jobs:
           toolchain: stable
 
       - name: Install bun
-        uses: oven-sh/setup-bun@8f24390df009a496891208e5e36b8a1de1f45135 #v1
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 #v1
       - name: Generate Type Bindings
         run: |
           cargo build
@@ -122,7 +122,7 @@ jobs:
           wget -O vanilla-raws.zip https://build-deps.ci.nwest.one/dwarffortress/vanilla_${{ vars.DF_VERSION }}.zip
           unzip -d /home/runner/vanilla-raws vanilla-raws.zip
 
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       # - name: Run sccache-cache
       # uses: mozilla-actions/sccache-action@2e7f9ec7921547d4b46598398ca573513895d0bd # 0.0.4
       - uses: dtolnay/rust-toolchain@d8352f6b1d2e870bc5716e7a6d9b65c4cc244a1a # master
