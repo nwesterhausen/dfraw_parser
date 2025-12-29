@@ -12,3 +12,4 @@ examples/www/out.json
 
 # Ignore vanilla raws
 vanilla-raws/
+vanilla.json

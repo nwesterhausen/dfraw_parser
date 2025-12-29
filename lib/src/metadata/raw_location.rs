@@ -1,3 +1,11 @@
+//! Raw module location helper.
+//!
+//! Based on version 53.08 of Dwarf Fortress, game raws are stored in these locations:
+//! * `{df_directory}/data/vanilla` (vanilla raws)
+//! * `{user_df_directory}/mods` (downloaded mods from the steam workshop)
+//! * `{user_df_directory}/data/installed_mods` (mods used in at least one save file)
+//!
+//! It used to be in older version that `mods` and `installed_mods` were in the same directory as `data`.
 use std::{
     fmt::{Debug, Display},
     path::{Path, PathBuf},

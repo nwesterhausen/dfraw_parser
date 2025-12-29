@@ -17,6 +17,8 @@ path = "src/lib.rs"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
+# directories used to find data directory and home directory on linux
+directories = "6.0.0"
 # Used to be able to force reading the raw files as Latin1.
 encoding_rs = "0.8.34"
 # Used to be able to force reading the raw files as Latin1 (has a BuffReader we use).
@@ -41,6 +43,8 @@ tracing = "0.1.40"
 typetag = "0.2"
 # Walkdir used to go through the directories and files recursively.
 walkdir = "2.5.0"
+# Windows: Registry access
+winreg = { version = "0.52", optional = true }
 
 # Serde used to serialize and deserialize our parsed data.
 [dependencies.serde]
@@ -60,3 +64,8 @@ features = ["macros"]
 version = "2.0.0-rc.22"
 default-features = true
 features = ["derive"]
+
+[features]
+default = []
+
+windows-support = ["dep:winreg"]
