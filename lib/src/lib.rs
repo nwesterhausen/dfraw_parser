@@ -15,6 +15,7 @@ pub mod traits;
 pub mod utilities;
 
 pub use error::Parser as ParserError;
+pub use parsed_definitions::custom_types;
 pub use parsed_definitions::*;
 pub use parser::parse::parse;
 pub use parser::parse_location;

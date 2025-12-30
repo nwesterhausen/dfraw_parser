@@ -7,7 +7,6 @@ use crate::{
     creature::Creature,
     default_checks,
     gait::Gait,
-    metadata::TagComplexity,
     milkable::Milkable,
     name::Name,
     raw_definitions::CASTE_TOKENS,
@@ -120,52 +119,21 @@ impl Caste {
     /// * `value` - The value of the tag to parse.
     #[allow(clippy::too_many_lines)]
     pub fn parse_tag(&mut self, key: &str, value: &str) {
-        let Some(tag) = CASTE_TOKENS.get(key) else {
+        let Some(tag) = CasteTag::parse(key, value) else {
             warn!(
-                "parse_tag: called `Option::unwrap()` on a `None` value for presumed caste tag: {}",
+                "parse_tag: called `Option::unwrap()` on a `None` value for presumed caste tag: '{}'",
                 key
             );
             return;
         };
 
-        // If value is empty, add the tag to the last caste
-        if value.is_empty() {
-            if let Some(tags) = self.tags.as_mut() {
-                tags.push(tag.clone());
-            } else {
-                self.tags = Some(vec![tag.clone()]);
-            }
-            return;
-        }
-        if matches!(tag.get_complexity(), TagComplexity::None) {
-            // If the tag is a TokenComplexity::None, then the value should be empty
-            // So we should log the extra value before adding the tag to the last caste
-            warn!(
-                "parse_tag: tag {} has a value of {} but is a TagComplexity::None as {:?}",
-                key, value, tag
-            );
-            if let Some(tags) = self.tags.as_mut() {
-                tags.push(tag.clone());
-            } else {
-                self.tags = Some(vec![tag.clone()]);
-            }
-            return;
-        }
-        // Both simple and complex tags should have a value, and that needs to be parsed. So let the tag handle it.
-        let Some(tag_and_value) = CasteTag::parse(key, value) else {
-            warn!(
-                "parse_tag: Called unwrap on a None value for tag {} with value {}",
-                key, value
-            );
-            return;
-        };
         if let Some(tags) = self.tags.as_mut() {
-            tags.push(tag_and_value.clone());
+            tags.push(tag.clone());
         } else {
-            self.tags = Some(vec![tag_and_value.clone()]);
+            self.tags = Some(vec![tag.clone()]);
         }
 
-        match tag_and_value {
+        match tag {
             CasteTag::Description { description } => self.description = Some(description),
             CasteTag::EggSize { size } => self.egg_size = Some(size),
             CasteTag::Baby { age } => self.baby = Some(age),
@@ -337,17 +305,6 @@ impl Caste {
             return;
         };
 
-        if matches!(tag.get_complexity(), TagComplexity::None) {
-            // If the tag is a TokenComplexity::None, then the value should be empty
-            // So we should log the extra value before adding the tag to the last caste
-            if !value.is_empty() {
-                warn!(
-                "remove_tag_and_value: tag {} has a value of {} but is a TagComplexity::None as {:?}",
-                key, value, tag
-            );
-                return;
-            }
-        }
         // Complex tags won't parse if we are removing them, (only the KEY is set)
         match key {
                 "DESCRIPTION" => self.description = None,
@@ -392,11 +349,12 @@ impl Caste {
                     }
                 }
                 _ => {
-                    if let Some(tags) = self.tags.as_mut() {
-                        tags.retain(|t| t != tag);
-                    }
                 }
             }
+
+        if let Some(tags) = self.tags.as_mut() {
+            tags.retain(|t| t != tag);
+        }
     }
     /// Overwrites the values of self with the values of other.
     ///
@@ -515,7 +473,7 @@ impl Caste {
     #[must_use]
     pub fn is_milkable(&self) -> bool {
         self.has_tag(&CasteTag::Milkable {
-            material: String::new(),
+            material: Vec::new(),
             frequency: 0,
         })
     }

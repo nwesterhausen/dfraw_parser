@@ -10,10 +10,8 @@ use crate::queries::caste::get::get_caste_name_id_by_caste_id_and_tag_position;
 use crate::queries::caste::{TagValue, insert_value_tag};
 use crate::queries::color::get::get_or_insert_color;
 use crate::queries::misc::get::{
-    get_or_insert_body_part_group, get_or_insert_dynamic_creature_caste_tag,
-    get_or_insert_dynamic_item_of_material, get_or_insert_dynamic_material_in_state,
-    get_or_insert_dynamic_name, get_ref_lair_token_id, get_ref_object_type_id,
-    get_ref_secretion_triggers_id,
+    get_or_insert_dynamic_creature_caste_tag, get_or_insert_dynamic_name, get_ref_lair_token_id,
+    get_ref_object_type_id,
 };
 
 impl DbClient {
@@ -267,11 +265,19 @@ pub async fn insert_caste_tag(
         | CasteTag::SoldierTile { tile }
         | CasteTag::SoldierAltTile { tile }
         | CasteTag::Tile { tile } => {
-            let values = vec![TagValue::String(tile.clone())];
+            let values = vec![TagValue::String(String::from(tile.value))];
 
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::Extract { material } | CasteTag::Webber { material } => {
+        CasteTag::Webber { material } => {
+            let values: Vec<TagValue> = material
+                .iter()
+                .map(|v| TagValue::String(String::from(v)))
+                .collect();
+
+            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        }
+        CasteTag::Extract { material } => {
             let values = vec![TagValue::String(material.clone())];
 
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
@@ -308,9 +314,12 @@ pub async fn insert_caste_tag(
 
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::Gait { gait } => {
+        CasteTag::Gait { gait_values } => {
             //todo: this needs updated to insert into the `caste_gaits` table
-            let values = vec![TagValue::String(gait.clone())];
+            let values: Vec<TagValue> = gait_values
+                .iter()
+                .map(|v| TagValue::String(String::from(v)))
+                .collect();
 
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
@@ -449,14 +458,12 @@ pub async fn insert_caste_tag(
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
         CasteTag::HabitNumber { number } => {
-            let values = vec![TagValue::Int(i64::from(*number))];
+            let values = vec![TagValue::Int(i64::from(u32::from(number)))];
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
         CasteTag::Homeotherm { temperature } => {
-            if let Some(temp) = *temperature {
-                let values = vec![TagValue::Int(i64::from(temp))];
-                insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-            }
+            let values = vec![TagValue::Int(i64::from(*temperature))];
+            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
         CasteTag::GrassTrample { trample } => {
             let values = vec![TagValue::Int(i64::from(*trample))];
@@ -567,10 +574,13 @@ pub async fn insert_caste_tag(
             healing_rate,
         } => {
             // store as value-tag so dynamic material handling is not bypassed here
-            let values = vec![
-                TagValue::String(material.clone()),
-                TagValue::Int(i64::from(*healing_rate)),
-            ];
+            let mut values: Vec<TagValue> = material
+                .iter()
+                .map(|v| TagValue::String(String::from(v)))
+                .collect();
+
+            values.push(TagValue::Int(i64::from(*healing_rate)));
+
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
         CasteTag::NaturalSkill { skill, level } => {
@@ -599,10 +609,12 @@ pub async fn insert_caste_tag(
             frequency,
         } => {
             // store as value-tag to unify value insertion
-            let values = vec![
-                TagValue::String(material.clone()),
-                TagValue::Int(i64::from(*frequency)),
-            ];
+            let mut values: Vec<TagValue> = material
+                .iter()
+                .map(|v| TagValue::String(String::from(v)))
+                .collect();
+
+            values.push(TagValue::Int(i64::from(*frequency)));
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
         //  B.6: String - String flags
@@ -635,13 +647,13 @@ pub async fn insert_caste_tag(
             .await?;
         }
         // Case C: Properties in special tables
-        CasteTag::Attack { name, body_part } => {
-            conn.execute(
-                super::INSERT_ATTACK_TAG,
-                params![caste_id, tag_position, name.as_str(), body_part.as_str()],
-            )
-            .await?;
-        }
+        // CasteTag::Attack { name, body_part } => {
+        //     conn.execute(
+        //         super::INSERT_ATTACK_TAG,
+        //         params![caste_id, tag_position, name.as_str(), body_part.as_str()],
+        //     )
+        //     .await?;
+        // }
         CasteTag::AttackTrigger {
             population,
             exported_wealth,
@@ -695,30 +707,30 @@ pub async fn insert_caste_tag(
 
             conn.execute_batch(&batch_insert_sql).await?;
         }
-        CasteTag::ItemCorpse { item, material }
-        | CasteTag::ExtraButcherObjectItem { item, material }
-        | CasteTag::LaysUnusualEggs { item, material } => {
-            let dyn_item_id =
-                get_or_insert_dynamic_item_of_material(conn, item.as_str(), material.as_str())
-                    .await?;
+        // CasteTag::ItemCorpse { item, material }
+        // | CasteTag::ExtraButcherObjectItem { item, material }
+        // | CasteTag::LaysUnusualEggs { item, material } => {
+        //     let dyn_item_id =
+        //         get_or_insert_dynamic_item_of_material(conn, item.as_str(), material.as_str())
+        //             .await?;
 
-            conn.execute(
-                super::INSERT_ITEM_TAG,
-                params![caste_id, tag_id, dyn_item_id, tag_position],
-            )
-            .await?;
-        }
-        CasteTag::Pus { material, state }
-        | CasteTag::Blood { material, state }
-        | CasteTag::EggMaterial { material, state } => {
-            let dyn_mat_id = get_or_insert_dynamic_material_in_state(conn, material, state).await?;
+        //     conn.execute(
+        //         super::INSERT_ITEM_TAG,
+        //         params![caste_id, tag_id, dyn_item_id, tag_position],
+        //     )
+        //     .await?;
+        // }
+        // CasteTag::Pus { material, state }
+        // | CasteTag::Blood { material, state }
+        // | CasteTag::EggMaterial { material, state } => {
+        //     let dyn_mat_id = get_or_insert_dynamic_material_in_state(conn, material, state).await?;
 
-            conn.execute(
-                super::INSERT_MATERIAL_TAG,
-                params![caste_id, tag_id, dyn_mat_id, tag_position],
-            )
-            .await?;
-        }
+        //     conn.execute(
+        //         super::INSERT_MATERIAL_TAG,
+        //         params![caste_id, tag_id, dyn_mat_id, tag_position],
+        //     )
+        //     .await?;
+        // }
         CasteTag::GobbleVerminCreature {
             vermin_creature,
             vermin_caste,
@@ -853,16 +865,16 @@ pub async fn insert_caste_tag(
             ];
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::PlusBodyPartGroup {
-            body_part_selector,
-            body_part_group,
-        } => {
-            let values = vec![
-                TagValue::String(body_part_selector.clone()),
-                TagValue::String(body_part_group.clone()),
-            ];
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
+        // CasteTag::PlusBodyPartGroup {
+        //     body_part_selector,
+        //     body_part_group,
+        // } => {
+        //     let values = vec![
+        //         TagValue::String(body_part_selector.clone()),
+        //         TagValue::String(body_part_group.clone()),
+        //     ];
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
         CasteTag::ProfessionName {
             profession,
             singular,
@@ -919,18 +931,18 @@ pub async fn insert_caste_tag(
             )
             .await?;
         }
-        CasteTag::RelativeSize {
-            body_part_selector,
-            body_part,
-            relative_size,
-        } => {
-            let values = vec![
-                TagValue::String(body_part_selector.clone()),
-                TagValue::String(body_part.clone()),
-                TagValue::Int(i64::from(*relative_size)),
-            ];
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
+        // CasteTag::RelativeSize {
+        //     body_part_selector,
+        //     body_part,
+        //     relative_size,
+        // } => {
+        //     let values = vec![
+        //         TagValue::String(body_part_selector.clone()),
+        //         TagValue::String(body_part.clone()),
+        //         TagValue::Int(i64::from(*relative_size)),
+        //     ];
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
         CasteTag::RetractIntoBodyPart {
             body_part_selector,
             body_part,
@@ -949,49 +961,49 @@ pub async fn insert_caste_tag(
             ];
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::RootAround {
-            body_part_selector,
-            body_part,
-            second_person_verb,
-            third_person_verb,
-        } => {
-            let values = vec![
-                TagValue::String(body_part_selector.clone()),
-                TagValue::String(body_part.clone()),
-                TagValue::String(second_person_verb.clone()),
-                TagValue::String(third_person_verb.clone()),
-            ];
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
-        CasteTag::Secretion {
-            material_token,
-            material_state,
-            body_part_selector,
-            body_part,
-            tissue_layer,
-            trigger,
-        } => {
-            let dyn_mat_id =
-                get_or_insert_dynamic_material_in_state(conn, material_token, material_state)
-                    .await?;
-            let body_part_group_id =
-                get_or_insert_body_part_group(conn, body_part_selector, body_part).await?;
-            let trigger_id = get_ref_secretion_triggers_id(conn, trigger.as_str()).await?;
+        // CasteTag::RootAround {
+        //     body_part_selector,
+        //     body_part,
+        //     second_person_verb,
+        //     third_person_verb,
+        // } => {
+        //     let values = vec![
+        //         TagValue::String(body_part_selector.clone()),
+        //         TagValue::String(body_part.clone()),
+        //         TagValue::String(second_person_verb.clone()),
+        //         TagValue::String(third_person_verb.clone()),
+        //     ];
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
+        // CasteTag::Secretion {
+        //     material_token,
+        //     material_state,
+        //     body_part_selector,
+        //     body_part,
+        //     tissue_layer,
+        //     trigger,
+        // } => {
+        //     let dyn_mat_id =
+        //         get_or_insert_dynamic_material_in_state(conn, material_token, material_state)
+        //             .await?;
+        //     let body_part_group_id =
+        //         get_or_insert_body_part_group(conn, body_part_selector, body_part).await?;
+        //     let trigger_id = get_ref_secretion_triggers_id(conn, trigger.as_str()).await?;
 
-            conn.execute(
-                super::INSERT_SECRETION_TAG,
-                params![
-                    caste_id,
-                    tag_id,
-                    tag_position,
-                    dyn_mat_id,
-                    body_part_group_id,
-                    tissue_layer.as_str(),
-                    trigger_id
-                ],
-            )
-            .await?;
-        }
+        //     conn.execute(
+        //         super::INSERT_SECRETION_TAG,
+        //         params![
+        //             caste_id,
+        //             tag_id,
+        //             tag_position,
+        //             dyn_mat_id,
+        //             body_part_group_id,
+        //             tissue_layer.as_str(),
+        //             trigger_id
+        //         ],
+        //     )
+        //     .await?;
+        // }
         CasteTag::SenseCreatureClass {
             creature_class,
             tile,
@@ -1008,16 +1020,16 @@ pub async fn insert_caste_tag(
             ];
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::SetBodyPartGroup {
-            body_part_selector,
-            body_part,
-        } => {
-            let values = vec![
-                TagValue::String(body_part_selector.clone()),
-                TagValue::String(body_part.clone()),
-            ];
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
+        // CasteTag::SetBodyPartGroup {
+        //     body_part_selector,
+        //     body_part,
+        // } => {
+        //     let values = vec![
+        //         TagValue::String(body_part_selector.clone()),
+        //         TagValue::String(body_part.clone()),
+        //     ];
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
         CasteTag::Sound {
             sound_type,
             sound_range,
@@ -1039,21 +1051,21 @@ pub async fn insert_caste_tag(
             ];
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::TissueLayer {
-            body_part_selector,
-            body_part,
-            tissue,
-            location,
-        } => {
-            // store the arguments as values for now
-            let values = vec![
-                TagValue::String(body_part_selector.clone()),
-                TagValue::String(body_part.clone()),
-                TagValue::String(tissue.clone()),
-                TagValue::String(location.clone()),
-            ];
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
+        // CasteTag::TissueLayer {
+        //     body_part_selector,
+        //     body_part,
+        //     tissue,
+        //     location,
+        // } => {
+        //     // store the arguments as values for now
+        //     let values = vec![
+        //         TagValue::String(body_part_selector.clone()),
+        //         TagValue::String(body_part.clone()),
+        //         TagValue::String(tissue.clone()),
+        //         TagValue::String(location.clone()),
+        //     ];
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
         CasteTag::TissueLayerUnder {
             body_part_selector,
             body_part,
@@ -1066,21 +1078,21 @@ pub async fn insert_caste_tag(
             ];
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::VerminBite {
-            chance,
-            verb,
-            material,
-            material_state,
-        } => {
-            // store simple parts; material handling remains more complex and is left to follow-up
-            let values = vec![
-                TagValue::Int(i64::from(*chance)),
-                TagValue::String(verb.clone()),
-                TagValue::String(material.clone()),
-                TagValue::String(material_state.clone()),
-            ];
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
+        // CasteTag::VerminBite {
+        //     chance,
+        //     verb,
+        //     material,
+        //     material_state,
+        // } => {
+        //     // store simple parts; material handling remains more complex and is left to follow-up
+        //     let values = vec![
+        //         TagValue::Int(i64::from(*chance)),
+        //         TagValue::String(verb.clone()),
+        //         TagValue::String(material.clone()),
+        //         TagValue::String(material_state.clone()),
+        //     ];
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
         CasteTag::VisionArc {
             binocular,
             non_binocular,
@@ -1113,13 +1125,13 @@ pub async fn insert_caste_tag(
             }
             insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
         }
-        CasteTag::ApplyCreatureVariation { id, args } => {
-            let mut values = vec![TagValue::String(id.clone())];
-            for a in args {
-                values.push(TagValue::String(a.clone()));
-            }
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
+        // CasteTag::ApplyCreatureVariation { id, args } => {
+        //     let mut values = vec![TagValue::String(id.clone())];
+        //     for a in args {
+        //         values.push(TagValue::String(a.clone()));
+        //     }
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
         CasteTag::ExtraButcherObject {
             object_type,
             arguments,
@@ -1152,13 +1164,13 @@ pub async fn insert_caste_tag(
             )
             .await?;
         }
-        CasteTag::InteractionDetail { args } => {
-            let mut values: Vec<TagValue> = Vec::new();
-            for a in args {
-                values.push(TagValue::String(a.clone()));
-            }
-            insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
-        }
+        // CasteTag::InteractionDetail { args } => {
+        //     let mut values: Vec<TagValue> = Vec::new();
+        //     for a in args {
+        //         values.push(TagValue::String(a.clone()));
+        //     }
+        //     insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
+        // }
         CasteTag::Body { body_parts } => {
             // Body parts are complex structures; store tokens for now
             let mut values: Vec<TagValue> = Vec::new();
@@ -1169,6 +1181,9 @@ pub async fn insert_caste_tag(
             if !values.is_empty() {
                 insert_value_tag(conn, caste_id, tag_id, tag_position, &values).await?;
             }
+        }
+        _ => {
+            tracing::error!("Insert not implemented for: {tag:?}");
         }
     }
 
