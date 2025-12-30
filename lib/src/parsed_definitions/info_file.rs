@@ -1,7 +1,7 @@
 //! The `info.txt` file for a raw module. This file contains metadata about the module.
 
 use std::{
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, Error, ErrorKind},
     path::Path,
 };
 
@@ -93,22 +93,38 @@ impl InfoFile {
     /// * `ParserError::FileNotFound` - If the passed file path does not exist
     /// * `ParserError::IOError` - If there is an error reading the file
     pub fn from_raw_file_path<P: AsRef<Path>>(full_path: &P) -> Result<Self, ParserError> {
+        let path = full_path.as_ref();
         // Validate that the passed file exists
-        let _ = try_get_file(full_path)?;
+        if !path.exists() {
+            return Err(ParserError::Io {
+                source: Error::new(
+                    ErrorKind::NotFound,
+                    format!(
+                        "Raw file to find 'info.txt' for doesn't exist: {}",
+                        path.display()
+                    ),
+                ),
+            });
+        }
 
-        // Take the full path for the raw file and navigate up to the parent directory
-        // e.g from `data/vanilla/vanilla_creatures/objects/creature_standard.txt` to `data/vanilla/vanilla_creatures`
-        // Then run parse on `data/vanilla/vanilla_creatures/info.txt`
-        let parent_directory = full_path
-            .as_ref()
-            .parent()
-            .unwrap_or_else(|| Path::new(""))
-            .parent()
-            .unwrap_or_else(|| Path::new(""))
-            .to_string_lossy()
-            .to_string();
-        let info_file_path = Path::new(parent_directory.as_str()).join("info.txt");
-        Self::parse(&info_file_path)
+        // Take the full path for the raw file and navigate up until we find the info.txt
+        // It's possible to nest raws inside subdirectories in the modules, so that we may have to go up 2 or more
+        // parents before we find it.
+        for dir in path.ancestors().skip(1) {
+            let info_file_path = dir.join("info.txt");
+
+            if info_file_path.exists() {
+                return Self::parse(&info_file_path);
+            }
+        }
+
+        // If we reach here, we were not able to find an 'info.txt' file
+        Err(ParserError::Io {
+            source: Error::new(
+                ErrorKind::NotFound,
+                format!("'info.txt' not found in any parent of {}", path.display()),
+            ),
+        })
     }
     /// Parses the `info.txt` file at the passed path
     ///
@@ -129,16 +145,13 @@ impl InfoFile {
         let parent_dir = get_parent_dir_name(info_file_path);
         let location = RawModuleLocation::from_path(info_file_path);
 
-        let file = match try_get_file(info_file_path) {
-            Ok(f) => f,
-            Err(e) => {
-                error!("try_get_file: {e:?}");
-                debug!("{:?}", e);
-                return Err(ParserError::NothingToParse(
-                    info_file_path.as_ref().display().to_string(),
-                ));
-            }
-        };
+        let file = try_get_file(info_file_path).map_err(|e| {
+            ParserError::InvalidRawFile(format!(
+                "Unable to open raw info file {}: {}",
+                info_file_path.as_ref().display(),
+                e
+            ))
+        })?;
 
         let decoding_reader = DecodeReaderBytesBuilder::new()
             .encoding(Some(*DF_ENCODING))

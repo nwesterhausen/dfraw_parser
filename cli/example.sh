@@ -4,4 +4,4 @@
 df_dir="/Volumes/LaCie/Samples/Dwarf_Fortress"
 user_data_dir="/Volumes/LaCie/Samples/Bay_12_Games/Dwarf Fortress"
 # cargo run -- --vanilla -o vanilla.json -P -U "$user_data_dir" "$df_dir"
-cargo run -- --installed -o installed-mods.json -P -U "$user_data_dir" "$df_dir"
+cargo run -- --vanilla --installed -o installed-mods.json -P -U "$user_data_dir" "$df_dir"

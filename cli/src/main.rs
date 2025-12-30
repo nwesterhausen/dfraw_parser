@@ -403,7 +403,7 @@ pub fn main() -> Result<(), lexopt::Error> {
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
-    tracing::info!("Parsed Args:\n{args:?}");
+    tracing::debug!("Parsed Args:\n{args:?}");
 
     // Build ParserOptions for the parser
     let mut options = ParserOptions::new();
@@ -435,7 +435,7 @@ pub fn main() -> Result<(), lexopt::Error> {
         options.log_summary();
     }
 
-    tracing::info!("Options sent to dfraw_parser:\n{options:?}");
+    tracing::debug!("Options sent to dfraw_parser:\n{options:?}");
 
     // Parse the raws
     let result = parse(&options).map_err(|e| {

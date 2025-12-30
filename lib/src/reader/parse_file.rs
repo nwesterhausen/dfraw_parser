@@ -104,7 +104,13 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     let mut created_raws: Vec<Box<dyn RawObject>> = Vec::new();
     let mut unprocessed_raws: Vec<UnprocessedRaw> = Vec::new();
 
-    let file = try_get_file(raw_file_path)?;
+    let file = try_get_file(raw_file_path).map_err(|e| {
+        ParserError::InvalidRawFile(format!(
+            "Unable to open raw file {}: {}",
+            raw_file_path.as_ref().display(),
+            e
+        ))
+    })?;
 
     let decoding_reader = DecodeReaderBytesBuilder::new()
         .encoding(Some(*DF_ENCODING))
