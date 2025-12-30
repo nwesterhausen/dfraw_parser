@@ -782,6 +782,11 @@ pub enum EntityTag {
     #[default]
     Unknown,
 
+    // new tag found in 53.xx
+    /// Found in raws as `SIEGE_SKILLED_MINERS`
+    /// Presumed to mean that the entity can bring skilled miners to a siege
+    SiegeSkilledMiners,
+
     // not yet tags, but they are used in some mods
     /// Prefers wood
     WoodPref,
