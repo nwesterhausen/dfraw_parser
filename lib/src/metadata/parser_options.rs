@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use crate::metadata::LocationHelper;
+
 use super::{ObjectType, RawModuleLocation};
 
 /// # Parsing Options
@@ -72,13 +74,13 @@ pub struct ParserOptions {
     ///
     /// Default: None
     pub locations_to_parse: Vec<RawModuleLocation>,
-    /// The path to the dwarf fortress directory. If no locations are specified, then this is not used.
+    /// The paths to the locations used for parsing: the Dwarf Fortress installation directory and the
+    /// Dwarf Fortress user data directory.
     ///
-    /// This is not used when parsing specific raws, modules, info files, or legends exports as specified by
-    /// `raw_files_to_parse`, `raw_modules_to_parse`, `module_info_files_to_parse`, or `legends_exports_to_parse`.
+    /// This can be automatically gathered or explicitly set.
     ///
-    /// Default: ""
-    pub dwarf_fortress_directory: PathBuf,
+    /// Default: Attempted to be automatically gathered.
+    pub locations: LocationHelper,
     /// Optionally specify one or more `legends_plus` exports to parse in addition to the raws.
     /// These exports include information about generated creatures which are not included in the
     /// raws.
@@ -141,7 +143,7 @@ impl Default for ParserOptions {
                 ObjectType::TilePage,
             ],
             locations_to_parse: vec![],
-            dwarf_fortress_directory: PathBuf::from(""),
+            locations: LocationHelper::new(),
             legends_exports_to_parse: Vec::new(),
             raw_files_to_parse: Vec::new(),
             raw_modules_to_parse: Vec::new(),
@@ -152,7 +154,6 @@ impl Default for ParserOptions {
 
 impl ParserOptions {
     /// Creates a new `ParserOptions` struct with the default values.
-    /// * `target_path` is the path to parse in.
     ///
     /// For `ParsingJob::ALL` or `ParsingJob::SingleLocation`, this should be the path to the dwarf fortress directory.
     ///
@@ -160,11 +161,22 @@ impl ParserOptions {
     /// info.txt file).
     ///
     /// For `ParsingJob::SingleRaw`, this should be the path directly to the raw.
-    pub fn new<P: AsRef<Path>>(target_path: P) -> Self {
-        Self {
-            dwarf_fortress_directory: target_path.as_ref().to_path_buf(),
-            ..Default::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn set_dwarf_fortress_directory(&mut self, df_dir: &PathBuf) {
+        match self.locations.set_df_directory(df_dir) {
+            Ok(()) => (),
+            Err(e) => tracing::error!("{e:?}"),
+        };
+    }
+
+    pub fn set_user_data_directory(&mut self, user_data_dir: &PathBuf) {
+        match self.locations.set_user_data_directory(user_data_dir) {
+            Ok(()) => (),
+            Err(e) => tracing::error!("{e:?}"),
+        };
     }
 
     /// If applied, all raws will have a `metadata` field which shows information about the

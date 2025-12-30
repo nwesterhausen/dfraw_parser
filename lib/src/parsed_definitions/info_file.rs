@@ -127,12 +127,12 @@ impl InfoFile {
     #[allow(clippy::cognitive_complexity, clippy::too_many_lines)]
     pub fn parse<P: AsRef<Path>>(info_file_path: &P) -> Result<Self, ParserError> {
         let parent_dir = get_parent_dir_name(info_file_path);
-        let location = RawModuleLocation::from_info_text_file_path(info_file_path);
+        let location = RawModuleLocation::from_path(info_file_path);
 
         let file = match try_get_file(info_file_path) {
             Ok(f) => f,
             Err(e) => {
-                error!("ModuleInfoFile::parse: try_get_file error");
+                error!("try_get_file: {e:?}");
                 debug!("{:?}", e);
                 return Err(ParserError::NothingToParse(
                     info_file_path.as_ref().display().to_string(),

@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use walkdir::DirEntry;
 
 use crate::{
@@ -28,32 +28,48 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
     let mut results = Vec::new();
 
     if !options.locations_to_parse.is_empty() {
-        let target_path = Path::new(&options.dwarf_fortress_directory);
-
-        // Build paths for each location
-        let data_path = target_path.join("data");
-        let vanilla_path = data_path.join("vanilla");
-        let installed_mods_path = data_path.join("installed_mods");
-        let workshop_mods_path = target_path.join("mods");
-
         // Parse each location
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::Vanilla)
         {
-            results.extend(parse_module_info_files_at_location(&vanilla_path)?);
+            info!("Dispatching info.txt parse for vanilla raws");
+            if let Some(vanilla_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::Vanilla)
+            {
+                results.extend(parse_module_info_files_at_location(&vanilla_path)?);
+            } else {
+                error!("No valid vanilla raws path found!");
+            }
         }
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::InstalledMods)
         {
-            results.extend(parse_module_info_files_at_location(&installed_mods_path)?);
+            info!("Dispatching info.txt parse for vanilla raws");
+            if let Some(installed_mods_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::InstalledMods)
+            {
+                results.extend(parse_module_info_files_at_location(&installed_mods_path)?);
+            } else {
+                error!("No valid vanilla raws path found!");
+            }
         }
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::Mods)
         {
-            results.extend(parse_module_info_files_at_location(&workshop_mods_path)?);
+            info!("Dispatching info.txt parse for workshop mod raws");
+            if let Some(workshop_mods_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::Mods)
+            {
+                results.extend(parse_module_info_files_at_location(&workshop_mods_path)?);
+            } else {
+                error!("No valid workshop mod raws path found!");
+            }
         }
     }
 
