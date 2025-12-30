@@ -92,7 +92,10 @@ impl InfoFile {
     ///
     /// * `ParserError::FileNotFound` - If the passed file path does not exist
     /// * `ParserError::IOError` - If there is an error reading the file
-    pub fn from_raw_file_path<P: AsRef<Path>>(full_path: &P) -> Result<Self, ParserError> {
+    pub fn from_raw_file_path<P: AsRef<Path>>(
+        full_path: &P,
+        warn_on_format_issue: bool,
+    ) -> Result<Self, ParserError> {
         let path = full_path.as_ref();
         // Validate that the passed file exists
         if !path.exists() {
@@ -114,7 +117,7 @@ impl InfoFile {
             let info_file_path = dir.join("info.txt");
 
             if info_file_path.exists() {
-                return Self::parse(&info_file_path);
+                return Self::parse(&info_file_path, warn_on_format_issue);
             }
         }
 
@@ -141,7 +144,10 @@ impl InfoFile {
     /// * `ParserError::FileNotFound` - If the passed file path does not exist
     /// * `ParserError::IOError` - If there is an error reading the file
     #[allow(clippy::cognitive_complexity, clippy::too_many_lines)]
-    pub fn parse<P: AsRef<Path>>(info_file_path: &P) -> Result<Self, ParserError> {
+    pub fn parse<P: AsRef<Path>>(
+        info_file_path: &P,
+        warn_on_format_issue: bool,
+    ) -> Result<Self, ParserError> {
         let parent_dir = get_parent_dir_name(info_file_path);
         let location = RawModuleLocation::from_path(info_file_path);
 
@@ -203,19 +209,21 @@ impl InfoFile {
                     "NUMERIC_VERSION" => match captured_value.parse() {
                         Ok(n) => info_file_data.numeric_version = n,
                         Err(_e) => {
-                            warn!(
+                            if warn_on_format_issue {
+                                warn!(
                                 "ModuleInfoFile::parse: 'NUMERIC_VERSION' should be integer '{}' in {}",
                                 captured_value,
                                 info_file_path.as_ref().display()
                             );
+                            }
                             // match on \D to replace any non-digit characters with empty string
                             let digits_only =
                                 NON_DIGIT_RE.replace_all(captured_value, "").to_string();
                             match digits_only.parse() {
                                 Ok(n) => info_file_data.numeric_version = n,
                                 Err(_e) => {
-                                    debug!(
-                                        "ModuleInfoFile::parse: Unable to parse any numbers from {} for NUMERIC_VERSION",
+                                    error!(
+                                        "ModuleInfoFile::parse: Unable to parse any numbers from '{}' for NUMERIC_VERSION",
                                         captured_value
                                     );
                                 }
@@ -225,19 +233,21 @@ impl InfoFile {
                     "EARLIEST_COMPATIBLE_NUMERIC_VERSION" => match captured_value.parse() {
                         Ok(n) => info_file_data.earliest_compatible_numeric_version = n,
                         Err(_e) => {
-                            warn!(
+                            if warn_on_format_issue {
+                                warn!(
                                 "ModuleInfoFile::parse: 'EARLIEST_COMPATIBLE_NUMERIC_VERSION' should be integer '{}' in {:?}",
                                 captured_value,
                                 info_file_path.as_ref().display()
                             );
+                            }
                             // match on \D to replace any non-digit characters with empty string
                             let digits_only =
                                 NON_DIGIT_RE.replace_all(captured_value, "").to_string();
                             match digits_only.parse() {
                                 Ok(n) => info_file_data.earliest_compatible_numeric_version = n,
                                 Err(_e) => {
-                                    debug!(
-                                        "ModuleInfoFile::parse: Unable to parse any numbers from {} for EARLIEST_COMPATIBLE_NUMERIC_VERSION",
+                                    error!(
+                                        "ModuleInfoFile::parse: Unable to parse any numbers from '{}' for EARLIEST_COMPATIBLE_NUMERIC_VERSION",
                                         captured_value
                                     );
                                 }
@@ -365,11 +375,13 @@ impl InfoFile {
                             }
                         }
                         Err(_e) => {
-                            warn!(
+                            if warn_on_format_issue {
+                                warn!(
                                 "ModuleInfoFile::parse: 'STEAM_FILE_ID' should be integer, was {} in {}",
                                 captured_value,
                                 info_file_path.as_ref().display()
                             );
+                            }
                             // match on \D to replace any non-digit characters with empty string
                             let digits_only =
                                 NON_DIGIT_RE.replace_all(captured_value, "").to_string();
@@ -384,8 +396,8 @@ impl InfoFile {
                                     }
                                 }
                                 Err(_e) => {
-                                    debug!(
-                                        "ModuleInfoFile::parse: Unable to parse any numbers from {} for STEAM_FILE_ID",
+                                    error!(
+                                        "ModuleInfoFile::parse: Unable to parse any numbers from '{}' for STEAM_FILE_ID",
                                         captured_value
                                     );
                                 }

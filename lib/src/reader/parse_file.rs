@@ -56,7 +56,10 @@ pub fn parse_raw_file<P: AsRef<Path>>(
     raw_file_path: &P,
     options: &ParserOptions,
 ) -> Result<FileParseResult, ParserError> {
-    let mod_info_file = match InfoFile::from_raw_file_path(raw_file_path) {
+    let mod_info_file = match InfoFile::from_raw_file_path(
+        raw_file_path,
+        options.include_warnings_for_info_file_format,
+    ) {
         Ok(m) => m,
         Err(e) => {
             warn!("parse_raw_file: Using an empty InfoFile because of error parsing the file");

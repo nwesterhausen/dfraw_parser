@@ -123,6 +123,14 @@ pub struct ParserOptions {
     ///
     /// Default: false
     pub log_summary: bool,
+    /// Log warnings about the format of the info.txt file.
+    ///
+    /// Typically this includes non-integer "before version" tags or other format errors which Dwarf Fortress
+    /// will ignore/do its best to parse. They tend to not prevent the module to work, but they are technically
+    /// incorrectly formatted. This would mostly be useful for mod authors to check.
+    ///
+    /// Default: false
+    pub include_warnings_for_info_file_format: bool,
 }
 
 impl Default for ParserOptions {
@@ -131,6 +139,7 @@ impl Default for ParserOptions {
             attach_metadata_to_raws: false,
             skip_apply_copy_tags_from: false,
             skip_apply_creature_variations: false,
+            include_warnings_for_info_file_format: false,
             log_summary: false,
             object_types_to_parse: vec![
                 ObjectType::Creature,
