@@ -895,7 +895,7 @@ impl RawObject for Entity {
             }
 
             _ => {
-                self.tags.push(tag.clone());
+                self.tags.push(*tag);
             }
         }
     }

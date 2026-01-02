@@ -258,40 +258,28 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
         object_types_to_parse: options.object_types_to_parse.clone(),
         skip_apply_copy_tags_from: options.skip_apply_copy_tags_from,
         skip_apply_creature_variations: options.skip_apply_creature_variations,
+        locations: options.locations.clone(),
         ..Default::default()
     };
 
+    validated_options.locations.init();
+
     // Guard against invalid path if locations are set
-    if !options.locations_to_parse.is_empty() {
-        let target_path = &options.dwarf_fortress_directory;
-
-        // Canonicalize the path
-        let target_path = match target_path.canonicalize() {
-            Ok(p) => p,
-            Err(e) => {
-                return Err(ParserError::InvalidOptions(format!(
-                    "Unable to canonicalize Dwarf Fortress path!\n{target_path:?}\n{e:?}"
-                )))
-            }
-        };
-
-        if !target_path.exists() {
-            return Err(ParserError::InvalidOptions(format!(
-                "Provided Dwarf Fortress path for doesn't exist!\n{}",
-                target_path.display()
-            )));
+    if !validated_options.locations_to_parse.is_empty() {
+        if validated_options.locations.get_df_directory().is_none() {
+            return Err(ParserError::InvalidOptions(
+                "Dwarf Fortress directory cannot be None".to_string(),
+            ));
         }
-
-        if !target_path.is_dir() {
-            return Err(ParserError::InvalidOptions(format!(
-                "Dwarf Fortress path needs to be a directory!\n{}",
-                target_path.display()
-            )));
+        if validated_options
+            .locations
+            .get_user_data_directory()
+            .is_none()
+        {
+            return Err(ParserError::InvalidOptions(
+                "Dwarf Fortress user data directory cannot be None".to_string(),
+            ));
         }
-
-        validated_options
-            .dwarf_fortress_directory
-            .clone_from(&target_path);
     }
 
     // Validate any raw file paths

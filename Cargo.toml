@@ -1,6 +1,6 @@
 [workspace]
 
-members = ["lib", "cli", "jsonlib"]
+members = ["lib", "cli", "jsonlib", "sqlite_lib"]
 resolver = "3"
 
 # Some very strict lints.

@@ -1,7 +1,17 @@
 //! Gait modifier tags are used to modify the speed of a creature based on various factors.
 
 /// An enum representing a gait modifier.
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Copy,
+    specta::Type,
+    strum_macros::EnumIter,
+)]
 pub enum GaitModifierTag {
     /// Fat/muscle layers slow the movement (muscle-slowing counter-acted by strength bonus)
     /// Makes `THICKENS_ON_ENERGY_STORAGE` and `THICKENS_ON_STRENGTH` tissue layers slow movement depending on how thick they are.

@@ -2,7 +2,16 @@
 
 /// Represents the tokens that can be used in a syndrome definition.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum SyndromeTag {
     /// Used to specify the name of the syndrome as it appears in-game. Names don't have to be unique;

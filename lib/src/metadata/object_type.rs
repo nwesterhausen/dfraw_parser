@@ -47,7 +47,18 @@ pub static OBJECT_TOKEN_MAP: phf::Map<&'static str, ObjectType> = phf::phf_map! 
 };
 
 /// The various types of objects that are within the raw files.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default, Hash, specta::Type)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Serialize,
+    Deserialize,
+    Default,
+    Hash,
+    specta::Type,
+    strum_macros::EnumIter,
+)]
 pub enum ObjectType {
     /// A creature
     Creature,

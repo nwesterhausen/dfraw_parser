@@ -33,7 +33,10 @@ pub fn parse_module<P: AsRef<Path>>(
 ) -> Result<FileParseResult, ParserError> {
     // Get information from the module info file
     let module_info_file_path = module_path.as_ref().join("info.txt");
-    let module_info_file = match InfoFile::parse(&module_info_file_path) {
+    let module_info_file = match InfoFile::parse(
+        &module_info_file_path,
+        options.include_warnings_for_info_file_format,
+    ) {
         Ok(info_file) => info_file,
         Err(e) => {
             return Err(e);

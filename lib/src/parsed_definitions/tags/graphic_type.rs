@@ -2,7 +2,16 @@
 
 /// The graphic type of the tile
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, Copy, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 #[serde(rename_all = "camelCase")]
 pub enum GraphicTypeTag {

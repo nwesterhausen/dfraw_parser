@@ -1,3 +1,11 @@
+//! Raw module location helper.
+//!
+//! Based on version 53.08 of Dwarf Fortress, game raws are stored in these locations:
+//! * `{df_directory}/data/vanilla` (vanilla raws)
+//! * `{user_df_directory}/mods` (downloaded mods from the steam workshop)
+//! * `{user_df_directory}/data/installed_mods` (mods used in at least one save file)
+//!
+//! It used to be in older version that `mods` and `installed_mods` were in the same directory as `data`.
 use std::{
     fmt::{Debug, Display},
     path::{Path, PathBuf},
@@ -45,82 +53,28 @@ impl RawModuleLocation {
     ///
     /// # Arguments
     ///
-    /// * `df_directory` - The path to the Dwarf Fortress directory
+    /// * `path`: the path of an `info.txt` file or the module directory
     ///
     /// # Returns
     ///
-    /// * A `RawModuleLocation` representing the path
+    /// * A `RawModuleLocation` representing the path it was found in
     #[must_use]
     pub fn from_path<P: AsRef<Path>>(path: &P) -> Self {
-        path.as_ref()
-            .file_name()
-            .map_or(Self::Unknown, |file_name| {
-                match file_name.to_string_lossy().as_ref() {
-                    "mods" => Self::Mods,
-                    "installed_mods" => Self::InstalledMods,
-                    "vanilla" => Self::Vanilla,
-                    _ => {
-                        warn!(
-                            "RawModuleLocation - Unable to match source directory \"{dir}\"",
-                            dir = file_name.to_string_lossy()
-                        );
-                        Self::Unknown
-                    }
-                }
-            })
-    }
-    /// Returns a `RawModuleLocation` from a sourced directory
-    ///
-    /// # Arguments
-    ///
-    /// * `sourced_directory` - The sourced directory
-    ///
-    /// # Returns
-    ///
-    /// * A `RawModuleLocation` representing the sourced directory
-    #[must_use]
-    pub fn from_sourced_directory(sourced_directory: &str) -> Self {
-        match sourced_directory {
-            "mods" => Self::Mods,
-            "vanilla" => Self::Vanilla,
-            "installed_mods" => Self::InstalledMods,
-            _ => {
-                warn!(
-                    "RawModuleLocation - Unable to match source directory \"{dir}\"",
-                    dir = sourced_directory
-                );
-                Self::Unknown
+        for component in path.as_ref().iter().rev() {
+            match component.to_string_lossy().as_ref() {
+                "mods" => return Self::Mods,
+                "installed_mods" => return Self::InstalledMods,
+                "vanilla" => return Self::Vanilla,
+                _ => continue, // Not a match, keep checking the next part
             }
         }
-    }
-    /// Returns a `RawModuleLocation` from an info.txt file path
-    ///
-    /// # Arguments
-    ///
-    /// * `full_path` - The full path to the info.txt file
-    ///
-    /// # Returns
-    ///
-    /// * A `RawModuleLocation` representing the info.txt file path
-    #[must_use]
-    pub fn from_info_text_file_path<P: AsRef<Path>>(full_path: &P) -> Self {
-        // info.txt is relative by 2 parents from our module location
-        // <MODULE LOCATION>/<RAW MODULE>/info.txt
-        match full_path.as_ref().parent() {
-            Some(parent_dir) => match parent_dir.parent() {
-                Some(grandparent_dir) => {
-                    let path_string = String::from(
-                        grandparent_dir
-                            .file_name()
-                            .unwrap_or_default()
-                            .to_string_lossy(),
-                    );
-                    Self::from_sourced_directory(path_string.as_str())
-                }
-                None => Self::Unknown,
-            },
-            None => Self::Unknown,
-        }
+
+        // If the loop finishes without returning, no match was found
+        warn!(
+            "RawModuleLocation - Unable to match source directory \"{:?}\"",
+            path.as_ref()
+        );
+        Self::Unknown
     }
 }
 

@@ -2,7 +2,15 @@
 
 /// An enum representing a gait type.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, Default, PartialEq, Eq, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 pub enum GaitTypeTag {
     /// Travel on foot/the ground

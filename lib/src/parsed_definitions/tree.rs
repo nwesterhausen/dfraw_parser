@@ -608,7 +608,7 @@ impl Tree {
                 }
 
                 if let Some(tags) = self.tags.as_mut() {
-                    tags.push(tag.clone());
+                    tags.push(*tag);
                 }
             }
         }

@@ -1,6 +1,6 @@
 //! String token to parsed tag map for creature tokens.
 
-use crate::tags::CreatureTag;
+use crate::{custom_types::TileCharacter, tags::CreatureTag};
 
 /// A map of creature tags to their respective enum values.
 pub static CREATURE_TOKENS: phf::Map<&'static str, CreatureTag> = phf::phf_map! {
@@ -32,11 +32,11 @@ pub static CREATURE_TOKENS: phf::Map<&'static str, CreatureTag> = phf::phf_map! 
     "GENERAL_CHILD_NAME" => CreatureTag::GeneralChildName { singular: String::new(), plural: String::new() },
     "POPULATION_NUMBER" => CreatureTag::PopulationNumber { min: 0, max: 0 },
     "COPY_TAGS_FROM" => CreatureTag::CopyTagsFrom { creature: String::new() },
-    "CREATURE_TILE" => CreatureTag::CreatureTile { character: 0 },
-    "ALTTILE" => CreatureTag::AltTile { character: 0 },
+    "CREATURE_TILE" => CreatureTag::CreatureTile { character: TileCharacter::new() },
+    "ALTTILE" => CreatureTag::AltTile { character: TileCharacter::new() },
     "COLOR" => CreatureTag::Color { foreground: 0, background: 0, brightness: 0 },
     "GLOWCOLOR" => CreatureTag::GlowColor { foreground: 0, background: 0, brightness: 0 },
-    "GLOWTILE" => CreatureTag::GlowTile { character: 0 },
+    "GLOWTILE" => CreatureTag::GlowTile { character: TileCharacter::new()  },
     "CHANGE_FREQUENCY_PERC" => CreatureTag::ChangeFrequencyPercent { percent: 0 },
     "CLUSTER_NUMBER" => CreatureTag::ClusterNumber { min: 0, max: 0 },
     "MATES_TO_BREED" => CreatureTag::MatesToBreed,

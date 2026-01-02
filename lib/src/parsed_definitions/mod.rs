@@ -1,5 +1,6 @@
 //! These are the parsed results from reading the raw .txt files.
 
+pub mod custom_types;
 mod tag_parsing;
 
 pub mod body_size;

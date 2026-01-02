@@ -34,4 +34,19 @@ impl BodySize {
         }
         Self::default()
     }
+    /// Returns the years portion of this body size
+    #[must_use]
+    pub fn get_years(&self) -> u32 {
+        self.years
+    }
+    /// Returns the days portion of the body size
+    #[must_use]
+    pub fn get_days(&self) -> u32 {
+        self.days
+    }
+    /// Returns the size portion of the body size
+    #[must_use]
+    pub fn get_size(&self) -> u32 {
+        self.size_cm3
+    }
 }

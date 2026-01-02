@@ -1,7 +1,17 @@
 //! Plant graphic template tag
 
 /// The graphic of the tile
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, specta::Type, Copy)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
+)]
 #[serde(rename_all = "camelCase")]
 pub enum PlantGraphicTemplateTag {
     /// The standard leaves

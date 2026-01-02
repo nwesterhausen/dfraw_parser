@@ -208,7 +208,7 @@ impl Material {
         // If there is only one part, then it is a special hardcoded material, like magma or water.
         if split_len == 1 {
             return Self {
-                material_type: Some(material_type.clone()),
+                material_type: Some(*material_type),
                 ..Self::new()
             };
         }
@@ -218,7 +218,7 @@ impl Material {
             MaterialTypeTag::Inorganic | MaterialTypeTag::Stone | MaterialTypeTag::Metal => {
                 let material_name = split.next().unwrap_or_default();
                 Self {
-                    material_type: Some(material_type.clone()),
+                    material_type: Some(*material_type),
                     name: Some(String::from(material_name)),
                     ..Self::new()
                 }
@@ -231,20 +231,20 @@ impl Material {
                         value
                     );
                     return Self {
-                        material_type: Some(material_type.clone()),
+                        material_type: Some(*material_type),
                         ..Self::new()
                     };
                 };
                 Self {
-                    material_type: Some(material_type.clone()),
-                    fuel_type: Some(fuel_type.clone()),
+                    material_type: Some(*material_type),
+                    fuel_type: Some(*fuel_type),
                     ..Self::new()
                 }
             }
             MaterialTypeTag::LocalCreatureMaterial | MaterialTypeTag::LocalPlantMaterial => {
                 let material_name = split.next().unwrap_or_default();
                 Self {
-                    material_type: Some(material_type.clone()),
+                    material_type: Some(*material_type),
                     name: Some(String::from(material_name)),
                     is_local_material: Some(true),
                     ..Self::new()
@@ -254,7 +254,7 @@ impl Material {
                 let creature_identifier = split.next().unwrap_or_default();
                 let material_name = split.next().unwrap_or_default();
                 Self {
-                    material_type: Some(material_type.clone()),
+                    material_type: Some(*material_type),
                     creature_identifier: Some(String::from(creature_identifier)),
                     name: Some(String::from(material_name)),
                     ..Self::new()
@@ -264,7 +264,7 @@ impl Material {
                 let plant_identifier = split.next().unwrap_or_default();
                 let material_name = split.next().unwrap_or_default();
                 Self {
-                    material_type: Some(material_type.clone()),
+                    material_type: Some(*material_type),
                     plant_identifier: Some(String::from(plant_identifier)),
                     name: Some(String::from(material_name)),
                     ..Self::new()
@@ -274,7 +274,7 @@ impl Material {
                 let reagent_identifier = split.next().unwrap_or_default();
                 let reaction_product_identifier = split.next().unwrap_or_default();
                 Self {
-                    material_type: Some(material_type.clone()),
+                    material_type: Some(*material_type),
                     reagent_identifier: Some(String::from(reagent_identifier)),
                     reaction_product_identifier: Some(String::from(reaction_product_identifier)),
                     ..Self::new()
@@ -517,7 +517,7 @@ impl Material {
                 self.usage = Some(Vec::new());
             }
             if let Some(self_usage) = self.usage.as_mut() {
-                self_usage.push(usage.clone());
+                self_usage.push(*usage);
             }
             return;
         }

@@ -2,7 +2,16 @@
 
 /// Tokens that can be found in an entity raw file.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum EntityTag {
     /// Allows adventure mode for entities with sites.
@@ -772,6 +781,11 @@ pub enum EntityTag {
     /// An unknown token
     #[default]
     Unknown,
+
+    // new tag found in 53.xx
+    /// Found in raws as `SIEGE_SKILLED_MINERS`
+    /// Presumed to mean that the entity can bring skilled miners to a siege
+    SiegeSkilledMiners,
 
     // not yet tags, but they are used in some mods
     /// Prefers wood
