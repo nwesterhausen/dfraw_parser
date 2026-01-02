@@ -43,9 +43,13 @@ tracing = { workspace = true }
 typetag = { workspace = true }
 # Walkdir used to go through the directories and files recursively.
 walkdir = { workspace = true }
+# For serializing and deserializing
 serde= { workspace = true, features = ["derive"] }
-phf= { workspace = true, features = ["macros"] }
+# For type binding generation
 specta= { workspace = true, features = ["derive"] }
+# For creating static hashmaps
+phf= { workspace = true, features = ["macros"] }
+
 # Windows: Registry access
 [target.'cfg(windows)'.dependencies]
-winreg = "0.52"
+winreg = "0.55"

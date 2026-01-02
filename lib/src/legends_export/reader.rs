@@ -114,7 +114,7 @@ pub fn parse_legends_export<P: AsRef<Path>>(
             Ok(Event::Text(e)) => {
                 if parent_tag != Parent::None {
                     tag_txt = e
-                        .unescape()
+                        .decode()
                         .map_or_else(|_| String::new(), std::borrow::Cow::into_owned);
                 }
                 match parent_tag {
