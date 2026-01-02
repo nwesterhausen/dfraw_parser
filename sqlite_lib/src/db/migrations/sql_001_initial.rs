@@ -1,4 +1,4 @@
-pub const SQL_001: &str = r"
+pub const UP: &str = r"
 BEGIN;
 CREATE TABLE module_locations (
     id INTEGER PRIMARY KEY,
@@ -164,4 +164,19 @@ CREATE INDEX idx_numeric_flags_search ON common_raw_flags_with_numeric_value(tok
 CREATE INDEX idx_module_location ON modules(module_location_id);
 
 COMMIT;
+";
+
+pub const DOWN: &str = r"
+PRAGMA foreign_keys = OFF;
+DELETE FROM common_raw_flags;
+DELETE FROM common_raw_flags_with_numeric_value;
+DELETE FROM raw_definitions;
+DELETE FROM module_dependencies;
+DELETE FROM module_steam_tags;
+DELETE FROM module_steam_key_value_pairs;
+DELETE FROM steam_metadata;
+DELETE FROM load_order;
+DELETE FROM modules;
+PRAGMA foreign_keys = ON;
+VACUUM;
 ";

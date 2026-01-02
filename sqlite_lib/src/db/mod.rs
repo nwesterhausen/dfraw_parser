@@ -1,8 +1,8 @@
 //! Provides database functionality.
 
-mod init;
+pub mod client;
+pub mod client_options;
+mod migrate;
 mod migrations;
-
-pub use init::init_db;
-
-pub const LATEST_SCHEMA_VERSION: i32 = 1;
+pub mod search_query;
+mod util;

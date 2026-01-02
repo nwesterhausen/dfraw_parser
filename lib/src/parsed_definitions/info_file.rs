@@ -450,10 +450,51 @@ impl InfoFile {
     pub fn get_version(&self) -> String {
         String::from(&self.displayed_version)
     }
+    /// Returns the numeric version for the `InfoFile`
+    #[must_use]
+    pub fn get_numeric_version(&self) -> u32 {
+        self.numeric_version
+    }
+    /// Returns the `earliest_compatible_numeric_version` for the `InfoFile`
+    #[must_use]
+    pub fn get_earliest_compatible_numeric_version(&self) -> u32 {
+        self.earliest_compatible_numeric_version
+    }
+    /// Returns the `earliest_compatible_displayed_version` for the `InfoFile`
+    #[must_use]
+    pub fn get_earliest_compatible_displayed_version(&self) -> String {
+        String::from(&self.earliest_compatible_displayed_version)
+    }
+    /// Returns the author for the `InfoFile`
+    #[must_use]
+    pub fn get_author(&self) -> String {
+        String::from(&self.author)
+    }
     /// Returns the module's object id
     #[must_use]
     pub fn get_object_id(&self) -> String {
         String::from(&self.object_id)
+    }
+    /// Returns the `SteamData` for the info file if it exists.
+    #[must_use]
+    pub fn get_steam_data(&self) -> Option<SteamData> {
+        self.steam_data.clone()
+    }
+    #[must_use]
+    pub fn get_requires_ids(&self) -> Option<Vec<String>> {
+        self.requires_ids.clone()
+    }
+    #[must_use]
+    pub fn get_requires_ids_before(&self) -> Option<Vec<String>> {
+        self.requires_ids_before.clone()
+    }
+    #[must_use]
+    pub fn get_requires_ids_after(&self) -> Option<Vec<String>> {
+        self.requires_ids_after.clone()
+    }
+    #[must_use]
+    pub fn get_conflicts_with_ids(&self) -> Option<Vec<String>> {
+        self.conflicts_with_ids.clone()
     }
     /// Returns the directory the `InfoFile` was parsed from
     ///

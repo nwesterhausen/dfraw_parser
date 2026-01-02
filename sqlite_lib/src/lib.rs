@@ -6,4 +6,5 @@
 //! or read data but has not been thoroughly tested.
 
 mod db;
-pub mod util;
+
+pub use db::client::DbClient;

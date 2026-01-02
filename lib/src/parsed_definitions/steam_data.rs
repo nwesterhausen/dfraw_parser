@@ -46,6 +46,9 @@ impl SteamData {
     pub fn set_title(&mut self, title: &str) {
         self.title = Some(String::from(title));
     }
+    pub fn get_title(&self) -> Option<String> {
+        self.title.clone()
+    }
     /// Sets the description of the steam data
     ///
     /// # Arguments
@@ -53,6 +56,9 @@ impl SteamData {
     /// * `description` - The description to set
     pub fn set_description(&mut self, description: &str) {
         self.description = Some(String::from(description));
+    }
+    pub fn get_description(&self) -> Option<String> {
+        self.description.clone()
     }
     /// Sets the changelog of the steam data
     ///
@@ -62,6 +68,9 @@ impl SteamData {
     pub fn set_changelog(&mut self, changelog: &str) {
         self.changelog = Some(String::from(changelog));
     }
+    pub fn get_changelog(&self) -> Option<String> {
+        self.changelog.clone()
+    }
     /// Sets the file id of the steam data
     ///
     /// # Arguments
@@ -69,6 +78,9 @@ impl SteamData {
     /// * `file_id` - The file id to set
     pub fn set_file_id(&mut self, file_id: u64) {
         self.file_id = file_id;
+    }
+    pub fn get_file_id(&self) -> u64 {
+        self.file_id
     }
     /// Adds a tag to the steam data
     ///
@@ -83,6 +95,9 @@ impl SteamData {
         if let Some(tags) = &mut self.tags {
             tags.push(String::from(tag));
         }
+    }
+    pub fn get_tags(&self) -> Option<Vec<String>> {
+        self.tags.clone()
     }
     /// Adds a key value tag to the steam data
     ///
