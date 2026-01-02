@@ -1,1 +1,1 @@
-cargo run --release --all-features -- --vanilla --installed --mods --speed-test
+cargo run --release -- --vanilla --installed --mods --speed-test

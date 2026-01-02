@@ -1,9 +1,9 @@
-#[cfg(not(feature = "windows-support"))]
+#[cfg(not(target_os = "windows"))]
 use directories::BaseDirs;
 use std::path::PathBuf;
 use std::{fs, path::Path};
 
-#[cfg(feature = "windows-support")]
+#[cfg(target_os = "windows")]
 use winreg::{enums::*, RegKey};
 
 /// Find the path to a specific game installed in Steam.
@@ -89,12 +89,11 @@ fn get_library_folders(steam_base: &Path) -> Vec<PathBuf> {
     paths
 }
 
-// --- Platform Specific: Get Base Steam Path ---
 /// This function retrieves the base path to the Steam installation on Windows by reading the registry key.
 ///
 /// Returns:
 /// - `Option<PathBuf>`: The base path to the Steam installation on Windows, or `None` if the path cannot be found.
-#[cfg(feature = "windows-support")]
+#[cfg(target_os = "windows")]
 fn get_steam_base_path() -> Option<PathBuf> {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey("Software\\Valve\\Steam").ok()?;
@@ -107,7 +106,7 @@ fn get_steam_base_path() -> Option<PathBuf> {
 ///
 /// Returns:
 /// - `Option<PathBuf>`: The base path to the Steam installation on Linux, or `None` if the path cannot be found.
-#[cfg(not(feature = "windows-support"))]
+#[cfg(target_os = "linux")]
 fn get_steam_base_path() -> Option<PathBuf> {
     let base_dirs = BaseDirs::new()?;
     let home = base_dirs.home_dir();
@@ -125,4 +124,17 @@ fn get_steam_base_path() -> Option<PathBuf> {
     ];
 
     possible_paths.into_iter().find(|path| path.exists())
+}
+
+/// This function retrieves the base path to the Steam installation on Linux by checking the user's home directory.
+/// This may work on macOS as well, but since Dwarf Fortress is not available on macOS, this function is not implemented.
+///
+/// This is the fallback function for unsupported operating systems.
+///
+/// Returns:
+/// - `None`
+#[cfg(not(any(target_os = "windows", target_os = "linux")))]
+fn get_steam_base_path() -> Option<PathBuf> {
+    tracing::warn!("OS not supported for Steam discovery.");
+    None
 }

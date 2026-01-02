@@ -44,7 +44,8 @@ typetag = "0.2"
 # Walkdir used to go through the directories and files recursively.
 walkdir = "2.5.0"
 # Windows: Registry access
-winreg = { version = "0.52", optional = true }
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
 
 # Serde used to serialize and deserialize our parsed data.
 [dependencies.serde]
@@ -58,14 +59,8 @@ version = "0.11.2"
 default-features = true
 features = ["macros"]
 
-
 # Specta is used for generating TypeScript bindings. And whatever bindings specta supports in the future.
 [dependencies.specta]
 version = "2.0.0-rc.22"
 default-features = true
 features = ["derive"]
-
-[features]
-default = []
-
-windows-support = ["dep:winreg"]
