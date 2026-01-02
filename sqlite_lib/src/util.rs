@@ -43,11 +43,7 @@ pub(crate) fn quoted_sql(value: &str) -> String {
 /// * `column` - column name (unquoted).
 /// * `values` - slice of string values to insert.
 ///
-/// # Example
-///
-/// ```
-/// let sql = build_batch_insert("ref_biome_token_tags", "token", &["FOO","BAR"]);
-/// ```
+/// Example: `build_batch_insert("ref_biome_token_tags", "token", &["FOO","BAR"])` returns the SQL to insert.
 pub(crate) fn build_batch_insert(table: &str, column: &str, values: &[&str]) -> String {
     let mut batch = String::new();
     for v in values {

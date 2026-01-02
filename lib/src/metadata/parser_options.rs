@@ -25,7 +25,7 @@ use super::{ObjectType, RawModuleLocation};
 /// use dfraw_parser::metadata::{ParserOptions, ObjectType, RawModuleLocation};
 /// use dfraw_parser::traits::RawObject;
 ///
-/// let mut options = ParserOptions::new("path/to/dwarf_fortress");
+/// let mut options = ParserOptions::new();
 /// options.add_location_to_parse(RawModuleLocation::Vanilla);
 /// // Clear the default object types
 /// options.set_object_types_to_parse(vec![]);
@@ -35,8 +35,8 @@ use super::{ObjectType, RawModuleLocation};
 /// // Include the metadata with the parsed raws
 /// options.attach_metadata_to_raws();
 ///
-/// // Parse the raws and info.txt files (not parsing here because the path is invalid)
-/// // let parsed_raws = dfraw_json_parser::parse(&options);
+/// // Then you could parse the raws and info.txt files
+/// // let parsed_raws = dfraw_parser::parse(&options);
 ///```
 ///
 #[allow(clippy::module_name_repetitions)]
@@ -245,11 +245,11 @@ impl ParserOptions {
     /// ```rust
     /// use dfraw_parser::metadata::{ParserOptions, ObjectType};
     ///
-    /// let mut options = ParserOptions::new("path/to/dwarf_fortress");
+    /// let mut options = ParserOptions::new();
     /// options.add_object_type_to_parse(ObjectType::Graphics);
     /// options.add_object_type_to_parse(ObjectType::TilePage);
     ///
-    /// let mut options2 = ParserOptions::new("path/to/dwarf_fortress");
+    /// let mut options2 = ParserOptions::new();
     /// options2.include_graphics();
     ///
     /// assert_eq!(options, options2);
