@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use walkdir::DirEntry;
 
 use crate::{
@@ -28,32 +28,57 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
     let mut results = Vec::new();
 
     if !options.locations_to_parse.is_empty() {
-        let target_path = Path::new(&options.dwarf_fortress_directory);
-
-        // Build paths for each location
-        let data_path = target_path.join("data");
-        let vanilla_path = data_path.join("vanilla");
-        let installed_mods_path = data_path.join("installed_mods");
-        let workshop_mods_path = target_path.join("mods");
-
         // Parse each location
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::Vanilla)
         {
-            results.extend(parse_module_info_files_at_location(&vanilla_path)?);
+            info!("Dispatching info.txt parse for vanilla raws");
+            if let Some(vanilla_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::Vanilla)
+            {
+                results.extend(parse_module_info_files_at_location(
+                    &vanilla_path,
+                    options.include_warnings_for_info_file_format,
+                )?);
+            } else {
+                error!("No valid vanilla raws path found!");
+            }
         }
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::InstalledMods)
         {
-            results.extend(parse_module_info_files_at_location(&installed_mods_path)?);
+            info!("Dispatching info.txt parse for vanilla raws");
+            if let Some(installed_mods_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::InstalledMods)
+            {
+                results.extend(parse_module_info_files_at_location(
+                    &installed_mods_path,
+                    options.include_warnings_for_info_file_format,
+                )?);
+            } else {
+                error!("No valid vanilla raws path found!");
+            }
         }
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::Mods)
         {
-            results.extend(parse_module_info_files_at_location(&workshop_mods_path)?);
+            info!("Dispatching info.txt parse for workshop mod raws");
+            if let Some(workshop_mods_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::Mods)
+            {
+                results.extend(parse_module_info_files_at_location(
+                    &workshop_mods_path,
+                    options.include_warnings_for_info_file_format,
+                )?);
+            } else {
+                error!("No valid workshop mod raws path found!");
+            }
         }
     }
 
@@ -61,7 +86,10 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
     if !options.raw_modules_to_parse.is_empty() {
         // Parse all raw modules that are specified.
         for raw_module_path in options.raw_modules_to_parse.as_slice() {
-            results.push(parse_module_info_file_in_module(raw_module_path)?);
+            results.push(parse_module_info_file_in_module(
+                raw_module_path,
+                options.include_warnings_for_info_file_format,
+            )?);
         }
     }
 
@@ -69,7 +97,10 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
     if !options.module_info_files_to_parse.is_empty() {
         // Parse all module info files that are specified.
         for module_info_file_path in options.module_info_files_to_parse.as_slice() {
-            results.push(InfoFile::parse(module_info_file_path)?);
+            results.push(InfoFile::parse(
+                module_info_file_path,
+                options.include_warnings_for_info_file_format,
+            )?);
         }
     }
 
@@ -91,10 +122,11 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
 /// * `ParserError::Io` - If the `info.txt` file cannot be read, doesn't exist, or is an invalid `info.txt` file
 pub fn parse_module_info_file_in_module<P: AsRef<Path>>(
     module_path: &P,
+    warn_on_format_issue: bool,
 ) -> Result<InfoFile, ParserError> {
     let module_path: PathBuf = module_path.as_ref().to_path_buf();
     let module_info_file_path = module_path.join("info.txt");
-    InfoFile::parse(&module_info_file_path)
+    InfoFile::parse(&module_info_file_path, warn_on_format_issue)
 }
 
 /// The function `parse_module_info_files_at_location` takes a location path as input, retrieves a list
@@ -114,6 +146,7 @@ pub fn parse_module_info_file_in_module<P: AsRef<Path>>(
 /// * `ParserError::Io` - If we can't read the `info.txt` file properly
 pub fn parse_module_info_files_at_location<P: AsRef<Path>>(
     location_path: &P,
+    warn_on_format_issue: bool,
 ) -> Result<Vec<InfoFile>, ParserError> {
     let location_path: PathBuf = location_path.as_ref().to_path_buf();
 
@@ -128,14 +161,14 @@ pub fn parse_module_info_files_at_location<P: AsRef<Path>>(
 
     Ok(raw_modules_in_location
         .iter()
-        .filter_map(
-            |raw_module| match parse_module_info_file_in_module(&raw_module.path()) {
+        .filter_map(|raw_module| {
+            match parse_module_info_file_in_module(&raw_module.path(), warn_on_format_issue) {
                 Ok(info_file) => Some(info_file),
                 Err(e) => {
                     debug!("Skipping parsing module info file: {:?}", e);
                     None
                 }
-            },
-        )
+            }
+        })
         .collect::<Vec<InfoFile>>())
 }

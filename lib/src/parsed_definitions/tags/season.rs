@@ -2,7 +2,16 @@
 
 /// The tokens for the seasons
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum SeasonTag {
     /// The spring season

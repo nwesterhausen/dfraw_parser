@@ -12,7 +12,15 @@ use crate::{
 
 /// A variation rule for a creature.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 pub enum CreatureVariationRuleTag {
     /// An unknown rule.

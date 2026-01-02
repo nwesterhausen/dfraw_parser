@@ -2,7 +2,16 @@
 
 /// The placement of twigs on a tree
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum TwigPlacementTag {
     /// Twigs are placed on the side of the tree

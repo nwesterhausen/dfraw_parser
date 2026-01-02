@@ -157,6 +157,8 @@ pub static ENTITY_TOKENS: phf::Map<&'static str, EntityTag> = phf::phf_map! {
     "TS_MAINTAIN_LENGTH" => EntityTag::TissueStyleMaintainLength,
     "TS_PREFERRED_SHAPING" => EntityTag::TissueStylePreferredShaping,
 
+    "SIEGE_SKILLED_MINERS" => EntityTag::SiegeSkilledMiners,
+
     "WOOD_PREF" => EntityTag::WoodPref,
     "UNDEAD_CANDIDATE" => EntityTag::UndeadCandidate,
 

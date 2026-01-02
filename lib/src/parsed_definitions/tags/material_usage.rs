@@ -2,7 +2,16 @@
 
 /// A material usage that can be set in a material definition.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum MaterialUsageTag {
     /// Lets the game know that an animal was likely killed in the production of this item.

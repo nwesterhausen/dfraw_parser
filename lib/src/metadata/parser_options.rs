@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use crate::metadata::LocationHelper;
+
 use super::{ObjectType, RawModuleLocation};
 
 /// # Parsing Options
@@ -23,7 +25,7 @@ use super::{ObjectType, RawModuleLocation};
 /// use dfraw_parser::metadata::{ParserOptions, ObjectType, RawModuleLocation};
 /// use dfraw_parser::traits::RawObject;
 ///
-/// let mut options = ParserOptions::new("path/to/dwarf_fortress");
+/// let mut options = ParserOptions::new();
 /// options.add_location_to_parse(RawModuleLocation::Vanilla);
 /// // Clear the default object types
 /// options.set_object_types_to_parse(vec![]);
@@ -33,8 +35,8 @@ use super::{ObjectType, RawModuleLocation};
 /// // Include the metadata with the parsed raws
 /// options.attach_metadata_to_raws();
 ///
-/// // Parse the raws and info.txt files (not parsing here because the path is invalid)
-/// // let parsed_raws = dfraw_json_parser::parse(&options);
+/// // Then you could parse the raws and info.txt files
+/// // let parsed_raws = dfraw_parser::parse(&options);
 ///```
 ///
 #[allow(clippy::module_name_repetitions)]
@@ -72,13 +74,13 @@ pub struct ParserOptions {
     ///
     /// Default: None
     pub locations_to_parse: Vec<RawModuleLocation>,
-    /// The path to the dwarf fortress directory. If no locations are specified, then this is not used.
+    /// The paths to the locations used for parsing: the Dwarf Fortress installation directory and the
+    /// Dwarf Fortress user data directory.
     ///
-    /// This is not used when parsing specific raws, modules, info files, or legends exports as specified by
-    /// `raw_files_to_parse`, `raw_modules_to_parse`, `module_info_files_to_parse`, or `legends_exports_to_parse`.
+    /// This can be automatically gathered or explicitly set.
     ///
-    /// Default: ""
-    pub dwarf_fortress_directory: PathBuf,
+    /// Default: Attempted to be automatically gathered.
+    pub locations: LocationHelper,
     /// Optionally specify one or more `legends_plus` exports to parse in addition to the raws.
     /// These exports include information about generated creatures which are not included in the
     /// raws.
@@ -121,6 +123,14 @@ pub struct ParserOptions {
     ///
     /// Default: false
     pub log_summary: bool,
+    /// Log warnings about the format of the info.txt file.
+    ///
+    /// Typically this includes non-integer "before version" tags or other format errors which Dwarf Fortress
+    /// will ignore/do its best to parse. They tend to not prevent the module to work, but they are technically
+    /// incorrectly formatted. This would mostly be useful for mod authors to check.
+    ///
+    /// Default: false
+    pub include_warnings_for_info_file_format: bool,
 }
 
 impl Default for ParserOptions {
@@ -129,6 +139,7 @@ impl Default for ParserOptions {
             attach_metadata_to_raws: false,
             skip_apply_copy_tags_from: false,
             skip_apply_creature_variations: false,
+            include_warnings_for_info_file_format: false,
             log_summary: false,
             object_types_to_parse: vec![
                 ObjectType::Creature,
@@ -141,7 +152,7 @@ impl Default for ParserOptions {
                 ObjectType::TilePage,
             ],
             locations_to_parse: vec![],
-            dwarf_fortress_directory: PathBuf::from(""),
+            locations: LocationHelper::new(),
             legends_exports_to_parse: Vec::new(),
             raw_files_to_parse: Vec::new(),
             raw_modules_to_parse: Vec::new(),
@@ -152,7 +163,6 @@ impl Default for ParserOptions {
 
 impl ParserOptions {
     /// Creates a new `ParserOptions` struct with the default values.
-    /// * `target_path` is the path to parse in.
     ///
     /// For `ParsingJob::ALL` or `ParsingJob::SingleLocation`, this should be the path to the dwarf fortress directory.
     ///
@@ -160,11 +170,22 @@ impl ParserOptions {
     /// info.txt file).
     ///
     /// For `ParsingJob::SingleRaw`, this should be the path directly to the raw.
-    pub fn new<P: AsRef<Path>>(target_path: P) -> Self {
-        Self {
-            dwarf_fortress_directory: target_path.as_ref().to_path_buf(),
-            ..Default::default()
-        }
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn set_dwarf_fortress_directory(&mut self, df_dir: &PathBuf) {
+        match self.locations.set_df_directory(df_dir) {
+            Ok(()) => (),
+            Err(e) => tracing::error!("{e:?}"),
+        };
+    }
+
+    pub fn set_user_data_directory(&mut self, user_data_dir: &PathBuf) {
+        match self.locations.set_user_data_directory(user_data_dir) {
+            Ok(()) => (),
+            Err(e) => tracing::error!("{e:?}"),
+        };
     }
 
     /// If applied, all raws will have a `metadata` field which shows information about the
@@ -224,11 +245,11 @@ impl ParserOptions {
     /// ```rust
     /// use dfraw_parser::metadata::{ParserOptions, ObjectType};
     ///
-    /// let mut options = ParserOptions::new("path/to/dwarf_fortress");
+    /// let mut options = ParserOptions::new();
     /// options.add_object_type_to_parse(ObjectType::Graphics);
     /// options.add_object_type_to_parse(ObjectType::TilePage);
     ///
-    /// let mut options2 = ParserOptions::new("path/to/dwarf_fortress");
+    /// let mut options2 = ParserOptions::new();
     /// options2.include_graphics();
     ///
     /// assert_eq!(options, options2);

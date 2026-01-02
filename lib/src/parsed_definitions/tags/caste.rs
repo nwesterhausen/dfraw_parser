@@ -1,10 +1,20 @@
 //! Tags that can be used to define a creature's caste.
 
-use crate::metadata::ObjectType;
+use crate::{
+    custom_types::TileCharacter, metadata::ObjectType, parsed_definitions::custom_types::HabitCount,
+};
 
 /// Tokens that can be found in a creature's caste definitions.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 pub enum CasteTag {
     /// Prevents tamed creature from being made available for adoption, instead allowing it to automatically adopt whoever it wants.
@@ -29,7 +39,7 @@ pub enum CasteTag {
     /// Appears as `CASTE_ALTTILE:SomeTile`
     AltTile {
         /// The tile to use
-        tile: String,
+        tile: TileCharacter,
     },
     /// Found on `[LargePredator]`s who ambush their prey. Instead of charging relentlessly at prey, the predator will wait till the prey is
     /// within a few squares before charging. May or may not work on other creatures.
@@ -47,7 +57,7 @@ pub enum CasteTag {
         /// Creature variation ID to apply
         id: String,
         /// (Optional) any number of arguments to pass to the creature variation
-        args: Vec<String>,
+        args: Vec<u32>,
     },
     /// Applies the effects of all pending `[CV_ADD_TAG]` and `[CV_REMOVE_TAG]` tokens that have been defined in the current creature (so far).
     ///
@@ -69,10 +79,10 @@ pub enum CasteTag {
     ///
     /// Appears as `ATTACK:NAME:BODYPART:BY_CATEGORY:HORN` or similar
     Attack {
-        /// The name of the attack
-        name: String,
-        /// The body part used for the attack
-        body_part: String,
+        /// The verb for the attack
+        verb: String,
+        /// The body part selector used for the attack
+        selector: Vec<String>,
     },
     /// Specifies when a megabeast or semi-megabeast will attack the fortress. The attacks will start occurring when at least one of the requirements is met.
     /// Setting a value to 0 disables the trigger.
@@ -118,10 +128,10 @@ pub enum CasteTag {
     Benign,
     /// Specifies what the creature's blood is made of.
     ///
-    /// Appears as `BLOOD:SomeMaterial:SomeToken`
+    /// Appears as `BLOOD:SomeMaterial:SubMaterial?:SomeToken`
     Blood {
         /// Blood material
-        material: String,
+        material: Vec<String>,
         /// Blood token
         state: String,
     },
@@ -148,7 +158,7 @@ pub enum CasteTag {
         /// Body part to modify
         attribute: String,
         /// Range of values, spread from lowest to median to highest
-        values: [i32; 7],
+        values: [u32; 7],
     },
     /// Loads a plan from listed `OBJECT:BODY_DETAIL_PLAN` files, such as `b_detail_plan_default.txt`. Mass applies `USE_MATERIAL_TEMPLATE`, mass alters RELSIZE, alters
     /// body part positions, and will allow tissue layers to be defined. Tissue layers are defined in order of skin to bone here.
@@ -209,7 +219,7 @@ pub enum CasteTag {
         /// The quality that can appear
         quality: String,
         /// The spread of the quality, from lowest to median to highest
-        spread: [i32; 7],
+        spread: [u32; 7],
     },
     /// Removes a type from a body part. Used with `[SetBodyPartGroup]`.
     ///
@@ -418,7 +428,7 @@ pub enum CasteTag {
         /// The item to add
         item: String,
         /// The material of the item
-        material: String,
+        material: Vec<String>,
     },
     /// The shape of the creature's extra butchering drop. Used with `[ExtraButcherObject]`.
     ///
@@ -434,7 +444,7 @@ pub enum CasteTag {
     /// Appears as `EGG_MATERIAL:SomeMaterial:SomeState`
     EggMaterial {
         /// The material to use
-        material: String,
+        material: Vec<String>,
         /// The state of the material
         state: String,
     },
@@ -537,7 +547,7 @@ pub enum CasteTag {
     /// Appears (typically) as `CV_NEW_TAG:GAIT:WALK:Sprint:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50`
     Gait {
         /// The value of the token
-        gait: String,
+        gait_values: Vec<String>,
     },
     /// Has the same function as `[MaterialForceMultiplier]`, but applies to all attacks instead of just those involving a specific material. Appears to be overridden by
     /// `[MaterialForceMultiplier]` (werebeasts, for example, use both tokens to provide resistance to all materials, with one exception to which they are especially vulnerable).
@@ -581,7 +591,7 @@ pub enum CasteTag {
     /// Appears as `CASTE_GLOWTILE:SomeTile`
     GlowTile {
         /// The tile to use
-        tile: String,
+        tile: TileCharacter,
     },
     /// The creature can and will gnaw its way out of animal traps and cages using the specified verb, depending on the material from which it is made (normally wood).
     ///
@@ -658,7 +668,7 @@ pub enum CasteTag {
     /// Appears as `HABIT_NUM:2` or `HABIT_NUM:TEST_ALL`
     HabitNumber {
         /// The number of habits to add. A value of `TEST_ALL` will add all habits and will cause number to be 0.
-        number: u32,
+        number: HabitCount,
     },
     /// The creature has nerves in its muscles. Cutting the muscle tissue can sever motor and sensory nerves.
     ///
@@ -673,8 +683,8 @@ pub enum CasteTag {
     ///
     /// Appears as `HOMEOTHERM:10000`
     Homeotherm {
-        /// The temperature of the creature, as number or `NONE` which is the default
-        temperature: Option<u32>,
+        /// The temperature of the creature, as number or `NONE` (zero) which is the default
+        temperature: u32,
     },
     /// Creature hunts and kills nearby vermin, randomly walking between places with food laying on the ground or in stockpiles, to check for possible `[VerminEater]` vermin,
     /// but they'll kill any other vermin too.
@@ -698,8 +708,15 @@ pub enum CasteTag {
     Intelligent,
     /// Specifies interaction details following a `[CanDoInteraction]` token.
     ///
-    /// Appears as `CDI:SomeArgs:etc`
+    /// Appears as `[CDI:TYPE:SomeArgs..]`:
+    ///
+    /// * `[CDI:TOKEN:SPIT]`
+    /// * `[CDI:ADV_NAME:Spit]`
+    /// * `[CDI:USAGE_HINT:NEGATIVE_SOCIAL_RESPONSE]`
+    /// * etc.
     InteractionDetail {
+        /// The type of detail described
+        label: String,
         /// Arbitrary arguments for the interaction
         args: Vec<String>,
     },
@@ -710,7 +727,7 @@ pub enum CasteTag {
         /// The item token to use
         item: String,
         /// The material token to use
-        material: String,
+        material: Vec<String>,
     },
     /// The quality of an item-type corpse left behind. Valid values are: 0 for ordinary, 1 for well-crafted, 2 for finely-crafted, 3 for superior, 4 for exceptional, 5 for masterpiece.
     ///
@@ -770,7 +787,7 @@ pub enum CasteTag {
         /// The item to lay
         item: String,
         /// The material of the item
-        material: String,
+        material: Vec<String>,
     },
     /// The creature has ligaments in its `[CONNECTIVE_TISSUE_ANCHOR]` tissues (bone or chitin by default). Cutting the bone/chitin tissue severs the ligaments,
     /// disabling motor function if the target is a limb.
@@ -778,7 +795,7 @@ pub enum CasteTag {
     /// Appears as `LIGAMENTS:SomeMaterial:HealingRate`
     Ligaments {
         /// The material to use
-        material: String,
+        material: Vec<String>,
         /// The healing rate
         healing_rate: u32,
     },
@@ -1069,7 +1086,7 @@ pub enum CasteTag {
     /// Appears as `MILKABLE:SomeMaterial:1000`
     Milkable {
         /// The material of the milk
-        material: String,
+        material: Vec<String>,
         /// The frequency the creature can be milked
         frequency: u32,
     },
@@ -1480,15 +1497,12 @@ pub enum CasteTag {
     ///
     /// Arguments:
     ///
-    /// * `body_part_selector`: The body part selector to use
-    /// * `body_part_group`: The body part group to add
+    /// * `selector`: the selector for the specific body part
     ///
     /// Appears as `PLUS_BP_GROUP:SomeBodyPartSelector:SomeBodyPartGroup`
     PlusBodyPartGroup {
-        /// The body part selector to use
-        body_part_selector: String,
-        /// The body part group to add
-        body_part_group: String,
+        /// The body part selector
+        selector: Vec<String>,
     },
     /// Weighted population of caste; Lower is rarer. Not to be confused with [FREQUENCY].
     ///
@@ -1539,24 +1553,21 @@ pub enum CasteTag {
     /// Appears as `PUS:SomeMaterial:SomeMaterialState`
     Pus {
         /// The material of the pus
-        material: String,
+        material: Vec<String>,
         /// The material state of the pus
-        material_state: String,
+        state: String,
     },
     /// Specifies a new relative size for a part than what is stated in the body plan. For example, dwarves have larger livers.
     ///
     /// Arguments:
     ///
-    /// * `body_part_selector`: The body part selector to use
-    /// * `body_part`: The body part to modify
+    /// * `selector`: the selector for the specific body part
     /// * `relative_size`: The relative size of the body part (by percentage?)
     ///
     /// Appears as `RELATIVE_SIZE:SomeBodyPartSelector:SomeBodyPart:100`
     RelativeSize {
-        /// The body part selector to use
-        body_part_selector: String,
-        /// The body part to modify
-        body_part: String,
+        /// The body part selector
+        selector: Vec<String>,
         /// The relative size of the body part (by percentage?)
         relative_size: u32,
     },
@@ -1627,17 +1638,14 @@ pub enum CasteTag {
     ///
     /// Arguments:
     ///
-    /// * `body_part_selector`: The body part selector to use
-    /// * `body_part`: The body part to use
+    /// * `body_part_selector`: the selector for the specific body part
     /// * `second_person_verb`: Verb to use in second person tense ("you")
     /// * `third_person_verb`: Verb to use in third person tense ("it")
     ///
     /// Appears as `ROOT_AROUND:SomeBodyPartSelector:SomeBodyPart:SomeSecondPersonVerb:SomeThirdPersonVerb`
     RootAround {
-        /// The body part selector to use
-        body_part_selector: String,
-        /// The body part to use
-        body_part: String,
+        /// The body part selector
+        body_part_selector: Vec<String>,
         /// Verb to use in second person tense ("you")
         second_person_verb: String,
         /// Verb to use in third person tense ("it")
@@ -1651,23 +1659,22 @@ pub enum CasteTag {
     ///
     /// Arguments:
     ///
-    /// * `material_token`: The material of the secretion
+    /// * `material`: The material of the secretion
     /// * `material_state`: The material state of the secretion
-    /// * `body_part_selector`: The body part selector to use
-    /// * `body_part`: The body part to use
+    /// * `body_part_selector`: the selector for the specific body part
     /// * `tissue_layer`: The tissue layer to use
     /// * `trigger`: The trigger to use (`CONTINUOUS`, `EXERTION`, `EXTREME_EMOTION`)
     ///
     /// Appears as `SECRETION:SomeMaterial:SomeMaterialState:SomeBodyPartSelector:SomeBodyPart:SomeTissueLayer:SomeTrigger`
     Secretion {
         /// The material of the secretion
-        material_token: String,
+        material: Vec<String>,
         /// The material state of the secretion
         material_state: String,
-        /// The body part selector to use
-        body_part_selector: String,
-        /// The body part to use
-        body_part: String,
+
+        /// The body part selector
+        body_part_selector: Vec<String>,
+
         /// The tissue layer to use
         tissue_layer: String,
         /// The trigger to use (`CONTINUOUS`, `EXERTION`, `EXTREME_EMOTION`)
@@ -1704,15 +1711,12 @@ pub enum CasteTag {
     ///
     /// Arguments:
     ///
-    /// * `body_part_selector`: The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
-    /// * `body_part`: The body part to use (via category, type or token)
+    /// * `body_part_selector`: the selector for the specific body part
     ///
     /// Appears as `SET_BP_GROUP:SomeBodyPartSelector:SomeBodyPart`
     SetBodyPartGroup {
-        /// The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
-        body_part_selector: String,
-        /// The body part to use (via category, type or token)
-        body_part: String,
+        /// The body part selector
+        body_part_selector: Vec<String>,
     },
     /// The rate at which this creature learns this skill. Requires `[CAN_LEARN]` or `[INTELLIGENT]` to function.
     ///
@@ -1844,14 +1848,14 @@ pub enum CasteTag {
     /// Appears as `CASTE_SOLDIER_TILE:SomeTile`
     SoldierTile {
         /// The tile to use
-        tile: String,
+        tile: TileCharacter,
     },
     /// Caste-specific solider alt tile.
     ///
     /// Appears as `CASTE_SOLDIER_ALTTILE:SomeTile`
     SoldierAltTile {
         /// The tile to use
-        tile: String,
+        tile: TileCharacter,
     },
     /// Creature makes sounds periodically, which can be heard in Adventure mode.
     ///
@@ -1867,6 +1871,7 @@ pub enum CasteTag {
     /// * `sound_range`: The range of the sound (in tiles)
     /// * `sound_interval`: A delay before the sound is produced again (in ticks)
     /// * `requires_breathing`: Whether the creature needs to breathe to make the sound
+    ///   (indicated by `VOCALIZATION` for true or `NONE` for false)
     /// * `first_person`: The first-person description of the sound
     /// * `third_person`: The third-person description of the sound
     /// * `out_of_sight`: The out-of-sight description of the sound
@@ -1970,7 +1975,7 @@ pub enum CasteTag {
     /// Appears as `TENDONS:SomeMaterial:100`
     Tendons {
         /// The material of the tendons
-        material: String,
+        material: Vec<String>,
         /// The rate at which the tendons heal (lower is faster)
         healing_rate: u32,
     },
@@ -1983,7 +1988,7 @@ pub enum CasteTag {
     /// Appears as `CASTE_TILE:SomeTile`
     Tile {
         /// The tile to use
-        tile: String,
+        tile: TileCharacter,
     },
     /// Adds the tissue layer to wherever it is required.
     ///
@@ -1991,22 +1996,20 @@ pub enum CasteTag {
     ///
     /// Arguments:
     ///
-    /// * `body_part_selector`: The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
-    /// * `body_part`: The body part to use (via category, type or token)
+    /// * `body_part_selector`: the selector for the specific body part
     /// * `tissue`: The name of the tissue to use
     /// * `location`: The location to use (`FRONT`, `RIGHT`, `LEFT`, `TOP`, `BOTTOM`) or with an additional argument, (`AROUND`, `CLEANS`) with a body part and a percentage
     ///
     /// Appears as `[TISSUE_LAYER:SomeBodyPartSelector:SomeBodyPart:SomeTissue:SomeLocation]` or `[TISSUE_LAYER:SomeBodyPartSelector:SomeBodyPart:SomeTissue:SomeLocation:SomeBodyPart:100]`
     /// ALSO appears as `[TISSUE_LAYER_OVER:SomeBodyPartSelector:SomeBodyPart:SomeTissue:SomeLocation]` or `[TISSUE_LAYER_OVER:SomeBodyPartSelector:SomeBodyPart:SomeTissue:SomeLocation:SomeBodyPart:100]`
     TissueLayer {
-        /// The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
-        body_part_selector: String,
-        /// The body part to use (via category, type or token)
-        body_part: String,
-        /// The name of the tissue to use
+        /// The body part selector
+        body_part_selector: Vec<String>,
+        /// The tissue to apply (e.g. NAIL)
         tissue: String,
-        /// The location to use (FRONT, RIGHT, LEFT, TOP, BOTTOM) or with an additional argument, (AROUND, CLEANS) with a body part and a percentage
-        location: String,
+        /// The remaining tokens defining location/positioning.
+        /// e.g. ["FRONT"] or ["ABOVE", "BY_CATEGORY", "EYE"] or []
+        positioning: Vec<String>,
     },
     /// Adds the tissue layer under a given part.
     ///
@@ -2099,7 +2102,7 @@ pub enum CasteTag {
         /// The verb to use (e.g. "bitten, stung")
         verb: String,
         /// The material to inject
-        material: String,
+        material: Vec<String>,
         /// The material state to inject
         material_state: String,
     },
@@ -2164,7 +2167,7 @@ pub enum CasteTag {
     /// Appears as `WEBBER:SomeMaterial`
     Webber {
         /// The material of the webs
-        material: String,
+        material: Vec<String>,
     },
     /// The creature will not get caught in thick webs. Used by creatures who can shoot thick webs (such as giant cave spiders) in order to make them immune to their own attacks.
     ///

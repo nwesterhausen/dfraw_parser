@@ -56,7 +56,10 @@ pub fn parse_raw_file<P: AsRef<Path>>(
     raw_file_path: &P,
     options: &ParserOptions,
 ) -> Result<FileParseResult, ParserError> {
-    let mod_info_file = match InfoFile::from_raw_file_path(raw_file_path) {
+    let mod_info_file = match InfoFile::from_raw_file_path(
+        raw_file_path,
+        options.include_warnings_for_info_file_format,
+    ) {
         Ok(m) => m,
         Err(e) => {
             warn!("parse_raw_file: Using an empty InfoFile because of error parsing the file");
@@ -104,7 +107,13 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     let mut created_raws: Vec<Box<dyn RawObject>> = Vec::new();
     let mut unprocessed_raws: Vec<UnprocessedRaw> = Vec::new();
 
-    let file = try_get_file(raw_file_path)?;
+    let file = try_get_file(raw_file_path).map_err(|e| {
+        ParserError::InvalidRawFile(format!(
+            "Unable to open raw file {}: {}",
+            raw_file_path.as_ref().display(),
+            e
+        ))
+    })?;
 
     let decoding_reader = DecodeReaderBytesBuilder::new()
         .encoding(Some(*DF_ENCODING))

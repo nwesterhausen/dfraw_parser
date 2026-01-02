@@ -2,7 +2,16 @@
 
 /// The class of environment that the stone appears in.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum EnvironmentClassTag {
     /// Will appear in every stone.
