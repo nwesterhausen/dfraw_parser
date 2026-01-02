@@ -262,6 +262,8 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
         ..Default::default()
     };
 
+    validated_options.locations.init();
+
     // Guard against invalid path if locations are set
     if !validated_options.locations_to_parse.is_empty() {
         if validated_options.locations.get_df_directory().is_none() {
