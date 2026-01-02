@@ -421,7 +421,7 @@ export type CasteTag =
 				/**
 				 * The tile to use
 				 */
-				tile: string;
+				tile: TileCharacter;
 			};
 	  }
 	/**
@@ -451,7 +451,7 @@ export type CasteTag =
 				/**
 				 * (Optional) any number of arguments to pass to the creature variation
 				 */
-				args: string[];
+				args: number[];
 			};
 	  }
 	/**
@@ -486,13 +486,13 @@ export type CasteTag =
 	| {
 			Attack: {
 				/**
-				 * The name of the attack
+				 * The verb for the attack
 				 */
-				name: string;
+				verb: string;
 				/**
-				 * The body part used for the attack
+				 * The body part selector used for the attack
 				 */
-				body_part: string;
+				selector: string[];
 			};
 	  }
 	/**
@@ -572,14 +572,14 @@ export type CasteTag =
 	/**
 	 * Specifies what the creature's blood is made of.
 	 *
-	 * Appears as `BLOOD:SomeMaterial:SomeToken`
+	 * Appears as `BLOOD:SomeMaterial:SubMaterial?:SomeToken`
 	 */
 	| {
 			Blood: {
 				/**
 				 * Blood material
 				 */
-				material: string;
+				material: string[];
 				/**
 				 * Blood token
 				 */
@@ -1068,7 +1068,7 @@ export type CasteTag =
 				/**
 				 * The material of the item
 				 */
-				material: string;
+				material: string[];
 			};
 	  }
 	/**
@@ -1096,7 +1096,7 @@ export type CasteTag =
 				/**
 				 * The material to use
 				 */
-				material: string;
+				material: string[];
 				/**
 				 * The state of the material
 				 */
@@ -1253,7 +1253,7 @@ export type CasteTag =
 				/**
 				 * The value of the token
 				 */
-				gait: string;
+				gait_values: string[];
 			};
 	  }
 	/**
@@ -1325,7 +1325,7 @@ export type CasteTag =
 				/**
 				 * The tile to use
 				 */
-				tile: string;
+				tile: TileCharacter;
 			};
 	  }
 	/**
@@ -1452,7 +1452,7 @@ export type CasteTag =
 				/**
 				 * The number of habits to add. A value of `TEST_ALL` will add all habits and will cause number to be 0.
 				 */
-				number: number;
+				number: HabitCount;
 			};
 	  }
 	/**
@@ -1476,9 +1476,9 @@ export type CasteTag =
 	| {
 			Homeotherm: {
 				/**
-				 * The temperature of the creature, as number or `NONE` which is the default
+				 * The temperature of the creature, as number or `NONE` (zero) which is the default
 				 */
-				temperature: number | null;
+				temperature: number;
 			};
 	  }
 	/**
@@ -1514,10 +1514,19 @@ export type CasteTag =
 	/**
 	 * Specifies interaction details following a `[CanDoInteraction]` token.
 	 *
-	 * Appears as `CDI:SomeArgs:etc`
+	 * Appears as `[CDI:TYPE:SomeArgs..]`:
+	 *
+	 * * `[CDI:TOKEN:SPIT]`
+	 * * `[CDI:ADV_NAME:Spit]`
+	 * * `[CDI:USAGE_HINT:NEGATIVE_SOCIAL_RESPONSE]`
+	 * * etc.
 	 */
 	| {
 			InteractionDetail: {
+				/**
+				 * The type of detail described
+				 */
+				label: string;
 				/**
 				 * Arbitrary arguments for the interaction
 				 */
@@ -1538,7 +1547,7 @@ export type CasteTag =
 				/**
 				 * The material token to use
 				 */
-				material: string;
+				material: string[];
 			};
 	  }
 	/**
@@ -1638,7 +1647,7 @@ export type CasteTag =
 				/**
 				 * The material of the item
 				 */
-				material: string;
+				material: string[];
 			};
 	  }
 	/**
@@ -1652,7 +1661,7 @@ export type CasteTag =
 				/**
 				 * The material to use
 				 */
-				material: string;
+				material: string[];
 				/**
 				 * The healing rate
 				 */
@@ -2137,7 +2146,7 @@ export type CasteTag =
 				/**
 				 * The material of the milk
 				 */
-				material: string;
+				material: string[];
 				/**
 				 * The frequency the creature can be milked
 				 */
@@ -2762,21 +2771,16 @@ export type CasteTag =
 	 *
 	 * Arguments:
 	 *
-	 * * `body_part_selector`: The body part selector to use
-	 * * `body_part_group`: The body part group to add
+	 * * `selector`: the selector for the specific body part
 	 *
 	 * Appears as `PLUS_BP_GROUP:SomeBodyPartSelector:SomeBodyPartGroup`
 	 */
 	| {
 			PlusBodyPartGroup: {
 				/**
-				 * The body part selector to use
+				 * The body part selector
 				 */
-				body_part_selector: string;
-				/**
-				 * The body part group to add
-				 */
-				body_part_group: string;
+				selector: string[];
 			};
 	  }
 	/**
@@ -2857,11 +2861,11 @@ export type CasteTag =
 				/**
 				 * The material of the pus
 				 */
-				material: string;
+				material: string[];
 				/**
 				 * The material state of the pus
 				 */
-				material_state: string;
+				state: string;
 			};
 	  }
 	/**
@@ -2869,8 +2873,7 @@ export type CasteTag =
 	 *
 	 * Arguments:
 	 *
-	 * * `body_part_selector`: The body part selector to use
-	 * * `body_part`: The body part to modify
+	 * * `selector`: the selector for the specific body part
 	 * * `relative_size`: The relative size of the body part (by percentage?)
 	 *
 	 * Appears as `RELATIVE_SIZE:SomeBodyPartSelector:SomeBodyPart:100`
@@ -2878,13 +2881,9 @@ export type CasteTag =
 	| {
 			RelativeSize: {
 				/**
-				 * The body part selector to use
+				 * The body part selector
 				 */
-				body_part_selector: string;
-				/**
-				 * The body part to modify
-				 */
-				body_part: string;
+				selector: string[];
 				/**
 				 * The relative size of the body part (by percentage?)
 				 */
@@ -2995,8 +2994,7 @@ export type CasteTag =
 	 *
 	 * Arguments:
 	 *
-	 * * `body_part_selector`: The body part selector to use
-	 * * `body_part`: The body part to use
+	 * * `body_part_selector`: the selector for the specific body part
 	 * * `second_person_verb`: Verb to use in second person tense ("you")
 	 * * `third_person_verb`: Verb to use in third person tense ("it")
 	 *
@@ -3005,13 +3003,9 @@ export type CasteTag =
 	| {
 			RootAround: {
 				/**
-				 * The body part selector to use
+				 * The body part selector
 				 */
-				body_part_selector: string;
-				/**
-				 * The body part to use
-				 */
-				body_part: string;
+				body_part_selector: string[];
 				/**
 				 * Verb to use in second person tense ("you")
 				 */
@@ -3031,10 +3025,9 @@ export type CasteTag =
 	 *
 	 * Arguments:
 	 *
-	 * * `material_token`: The material of the secretion
+	 * * `material`: The material of the secretion
 	 * * `material_state`: The material state of the secretion
-	 * * `body_part_selector`: The body part selector to use
-	 * * `body_part`: The body part to use
+	 * * `body_part_selector`: the selector for the specific body part
 	 * * `tissue_layer`: The tissue layer to use
 	 * * `trigger`: The trigger to use (`CONTINUOUS`, `EXERTION`, `EXTREME_EMOTION`)
 	 *
@@ -3045,19 +3038,15 @@ export type CasteTag =
 				/**
 				 * The material of the secretion
 				 */
-				material_token: string;
+				material: string[];
 				/**
 				 * The material state of the secretion
 				 */
 				material_state: string;
 				/**
-				 * The body part selector to use
+				 * The body part selector
 				 */
-				body_part_selector: string;
-				/**
-				 * The body part to use
-				 */
-				body_part: string;
+				body_part_selector: string[];
 				/**
 				 * The tissue layer to use
 				 */
@@ -3116,21 +3105,16 @@ export type CasteTag =
 	 *
 	 * Arguments:
 	 *
-	 * * `body_part_selector`: The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
-	 * * `body_part`: The body part to use (via category, type or token)
+	 * * `body_part_selector`: the selector for the specific body part
 	 *
 	 * Appears as `SET_BP_GROUP:SomeBodyPartSelector:SomeBodyPart`
 	 */
 	| {
 			SetBodyPartGroup: {
 				/**
-				 * The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
+				 * The body part selector
 				 */
-				body_part_selector: string;
-				/**
-				 * The body part to use (via category, type or token)
-				 */
-				body_part: string;
+				body_part_selector: string[];
 			};
 	  }
 	/**
@@ -3340,7 +3324,7 @@ export type CasteTag =
 				/**
 				 * The tile to use
 				 */
-				tile: string;
+				tile: TileCharacter;
 			};
 	  }
 	/**
@@ -3353,7 +3337,7 @@ export type CasteTag =
 				/**
 				 * The tile to use
 				 */
-				tile: string;
+				tile: TileCharacter;
 			};
 	  }
 	/**
@@ -3371,6 +3355,7 @@ export type CasteTag =
 	 * * `sound_range`: The range of the sound (in tiles)
 	 * * `sound_interval`: A delay before the sound is produced again (in ticks)
 	 * * `requires_breathing`: Whether the creature needs to breathe to make the sound
+	 * (indicated by `VOCALIZATION` for true or `NONE` for false)
 	 * * `first_person`: The first-person description of the sound
 	 * * `third_person`: The third-person description of the sound
 	 * * `out_of_sight`: The out-of-sight description of the sound
@@ -3530,7 +3515,7 @@ export type CasteTag =
 				/**
 				 * The material of the tendons
 				 */
-				material: string;
+				material: string[];
 				/**
 				 * The rate at which the tendons heal (lower is faster)
 				 */
@@ -3553,7 +3538,7 @@ export type CasteTag =
 				/**
 				 * The tile to use
 				 */
-				tile: string;
+				tile: TileCharacter;
 			};
 	  }
 	/**
@@ -3563,8 +3548,7 @@ export type CasteTag =
 	 *
 	 * Arguments:
 	 *
-	 * * `body_part_selector`: The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
-	 * * `body_part`: The body part to use (via category, type or token)
+	 * * `body_part_selector`: the selector for the specific body part
 	 * * `tissue`: The name of the tissue to use
 	 * * `location`: The location to use (`FRONT`, `RIGHT`, `LEFT`, `TOP`, `BOTTOM`) or with an additional argument, (`AROUND`, `CLEANS`) with a body part and a percentage
 	 *
@@ -3574,21 +3558,18 @@ export type CasteTag =
 	| {
 			TissueLayer: {
 				/**
-				 * The body part selector to use (`BY_TYPE`, `BY_CATEGORY`, `BY_TOKEN`)
+				 * The body part selector
 				 */
-				body_part_selector: string;
+				body_part_selector: string[];
 				/**
-				 * The body part to use (via category, type or token)
-				 */
-				body_part: string;
-				/**
-				 * The name of the tissue to use
+				 * The tissue to apply (e.g. NAIL)
 				 */
 				tissue: string;
 				/**
-				 * The location to use (FRONT, RIGHT, LEFT, TOP, BOTTOM) or with an additional argument, (AROUND, CLEANS) with a body part and a percentage
+				 * The remaining tokens defining location/positioning.
+				 * e.g. ["FRONT"] or ["ABOVE", "BY_CATEGORY", "EYE"] or []
 				 */
-				location: string;
+				positioning: string[];
 			};
 	  }
 	/**
@@ -3725,7 +3706,7 @@ export type CasteTag =
 				/**
 				 * The material to inject
 				 */
-				material: string;
+				material: string[];
 				/**
 				 * The material state to inject
 				 */
@@ -3828,7 +3809,7 @@ export type CasteTag =
 				/**
 				 * The material of the webs
 				 */
-				material: string;
+				material: string[];
 			};
 	  }
 	/**
@@ -4825,7 +4806,7 @@ export type CreatureTag =
 				/**
 				 * The character or tile number
 				 */
-				character: number;
+				character: TileCharacter;
 			};
 	  }
 	/**
@@ -4943,7 +4924,7 @@ export type CreatureTag =
 				/**
 				 * The character or tile number
 				 */
-				character: number;
+				character: TileCharacter;
 			};
 	  }
 	/**
@@ -4956,7 +4937,7 @@ export type CreatureTag =
 				/**
 				 * The character or tile number
 				 */
-				character: number;
+				character: TileCharacter;
 			};
 	  }
 	/**
@@ -5112,7 +5093,7 @@ export type CreatureTag =
 				/**
 				 * The character or tile number
 				 */
-				character: number;
+				character: TileCharacter;
 			};
 	  }
 	/**
@@ -7108,6 +7089,11 @@ export type EntityTag =
 	 */
 	| "Unknown"
 	/**
+	 * Found in raws as `SIEGE_SKILLED_MINERS`
+	 * Presumed to mean that the entity can bring skilled miners to a siege
+	 */
+	| "SiegeSkilledMiners"
+	/**
 	 * Prefers wood
 	 */
 	| "WoodPref"
@@ -7867,6 +7853,11 @@ export type GrowthTag =
 	| "asIs";
 
 /**
+ * The 'HABIT_NUM' value which can be a number or "TEST_ALL"
+ */
+export type HabitCount = "TestAll" | { Specific: number };
+
+/**
  * The type of inclusion that the stone has.
  */
 export type InclusionTypeTag =
@@ -8034,6 +8025,14 @@ export type InorganicTag =
 	 * Default value means parsing error.
 	 */
 	| "Unknown";
+
+/**
+ * Helper struct for managing locations related to the game directory and user directory.
+ */
+export type LocationHelper = {
+	df_directory: string | null;
+	user_data_directory: string | null;
+};
 
 /**
  * A struct representing a material
@@ -9299,7 +9298,7 @@ export type ObjectType =
  * use dfraw_parser::metadata::{ParserOptions, ObjectType, RawModuleLocation};
  * use dfraw_parser::traits::RawObject;
  *
- * let mut options = ParserOptions::new("path/to/dwarf_fortress");
+ * let mut options = ParserOptions::new();
  * options.add_location_to_parse(RawModuleLocation::Vanilla);
  * // Clear the default object types
  * options.set_object_types_to_parse(vec![]);
@@ -9309,8 +9308,8 @@ export type ObjectType =
  * // Include the metadata with the parsed raws
  * options.attach_metadata_to_raws();
  *
- * // Parse the raws and info.txt files (not parsing here because the path is invalid)
- * // let parsed_raws = dfraw_json_parser::parse(&options);
+ * // Then you could parse the raws and info.txt files
+ * // let parsed_raws = dfraw_parser::parse(&options);
  * ```
  *
  */
@@ -9356,14 +9355,14 @@ export type ParserOptions = {
 	 */
 	locationsToParse: RawModuleLocation[];
 	/**
-	 * The path to the dwarf fortress directory. If no locations are specified, then this is not used.
+	 * The paths to the locations used for parsing: the Dwarf Fortress installation directory and the
+	 * Dwarf Fortress user data directory.
 	 *
-	 * This is not used when parsing specific raws, modules, info files, or legends exports as specified by
-	 * `raw_files_to_parse`, `raw_modules_to_parse`, `module_info_files_to_parse`, or `legends_exports_to_parse`.
+	 * This can be automatically gathered or explicitly set.
 	 *
-	 * Default: ""
+	 * Default: Attempted to be automatically gathered.
 	 */
-	dwarfFortressDirectory: string;
+	locations: LocationHelper;
 	/**
 	 * Optionally specify one or more `legends_plus` exports to parse in addition to the raws.
 	 * These exports include information about generated creatures which are not included in the
@@ -9416,6 +9415,16 @@ export type ParserOptions = {
 	 * Default: false
 	 */
 	logSummary: boolean;
+	/**
+	 * Log warnings about the format of the info.txt file.
+	 *
+	 * Typically this includes non-integer "before version" tags or other format errors which Dwarf Fortress
+	 * will ignore/do its best to parse. They tend to not prevent the module to work, but they are technically
+	 * incorrectly formatted. This would mostly be useful for mod authors to check.
+	 *
+	 * Default: false
+	 */
+	includeWarningsForInfoFileFormat: boolean;
 };
 
 /**
@@ -10731,6 +10740,16 @@ export type Tile = {
 	color?: Color | null;
 	glowCharacter?: string | null;
 	glowColor?: Color | null;
+};
+
+/**
+ * Custom wrapper for the Tile character used in tags
+ */
+export type TileCharacter = {
+	/**
+	 * The character used for the tile
+	 */
+	value: string;
 };
 
 /**

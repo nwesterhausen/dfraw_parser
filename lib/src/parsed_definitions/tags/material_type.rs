@@ -2,7 +2,16 @@
 
 /// A material template
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum MaterialTypeTag {
     /// An inorganic material

@@ -1,0 +1,52 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+  {
+    "request": "launch",
+    "label": "Debug Parse Vanilla + Installed",
+    "program": "target/debug/dfraw_json_parser-cli", // Point this to your actual binary
+    "args": [
+      "--vanilla",
+      "--installed",
+      "-P",
+      "-U",
+      "/Volumes/LaCie/Samples/Bay_12_Games/Dwarf Fortress",
+      "/Volumes/LaCie/Samples/Dwarf_Fortress",
+    ],
+    "env": {
+      "RUST_LOG": "debug",
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "sourceLanguages": ["rust"],
+    "adapter": "CodeLLDB",
+    "build": {
+      "command": "cargo",
+      "args": ["build"],
+    },
+  },
+  {
+    "request": "launch",
+    "label": "Debug Parse Fantastic Fanstasy Fortress 41",
+    "program": "target/debug/dfraw_json_parser-cli", // Point this to your actual binary
+    "args": [
+      "-m",
+      "/Volumes/LaCie/Samples/Bay_12_Games/Dwarf Fortress/data/installed_mods/FANTASTIC_FANTASY_FORTRESS (41)",
+      "-P",
+      "-U",
+      "/Volumes/LaCie/Samples/Bay_12_Games/Dwarf Fortress",
+      "/Volumes/LaCie/Samples/Dwarf_Fortress",
+    ],
+    "env": {
+      "RUST_LOG": "debug",
+    },
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "sourceLanguages": ["rust"],
+    "adapter": "CodeLLDB",
+    "build": {
+      "command": "cargo",
+      "args": ["build"],
+    },
+  },
+]

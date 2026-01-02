@@ -48,13 +48,7 @@ pub fn parse(options: &ParserOptions) -> Result<ParseResult, ParserError> {
 
     // Locations can only contain the predefined locations.
     if !options.locations_to_parse.is_empty() {
-        let target_path = Path::new(&options.dwarf_fortress_directory);
-
-        // Build paths for each location
-        let data_path = target_path.join("data");
-        let vanilla_path = data_path.join("vanilla");
-        let installed_mods_path = data_path.join("installed_mods");
-        let workshop_mods_path = target_path.join("mods");
+        info!("{:?}", options.locations);
 
         // Parse each location
         if options
@@ -62,27 +56,48 @@ pub fn parse(options: &ParserOptions) -> Result<ParseResult, ParserError> {
             .contains(&RawModuleLocation::Vanilla)
         {
             info!("Dispatching parse for vanilla raws");
-            let parsed_raws = parse_location(&vanilla_path, &options)?;
-            results.raws.extend(parsed_raws.parsed_raws);
-            unprocessed_raws.extend(parsed_raws.unprocessed_raws);
+            if let Some(vanilla_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::Vanilla)
+            {
+                let parsed_raws = parse_location(&vanilla_path, &options)?;
+                results.raws.extend(parsed_raws.parsed_raws);
+                unprocessed_raws.extend(parsed_raws.unprocessed_raws);
+            } else {
+                error!("No valid vanilla raws path found!");
+            }
         }
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::InstalledMods)
         {
             info!("Dispatching parse for installed mods");
-            let parsed_raws = parse_location(&installed_mods_path, &options)?;
-            results.raws.extend(parsed_raws.parsed_raws);
-            unprocessed_raws.extend(parsed_raws.unprocessed_raws);
+            if let Some(installed_mods_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::InstalledMods)
+            {
+                let parsed_raws = parse_location(&installed_mods_path, &options)?;
+                results.raws.extend(parsed_raws.parsed_raws);
+                unprocessed_raws.extend(parsed_raws.unprocessed_raws);
+            } else {
+                error!("No valid installed mods path found!");
+            }
         }
         if options
             .locations_to_parse
             .contains(&RawModuleLocation::Mods)
         {
             info!("Dispatching parse for workshop/downloaded mods");
-            let parsed_raws = parse_location(&workshop_mods_path, &options)?;
-            results.raws.extend(parsed_raws.parsed_raws);
-            unprocessed_raws.extend(parsed_raws.unprocessed_raws);
+            if let Some(workshop_mods_path) = options
+                .locations
+                .get_path_for_location(RawModuleLocation::Mods)
+            {
+                let parsed_raws = parse_location(&workshop_mods_path, &options)?;
+                results.raws.extend(parsed_raws.parsed_raws);
+                unprocessed_raws.extend(parsed_raws.unprocessed_raws);
+            } else {
+                error!("No valid workshop mods path found!");
+            }
         }
     }
 

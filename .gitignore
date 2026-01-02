@@ -1,14 +1,15 @@
 # Added by cargo
-
 /target
-
-# Ignore cli output in example dir
-examples/www/out.json
-
 
 # Ingore Mac OS X system files
 .DS_Store
 ._*
 
-# Ignore vanilla raws
+# Ignore vanilla raws if present
 vanilla-raws/
+
+# Ignore any test *json exports
+*.json
+!parsed-raws.json
+!.vscode/*.json
+!.zed/*.json

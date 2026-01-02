@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
-const LONG_HELP: &str = "Usage: dfraw-json-parser [OPTIONS] <dwarf-fortress-path>
+const LONG_HELP: &str = "Usage: dfraw-json-parser [OPTIONS] [<dwarf-fortress-path>]
 
 Default behavior:
     - Parse all object types
@@ -57,6 +57,9 @@ The following options are supported:
         to specify a raw module to parse in addition to the raw modules
         specified by the --vanilla, --mods, and --installed flags.
 
+    -U, --user-data-dir PATH   Override the user data directory
+        Default value: '/Volumes/LaCie/Samples/Bay_12_Games/'
+
     -v, --verbose       Increase the verbosity of the output
         Default log level: 'info'
 
@@ -78,6 +81,8 @@ The following options are supported:
 
     --only-info-files   Don't write raws to the output file.
         This is useful if you only want the 'info.txt' file data
+
+    --speed-test        Do not write any output files, just parse the raws.
 
     -h, --help              Print this help message
     -V, --version           Print the version number";
@@ -103,7 +108,9 @@ struct Args {
     /// The path to save the parsed raws to
     pub output_path: PathBuf,
     /// The path to the Dwarf Fortress directory
-    pub df_path: PathBuf,
+    pub df_path: Option<PathBuf>,
+    /// Override the user data directory
+    pub user_data_dir: Option<PathBuf>,
     /// Specific raw files to parse (if any)
     pub raw_file_paths: Vec<PathBuf>,
     /// Specific raw modules to parse (if any)
@@ -112,6 +119,8 @@ struct Args {
     pub skip_info_files: bool,
     /// Whether or not to skip writing the parsed raws to the output file
     pub skip_raws: bool,
+    /// Whether or not to skip writing any output files (useful only to benchmark how long it takes to parse the raws)
+    pub speed_test: bool,
 }
 
 impl std::default::Default for Args {
@@ -126,8 +135,10 @@ impl std::default::Default for Args {
             pretty_print: false,
             skip_info_files: false,
             skip_raws: false,
+            speed_test: false,
             output_path: PathBuf::from("parsed-raws.json"),
-            df_path: PathBuf::new(),
+            df_path: None,
+            user_data_dir: None,
             raw_file_paths: Vec::new(),
             raw_module_paths: Vec::new(),
         }
@@ -141,7 +152,6 @@ fn parse_args() -> Result<Args, lexopt::Error> {
     // Establish default values for the CLI arguments
     let mut args = Args::default();
     let mut include_graphics = false;
-    let mut df_path: Option<PathBuf> = None;
 
     let mut parser = lexopt::Parser::from_env();
 
@@ -228,9 +238,18 @@ fn parse_args() -> Result<Args, lexopt::Error> {
             Long("skip-raws") => {
                 args.skip_raws = true;
             }
+            Long("speed-test") => {
+                args.speed_test = true;
+            }
 
-            Value(val) if df_path.is_none() => {
-                df_path = Some(PathBuf::from(val));
+            Short('U') | Long("user-data-dir") => {
+                if let Ok(dir) = parser.value() {
+                    args.user_data_dir = Some(PathBuf::from(dir));
+                }
+            }
+
+            Value(val) if args.df_path.is_none() => {
+                args.df_path = Some(PathBuf::from(val));
             }
 
             _ => {
@@ -252,17 +271,6 @@ fn parse_args() -> Result<Args, lexopt::Error> {
     if include_graphics {
         args.object_types.push(ObjectType::Graphics);
         args.object_types.push(ObjectType::TilePage);
-    }
-
-    // For all paths, resolve them to absolute paths
-
-    // We only need the DF path if we're parsing raws from the one of the defined locations
-    if args.locations.is_empty() {
-        // If we don't need the DF path, we can just set it to an empty path
-        args.df_path = PathBuf::new();
-    } else {
-        // If we do need the DF path, we need to make sure it was specified
-        args.df_path = to_absolute_path(&df_path.unwrap_or_default(), "dwarf fortress path")?;
     }
 
     for path in &mut args.raw_file_paths {
@@ -399,8 +407,16 @@ pub fn main() -> Result<(), lexopt::Error> {
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
+    tracing::debug!("Parsed Args:\n{args:?}");
+
     // Build ParserOptions for the parser
-    let mut options = ParserOptions::new(args.df_path);
+    let mut options = ParserOptions::new();
+    if let Some(df_dir) = &args.df_path {
+        options.set_dwarf_fortress_directory(df_dir);
+    }
+    if let Some(user_dir) = &args.user_data_dir {
+        options.set_user_data_directory(user_dir);
+    }
 
     // Set locations to parse
     options.set_locations_to_parse(args.locations);
@@ -427,6 +443,8 @@ pub fn main() -> Result<(), lexopt::Error> {
         options.log_summary();
     }
 
+    tracing::debug!("Options sent to dfraw_parser:\n{options:?}");
+
     // Parse the raws
     let result = parse(&options).map_err(|e| {
         lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
@@ -437,6 +455,10 @@ pub fn main() -> Result<(), lexopt::Error> {
     // Print a summary of the parsed raws
     if args.print_summary {
         tracing::error!("Summary not implemented yet..");
+    }
+
+    if args.speed_test {
+        return Ok(());
     }
 
     write_output_file(

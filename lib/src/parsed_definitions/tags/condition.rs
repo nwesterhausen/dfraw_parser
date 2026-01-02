@@ -4,7 +4,16 @@ use crate::raw_definitions::CONDITION_TOKENS;
 
 /// A condition that can be applied to a tile/entity
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type, Copy,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 #[serde(rename_all = "camelCase")]
 pub enum ConditionTag {

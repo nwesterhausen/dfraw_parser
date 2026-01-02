@@ -356,7 +356,7 @@ impl Position {
             }
             PositionTag::Squad => self.squad = Some(value.to_string()),
             PositionTag::Succession => self.succession = Some(value.to_string()),
-            _ => self.tags.push(key.clone()),
+            _ => self.tags.push(*key),
         }
     }
 }

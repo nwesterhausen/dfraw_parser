@@ -217,17 +217,15 @@ impl RawObject for Inorganic {
                     let mut split = value.split(':');
                     // Determine class
                     self.environment_class = Some(
-                        ENVIRONMENT_CLASS_TOKENS
+                        *ENVIRONMENT_CLASS_TOKENS
                             .get(split.next().unwrap_or(""))
-                            .unwrap_or(&EnvironmentClassTag::None)
-                            .clone(),
+                            .unwrap_or(&EnvironmentClassTag::None),
                     );
                     // Determine type
                     self.environment_inclusion_type = Some(
-                        INCLUSION_TYPE_TOKENS
+                        *INCLUSION_TYPE_TOKENS
                             .get(split.next().unwrap_or(""))
-                            .unwrap_or(&InclusionTypeTag::None)
-                            .clone(),
+                            .unwrap_or(&InclusionTypeTag::None),
                     );
                     // Determine frequency
                     self.environment_inclusion_frequency =
@@ -271,7 +269,7 @@ impl RawObject for Inorganic {
                     }
                 }
                 _ => {
-                    self.add_tag(token.clone());
+                    self.add_tag(*token);
                 }
             }
 

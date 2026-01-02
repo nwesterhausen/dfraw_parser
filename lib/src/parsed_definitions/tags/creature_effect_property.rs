@@ -2,7 +2,16 @@
 
 /// An enum representing a creature effect property tag.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    Copy,
+    strum_macros::EnumIter,
 )]
 pub enum CreatureEffectPropertyTag {
     /// The severity of the effect. Higher values appear to be worse, with SEV:1000 `CE_NECROSIS` causing a part to near-instantly become rotten.

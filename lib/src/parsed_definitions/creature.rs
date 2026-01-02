@@ -381,7 +381,7 @@ impl Creature {
             let mut combined_biomes = combined_creature.biomes.unwrap_or_default();
             for biome in biomes {
                 if !combined_biomes.contains(biome) {
-                    combined_biomes.push(biome.clone());
+                    combined_biomes.push(*biome);
                 }
             }
             combined_creature.biomes = Some(combined_biomes);
@@ -466,7 +466,7 @@ impl Creature {
         let mut ret_biomes = Vec::new();
         if let Some(biomes) = &self.biomes {
             for biome in biomes {
-                ret_biomes.push(biome.clone());
+                ret_biomes.push(*biome);
             }
         }
         ret_biomes
@@ -504,7 +504,7 @@ impl Creature {
                     .join("_")
                     .to_uppercase();
                 if let Some(biome) = BIOME_TOKENS.get(&biome) {
-                    self.add_biome(biome.clone());
+                    self.add_biome(*biome);
                 } else {
                     warn!(
                         "Creature::parse_tags_from_xml: ({}) Unknown biome '{}'",
@@ -775,7 +775,7 @@ impl RawObject for Creature {
         match tag {
             CreatureTag::Biome { id } => {
                 if let Some(biome) = BIOME_TOKENS.get(&id) {
-                    self.add_biome(biome.clone());
+                    self.add_biome(*biome);
                 } else {
                     warn!(
                         "parse_tag: unknown biome {} for creature {}",

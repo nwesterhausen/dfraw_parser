@@ -2,14 +2,22 @@
 
 use crate::{
     creature::Creature,
-    metadata::TagComplexity,
+    custom_types::TileCharacter,
     raw_definitions::CREATURE_TOKENS,
-    traits::{RawObjectToken, TagOperations},
+    traits::{RawObjectToken, TagOperations, TokenParser},
 };
 
 /// An enum representing a creature tag.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Default, specta::Type,
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 pub enum CreatureTag {
     /// If set, the creature will blink between its `[Tile]` and its `[AltTile]`.
@@ -21,7 +29,7 @@ pub enum CreatureTag {
     /// Appears as `ALTTILE:123`
     AltTile {
         /// The character or tile number
-        character: u32,
+        character: TileCharacter,
     },
     /// Applies the specified creature variation with the given arguments to the creature. See `[ApplyCreatureVariation]` for more information.
     ///
@@ -89,14 +97,14 @@ pub enum CreatureTag {
     /// Appears as `CREATURE_SOLDIER_TILE:123`
     CreatureSoldierTile {
         /// The character or tile number
-        character: u32,
+        character: TileCharacter,
     },
     /// The symbol of the creature in ASCII mode.
     ///
     /// Appears as `CREATURE_TILE:123`
     CreatureTile {
         /// The character or tile number
-        character: u32,
+        character: TileCharacter,
     },
     /// The color of the creature's tile.
     ///
@@ -194,7 +202,7 @@ pub enum CreatureTag {
     /// Appears as `GLOWTILE:123`
     GlowTile {
         /// The character or tile number
-        character: u32,
+        character: TileCharacter,
     },
     /// Creature is considered good and will only show up in good biomes - unicorns, for example. Civilizations with `[EntityToken::UseGoodAnimals]` can
     /// domesticate them regardless of exotic status. Has no effect on cavern creatures except to restrict taming. A civilization that has good
@@ -573,98 +581,6 @@ impl RawObjectToken<Creature> for CreatureTag {
 }
 
 impl TagOperations for CreatureTag {
-    fn get_complexity(&self) -> TagComplexity {
-        // Implement the logic for getting the complexity of the token.
-        // Return the appropriate `TokenComplexity` variant.
-        match self {
-          Self::ApplyCurrentCreatureVariation |
-          Self::ArtificialHiveable |
-          Self::DoesNotExist |
-          Self::EquipmentWagon |
-          Self::Evil |
-          Self::Fanciful |
-          Self::Generated |
-          Self::Good |
-          Self::GoToEnd |
-          Self::GoToStart |
-          Self::LargeRoaming |
-          Self::LocalPopsControllable |
-          Self::LocalPopsProduceHeroes |
-          Self::LooseClusters |
-          Self::Mundane |
-          Self::Savage |
-          Self::Ubiquitous |
-          Self::Utterances |
-          Self::VerminEater |
-          Self::VerminFish |
-          Self::VerminGrounder |
-          Self::VerminRotter |
-          Self::VerminSoil |
-          Self::VerminSoilColony |
-          // Other tags
-          Self::Unknown |
-          Self::AllCastesAlive |
-          Self::Equipment |
-          Self::MatesToBreed |
-          Self::OccursAsEntityRace |
-          Self::SmallRace |
-          Self::TwoGenders
-          => {
-                tracing::trace!("get_complexity: {self:?} is 'None'");
-                TagComplexity::None
-        }
-          Self::AltTile{..} |
-          Self::Biome {..} |
-          Self::Caste {..} |
-          Self::ChangeFrequencyPercent {..} |
-          Self::CopyTagsFrom {..} |
-          Self::CreatureSoldierTile {..} |
-          Self::CreatureTile {..} |
-          Self::Frequency { .. } |
-          Self::GlowTile {..} |
-          Self::GoToTag {..} |
-          Self::PlusMaterial {..} |
-          Self::PrefString {..} |
-          Self::RemoveMaterial {..} |
-          Self::RemoveTissue {..} |
-          Self::SelectAdditionalCaste {..} |
-          Self::SelectCaste {..} |
-          Self::SelectMaterial {..} |
-          Self::SelectTissue {..} |
-          Self::SlainSpeech {..} |
-          Self::SmellTrigger {..} |
-          Self::SoldierAltTile {..} |
-          Self::SourceHfid {..} |
-          Self::Sphere {..} |
-          Self::Tissue {..}
-          => {
-                tracing::trace!("get_complexity: {self:?} is 'Simple'");
-                TagComplexity::Simple
-        }
-          Self::ApplyCreatureVariation{..} |
-          Self::ClusterNumber {..} |
-          Self::Color {..} |
-          Self::GlowColor {..} |
-          Self::GeneralBabyName {..} |
-          Self::GeneralChildName {..} |
-          Self::HarvestProduct {..} |
-          Self::Name {..} |
-          Self::PopulationNumber {..} |
-          Self::ProfessionName {..} |
-Self::TriggerableGroup { .. } |
-          Self::UndergroundDepth {..} |
-          Self::UseCaste {..} |
-          Self::UseMaterial {..} |
-          Self::UseMaterialTemplate {..} |
-          Self::UseTissue {..} |
-          Self::UseTissueTemplate {..}
-          => {
-                tracing::trace!("get_complexity: {self:?} is 'Complex'");
-                TagComplexity::Complex
-        }
-        }
-    }
-
     fn parse(key: &str, value: &str) -> Option<Self> {
         // Implement the logic for parsing the token from the key and value.
         // Create a new `CreatureTag` instance and return it, or return `None` if the token could not be parsed.
@@ -674,316 +590,136 @@ Self::TriggerableGroup { .. } |
             return None;
         };
 
-        match token.get_complexity() {
-            TagComplexity::None => Some(token.clone()),
-            TagComplexity::Simple => {
-                // All of these tokens have a pattern of `key:value` so we can parse `value` as appropriate
-                // We just pass this off to the token's `simple_parse` method to handle the parsing
-                token.parse_simple_token(value)
-            }
-            TagComplexity::Complex => {
-                // These tokens have a variable number of arguments, so we need to parse them differently
-                // We pass this off to the token's `complex_parse` method to handle the parsing
-                let args = value.split(':').collect::<Vec<&str>>();
-                token.parse_complex_token(&args)
-            }
-        }
-    }
+        // Split values into an array if possible, using an empty one if no values exist.
+        let values: Vec<&str> = if value.is_empty() {
+            Vec::new()
+        } else {
+            value.split(':').collect()
+        };
 
-    /// Parse a simple token
-    ///
-    /// This function is used to parse tokens that have a simple key:value pattern
-    ///
-    /// # Arguments
-    ///
-    /// * `token` - The token to parse
-    /// * `value` - The value to parse
-    #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
-    fn parse_simple_token(&self, value: &str) -> Option<Self> {
-        match self {
-            Self::AltTile { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::AltTile { character: value })
+        match token {
+            CreatureTag::ApplyCurrentCreatureVariation
+            | CreatureTag::ArtificialHiveable
+            | CreatureTag::DoesNotExist
+            | CreatureTag::EquipmentWagon
+            | CreatureTag::Evil
+            | CreatureTag::Fanciful
+            | CreatureTag::Generated
+            | CreatureTag::Good
+            | CreatureTag::GoToEnd
+            | CreatureTag::GoToStart
+            | CreatureTag::LargeRoaming
+            | CreatureTag::LocalPopsControllable
+            | CreatureTag::LocalPopsProduceHeroes
+            | CreatureTag::LooseClusters
+            | CreatureTag::Mundane
+            | CreatureTag::Savage
+            | CreatureTag::Ubiquitous
+            | CreatureTag::Utterances
+            | CreatureTag::VerminEater
+            | CreatureTag::VerminFish
+            | CreatureTag::VerminGrounder
+            | CreatureTag::VerminRotter
+            | CreatureTag::VerminSoil
+            | CreatureTag::VerminSoilColony
+            | CreatureTag::Unknown
+            | CreatureTag::MatesToBreed
+            | CreatureTag::TwoGenders
+            | CreatureTag::AllCastesAlive
+            | CreatureTag::SmallRace
+            | CreatureTag::OccursAsEntityRace
+            | CreatureTag::Equipment => {
+                // Emits a warning if there are values when we expect none.
+                // Using it in the trait allows us to adjust it if needed in the future.
+                token.parse_flag(&values, token.clone())
             }
-            Self::Biome { .. } => {
-                // Parse the value as a `String`
-                Some(Self::Biome {
-                    id: value.to_string(),
+
+            CreatureTag::AltTile { .. } => {
+                token.parse_single(&values, |character| CreatureTag::AltTile { character })
+            }
+            CreatureTag::ApplyCreatureVariation { .. } => {
+                token.parse_labeled_vector(&values, |id, args| {
+                    CreatureTag::ApplyCreatureVariation { id, args }
                 })
             }
-            Self::Caste { .. } => {
-                // Parse the value as a `String`
-                Some(Self::Caste {
-                    name: value.to_string(),
-                })
+            CreatureTag::Biome { .. } => {
+                token.parse_single(&values, |id| CreatureTag::Biome { id })
             }
-            Self::ChangeFrequencyPercent { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::ChangeFrequencyPercent { percent: value })
+            CreatureTag::Caste { .. } => {
+                token.parse_single(&values, |name| CreatureTag::Caste { name })
             }
-            Self::CopyTagsFrom { .. } => {
-                // Parse the value as a `String`
-                Some(Self::CopyTagsFrom {
-                    creature: value.to_string(),
-                })
-            }
-            Self::CreatureSoldierTile { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::CreatureSoldierTile { character: value })
-            }
-            Self::CreatureTile { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::CreatureTile { character: value })
-            }
-            Self::Frequency { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::Frequency { frequency: value })
-            }
-            Self::GlowTile { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::GlowTile { character: value })
-            }
-            Self::GoToTag { .. } => {
-                // Parse the value as a `String`
-                Some(Self::GoToTag {
-                    tag: value.to_string(),
-                })
-            }
-            Self::PlusMaterial { .. } => {
-                // Parse the value as a `String`
-                Some(Self::PlusMaterial {
-                    material: value.to_string(),
-                })
-            }
-            Self::PrefString { .. } => {
-                // Parse the value as a `String`
-                Some(Self::PrefString {
-                    pref_string: value.to_string(),
-                })
-            }
-            Self::RemoveMaterial { .. } => {
-                // Parse the value as a `String`
-                Some(Self::RemoveMaterial {
-                    material: value.to_string(),
-                })
-            }
-            Self::RemoveTissue { .. } => {
-                // Parse the value as a `String`
-                Some(Self::RemoveTissue {
-                    tissue: value.to_string(),
-                })
-            }
-            Self::SelectAdditionalCaste { .. } => {
-                // Parse the value as a `String`
-                Some(Self::SelectAdditionalCaste {
-                    caste: value.to_string(),
-                })
-            }
-            Self::SelectCaste { .. } => {
-                // Parse the value as a `String`
-                Some(Self::SelectCaste {
-                    caste: value.to_string(),
-                })
-            }
-            Self::SelectMaterial { .. } => {
-                // Parse the value as a `String`
-                Some(Self::SelectMaterial {
-                    material: value.to_string(),
-                })
-            }
-            Self::SelectTissue { .. } => {
-                // Parse the value as a `String`
-                Some(Self::SelectTissue {
-                    tissue: value.to_string(),
-                })
-            }
-            Self::SlainSpeech { .. } => {
-                // Parse the value as a `String`
-                Some(Self::SlainSpeech {
-                    slain_speech: value.to_string(),
-                })
-            }
-            Self::SmellTrigger { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::SmellTrigger {
-                    smell_trigger: value,
-                })
-            }
-            Self::SoldierAltTile { .. } => Some(Self::SoldierAltTile {
-                tile: value.to_string(),
+            CreatureTag::ChangeFrequencyPercent { .. } => token.parse_single(&values, |percent| {
+                CreatureTag::ChangeFrequencyPercent { percent }
             }),
-            Self::SourceHfid { .. } => {
-                // Parse the value as a `u32`
-                let value = value.parse::<u32>().unwrap_or_default();
-                Some(Self::SourceHfid { hfid: value })
+            CreatureTag::ClusterNumber { .. } => token.parse_array(&values, |[min, max]| {
+                CreatureTag::ClusterNumber { min, max }
+            }),
+            CreatureTag::CopyTagsFrom { .. } => {
+                token.parse_single(&values, |creature| CreatureTag::CopyTagsFrom { creature })
             }
-            Self::Sphere { .. } => {
-                // Parse the value as a `String`
-                Some(Self::Sphere {
-                    sphere: value.to_string(),
+            CreatureTag::CreatureSoldierTile { .. } => token.parse_single(&values, |character| {
+                CreatureTag::CreatureSoldierTile { character }
+            }),
+            CreatureTag::CreatureTile { .. } => {
+                token.parse_single(&values, |character| CreatureTag::CreatureTile { character })
+            }
+            CreatureTag::Color { .. } => {
+                token.parse_array(&values, |[foreground, background, brightness]| {
+                    CreatureTag::Color {
+                        foreground,
+                        background,
+                        brightness,
+                    }
                 })
             }
-            Self::Tissue { .. } => {
-                // Parse the value as a `String`
-                Some(Self::Tissue {
-                    name: value.to_string(),
+            CreatureTag::Frequency { .. } => {
+                token.parse_single(&values, |frequency| CreatureTag::Frequency { frequency })
+            }
+            CreatureTag::GeneralBabyName { .. } => {
+                token.parse_array(&values, |[singular, plural]| CreatureTag::GeneralBabyName {
+                    singular,
+                    plural,
                 })
             }
-            _ => {
-                tracing::warn!("parse_simple_token: non-simple token: {self}");
-                None
+            CreatureTag::GeneralChildName { .. } => token
+                .parse_array(&values, |[singular, plural]| {
+                    CreatureTag::GeneralChildName { singular, plural }
+                }),
+            CreatureTag::GlowColor { .. } => {
+                token.parse_array(&values, |[foreground, background, brightness]| {
+                    CreatureTag::GlowColor {
+                        foreground,
+                        background,
+                        brightness,
+                    }
+                })
             }
-        }
-    }
+            CreatureTag::GlowTile { .. } => {
+                token.parse_single(&values, |character| CreatureTag::GlowTile { character })
+            }
+            CreatureTag::GoToTag { .. } => {
+                token.parse_single(&values, |tag| CreatureTag::GoToTag { tag })
+            }
+            CreatureTag::HarvestProduct { .. } => {
+                // Check if there are at least 3 arguments
+                if values.len() < 3 {
+                    tracing::warn!(
+                        "not enough arguments for HarvestProduct: {}/3: {:?}",
+                        values.len(),
+                        &values
+                    );
+                    return None;
+                }
 
-    /// Parse a complex token
-    ///
-    /// This function is used to parse tokens that have a complex key:value pattern
-    ///
-    /// # Arguments
-    ///
-    /// * `token` - The token to parse
-    /// * `argument_1` - The first argument to parse
-    /// * `remaining_args` - The remaining arguments to parse (as a ':' separated string)
-    #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
-    fn parse_complex_token(&self, values: &[&str]) -> Option<Self> {
-        match self {
-            Self::ApplyCreatureVariation { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!("parse_complex_token: not enough arguments for Self::ApplyCreatureVariation {}/2", values.len());
-                    return None;
-                }
-                let id = (*values.first().unwrap_or(&"")).to_string();
-                let args = (*values.get(1..).unwrap_or_default())
-                    .iter()
-                    .map(std::string::ToString::to_string)
-                    .collect();
-                Some(Self::ApplyCreatureVariation { id, args })
-            }
-            Self::ClusterNumber { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::ClusterNumber {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let Ok(min) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::ClusterNumber failed to parse min value: {values:?}");
-                    return None;
-                };
-                let Ok(max) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::ClusterNumber failed to parse max value: {values:?}");
-                    return None;
-                };
-                Some(Self::ClusterNumber { min, max })
-            }
-            Self::Color { .. } => {
-                // Check if there are at least 3 arguments
-                if values.len() < 3 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::Color {}/3",
-                        values.len()
-                    );
-                    return None;
-                }
-                let Ok(foreground) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::Color failed to parse foreground value: {values:?}");
-                    return None;
-                };
-                let Ok(background) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::Color failed to parse background value: {values:?}");
-                    return None;
-                };
-                let Ok(brightness) = (*values.get(2).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::Color failed to parse brightness value: {values:?}");
-                    return None;
-                };
-                Some(Self::Color {
-                    foreground,
-                    background,
-                    brightness,
-                })
-            }
-            Self::GlowColor { .. } => {
-                // Check if there are at least 3 arguments
-                if values.len() < 3 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::GlowColor {}/3",
-                        values.len()
-                    );
-                    return None;
-                }
-                let Ok(foreground) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::GlowColor failed to parse foreground value: {values:?}");
-                    return None;
-                };
-                let Ok(background) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::GlowColor failed to parse background value: {values:?}");
-                    return None;
-                };
-                let Ok(brightness) = (*values.get(2).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::GlowColor failed to parse brightness value: {values:?}");
-                    return None;
-                };
-                Some(Self::GlowColor {
-                    foreground,
-                    background,
-                    brightness,
-                })
-            }
-            Self::GeneralBabyName { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::GeneralBabyName {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let singular = (*values.first().unwrap_or(&"")).to_string();
-                let plural = (*values.get(1..).unwrap_or_default()).join(":");
-                Some(Self::GeneralBabyName { singular, plural })
-            }
-            Self::GeneralChildName { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::GeneralChildName {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let singular = (*values.first().unwrap_or(&"")).to_string();
-                let plural = (*values.get(1..).unwrap_or_default()).join(":");
-                Some(Self::GeneralChildName { singular, plural })
-            }
-            Self::HarvestProduct { .. } => {
-                // Check if there are at least 3 arguments
-                if values.len() < 3 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::HarvestProduct {}/3",
-                        values.len()
-                    );
-                    return None;
-                }
                 let Ok(number) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::HarvestProduct failed to parse number value: {values:?}");
+                    tracing::warn!("parse_complex_token: HarvestProduct failed to parse number value in position 0: {values:?}");
                     return None;
                 };
                 let Ok(time) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::HarvestProduct failed to parse time value: {values:?}");
+                    tracing::warn!("parse_complex_token: HarvestProduct failed to parse time value in position 1: {values:?}");
                     return None;
                 };
+
                 let item_tokens: Vec<String> = values
                     .iter()
                     .map(std::string::ToString::to_string)
@@ -994,177 +730,105 @@ Self::TriggerableGroup { .. } |
                     item_tokens,
                 })
             }
-            Self::Name { .. } => {
-                // Check if there are at least 3 arguments
-                if values.len() < 3 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::Name {}/3",
-                        values.len()
-                    );
-                    return None;
-                }
-                let name = (*values.first().unwrap_or(&"")).to_string();
-                let plural_name = (*values.get(1).unwrap_or(&"")).to_string();
-                let adjective = (*values.get(2..).unwrap_or_default()).join(":");
-                Some(Self::Name {
-                    name,
-                    plural_name,
-                    adjective,
+            CreatureTag::Name { .. } => {
+                token.parse_array(&values, |[name, plural_name, adjective]| {
+                    CreatureTag::Name {
+                        name,
+                        plural_name,
+                        adjective,
+                    }
                 })
             }
-            Self::PopulationNumber { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::PopulationNumber {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let Ok(min) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::PopulationNumber failed to parse min value: {values:?}");
-                    return None;
-                };
-                let Ok(max) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::PopulationNumber failed to parse max value: {values:?}");
-                    return None;
-                };
-                Some(Self::PopulationNumber { min, max })
+            CreatureTag::PlusMaterial { .. } => {
+                token.parse_single(&values, |material| CreatureTag::PlusMaterial { material })
             }
-            Self::ProfessionName { .. } => {
-                // Check if there are at least 3 arguments
-                if values.len() < 3 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::ProfessionName {}/3",
-                        values.len()
-                    );
-                    return None;
-                }
-                let id = (*values.first().unwrap_or(&"")).to_string();
-                let name = (*values.get(1).unwrap_or(&"")).to_string();
-                let plural_name = (*values.get(2..).unwrap_or_default()).join(":");
-                Some(Self::ProfessionName {
-                    id,
-                    name,
-                    plural_name,
+            CreatureTag::PopulationNumber { .. } => token.parse_array(&values, |[min, max]| {
+                CreatureTag::PopulationNumber { min, max }
+            }),
+            CreatureTag::PrefString { .. } => token.parse_single(&values, |pref_string| {
+                CreatureTag::PrefString { pref_string }
+            }),
+            CreatureTag::ProfessionName { .. } => {
+                token.parse_array(&values, |[id, name, plural_name]| {
+                    CreatureTag::ProfessionName {
+                        id,
+                        name,
+                        plural_name,
+                    }
                 })
             }
-            Self::TriggerableGroup { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::TriggerableGroup {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let Ok(min) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::TriggerableGroup failed to parse min value: {values:?}");
-                    return None;
-                };
-                let Ok(max) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::TriggerableGroup failed to parse max value: {values:?}");
-                    return None;
-                };
-                Some(Self::TriggerableGroup { min, max })
+            CreatureTag::RemoveMaterial { .. } => {
+                token.parse_single(&values, |material| CreatureTag::RemoveMaterial { material })
             }
-            Self::UndergroundDepth { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::UndergroundDepth {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let Ok(min) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::UndergroundDepth failed to parse min value: {values:?}");
-                    return None;
-                };
-                let Ok(max) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: Self::UndergroundDepth failed to parse max value: {values:?}");
-                    return None;
-                };
-                Some(Self::UndergroundDepth { min, max })
+            CreatureTag::RemoveTissue { .. } => {
+                token.parse_single(&values, |tissue| CreatureTag::RemoveTissue { tissue })
             }
-            Self::UseCaste { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::UseCaste {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let caste = (*values.first().unwrap_or(&"")).to_string();
-                let original_caste = (*values.get(1..).unwrap_or_default()).join(":");
-                Some(Self::UseCaste {
+            CreatureTag::SelectAdditionalCaste { .. } => token.parse_single(&values, |caste| {
+                CreatureTag::SelectAdditionalCaste { caste }
+            }),
+            CreatureTag::SelectCaste { .. } => {
+                token.parse_single(&values, |caste| CreatureTag::SelectCaste { caste })
+            }
+            CreatureTag::SelectMaterial { .. } => {
+                token.parse_single(&values, |material| CreatureTag::SelectMaterial { material })
+            }
+            CreatureTag::SelectTissue { .. } => {
+                token.parse_single(&values, |tissue| CreatureTag::SelectTissue { tissue })
+            }
+            CreatureTag::SlainSpeech { .. } => token.parse_single(&values, |slain_speech| {
+                CreatureTag::SlainSpeech { slain_speech }
+            }),
+            CreatureTag::SmellTrigger { .. } => token.parse_single(&values, |smell_trigger| {
+                CreatureTag::SmellTrigger { smell_trigger }
+            }),
+            CreatureTag::SoldierAltTile { .. } => {
+                token.parse_single(&values, |tile| CreatureTag::SoldierAltTile { tile })
+            }
+            CreatureTag::SourceHfid { .. } => {
+                token.parse_single(&values, |hfid| CreatureTag::SourceHfid { hfid })
+            }
+            CreatureTag::Sphere { .. } => {
+                token.parse_single(&values, |sphere| CreatureTag::Sphere { sphere })
+            }
+            CreatureTag::Tissue { .. } => {
+                token.parse_single(&values, |name| CreatureTag::Tissue { name })
+            }
+            CreatureTag::TriggerableGroup { .. } => token.parse_array(&values, |[min, max]| {
+                CreatureTag::TriggerableGroup { min, max }
+            }),
+            CreatureTag::UndergroundDepth { .. } => token.parse_array(&values, |[min, max]| {
+                CreatureTag::UndergroundDepth { min, max }
+            }),
+            CreatureTag::UseCaste { .. } => {
+                token.parse_array(&values, |[caste, original_caste]| CreatureTag::UseCaste {
                     caste,
                     original_caste,
                 })
             }
-            Self::UseMaterial { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::UseMaterial {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let material = (*values.first().unwrap_or(&"")).to_string();
-                let original_material = (*values.get(1..).unwrap_or_default()).join(":");
-                Some(Self::UseMaterial {
-                    material,
-                    original_material,
+            CreatureTag::UseMaterial { .. } => {
+                token.parse_array(&values, |[material, original_material]| {
+                    CreatureTag::UseMaterial {
+                        material,
+                        original_material,
+                    }
                 })
             }
-            Self::UseMaterialTemplate { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                    "parse_complex_token: not enough arguments for Self::UseMaterialTemplate {}/2",
-                    values.len()
-                );
-                    return None;
-                }
-                let material = (*values.first().unwrap_or(&"")).to_string();
-                let template = (*values.get(1..).unwrap_or_default()).join(":");
-                Some(Self::UseMaterialTemplate { material, template })
-            }
-            Self::UseTissue { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                        "parse_complex_token: not enough arguments for Self::UseTissue {}/2",
-                        values.len()
-                    );
-                    return None;
-                }
-                let tissue = (*values.first().unwrap_or(&"")).to_string();
-                let original_tissue = (*values.get(1..).unwrap_or_default()).join(":");
-                Some(Self::UseTissue {
-                    tissue,
-                    original_tissue,
+            CreatureTag::UseMaterialTemplate { .. } => token
+                .parse_array(&values, |[material, template]| {
+                    CreatureTag::UseMaterialTemplate { material, template }
+                }),
+            CreatureTag::UseTissue { .. } => {
+                token.parse_array(&values, |[tissue, original_tissue]| {
+                    CreatureTag::UseTissue {
+                        tissue,
+                        original_tissue,
+                    }
                 })
             }
-            Self::UseTissueTemplate { .. } => {
-                // Check if there are at least 2 arguments
-                if values.len() < 2 {
-                    tracing::warn!(
-                    "parse_complex_token: not enough arguments for Self::UseTissueTemplate {}/2",
-                    values.len()
-                );
-                    return None;
-                }
-                let tissue = (*values.first().unwrap_or(&"")).to_string();
-                let template = (*values.get(1..).unwrap_or_default()).join(":");
-                Some(Self::UseTissueTemplate { tissue, template })
-            }
-            _ => {
-                tracing::warn!("parse_complex_token: non-complex token: {self}");
-                None
-            }
+            CreatureTag::UseTissueTemplate { .. } => token
+                .parse_array(&values, |[tissue, template]| {
+                    CreatureTag::UseTissueTemplate { tissue, template }
+                }),
         }
     }
 }

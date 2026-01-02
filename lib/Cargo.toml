@@ -17,6 +17,8 @@ path = "src/lib.rs"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
+# directories used to find data directory and home directory on linux
+directories = "6.0.0"
 # Used to be able to force reading the raw files as Latin1.
 encoding_rs = "0.8.34"
 # Used to be able to force reading the raw files as Latin1 (has a BuffReader we use).
@@ -30,8 +32,9 @@ once_cell = "1.19.0"
 quick-xml = "0.35.0"
 # We slugify the names of the raw files to make them easier to work with.
 slug = "0.1.5"
-# Specta is used for generating TypeScript bindings. And whatever bindings specta supports in the future.
-specta = "2.0.0-rc.22"
+# Create iterators from enums
+strum = "0.27"
+strum_macros = "0.27"
 # Error type creation helper.
 thiserror = "1"
 # Tracing is used for logging.
@@ -40,6 +43,8 @@ tracing = "0.1.40"
 typetag = "0.2"
 # Walkdir used to go through the directories and files recursively.
 walkdir = "2.5.0"
+# Windows: Registry access
+winreg = { version = "0.52", optional = true }
 
 # Serde used to serialize and deserialize our parsed data.
 [dependencies.serde]
@@ -52,3 +57,15 @@ features = ["derive"]
 version = "0.11.2"
 default-features = true
 features = ["macros"]
+
+
+# Specta is used for generating TypeScript bindings. And whatever bindings specta supports in the future.
+[dependencies.specta]
+version = "2.0.0-rc.22"
+default-features = true
+features = ["derive"]
+
+[features]
+default = []
+
+windows-support = ["dep:winreg"]
