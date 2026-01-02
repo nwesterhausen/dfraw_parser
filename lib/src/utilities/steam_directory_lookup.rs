@@ -1,3 +1,4 @@
+#[cfg(not(feature = "windows-support"))]
 use directories::BaseDirs;
 use std::path::PathBuf;
 use std::{fs, path::Path};
@@ -106,6 +107,7 @@ fn get_steam_base_path() -> Option<PathBuf> {
 ///
 /// Returns:
 /// - `Option<PathBuf>`: The base path to the Steam installation on Linux, or `None` if the path cannot be found.
+#[cfg(not(feature = "windows-support"))]
 fn get_steam_base_path() -> Option<PathBuf> {
     let base_dirs = BaseDirs::new()?;
     let home = base_dirs.home_dir();
