@@ -82,6 +82,8 @@ The following options are supported:
     --only-info-files   Don't write raws to the output file.
         This is useful if you only want the 'info.txt' file data
 
+    --speed-test        Do not write any output files, just parse the raws.
+
     -h, --help              Print this help message
     -V, --version           Print the version number";
 
@@ -106,9 +108,9 @@ struct Args {
     /// The path to save the parsed raws to
     pub output_path: PathBuf,
     /// The path to the Dwarf Fortress directory
-    pub df_path: PathBuf,
+    pub df_path: Option<PathBuf>,
     /// Override the user data directory
-    pub user_data_dir: PathBuf,
+    pub user_data_dir: Option<PathBuf>,
     /// Specific raw files to parse (if any)
     pub raw_file_paths: Vec<PathBuf>,
     /// Specific raw modules to parse (if any)
@@ -117,6 +119,8 @@ struct Args {
     pub skip_info_files: bool,
     /// Whether or not to skip writing the parsed raws to the output file
     pub skip_raws: bool,
+    /// Whether or not to skip writing any output files (useful only to benchmark how long it takes to parse the raws)
+    pub speed_test: bool,
 }
 
 impl std::default::Default for Args {
@@ -131,9 +135,10 @@ impl std::default::Default for Args {
             pretty_print: false,
             skip_info_files: false,
             skip_raws: false,
+            speed_test: false,
             output_path: PathBuf::from("parsed-raws.json"),
-            df_path: PathBuf::new(),
-            user_data_dir: PathBuf::new(),
+            df_path: None,
+            user_data_dir: None,
             raw_file_paths: Vec::new(),
             raw_module_paths: Vec::new(),
         }
@@ -147,7 +152,6 @@ fn parse_args() -> Result<Args, lexopt::Error> {
     // Establish default values for the CLI arguments
     let mut args = Args::default();
     let mut include_graphics = false;
-    let mut df_path: Option<PathBuf> = None;
 
     let mut parser = lexopt::Parser::from_env();
 
@@ -234,18 +238,18 @@ fn parse_args() -> Result<Args, lexopt::Error> {
             Long("skip-raws") => {
                 args.skip_raws = true;
             }
+            Long("speed-test") => {
+                args.speed_test = true;
+            }
 
             Short('U') | Long("user-data-dir") => {
                 if let Ok(dir) = parser.value() {
-                    args.user_data_dir = PathBuf::from(dir);
+                    args.user_data_dir = Some(PathBuf::from(dir));
                 }
             }
 
-            Value(val) if df_path.is_none() => {
-                df_path = Some(PathBuf::from(val));
-                if let Some(dir) = &df_path {
-                    args.df_path = dir.clone();
-                }
+            Value(val) if args.df_path.is_none() => {
+                args.df_path = Some(PathBuf::from(val));
             }
 
             _ => {
@@ -407,8 +411,12 @@ pub fn main() -> Result<(), lexopt::Error> {
 
     // Build ParserOptions for the parser
     let mut options = ParserOptions::new();
-    options.set_dwarf_fortress_directory(&args.df_path);
-    options.set_user_data_directory(&args.user_data_dir);
+    if let Some(df_dir) = &args.df_path {
+        options.set_dwarf_fortress_directory(df_dir);
+    }
+    if let Some(user_dir) = &args.user_data_dir {
+        options.set_user_data_directory(user_dir);
+    }
 
     // Set locations to parse
     options.set_locations_to_parse(args.locations);
@@ -447,6 +455,10 @@ pub fn main() -> Result<(), lexopt::Error> {
     // Print a summary of the parsed raws
     if args.print_summary {
         tracing::error!("Summary not implemented yet..");
+    }
+
+    if args.speed_test {
+        return Ok(());
     }
 
     write_output_file(
