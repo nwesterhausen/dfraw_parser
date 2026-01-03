@@ -1,5 +1,6 @@
-use dfraw_parser::InfoFile;
+use dfraw_parser::metadata::ObjectType;
 use dfraw_parser::traits::RawObject;
+use dfraw_parser::{Creature, InfoFile};
 use rusqlite::{Connection, Result, Transaction, params};
 use std::fmt::Write as _;
 use tracing::{debug, error, info, warn};
@@ -95,15 +96,23 @@ impl DbClient {
         tx.commit()
     }
 
-    /// Combined search query logic to find raws by type, identifier, or flags.
+    /// Uses the `SearchQuery` to query the database to find matching `raw_id`'s
     ///
     /// # Errors
     /// - database error
-    pub fn search_raws(&self, query: SearchQuery) -> Result<Vec<Vec<u8>>> {
+    pub fn search_raws(&self, query: &SearchQuery) -> Result<Vec<Vec<u8>>> {
         let mut sql = String::from("SELECT r.data_blob FROM raw_definitions r ");
         let mut conditions = Vec::new();
         let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
 
+        // Full-Text Search Join (Names & Descriptions)
+        if let Some(search_text) = query.search_string.as_ref() {
+            sql.push_str("JOIN raw_search_index s ON r.id = s.raw_id ");
+            conditions.push(format!("raw_search_index MATCH ?{}", params_vec.len() + 1));
+            params_vec.push(Box::new(search_text.clone()));
+        }
+
+        // Flags Joins
         for (i, flag) in query.required_flags.iter().enumerate() {
             let alias = format!("f{i}");
             let _ = write!(
@@ -116,12 +125,14 @@ impl DbClient {
 
         sql.push_str(" WHERE 1=1 ");
 
-        if let Some(name) = query.name_query {
+        // 3. Identifier Filter (Standard LIKE)
+        if let Some(ident) = query.identifier_query.as_ref() {
             conditions.push(format!("r.identifier LIKE ?{}", params_vec.len() + 1));
-            params_vec.push(Box::new(format!("%{name}%")));
+            params_vec.push(Box::new(format!("%{ident}%")));
         }
 
-        if let Some(type_name) = query.raw_type_name {
+        // 4. Type Filter
+        if let Some(type_name) = query.raw_type_name.as_ref() {
             conditions.push(format!(
                 "r.raw_type_id = (SELECT id FROM raw_types WHERE name = ?{})",
                 params_vec.len() + 1
@@ -132,6 +143,14 @@ impl DbClient {
         if !conditions.is_empty() {
             sql.push_str(" AND ");
             sql.push_str(&conditions.join(" AND "));
+        }
+
+        // Ensure we use BM25 ranking if searching text
+        if query.search_string.is_some() {
+            // Specifies weights for columns in raw_search_index
+            // name: weight 5
+            // description: weight 1
+            sql.push_str(" ORDER BY bm25(raw_search_index, 5.0, 1.0)");
         }
 
         let params_ref: Vec<&dyn rusqlite::ToSql> =
@@ -229,6 +248,22 @@ fn process_raw_insertions(
         "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
          VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))",
     )?;
+    // let mut update_raw_stmt =
+    //     tx.prepare_cached("UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2")?;
+    // let mut insert_flag_stmt =
+    //     tx.prepare_cached("INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)")?;
+    // let mut clear_flags_stmt =
+    //     tx.prepare_cached("DELETE FROM common_raw_flags WHERE raw_id = ?1")?;
+
+    // Search Index Statements
+    let mut insert_name_stmt =
+        tx.prepare_cached("INSERT INTO raw_names (raw_id, name) VALUES (?1, ?2)")?;
+    // let mut clear_names_stmt = tx.prepare_cached("DELETE FROM raw_names WHERE raw_id = ?1")?;
+    let mut insert_search_stmt = tx.prepare_cached(
+        "INSERT INTO raw_search_index (raw_id, names, description) VALUES (?1, ?2, ?3)",
+    )?;
+    // let mut delete_search_stmt =
+    //     tx.prepare_cached("DELETE FROM raw_search_index WHERE raw_id = ?1")?;
 
     let mut update_raw_stmt =
         tx.prepare_cached("UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2")?;
@@ -295,10 +330,31 @@ fn process_raw_insertions(
             }
         };
 
-        // Todo: add searchable tokens (flag tokens) to raw object trait
         for flag in raw.get_searchable_tokens() {
             insert_flag_stmt.execute(params![raw_db_id, flag])?;
         }
+        // Metadata extraction for search index
+        let mut search_names = Vec::<&str>::new();
+        let search_descriptions = if raw.get_type() == &ObjectType::Creature
+            && let Some(creature) = raw.as_any().downcast_ref::<Creature>()
+        {
+            search_names.clone_from(&creature.get_all_names());
+            creature.get_all_descriptions().clone()
+        } else {
+            Vec::new()
+        };
+
+        // Populate Names Table (for Exact/Partial ID lookup)
+        for name in &search_names {
+            insert_name_stmt.execute(params![raw_db_id, name])?;
+        }
+
+        // Populate FTS5 Index (for high-speed text search)
+        insert_search_stmt.execute(params![
+            raw_db_id,
+            search_names.join(" "),
+            search_descriptions.join(" ")
+        ])?;
     }
 
     Ok(())

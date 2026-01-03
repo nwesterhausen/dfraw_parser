@@ -1,8 +1,12 @@
-#[derive(Debug, Clone)]
-/// Search query options
+use serde::{Deserialize, Serialize};
+
+/// A query for searching raw objects in the database.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct SearchQuery {
-    /// Used to return only raws with name containing this
-    pub name_query: Option<String>,
+    /// A general text search string for names and descriptions.
+    pub search_string: Option<String>,
+    /// Search specifically for an identifier (exact or partial).
+    pub identifier_query: Option<String>,
     /// Used to return only raws with type matching this
     pub raw_type_name: Option<String>,
     /// Used to return only results with these token flags

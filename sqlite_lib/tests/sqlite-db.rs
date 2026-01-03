@@ -49,7 +49,8 @@ fn test_parse_and_save_to_db() {
         !parse_results.info_files.is_empty(),
         "Parser returned no info files."
     );
-    // 5. Group Raws by Module Identity
+
+    // group Raws by Module Identity
     // We use a composite key of (name, version, location_id) to match Raws to their InfoFiles.
     // This allows us to handle multi-module parsing (Vanilla + Mods) correctly.
     let mut module_map = HashMap::new();
@@ -63,7 +64,7 @@ fn test_parse_and_save_to_db() {
         module_map.entry(key).or_insert_with(Vec::new).push(raw);
     }
 
-    // 6. Insert into Database
+    // insert into Database
     // We iterate through the parsed info files and grab the raws associated with each.
     for info in &parse_results.info_files {
         let key = (
@@ -81,16 +82,15 @@ fn test_parse_and_save_to_db() {
         }
     }
 
-    // 7. Verify the data with a cross-module search
+    // verify the data with a cross-module search
     let query = SearchQuery {
-        name_query: None,
         raw_type_name: Some("CREATURE".to_string()),
         required_flags: vec!["FLIER".to_string()],
-        numeric_filters: vec![],
+        ..Default::default()
     };
 
     let search_results = client
-        .search_raws(query)
+        .search_raws(&query)
         .expect("Failed to query the generated database");
 
     assert!(
@@ -99,7 +99,28 @@ fn test_parse_and_save_to_db() {
     );
 
     println!(
-        "Test successful: Inserted {} modules and found {} flying creatures.",
+        "Test successful: Inserted {} modules; found {} flying creatures",
+        parse_results.info_files.len(),
+        search_results.len()
+    );
+
+    // Search using the search index
+    let query = SearchQuery {
+        search_string: Some("dvark".to_string()),
+        ..Default::default()
+    };
+
+    let search_results = client
+        .search_raws(&query)
+        .expect("Failed to query the generated database");
+
+    assert!(
+        !search_results.is_empty(),
+        "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
+    );
+
+    println!(
+        "Test successful: Inserted {} modules; found {} matches for searching 'dvark'",
         parse_results.info_files.len(),
         search_results.len()
     );

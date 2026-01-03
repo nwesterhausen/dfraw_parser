@@ -482,6 +482,56 @@ impl Creature {
         self.name = name;
     }
 
+    pub fn get_all_names(&self) -> Vec<&str> {
+        let mut names = HashSet::new();
+
+        names.insert(self.name.get_singular());
+        names.insert(self.name.get_plural());
+        names.insert(self.name.get_adjective());
+
+        if let Some(general_baby_name) = self.general_baby_name.as_ref() {
+            names.insert(general_baby_name.get_singular());
+            names.insert(general_baby_name.get_plural());
+            names.insert(general_baby_name.get_adjective());
+        }
+
+        if let Some(general_child_name) = self.general_child_name.as_ref() {
+            names.insert(general_child_name.get_singular());
+            names.insert(general_child_name.get_plural());
+            names.insert(general_child_name.get_adjective());
+        }
+
+        self.castes.iter().for_each(|caste| {
+            if let Some(caste_name) = caste.get_caste_name() {
+                names.insert(caste_name.get_singular());
+                names.insert(caste_name.get_plural());
+                names.insert(caste_name.get_adjective());
+            }
+            if let Some(caste_child_name) = caste.get_child_name() {
+                names.insert(caste_child_name.get_singular());
+                names.insert(caste_child_name.get_plural());
+                names.insert(caste_child_name.get_adjective());
+            }
+            if let Some(caste_baby_name) = caste.get_baby_name() {
+                names.insert(caste_baby_name.get_singular());
+                names.insert(caste_baby_name.get_plural());
+                names.insert(caste_baby_name.get_adjective());
+            }
+        });
+
+        names.into_iter().collect()
+    }
+    pub fn get_all_descriptions(&self) -> Vec<&str> {
+        let mut descriptions = HashSet::new();
+
+        self.castes.iter().for_each(|caste| {
+            if let Some(description) = caste.get_description() {
+                descriptions.insert(description);
+            }
+        });
+
+        descriptions.into_iter().collect()
+    }
     /// Parse a creature from a set of XML tags from a legends export.
     ///
     /// Expects to run on an empty or default creature. Fills in everything it can
