@@ -146,6 +146,7 @@ CREATE TABLE raw_definitions (
 CREATE TABLE common_raw_flags (
     raw_id INTEGER NOT NULL,
     token_name TEXT NOT NULL,
+    PRIMARY KEY(raw_id, token_name),
     FOREIGN KEY(raw_id) REFERENCES raw_definitions(id)
 );
 
@@ -157,7 +158,7 @@ CREATE TABLE common_raw_flags_with_numeric_value (
 );
 
 CREATE INDEX idx_module_versions ON modules(identifier, version);
-CREATE INDEX idx_raw_lookup ON raw_definitions(raw_type, identifier, module_id);
+CREATE INDEX idx_raw_lookup ON raw_definitions(raw_type_id, identifier, module_id);
 CREATE INDEX idx_dep_lookup ON module_dependencies(target_identifier);
 CREATE INDEX idx_flags_token_search ON common_raw_flags(token_name, raw_id);
 CREATE INDEX idx_numeric_flags_search ON common_raw_flags_with_numeric_value(token_name, value, raw_id);
@@ -168,15 +169,20 @@ COMMIT;
 
 pub const DOWN: &str = r"
 PRAGMA foreign_keys = OFF;
-DELETE FROM common_raw_flags;
-DELETE FROM common_raw_flags_with_numeric_value;
-DELETE FROM raw_definitions;
-DELETE FROM module_dependencies;
-DELETE FROM module_steam_tags;
-DELETE FROM module_steam_key_value_pairs;
-DELETE FROM steam_metadata;
-DELETE FROM load_order;
-DELETE FROM modules;
+DROP TABLE IF EXISTS common_raw_flags_with_numeric_value;
+DROP TABLE IF EXISTS common_raw_flags;
+DROP TABLE IF EXISTS raw_definitions;
+DROP TABLE IF EXISTS raw_types;
+DROP TABLE IF EXISTS module_dependencies;
+DROP TABLE IF EXISTS module_restriction_rules;
+DROP TABLE IF EXISTS module_steam_key_value_pairs;
+DROP TABLE IF EXISTS steam_key_value_keys;
+DROP TABLE IF EXISTS module_steam_tags;
+DROP TABLE IF EXISTS steam_tags;
+DROP TABLE IF EXISTS steam_metadata;
+DROP TABLE IF EXISTS load_order;
+DROP TABLE IF EXISTS modules;
+DROP TABLE IF EXISTS module_locations;
 PRAGMA foreign_keys = ON;
 VACUUM;
 ";

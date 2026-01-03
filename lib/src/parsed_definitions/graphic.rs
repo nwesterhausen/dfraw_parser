@@ -371,6 +371,9 @@ impl Graphic {
 
 #[typetag::serde]
 impl RawObject for Graphic {
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
+    }
     fn get_metadata(&self) -> RawMetadata {
         self.metadata.as_ref().map_or_else(
             || {

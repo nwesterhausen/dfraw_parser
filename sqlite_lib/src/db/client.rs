@@ -165,7 +165,7 @@ fn insert_module_record(tx: &Transaction, info: &InfoFile) -> Result<i64> {
             info.get_author(),
             info.get_description(),
             info.get_parent_directory(),
-            info.get_location() as i32,
+            i64::from(i32::from(info.get_location())),
             info.get_steam_data()
                 .as_ref()
                 .map(|s| s.get_file_id().cast_signed())
@@ -179,23 +179,31 @@ fn insert_module_dependencies(tx: &Transaction, module_db_id: i64, info: &InfoFi
         "INSERT INTO module_dependencies (module_id, target_identifier, restriction_type_id)
      VALUES (?1, ?2, ?3)",
     )?;
+    info!(
+        "Inserting module dependencies for {}",
+        info.get_identifier()
+    );
 
     if let Some(ids) = info.get_requires_ids() {
+        info!("Attempting to insert required ids: {ids:?}");
         for id in ids {
             dep_stmt.execute(params![module_db_id, id, 1])?;
         }
     }
     if let Some(ids) = info.get_conflicts_with_ids() {
+        info!("Attempting to insert conflicting ids: {ids:?}");
         for id in ids {
             dep_stmt.execute(params![module_db_id, id, 2])?;
         }
     }
     if let Some(ids) = info.get_requires_ids_before() {
+        info!("Attempting to insert required_before ids: {ids:?}");
         for id in ids {
             dep_stmt.execute(params![module_db_id, id, 3])?;
         }
     }
     if let Some(ids) = info.get_requires_ids_after() {
+        info!("Attempting to insert required_after ids: {ids:?}");
         for id in ids {
             dep_stmt.execute(params![module_db_id, id, 4])?;
         }
@@ -225,8 +233,8 @@ fn process_raw_insertions(
     let mut update_raw_stmt =
         tx.prepare_cached("UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2")?;
 
-    // let mut insert_flag_stmt =
-    //    tx.prepare_cached("INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)")?;
+    let mut insert_flag_stmt =
+        tx.prepare_cached("INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)")?;
 
     let mut clear_flags_stmt =
         tx.prepare_cached("DELETE FROM common_raw_flags WHERE raw_id = ?1")?;
@@ -261,7 +269,7 @@ fn process_raw_insertions(
             }
         };
 
-        let _raw_db_id = match existing_raw_id {
+        let raw_db_id = match existing_raw_id {
             Some(id) if overwrite_raws => {
                 update_raw_stmt.execute(params![json_payload, id])?;
                 clear_flags_stmt.execute(params![id])?;
@@ -269,20 +277,28 @@ fn process_raw_insertions(
             }
             Some(_) => continue, // Skip if exists and not overwriting
             None => {
-                insert_raw_stmt.execute(params![
-                    raw.get_type().to_string(),
-                    raw.get_identifier(),
-                    module_db_id,
-                    json_payload
-                ])?;
+                insert_raw_stmt
+                    .execute(params![
+                        raw.get_type().to_string().to_uppercase().replace(' ', "_"),
+                        raw.get_identifier(),
+                        module_db_id,
+                        json_payload
+                    ])
+                    .inspect_err(|e| {
+                        tracing::error!(
+                            "Failed inserting {} ({}): {e}",
+                            raw.get_identifier(),
+                            raw.get_type().to_string().to_uppercase().replace(' ', "_")
+                        );
+                    })?;
                 tx.last_insert_rowid()
             }
         };
 
         // Todo: add searchable tokens (flag tokens) to raw object trait
-        // for flag in raw.get_searchable_tokens() {
-        //     insert_flag_stmt.execute(params![raw_db_id, flag])?;
-        // }
+        for flag in raw.get_searchable_tokens() {
+            insert_flag_stmt.execute(params![raw_db_id, flag])?;
+        }
     }
 
     Ok(())

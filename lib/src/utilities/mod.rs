@@ -1,4 +1,5 @@
 mod biome_tag_lookup;
+mod caste_tag_flags;
 mod caste_tag_lookup;
 mod condition_tag_lookup;
 mod creature_effect_property_tag_lookup;

@@ -8,3 +8,5 @@
 mod db;
 
 pub use db::client::DbClient;
+pub use db::client_options::ClientOptions;
+pub use db::search_query::SearchQuery;

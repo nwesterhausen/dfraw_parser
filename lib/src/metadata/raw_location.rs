@@ -83,3 +83,24 @@ impl Display for RawModuleLocation {
         Debug::fmt(self, f)
     }
 }
+
+impl From<RawModuleLocation> for i32 {
+    fn from(value: RawModuleLocation) -> Self {
+        match value {
+            RawModuleLocation::InstalledMods => 2,
+            RawModuleLocation::Mods => 3,
+            RawModuleLocation::Vanilla => 1,
+            RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
+        }
+    }
+}
+impl From<&RawModuleLocation> for i32 {
+    fn from(value: &RawModuleLocation) -> Self {
+        match *value {
+            RawModuleLocation::InstalledMods => 2,
+            RawModuleLocation::Mods => 3,
+            RawModuleLocation::Vanilla => 1,
+            RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
+        }
+    }
+}

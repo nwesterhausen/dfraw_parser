@@ -40,6 +40,8 @@ pub trait RawObject: RawObjectToAny + Send + Sync + Searchable {
     ///
     /// This also will remove the metadata if is_metadata_hidden is true.
     fn clean_self(&mut self);
+    /// Function to return "flag" tokens (as strings) for things like `[FLIER]` or `[INTELLIGENT]`, etc
+    fn get_searchable_tokens(&self) -> Vec<&str>;
 }
 
 /// The `RawObjectToAny` trait is implemented by all raw objects. This trait is

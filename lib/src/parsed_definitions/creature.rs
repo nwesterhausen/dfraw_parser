@@ -2,6 +2,8 @@
 //! that can be set in the raws. Not all the raws are represented here, only the ones that
 //! are currently supported by the library.
 
+use std::collections::HashSet;
+
 use tracing::{debug, trace, warn};
 
 use crate::{
@@ -744,9 +746,6 @@ impl RawObject for Creature {
     fn get_identifier(&self) -> &str {
         &self.identifier
     }
-    fn get_name(&self) -> &str {
-        self.name.get_singular()
-    }
     fn is_empty(&self) -> bool {
         self.identifier.is_empty()
     }
@@ -867,8 +866,37 @@ impl RawObject for Creature {
     fn get_object_id(&self) -> &str {
         self.object_id.as_str()
     }
+    fn get_name(&self) -> &str {
+        self.name.get_singular()
+    }
     fn clean_self(&mut self) {
         *self = self.cleaned();
+    }
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        let mut tokens = HashSet::new();
+        let Some(tags) = &self.tags else {
+            return tokens.into_iter().collect();
+        };
+
+        if tags.contains(&CreatureTag::Evil) {
+            tokens.insert("EVIL");
+        }
+        if tags.contains(&CreatureTag::Fanciful) {
+            tokens.insert("FANCIFUL");
+        }
+        if tags.contains(&CreatureTag::Good) {
+            tokens.insert("GOOD");
+        }
+
+        for caste in &self.castes {
+            for token in CasteTag::FLAG_TOKENS {
+                if caste.has_tag(token) {
+                    tokens.insert(CasteTag::get_key(token).unwrap_or_default());
+                }
+            }
+        }
+
+        tokens.into_iter().collect()
     }
 }
 

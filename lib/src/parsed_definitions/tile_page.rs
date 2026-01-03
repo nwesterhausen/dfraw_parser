@@ -146,7 +146,9 @@ impl RawObject for TilePage {
             }
         }
     }
-
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
+    }
     fn get_object_id(&self) -> &str {
         &self.object_id
     }

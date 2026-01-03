@@ -427,6 +427,9 @@ impl Entity {
 
 #[typetag::serde]
 impl RawObject for Entity {
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
+    }
     fn get_object_id(&self) -> &str {
         self.object_id.as_str()
     }
