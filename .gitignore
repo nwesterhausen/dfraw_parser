@@ -13,3 +13,8 @@ vanilla-raws/
 !parsed-raws.json
 !.vscode/*.json
 !.zed/*.json
+
+# Ignore any database files
+*.db
+*.db-wal
+*.db-shm
