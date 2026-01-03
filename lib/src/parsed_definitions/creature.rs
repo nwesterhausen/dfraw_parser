@@ -874,18 +874,11 @@ impl RawObject for Creature {
     }
     fn get_searchable_tokens(&self) -> Vec<&str> {
         let mut tokens = HashSet::new();
-        let Some(tags) = &self.tags else {
-            return tokens.into_iter().collect();
-        };
 
-        if tags.contains(&CreatureTag::Evil) {
-            tokens.insert("EVIL");
-        }
-        if tags.contains(&CreatureTag::Fanciful) {
-            tokens.insert("FANCIFUL");
-        }
-        if tags.contains(&CreatureTag::Good) {
-            tokens.insert("GOOD");
+        for token in CreatureTag::FLAG_TOKENS {
+            if self.has_tag(token) {
+                tokens.insert(CreatureTag::get_key(token).unwrap_or_default());
+            }
         }
 
         for caste in &self.castes {
