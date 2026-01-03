@@ -5,8 +5,8 @@
 .DS_Store
 ._*
 
-# Ignore vanilla raws if present
-vanilla-raws/
+# Ignore testing raws if present
+test-data/
 
 # Ignore any test *json exports
 *.json

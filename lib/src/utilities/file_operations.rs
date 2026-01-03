@@ -25,7 +25,7 @@ use crate::{
     graphic::Graphic,
     inorganic::Inorganic,
     material_template::MaterialTemplate,
-    metadata::{ObjectType, ParserOptions, RawMetadata},
+    metadata::{ObjectType, ParserOptions, RawMetadata, RawModuleLocation},
     plant::Plant,
     regex::VARIATION_ARGUMENT_RE,
     select_creature::SelectCreature,
@@ -262,7 +262,7 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
         ..Default::default()
     };
 
-    validated_options.locations.init();
+    validated_options.locations.init(false);
 
     // Guard against invalid path if locations are set
     if !validated_options.locations_to_parse.is_empty() {
@@ -271,10 +271,16 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
                 "Dwarf Fortress directory cannot be None".to_string(),
             ));
         }
-        if validated_options
-            .locations
-            .get_user_data_directory()
-            .is_none()
+        if (validated_options
+            .locations_to_parse
+            .contains(&RawModuleLocation::InstalledMods)
+            || validated_options
+                .locations_to_parse
+                .contains(&RawModuleLocation::Mods))
+            && validated_options
+                .locations
+                .get_user_data_directory()
+                .is_none()
         {
             return Err(ParserError::InvalidOptions(
                 "Dwarf Fortress user data directory cannot be None".to_string(),

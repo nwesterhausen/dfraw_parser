@@ -12,6 +12,7 @@ dfraw_parser= { workspace = true }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
+test_util = { workspace = true }
 
 [lints]
 workspace = true

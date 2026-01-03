@@ -27,7 +27,7 @@ impl LocationHelper {
             df_directory: None,
             user_data_directory: None,
         };
-        helper.init();
+        helper.init(true);
         helper
     }
 
@@ -44,11 +44,15 @@ impl LocationHelper {
     /// Initialize the game directory and user directory.
     ///
     /// This can be called at any time to update the game directory and user directory.
-    pub fn init(&mut self) {
+    pub fn init(&mut self, force: bool) {
         // Get app installation directory
-        self.df_directory = find_game_path(DF_STEAM_APPID);
+        if force || self.df_directory.is_none() {
+            self.df_directory = find_game_path(DF_STEAM_APPID);
+        }
         // Get user directory
-        self.user_data_directory = find_user_data_path();
+        if force || self.user_data_directory.is_none() {
+            self.user_data_directory = find_user_data_path();
+        }
     }
 
     /// Set the Dwarf Fortress user data directory explicitly

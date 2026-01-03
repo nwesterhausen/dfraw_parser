@@ -1,7 +1,6 @@
 //! Test for the database
 
 use dfraw_parser::metadata::ParserOptions;
-use dfraw_parser::metadata::RawModuleLocation::InstalledMods;
 use dfraw_parser::metadata::RawModuleLocation::Vanilla;
 use dfraw_parser::parse;
 use sqlite_lib::ClientOptions;
@@ -30,7 +29,10 @@ fn test_parse_and_save_to_db() {
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
-    // 2. Initialize the DbClient
+    // Setup test data (Download if missing)
+    let vanilla_path = test_util::ensure_vanilla_raws();
+
+    // initialize the DbClient
     let options = ClientOptions {
         reset_database: true,
         overwrite_raws: true,
@@ -38,17 +40,11 @@ fn test_parse_and_save_to_db() {
     let mut client =
         DbClient::init_db(TEST_DB_NAME, options).expect("Failed to initialize DbClient");
 
-    // 3. Locate test data
-    // Assuming we can use the sample creature file from the workspace
-    // let mut manifest_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    // manifest_path.pop(); // Go up to workspace root
-    // let test_data_path = manifest_path.join("jsonlib/tests/data/creature_amphibians.txt");
-
-    // 4. Parse the raws using dfraw_parser
+    // Parse the raws using dfraw_parser
     // We create dummy InfoFile details for the test
     let mut parser_options = ParserOptions::default();
     parser_options.add_location_to_parse(Vanilla);
-    parser_options.add_location_to_parse(InstalledMods);
+    parser_options.set_dwarf_fortress_directory(&vanilla_path);
 
     let parse_results = parse(&parser_options)
         .expect("Failure to parse raws. Might be time to manually specify a directory.");
