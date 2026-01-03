@@ -10,6 +10,12 @@ mod creature_variation_tag_lookup;
 mod entity_tag_lookup;
 mod file_operations;
 mod object_type_lookup;
+mod plant_growth_tag_lookup;
+mod plant_growth_type_tag_flags;
+mod plant_growth_type_tag_lookup;
+mod plant_part_tag_lookup;
+mod plant_tag_flags;
+mod plant_tag_lookup;
 mod steam_directory_lookup;
 mod user_directory_lookup;
 

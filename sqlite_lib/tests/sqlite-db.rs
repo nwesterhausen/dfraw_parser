@@ -7,16 +7,8 @@ use sqlite_lib::ClientOptions;
 use sqlite_lib::DbClient;
 use sqlite_lib::SearchQuery;
 use std::collections::HashMap;
-use std::fs;
 
 const TEST_DB_NAME: &str = "test.db";
-#[allow(dead_code)]
-fn cleanup_test_db() {
-    match fs::remove_file(TEST_DB_NAME) {
-        Ok(()) => println!("Removed test file."),
-        Err(error) => println!("{error:?}"),
-    }
-}
 #[test]
 fn test_parse_and_save_to_db() {
     let subscriber = tracing_subscriber::FmtSubscriber::builder()

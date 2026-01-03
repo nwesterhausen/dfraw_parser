@@ -1,5 +1,7 @@
 //! Plant definition and parsing
 
+use std::collections::HashSet;
+
 use tracing::{debug, warn};
 
 use crate::{
@@ -250,7 +252,25 @@ impl Plant {
 #[typetag::serde]
 impl RawObject for Plant {
     fn get_searchable_tokens(&self) -> Vec<&str> {
-        Vec::new()
+        let mut tokens = HashSet::new();
+
+        for token in PlantTag::FLAG_TOKENS {
+            if self.has_tag(token) {
+                tokens.insert(PlantTag::get_key(token).unwrap_or_default());
+            }
+        }
+
+        if let Some(growths) = &self.growths {
+            for growth in growths {
+                if PlantGrowthTypeTag::FLAG_TOKENS.contains(&growth.get_growth_type()) {
+                    tokens.insert(
+                        PlantGrowthTypeTag::get_key(growth.get_growth_type()).unwrap_or_default(),
+                    );
+                }
+            }
+        }
+
+        tokens.into_iter().collect()
     }
     fn get_metadata(&self) -> RawMetadata {
         self.metadata.as_ref().map_or_else(

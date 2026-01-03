@@ -69,6 +69,21 @@ impl PlantGrowth {
             ..Self::default()
         }
     }
+    /// Returns the type of growth this is
+    pub fn get_growth_type(&self) -> &PlantGrowthTypeTag {
+        &self.growth_type
+    }
+    /// Returns true if tag exists on this plant growth
+    pub fn has_tag(&self, tag: &PlantGrowthTag) -> bool {
+        if let Some(tags) = &self.tags {
+            for t in tags {
+                if std::mem::discriminant(t) == std::mem::discriminant(tag) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
     /// Parses a tag and value into the plant growth
     ///
     /// # Arguments
