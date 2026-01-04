@@ -1,4 +1,4 @@
-use dfraw_json_parser::bindings::generate_bindings;
+use dfraw_json_parser::generate_bindings;
 
 #[test]
 #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]

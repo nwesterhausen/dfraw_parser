@@ -60,7 +60,7 @@ for the steam workshop if it is a mod downloaded from the steam workshop.
 
 pub use dfraw_parser::*;
 
-pub mod bindings;
+mod bindings;
 /// This has utility functions for file operations and directory traversal.
 ///
 /// The functions provide functionality for working with directories, files, and paths.
@@ -73,3 +73,5 @@ pub mod bindings;
 /// - `write_json_string_vec_to_file`: Writes a vector of strings to a file, with each string on a separate line.
 /// - `raws_to_string`: Converts a vector of raw objects to a JSON string representation.
 pub mod util;
+
+pub use bindings::generate_bindings;
