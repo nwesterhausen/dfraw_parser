@@ -14,7 +14,7 @@ categories = ["parsing"]
 [lib]
 name = "dfraw_parser"
 path = "src/lib.rs"
-crate-type = ["rlib", "cdylib"]
+crate-type = ["rlib"]
 
 [dependencies]
 # directories used to find data directory and home directory on linux
