@@ -128,13 +128,16 @@ impl DbClient {
             params_vec.push(Box::new(format!("%{ident}%")));
         }
 
-        // 4. Type Filter
-        if let Some(type_name) = query.raw_type_name.as_ref() {
-            conditions.push(format!(
-                "r.raw_type_id = (SELECT id FROM raw_types WHERE name = ?{})",
-                params_vec.len() + 1
-            ));
-            params_vec.push(Box::new(type_name));
+        // Type Filter
+        if !query.raw_types.is_empty() {
+            query.raw_types.iter().for_each(|t| {
+                let type_name = t.to_string();
+                conditions.push(format!(
+                    "r.raw_type_id = (SELECT id FROM raw_types WHERE name = ?{})",
+                    params_vec.len() + 1
+                ));
+                params_vec.push(Box::new(type_name));
+            });
         }
 
         if !conditions.is_empty() {
