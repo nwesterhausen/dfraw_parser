@@ -16,5 +16,4 @@ test-data/
 
 # Ignore any database files
 *.db
-*.db-wal
-*.db-shm
+*.db-*

@@ -1,7 +1,8 @@
 use dfraw_parser::metadata::ObjectType;
 use dfraw_parser::traits::RawObject;
-use dfraw_parser::{Creature, InfoFile};
+use dfraw_parser::{Creature, InfoFile, ParseResult};
 use rusqlite::{Connection, Result, Transaction, params};
+use std::collections::HashMap;
 use std::fmt::Write as _;
 use tracing::{debug, error, info, warn};
 
@@ -50,11 +51,7 @@ impl DbClient {
     /// # Errors
     /// - database error
     /// - failure to parse existing json into raw object
-    pub fn insert_module_data(
-        &mut self,
-        info: &InfoFile,
-        raws: &[Box<dyn RawObject>],
-    ) -> Result<()> {
+    fn insert_module_data(&mut self, info: &InfoFile, raws: &[Box<dyn RawObject>]) -> Result<()> {
         let overwrite_raws = self.options.overwrite_raws;
 
         let tx = self.conn.transaction()?;
@@ -163,6 +160,41 @@ impl DbClient {
             results.push(res?);
         }
         Ok(results)
+    }
+
+    /// insert `ParseResult` from the `dfraw_parser::parse` function
+    ///
+    /// # Errors
+    /// - if database insertion error
+    pub fn insert_parse_results(&mut self, parse_results: ParseResult) -> Result<()> {
+        // group Raws by Module Identity
+        // We use a composite key of (name, version, location_id) to match Raws to their InfoFiles.
+        // This allows us to handle multi-module parsing (Vanilla + Mods) correctly.
+        let mut module_map = HashMap::new();
+        for raw in parse_results.raws {
+            let meta = raw.get_metadata();
+            let key = (
+                String::from(meta.get_module_name()),
+                String::from(meta.get_module_version()),
+                i32::from(meta.get_location()),
+            );
+            module_map.entry(key).or_insert_with(Vec::new).push(raw);
+        }
+        // insert into Database
+        // We iterate through the parsed info files and grab the raws associated with each.
+        for info in &parse_results.info_files {
+            let key = (
+                info.get_name(),
+                info.get_version(),
+                i32::from(info.get_location()),
+            );
+            tracing::info!("Inserting raws for {key:?}");
+            if let Some(module_raws) = module_map.get(&key) {
+                self.insert_module_data(info, module_raws)?;
+            }
+        }
+
+        Ok(())
     }
 }
 
