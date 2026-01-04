@@ -9,6 +9,7 @@ rusqlite = { workspace = true, features = ["bundled", "blob"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 dfraw_parser = { workspace = true }
+specta = {workspace = true}
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }

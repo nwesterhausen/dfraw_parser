@@ -322,6 +322,7 @@ name = "dfraw_json_parser"
 version = "0.17.5"
 dependencies = [
  "dfraw_parser",
+ "dfraw_parser_sqlite_lib",
  "itertools",
  "serde",
  "serde_json",
@@ -377,6 +378,7 @@ dependencies = [
  "rusqlite",
  "serde",
  "serde_json",
+ "specta",
  "test_util",
  "tracing",
  "tracing-subscriber",

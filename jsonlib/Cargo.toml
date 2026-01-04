@@ -28,3 +28,4 @@ specta-typescript = { workspace = true }
 specta= { workspace = true, features = ["derive"] }
 serde= { workspace = true, features = ["derive"] }
 dfraw_parser= { workspace = true }
+dfraw_parser_sqlite_lib= {workspace = true}
