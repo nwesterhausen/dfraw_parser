@@ -21,7 +21,7 @@ unwrap_used = { level = "deny", priority = 2 }
 
 [workspace.dependencies]
 chrono = "0.4"
-dfraw_json_parser = { version = "0.17", path = "jsonlib" }
+dfraw_json_parser = { version = "0", path = "jsonlib" }
 dfraw_parser = { version = "0", path = "lib" }
 directories = "6.0.0"
 encoding_rs = "0.8.34"

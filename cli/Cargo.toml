@@ -1,7 +1,7 @@
 [package]
 name = "dfraw_json_parser-cli"
 version = "1.2.1"
-edition = "2021"
+edition = "2024"
 readme = "README.md"
 authors = ["Nicholas Westerhausen <nick@westmail.cc>"]
 description = "CLI for parsing Dwarf Fortress raw files into JSON"
