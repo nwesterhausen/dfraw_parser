@@ -6,7 +6,7 @@ use crate::{
     metadata::{ObjectType, RawMetadata},
     raw_definitions::{ENVIRONMENT_CLASS_TOKENS, INCLUSION_TYPE_TOKENS, INORGANIC_TOKENS},
     tags::{EnvironmentClassTag, InclusionTypeTag, InorganicTag},
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
+    traits::{RawObject, Searchable, searchable::clean_search_vec},
     utilities::build_object_id_from_pieces,
 };
 
@@ -96,39 +96,39 @@ impl Inorganic {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
+        if let Some(metadata) = &cleaned.metadata
+            && metadata.is_hidden()
+        {
+            cleaned.metadata = None;
         }
 
-        if let Some(metal_ore_chance) = &cleaned.metal_ore_chance {
-            if metal_ore_chance.is_empty() {
-                cleaned.metal_ore_chance = None;
-            }
+        if let Some(metal_ore_chance) = &cleaned.metal_ore_chance
+            && metal_ore_chance.is_empty()
+        {
+            cleaned.metal_ore_chance = None;
         }
-        if let Some(thread_metal_chance) = &cleaned.thread_metal_chance {
-            if thread_metal_chance.is_empty() {
-                cleaned.thread_metal_chance = None;
-            }
+        if let Some(thread_metal_chance) = &cleaned.thread_metal_chance
+            && thread_metal_chance.is_empty()
+        {
+            cleaned.thread_metal_chance = None;
         }
-        if let Some(environment_class) = &cleaned.environment_class {
-            if environment_class.is_default() {
-                cleaned.environment_class = None;
-            }
+        if let Some(environment_class) = &cleaned.environment_class
+            && environment_class.is_default()
+        {
+            cleaned.environment_class = None;
         }
-        if let Some(environment_inclusion_type) = &cleaned.environment_inclusion_type {
-            if environment_inclusion_type.is_default() {
-                cleaned.environment_inclusion_type = None;
-            }
+        if let Some(environment_inclusion_type) = &cleaned.environment_inclusion_type
+            && environment_inclusion_type.is_default()
+        {
+            cleaned.environment_inclusion_type = None;
         }
         if default_checks::is_zero(cleaned.environment_inclusion_frequency) {
             cleaned.environment_inclusion_frequency = None;
         }
-        if let Some(environment_class_specific) = &cleaned.environment_class_specific {
-            if environment_class_specific.is_empty() {
-                cleaned.environment_class_specific = None;
-            }
+        if let Some(environment_class_specific) = &cleaned.environment_class_specific
+            && environment_class_specific.is_empty()
+        {
+            cleaned.environment_class_specific = None;
         }
 
         cleaned

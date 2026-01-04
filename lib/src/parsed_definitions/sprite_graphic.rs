@@ -187,8 +187,7 @@ impl SpriteGraphic {
                 Err(_e) => {
                     warn!(
                         "parse_tile_with_color_pallet_from_value: Failed to parse {} as color_id {}",
-                        v,
-                        value
+                        v, value
                     );
                     return None;
                 }
@@ -352,8 +351,7 @@ impl SpriteGraphic {
             Err(_e) => {
                 warn!(
                     "parse_tile_with_extra_descriptor_from_value: Failed to parse {} as offset_x {}",
-                    tile_offset_x,
-                    value
+                    tile_offset_x, value
                 );
                 return None;
             }
@@ -364,8 +362,7 @@ impl SpriteGraphic {
             Err(_e) => {
                 warn!(
                     "parse_tile_with_extra_descriptor_from_value: Failed to parse {} as offset_y {}",
-                    tile_offset_y,
-                    value
+                    tile_offset_y, value
                 );
                 return None;
             }
@@ -708,38 +705,38 @@ impl SpriteGraphic {
         let mut cleaned = self.clone();
 
         // Set any empty string to None.
-        if let Some(extra_descriptor) = cleaned.extra_descriptor.as_ref() {
-            if extra_descriptor.is_empty() {
-                cleaned.extra_descriptor = None;
-            }
+        if let Some(extra_descriptor) = cleaned.extra_descriptor.as_ref()
+            && extra_descriptor.is_empty()
+        {
+            cleaned.extra_descriptor = None;
         }
 
         // Set any empty string to None.
-        if let Some(target_identifier) = cleaned.target_identifier.as_ref() {
-            if target_identifier.is_empty() {
-                cleaned.target_identifier = None;
-            }
+        if let Some(target_identifier) = cleaned.target_identifier.as_ref()
+            && target_identifier.is_empty()
+        {
+            cleaned.target_identifier = None;
         }
 
         // Set any default values to None.
-        if let Some(color) = cleaned.color.as_ref() {
-            if color.is_default() {
-                cleaned.color = None;
-            }
+        if let Some(color) = cleaned.color.as_ref()
+            && color.is_default()
+        {
+            cleaned.color = None;
         }
 
         // Set any default values to None.
-        if let Some(offset2) = cleaned.offset2.as_ref() {
-            if offset2.is_empty() {
-                cleaned.offset2 = None;
-            }
+        if let Some(offset2) = cleaned.offset2.as_ref()
+            && offset2.is_empty()
+        {
+            cleaned.offset2 = None;
         }
 
         // Set any default values to None.
-        if let Some(secondary_condition) = cleaned.secondary_condition.as_ref() {
-            if secondary_condition.is_none() {
-                cleaned.secondary_condition = None;
-            }
+        if let Some(secondary_condition) = cleaned.secondary_condition.as_ref()
+            && secondary_condition.is_none()
+        {
+            cleaned.secondary_condition = None;
         }
 
         // Set any default values to None.

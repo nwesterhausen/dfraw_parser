@@ -286,10 +286,10 @@ impl CreatureVariationRuleTag {
                     return;
                 }
                 // Check if the argument matches the requirement.
-                if let Some(argument_value) = args.get(argument_index - 1) {
-                    if argument_value == &argument_requirement {
-                        apply_new_tag(creature, &tag, value.as_deref());
-                    }
+                if let Some(argument_value) = args.get(argument_index - 1)
+                    && argument_value == &argument_requirement
+                {
+                    apply_new_tag(creature, &tag, value.as_deref());
                 }
             }
             Self::ConditionalRemoveTag {
@@ -308,10 +308,10 @@ impl CreatureVariationRuleTag {
                     return;
                 }
                 // Check if the argument matches the requirement.
-                if let Some(argument_value) = args.get(argument_index - 1) {
-                    if argument_value == &argument_requirement {
-                        remove_tag(creature, &tag);
-                    }
+                if let Some(argument_value) = args.get(argument_index - 1)
+                    && argument_value == &argument_requirement
+                {
+                    remove_tag(creature, &tag);
                 }
             }
             Self::ConditionalConvertTag {
@@ -331,10 +331,10 @@ impl CreatureVariationRuleTag {
                     return;
                 }
                 // Check if the argument matches the requirement.
-                if let Some(argument_value) = args.get(argument_index - 1) {
-                    if argument_value == &argument_requirement {
-                        convert_tag(creature, &tag, target.as_deref(), replacement.as_deref());
-                    }
+                if let Some(argument_value) = args.get(argument_index - 1)
+                    && argument_value == &argument_requirement
+                {
+                    convert_tag(creature, &tag, target.as_deref(), replacement.as_deref());
                 }
             }
             Self::Unknown => {}

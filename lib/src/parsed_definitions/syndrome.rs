@@ -6,7 +6,7 @@ use crate::{
     default_checks,
     raw_definitions::{CREATURE_EFFECT_TOKENS, SYNDROME_TOKENS},
     tags::SyndromeTag,
-    traits::{searchable::clean_search_vec, Searchable},
+    traits::{Searchable, searchable::clean_search_vec},
 };
 
 /// A struct representing a syndrome
@@ -83,53 +83,53 @@ impl Syndrome {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(identifier) = &cleaned.identifier {
-            if identifier.is_empty() {
-                cleaned.identifier = None;
-            }
+        if let Some(identifier) = &cleaned.identifier
+            && identifier.is_empty()
+        {
+            cleaned.identifier = None;
         }
-        if let Some(name) = &cleaned.name {
-            if name.is_empty() {
-                cleaned.name = None;
-            }
+        if let Some(name) = &cleaned.name
+            && name.is_empty()
+        {
+            cleaned.name = None;
         }
-        if let Some(affected_classes) = &cleaned.affected_classes {
-            if affected_classes.is_empty() {
-                cleaned.affected_classes = None;
-            }
+        if let Some(affected_classes) = &cleaned.affected_classes
+            && affected_classes.is_empty()
+        {
+            cleaned.affected_classes = None;
         }
-        if let Some(immune_classes) = &cleaned.immune_classes {
-            if immune_classes.is_empty() {
-                cleaned.immune_classes = None;
-            }
+        if let Some(immune_classes) = &cleaned.immune_classes
+            && immune_classes.is_empty()
+        {
+            cleaned.immune_classes = None;
         }
-        if let Some(affected_creatures) = &cleaned.affected_creatures {
-            if affected_creatures.is_empty() {
-                cleaned.affected_creatures = None;
-            }
+        if let Some(affected_creatures) = &cleaned.affected_creatures
+            && affected_creatures.is_empty()
+        {
+            cleaned.affected_creatures = None;
         }
-        if let Some(immune_creatures) = &cleaned.immune_creatures {
-            if immune_creatures.is_empty() {
-                cleaned.immune_creatures = None;
-            }
+        if let Some(immune_creatures) = &cleaned.immune_creatures
+            && immune_creatures.is_empty()
+        {
+            cleaned.immune_creatures = None;
         }
-        if let Some(classes) = &cleaned.classes {
-            if classes.is_empty() {
-                cleaned.classes = None;
-            }
+        if let Some(classes) = &cleaned.classes
+            && classes.is_empty()
+        {
+            cleaned.classes = None;
         }
         if default_checks::min_max_is_zeroes(&cleaned.concentration_added) {
             cleaned.concentration_added = None;
         }
-        if let Some(tags) = &cleaned.tags {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
+        if let Some(tags) = &cleaned.tags
+            && tags.is_empty()
+        {
+            cleaned.tags = None;
         }
-        if let Some(conditions) = &cleaned.conditions {
-            if conditions.is_empty() {
-                cleaned.conditions = None;
-            }
+        if let Some(conditions) = &cleaned.conditions
+            && conditions.is_empty()
+        {
+            cleaned.conditions = None;
         }
 
         cleaned

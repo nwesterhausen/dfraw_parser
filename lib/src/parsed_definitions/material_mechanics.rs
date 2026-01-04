@@ -236,35 +236,35 @@ impl MaterialMechanics {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(impact) = &cleaned.impact {
-            if impact.is_empty() {
-                cleaned.impact = None;
-            }
+        if let Some(impact) = &cleaned.impact
+            && impact.is_empty()
+        {
+            cleaned.impact = None;
         }
-        if let Some(compressive) = &cleaned.compressive {
-            if compressive.is_empty() {
-                cleaned.compressive = None;
-            }
+        if let Some(compressive) = &cleaned.compressive
+            && compressive.is_empty()
+        {
+            cleaned.compressive = None;
         }
-        if let Some(tensile) = &cleaned.tensile {
-            if tensile.is_empty() {
-                cleaned.tensile = None;
-            }
+        if let Some(tensile) = &cleaned.tensile
+            && tensile.is_empty()
+        {
+            cleaned.tensile = None;
         }
-        if let Some(torsion) = &cleaned.torsion {
-            if torsion.is_empty() {
-                cleaned.torsion = None;
-            }
+        if let Some(torsion) = &cleaned.torsion
+            && torsion.is_empty()
+        {
+            cleaned.torsion = None;
         }
-        if let Some(shear) = &cleaned.shear {
-            if shear.is_empty() {
-                cleaned.shear = None;
-            }
+        if let Some(shear) = &cleaned.shear
+            && shear.is_empty()
+        {
+            cleaned.shear = None;
         }
-        if let Some(bending) = &cleaned.bending {
-            if bending.is_empty() {
-                cleaned.bending = None;
-            }
+        if let Some(bending) = &cleaned.bending
+            && bending.is_empty()
+        {
+            cleaned.bending = None;
         }
 
         if default_checks::is_zero_i32(cleaned.max_edge) {

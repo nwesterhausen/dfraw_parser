@@ -44,31 +44,30 @@ impl CreatureEffect {
         // Set any empty string to None.
         if let Some(affected_body_parts_by_category) =
             cleaned.affected_body_parts_by_category.clone()
+            && affected_body_parts_by_category.is_empty()
         {
-            if affected_body_parts_by_category.is_empty() {
-                cleaned.affected_body_parts_by_category = None;
-            }
+            cleaned.affected_body_parts_by_category = None;
         }
 
         // Set any empty string to None.
-        if let Some(affected_body_parts_by_type) = cleaned.affected_body_parts_by_type.clone() {
-            if affected_body_parts_by_type.is_empty() {
-                cleaned.affected_body_parts_by_type = None;
-            }
+        if let Some(affected_body_parts_by_type) = cleaned.affected_body_parts_by_type.clone()
+            && affected_body_parts_by_type.is_empty()
+        {
+            cleaned.affected_body_parts_by_type = None;
         }
 
         // Set any empty string to None.
-        if let Some(affected_body_parts_by_token) = cleaned.affected_body_parts_by_token.clone() {
-            if affected_body_parts_by_token.is_empty() {
-                cleaned.affected_body_parts_by_token = None;
-            }
+        if let Some(affected_body_parts_by_token) = cleaned.affected_body_parts_by_token.clone()
+            && affected_body_parts_by_token.is_empty()
+        {
+            cleaned.affected_body_parts_by_token = None;
         }
 
         // Set any empty string to None.
-        if let Some(tags) = cleaned.tags.clone() {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
+        if let Some(tags) = cleaned.tags.clone()
+            && tags.is_empty()
+        {
+            cleaned.tags = None;
         }
 
         // Set any default values to None.

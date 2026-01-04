@@ -16,7 +16,7 @@ use crate::{
     },
     shrub::Shrub,
     tags::{BiomeTag, PlantGrowthTag, PlantGrowthTypeTag, PlantTag},
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
+    traits::{RawObject, Searchable, searchable::clean_search_vec},
     tree::Tree,
     utilities::{build_object_id_from_pieces, parse_min_max_range},
 };
@@ -132,22 +132,22 @@ impl Plant {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
+        if let Some(metadata) = &cleaned.metadata
+            && metadata.is_hidden()
+        {
+            cleaned.metadata = None;
         }
 
-        if let Some(pref_strings) = &cleaned.pref_strings {
-            if pref_strings.is_empty() {
-                cleaned.pref_strings = None;
-            }
+        if let Some(pref_strings) = &cleaned.pref_strings
+            && pref_strings.is_empty()
+        {
+            cleaned.pref_strings = None;
         }
 
-        if let Some(tags) = &cleaned.tags {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
+        if let Some(tags) = &cleaned.tags
+            && tags.is_empty()
+        {
+            cleaned.tags = None;
         }
 
         if default_checks::min_max_is_zeroes(&cleaned.underground_depth) {
@@ -158,10 +158,10 @@ impl Plant {
             cleaned.frequency = None;
         }
 
-        if let Some(biomes) = &cleaned.biomes {
-            if biomes.is_empty() {
-                cleaned.biomes = None;
-            }
+        if let Some(biomes) = &cleaned.biomes
+            && biomes.is_empty()
+        {
+            cleaned.biomes = None;
         }
 
         if let Some(growths) = &cleaned.growths {

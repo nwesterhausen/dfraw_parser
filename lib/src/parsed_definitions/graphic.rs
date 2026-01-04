@@ -9,7 +9,7 @@ use crate::{
     sprite_graphic::SpriteGraphic,
     sprite_layer::SpriteLayer,
     tags::GraphicTypeTag,
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
+    traits::{RawObject, Searchable, searchable::clean_search_vec},
     utilities::build_object_id_from_pieces,
 };
 
@@ -196,9 +196,7 @@ impl Graphic {
             } else {
                 warn!(
                     "Graphic::parse_sprite_from_tag:_extension_type [{}] Failed to parse {},{} as CustomGraphicExtension",
-                    self.identifier,
-                    key,
-                    value
+                    self.identifier, key, value
                 );
             }
             return;
@@ -207,17 +205,15 @@ impl Graphic {
         // If the key is a growth token, parse it into a SpriteGraphic and add it to the current growth
         if let Some(_growth_type) = GROWTH_TOKENS.get(key) {
             if let Some(sprite_graphic) = SpriteGraphic::from_token(key, value, graphic_type) {
-                if let Some(growths) = self.growths.as_mut() {
-                    if let Some(growth) = growths.last_mut() {
-                        growth.1.push(sprite_graphic);
-                    };
-                }
+                if let Some(growths) = self.growths.as_mut()
+                    && let Some(growth) = growths.last_mut()
+                {
+                    growth.1.push(sprite_graphic);
+                };
             } else {
                 warn!(
                     "Graphic::parse_sprite_from_tag:_growth_type [{}] Failed to parse {},{} as SpriteGraphic",
-                    self.identifier,
-                    key,
-                    value
+                    self.identifier, key, value
                 );
             }
             return;
@@ -227,17 +223,15 @@ impl Graphic {
             if let Some(sprite_graphic) =
                 SpriteGraphic::from_token(key, value, GraphicTypeTag::Template)
             {
-                if let Some(growths) = self.growths.as_mut() {
-                    if let Some(growth) = growths.last_mut() {
-                        growth.1.push(sprite_graphic);
-                    };
-                }
+                if let Some(growths) = self.growths.as_mut()
+                    && let Some(growth) = growths.last_mut()
+                {
+                    growth.1.push(sprite_graphic);
+                };
             } else {
                 warn!(
                     "Graphic::parse_sprite_from_tag:_plant_graphic_template [{}] Failed to parse {},{} as SpriteGraphic",
-                    self.identifier,
-                    key,
-                    value
+                    self.identifier, key, value
                 );
             }
             return;
@@ -259,10 +253,7 @@ impl Graphic {
         } else {
             warn!(
                 "Graphic::parse_sprite_from_tag:_from_token [{}] Failed to parse [{}:{}] as SpriteGraphic::{:?}",
-                self.identifier,
-                key,
-                value,
-                graphic_type
+                self.identifier, key, value, graphic_type
             );
         }
     }
@@ -315,22 +306,22 @@ impl Graphic {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
+        if let Some(metadata) = &cleaned.metadata
+            && metadata.is_hidden()
+        {
+            cleaned.metadata = None;
         }
 
-        if let Some(custom_extensions) = &cleaned.custom_extensions {
-            if custom_extensions.is_empty() {
-                cleaned.custom_extensions = None;
-            }
+        if let Some(custom_extensions) = &cleaned.custom_extensions
+            && custom_extensions.is_empty()
+        {
+            cleaned.custom_extensions = None;
         }
 
-        if let Some(tags) = &cleaned.tags {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
+        if let Some(tags) = &cleaned.tags
+            && tags.is_empty()
+        {
+            cleaned.tags = None;
         }
 
         if let Some(sprites) = &cleaned.sprites {

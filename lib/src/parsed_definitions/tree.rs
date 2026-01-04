@@ -166,10 +166,10 @@ impl Tree {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(trunk_name) = &cleaned.trunk_name {
-            if trunk_name.is_empty() {
-                cleaned.trunk_name = None;
-            }
+        if let Some(trunk_name) = &cleaned.trunk_name
+            && trunk_name.is_empty()
+        {
+            cleaned.trunk_name = None;
         }
         if default_checks::is_one_u8(cleaned.max_trunk_height) {
             cleaned.max_trunk_height = None;
@@ -183,10 +183,10 @@ impl Tree {
         if default_checks::is_one_u8(cleaned.trunk_width_period) {
             cleaned.trunk_width_period = None;
         }
-        if let Some(branch_name) = &cleaned.branch_name {
-            if branch_name.is_empty() {
-                cleaned.branch_name = None;
-            }
+        if let Some(branch_name) = &cleaned.branch_name
+            && branch_name.is_empty()
+        {
+            cleaned.branch_name = None;
         }
         if default_checks::is_zero_u8(cleaned.branch_density) {
             cleaned.branch_density = None;
@@ -194,10 +194,10 @@ impl Tree {
         if default_checks::is_zero_u8(cleaned.branch_radius) {
             cleaned.branch_radius = None;
         }
-        if let Some(heavy_branches_name) = &cleaned.heavy_branches_name {
-            if heavy_branches_name.is_empty() {
-                cleaned.heavy_branches_name = None;
-            }
+        if let Some(heavy_branches_name) = &cleaned.heavy_branches_name
+            && heavy_branches_name.is_empty()
+        {
+            cleaned.heavy_branches_name = None;
         }
         if default_checks::is_zero_u8(cleaned.heavy_branch_density) {
             cleaned.heavy_branch_density = None;
@@ -208,10 +208,10 @@ impl Tree {
         if default_checks::is_zero_u8(cleaned.trunk_branching) {
             cleaned.trunk_branching = None;
         }
-        if let Some(root_name) = &cleaned.root_name {
-            if root_name.is_empty() {
-                cleaned.root_name = None;
-            }
+        if let Some(root_name) = &cleaned.root_name
+            && root_name.is_empty()
+        {
+            cleaned.root_name = None;
         }
         if default_checks::is_zero_u8(cleaned.root_density) {
             cleaned.root_density = None;
@@ -219,20 +219,20 @@ impl Tree {
         if default_checks::is_zero_u8(cleaned.root_radius) {
             cleaned.root_radius = None;
         }
-        if let Some(twigs_name) = &cleaned.twigs_name {
-            if twigs_name.is_empty() {
-                cleaned.twigs_name = None;
-            }
+        if let Some(twigs_name) = &cleaned.twigs_name
+            && twigs_name.is_empty()
+        {
+            cleaned.twigs_name = None;
         }
-        if let Some(twigs_placement) = &cleaned.twigs_placement {
-            if twigs_placement.is_empty() {
-                cleaned.twigs_placement = None;
-            }
+        if let Some(twigs_placement) = &cleaned.twigs_placement
+            && twigs_placement.is_empty()
+        {
+            cleaned.twigs_placement = None;
         }
-        if let Some(cap_name) = &cleaned.cap_name {
-            if cap_name.is_empty() {
-                cleaned.cap_name = None;
-            }
+        if let Some(cap_name) = &cleaned.cap_name
+            && cap_name.is_empty()
+        {
+            cleaned.cap_name = None;
         }
         if default_checks::is_one_u8(cleaned.cap_period) {
             cleaned.cap_period = None;
@@ -240,45 +240,45 @@ impl Tree {
         if default_checks::is_zero_u8(cleaned.cap_radius) {
             cleaned.cap_radius = None;
         }
-        if let Some(tree_tile) = &cleaned.tree_tile {
-            if tree_tile.is_empty() {
-                cleaned.tree_tile = None;
-            }
+        if let Some(tree_tile) = &cleaned.tree_tile
+            && tree_tile.is_empty()
+        {
+            cleaned.tree_tile = None;
         }
-        if let Some(dead_tree_tile) = &cleaned.dead_tree_tile {
-            if dead_tree_tile.is_empty() {
-                cleaned.dead_tree_tile = None;
-            }
+        if let Some(dead_tree_tile) = &cleaned.dead_tree_tile
+            && dead_tree_tile.is_empty()
+        {
+            cleaned.dead_tree_tile = None;
         }
-        if let Some(sapling_tile) = &cleaned.sapling_tile {
-            if sapling_tile.is_empty() {
-                cleaned.sapling_tile = None;
-            }
+        if let Some(sapling_tile) = &cleaned.sapling_tile
+            && sapling_tile.is_empty()
+        {
+            cleaned.sapling_tile = None;
         }
-        if let Some(dead_sapling_tile) = &cleaned.dead_sapling_tile {
-            if dead_sapling_tile.is_empty() {
-                cleaned.dead_sapling_tile = None;
-            }
+        if let Some(dead_sapling_tile) = &cleaned.dead_sapling_tile
+            && dead_sapling_tile.is_empty()
+        {
+            cleaned.dead_sapling_tile = None;
         }
-        if let Some(tree_color) = &cleaned.tree_color {
-            if tree_color.is_default() {
-                cleaned.tree_color = None;
-            }
+        if let Some(tree_color) = &cleaned.tree_color
+            && tree_color.is_default()
+        {
+            cleaned.tree_color = None;
         }
-        if let Some(dead_tree_color) = &cleaned.dead_tree_color {
-            if dead_tree_color.is_default() {
-                cleaned.dead_tree_color = None;
-            }
+        if let Some(dead_tree_color) = &cleaned.dead_tree_color
+            && dead_tree_color.is_default()
+        {
+            cleaned.dead_tree_color = None;
         }
-        if let Some(sapling_color) = &cleaned.sapling_color {
-            if sapling_color.is_default() {
-                cleaned.sapling_color = None;
-            }
+        if let Some(sapling_color) = &cleaned.sapling_color
+            && sapling_color.is_default()
+        {
+            cleaned.sapling_color = None;
         }
-        if let Some(dead_sapling_color) = &cleaned.dead_sapling_color {
-            if dead_sapling_color.is_default() {
-                cleaned.dead_sapling_color = None;
-            }
+        if let Some(dead_sapling_color) = &cleaned.dead_sapling_color
+            && dead_sapling_color.is_default()
+        {
+            cleaned.dead_sapling_color = None;
         }
         if default_checks::is_default_sapling_drown_level(cleaned.sapling_drown_level) {
             cleaned.sapling_drown_level = None;
@@ -286,10 +286,10 @@ impl Tree {
         if default_checks::is_default_tree_drown_level(cleaned.tree_drown_level) {
             cleaned.tree_drown_level = None;
         }
-        if let Some(tags) = &cleaned.tags {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
+        if let Some(tags) = &cleaned.tags
+            && tags.is_empty()
+        {
+            cleaned.tags = None;
         }
 
         cleaned
@@ -304,7 +304,7 @@ impl Tree {
     pub fn parse_tag(&mut self, key: &str, value: &str) {
         let Some(tag) = TREE_TOKENS.get(key) else {
             warn!(
-    "TreeParsing: called `Option::unwrap()` on a `None` value for presumed tree tag: {}",
+                "TreeParsing: called `Option::unwrap()` on a `None` value for presumed tree tag: {}",
                 key
             );
             return;

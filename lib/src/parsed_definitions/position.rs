@@ -113,75 +113,75 @@ impl Position {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(allowed_classes) = &cleaned.allowed_classes {
-            if allowed_classes.is_empty() {
-                cleaned.allowed_classes = None;
-            }
+        if let Some(allowed_classes) = &cleaned.allowed_classes
+            && allowed_classes.is_empty()
+        {
+            cleaned.allowed_classes = None;
         }
 
-        if let Some(allowed_creatures) = &cleaned.allowed_creatures {
-            if allowed_creatures.is_empty() {
-                cleaned.allowed_creatures = None;
-            }
+        if let Some(allowed_creatures) = &cleaned.allowed_creatures
+            && allowed_creatures.is_empty()
+        {
+            cleaned.allowed_creatures = None;
         }
-        if let Some(rejected_classes) = &cleaned.rejected_classes {
-            if rejected_classes.is_empty() {
-                cleaned.rejected_classes = None;
-            }
+        if let Some(rejected_classes) = &cleaned.rejected_classes
+            && rejected_classes.is_empty()
+        {
+            cleaned.rejected_classes = None;
         }
-        if let Some(appointed_by) = &cleaned.appointed_by {
-            if appointed_by.is_empty() {
-                cleaned.appointed_by = None;
-            }
+        if let Some(appointed_by) = &cleaned.appointed_by
+            && appointed_by.is_empty()
+        {
+            cleaned.appointed_by = None;
         }
-        if let Some(color) = &cleaned.color {
-            if color.is_default() {
-                cleaned.color = None;
-            }
+        if let Some(color) = &cleaned.color
+            && color.is_default()
+        {
+            cleaned.color = None;
         }
-        if let Some(commander) = &cleaned.commander {
-            if commander.is_empty() {
-                cleaned.commander = None;
-            }
+        if let Some(commander) = &cleaned.commander
+            && commander.is_empty()
+        {
+            cleaned.commander = None;
         }
         if default_checks::is_zero_u32(cleaned.demand_max) {
             cleaned.demand_max = None;
         }
-        if let Some(execution_skill) = &cleaned.execution_skill {
-            if execution_skill.is_empty() {
-                cleaned.execution_skill = None;
-            }
+        if let Some(execution_skill) = &cleaned.execution_skill
+            && execution_skill.is_empty()
+        {
+            cleaned.execution_skill = None;
         }
-        if let Some(gender) = &cleaned.gender {
-            if gender.is_empty() {
-                cleaned.gender = None;
-            }
+        if let Some(gender) = &cleaned.gender
+            && gender.is_empty()
+        {
+            cleaned.gender = None;
         }
         if default_checks::is_zero_u32(cleaned.land_holder) {
             cleaned.land_holder = None;
         }
-        if let Some(land_name) = &cleaned.land_name {
-            if land_name.is_empty() {
-                cleaned.land_name = None;
-            }
+        if let Some(land_name) = &cleaned.land_name
+            && land_name.is_empty()
+        {
+            cleaned.land_name = None;
         }
         if default_checks::is_zero_u32(cleaned.mandate_max) {
             cleaned.mandate_max = None;
         }
-        if let Some(name) = &cleaned.name {
-            if name.is_empty() {
-                cleaned.name = None;
-            }
+        if let Some(name) = &cleaned.name
+            && name.is_empty()
+        {
+            cleaned.name = None;
         }
-        if let Some(name_male) = &cleaned.name_male {
-            if name_male.is_empty() {
-                cleaned.name_male = None;
-            }
+        if let Some(name_male) = &cleaned.name_male
+            && name_male.is_empty()
+        {
+            cleaned.name_male = None;
         }
-        if let Some(name_female) = &cleaned.name_female {
-            if name_female.is_empty() {
-                cleaned.name_female = None;
-            }
+        if let Some(name_female) = &cleaned.name_female
+            && name_female.is_empty()
+        {
+            cleaned.name_female = None;
         }
         if default_checks::is_zero_i32(cleaned.number) {
             cleaned.number = None;
@@ -189,15 +189,15 @@ impl Position {
         if default_checks::is_zero_i32(cleaned.precedence) {
             cleaned.precedence = None;
         }
-        if let Some(rejected_creatures) = &cleaned.rejected_creatures {
-            if rejected_creatures.is_empty() {
-                cleaned.rejected_creatures = None;
-            }
+        if let Some(rejected_creatures) = &cleaned.rejected_creatures
+            && rejected_creatures.is_empty()
+        {
+            cleaned.rejected_creatures = None;
         }
-        if let Some(replaced_by) = &cleaned.replaced_by {
-            if replaced_by.is_empty() {
-                cleaned.replaced_by = None;
-            }
+        if let Some(replaced_by) = &cleaned.replaced_by
+            && replaced_by.is_empty()
+        {
+            cleaned.replaced_by = None;
         }
         if default_checks::is_zero_u32(cleaned.required_bedroom) {
             cleaned.required_bedroom = None;
@@ -226,35 +226,35 @@ impl Position {
         if default_checks::is_zero_u32(cleaned.requires_population) {
             cleaned.requires_population = None;
         }
-        if let Some(responsibilities) = &cleaned.responsibilities {
-            if responsibilities.is_empty() {
-                cleaned.responsibilities = None;
-            }
+        if let Some(responsibilities) = &cleaned.responsibilities
+            && responsibilities.is_empty()
+        {
+            cleaned.responsibilities = None;
         }
-        if let Some(spouse) = &cleaned.spouse {
-            if spouse.is_empty() {
-                cleaned.spouse = None;
-            }
+        if let Some(spouse) = &cleaned.spouse
+            && spouse.is_empty()
+        {
+            cleaned.spouse = None;
         }
-        if let Some(spouse_female) = &cleaned.spouse_female {
-            if spouse_female.is_empty() {
-                cleaned.spouse_female = None;
-            }
+        if let Some(spouse_female) = &cleaned.spouse_female
+            && spouse_female.is_empty()
+        {
+            cleaned.spouse_female = None;
         }
-        if let Some(spouse_male) = &cleaned.spouse_male {
-            if spouse_male.is_empty() {
-                cleaned.spouse_male = None;
-            }
+        if let Some(spouse_male) = &cleaned.spouse_male
+            && spouse_male.is_empty()
+        {
+            cleaned.spouse_male = None;
         }
-        if let Some(squad) = &cleaned.squad {
-            if squad.is_empty() {
-                cleaned.squad = None;
-            }
+        if let Some(squad) = &cleaned.squad
+            && squad.is_empty()
+        {
+            cleaned.squad = None;
         }
-        if let Some(succession) = &cleaned.succession {
-            if succession.is_empty() {
-                cleaned.succession = None;
-            }
+        if let Some(succession) = &cleaned.succession
+            && succession.is_empty()
+        {
+            cleaned.succession = None;
         }
 
         cleaned

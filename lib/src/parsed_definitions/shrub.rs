@@ -133,10 +133,10 @@ impl Shrub {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(growing_season) = &cleaned.growing_season {
-            if growing_season.is_empty() {
-                cleaned.growing_season = None;
-            }
+        if let Some(growing_season) = &cleaned.growing_season
+            && growing_season.is_empty()
+        {
+            cleaned.growing_season = None;
         }
         if default_checks::is_default_grow_duration(cleaned.grow_duration) {
             cleaned.grow_duration = None;
@@ -159,63 +159,63 @@ impl Shrub {
         if default_checks::is_default_cluster_size(cleaned.cluster_size) {
             cleaned.cluster_size = None;
         }
-        if let Some(picked_color) = &cleaned.picked_color {
-            if picked_color.is_default() {
-                cleaned.picked_color = None;
-            }
+        if let Some(picked_color) = &cleaned.picked_color
+            && picked_color.is_default()
+        {
+            cleaned.picked_color = None;
         }
-        if let Some(dead_picked_color) = &cleaned.dead_picked_color {
-            if dead_picked_color.is_default() {
-                cleaned.dead_picked_color = None;
-            }
+        if let Some(dead_picked_color) = &cleaned.dead_picked_color
+            && dead_picked_color.is_default()
+        {
+            cleaned.dead_picked_color = None;
         }
-        if let Some(shrub_color) = &cleaned.shrub_color {
-            if shrub_color.is_default() {
-                cleaned.shrub_color = None;
-            }
+        if let Some(shrub_color) = &cleaned.shrub_color
+            && shrub_color.is_default()
+        {
+            cleaned.shrub_color = None;
         }
-        if let Some(dead_shrub_color) = &cleaned.dead_shrub_color {
-            if dead_shrub_color.is_default() {
-                cleaned.dead_shrub_color = None;
-            }
+        if let Some(dead_shrub_color) = &cleaned.dead_shrub_color
+            && dead_shrub_color.is_default()
+        {
+            cleaned.dead_shrub_color = None;
         }
         if default_checks::is_default_shrub_drown_level(cleaned.shrub_drown_level) {
             cleaned.shrub_drown_level = None;
         }
-        if let Some(drink) = &cleaned.drink {
-            if drink.is_empty() {
-                cleaned.drink = None;
-            }
+        if let Some(drink) = &cleaned.drink
+            && drink.is_empty()
+        {
+            cleaned.drink = None;
         }
-        if let Some(mill) = &cleaned.mill {
-            if mill.is_empty() {
-                cleaned.mill = None;
-            }
+        if let Some(mill) = &cleaned.mill
+            && mill.is_empty()
+        {
+            cleaned.mill = None;
         }
-        if let Some(thread) = &cleaned.thread {
-            if thread.is_empty() {
-                cleaned.thread = None;
-            }
+        if let Some(thread) = &cleaned.thread
+            && thread.is_empty()
+        {
+            cleaned.thread = None;
         }
-        if let Some(seed) = &cleaned.seed {
-            if seed.is_empty() {
-                cleaned.seed = None;
-            }
+        if let Some(seed) = &cleaned.seed
+            && seed.is_empty()
+        {
+            cleaned.seed = None;
         }
-        if let Some(extract_still_vial) = &cleaned.extract_still_vial {
-            if extract_still_vial.is_empty() {
-                cleaned.extract_still_vial = None;
-            }
+        if let Some(extract_still_vial) = &cleaned.extract_still_vial
+            && extract_still_vial.is_empty()
+        {
+            cleaned.extract_still_vial = None;
         }
-        if let Some(extract_vial) = &cleaned.extract_vial {
-            if extract_vial.is_empty() {
-                cleaned.extract_vial = None;
-            }
+        if let Some(extract_vial) = &cleaned.extract_vial
+            && extract_vial.is_empty()
+        {
+            cleaned.extract_vial = None;
         }
-        if let Some(extract_barrel) = &cleaned.extract_barrel {
-            if extract_barrel.is_empty() {
-                cleaned.extract_barrel = None;
-            }
+        if let Some(extract_barrel) = &cleaned.extract_barrel
+            && extract_barrel.is_empty()
+        {
+            cleaned.extract_barrel = None;
         }
 
         cleaned

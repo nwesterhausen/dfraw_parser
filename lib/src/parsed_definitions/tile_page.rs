@@ -9,7 +9,7 @@ use crate::{
     metadata::{ObjectType, RawMetadata},
     raw_definitions::TILE_PAGE_TOKENS,
     tags::TilePageTag,
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
+    traits::{RawObject, Searchable, searchable::clean_search_vec},
     utilities::build_object_id_from_pieces,
 };
 
@@ -82,10 +82,10 @@ impl TilePage {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
+        if let Some(metadata) = &cleaned.metadata
+            && metadata.is_hidden()
+        {
+            cleaned.metadata = None;
         }
 
         cleaned

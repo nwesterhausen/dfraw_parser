@@ -16,8 +16,8 @@ use crate::{
     tags::{BiomeTag, CasteTag, CreatureTag},
     tile::Tile,
     traits::{
-        searchable::clean_search_vec, CreatureVariationRequirements, RawObject, Searchable,
-        TagOperations,
+        CreatureVariationRequirements, RawObject, Searchable, TagOperations,
+        searchable::clean_search_vec,
     },
     utilities::build_object_id_from_pieces,
 };
@@ -233,7 +233,10 @@ impl Creature {
         if let Some(select_creature_variation) = &mut self.select_creature_variation {
             select_creature_variation.extend(select_creature_vec);
         } else {
-            warn!("Creature::extend_select_creature_variation: ({}) select_creature_variation is None", self.identifier);
+            warn!(
+                "Creature::extend_select_creature_variation: ({}) select_creature_variation is None",
+                self.identifier
+            );
         }
     }
 
@@ -660,10 +663,10 @@ impl Creature {
         let mut cleaned = self.clone();
 
         // Set the metadata to None if it is hidden
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
+        if let Some(metadata) = &cleaned.metadata
+            && metadata.is_hidden()
+        {
+            cleaned.metadata = None;
         }
 
         // Remove any empty lists
@@ -676,10 +679,10 @@ impl Creature {
         if cleaned.pref_strings.is_some() && cleaned.pref_strings.as_deref() == Some(&[]) {
             cleaned.pref_strings = None;
         }
-        if let Some(create_variations) = &cleaned.apply_creature_variation {
-            if create_variations.is_empty() {
-                cleaned.apply_creature_variation = None;
-            }
+        if let Some(create_variations) = &cleaned.apply_creature_variation
+            && create_variations.is_empty()
+        {
+            cleaned.apply_creature_variation = None;
         }
 
         // Remove any default values
@@ -696,20 +699,20 @@ impl Creature {
             cleaned.underground_depth = None;
         }
 
-        if let Some(general_baby_name) = &cleaned.general_baby_name {
-            if general_baby_name.is_empty() {
-                cleaned.general_baby_name = None;
-            }
+        if let Some(general_baby_name) = &cleaned.general_baby_name
+            && general_baby_name.is_empty()
+        {
+            cleaned.general_baby_name = None;
         }
-        if let Some(general_child_name) = &cleaned.general_child_name {
-            if general_child_name.is_empty() {
-                cleaned.general_child_name = None;
-            }
+        if let Some(general_child_name) = &cleaned.general_child_name
+            && general_child_name.is_empty()
+        {
+            cleaned.general_child_name = None;
         }
-        if let Some(tile) = &cleaned.tile {
-            if tile.is_default() {
-                cleaned.tile = None;
-            }
+        if let Some(tile) = &cleaned.tile
+            && tile.is_default()
+        {
+            cleaned.tile = None;
         }
 
         cleaned

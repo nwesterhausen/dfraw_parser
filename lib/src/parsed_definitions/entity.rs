@@ -9,7 +9,7 @@ use crate::{
     position::Position,
     raw_definitions::{ENTITY_TOKENS, POSITION_TOKENS},
     tags::EntityTag,
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
+    traits::{RawObject, Searchable, searchable::clean_search_vec},
     utilities::build_object_id_from_pieces,
 };
 
@@ -219,10 +219,10 @@ impl Entity {
         let mut cleaned = self.clone();
 
         // Remove metadata if hidden
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
+        if let Some(metadata) = &cleaned.metadata
+            && metadata.is_hidden()
+        {
+            cleaned.metadata = None;
         }
 
         // Remove empty strings
@@ -296,10 +296,10 @@ impl Entity {
         if cleaned.cull_symbols.as_deref() == Some(&[]) {
             cleaned.cull_symbols = None;
         }
-        if let Some(color) = &cleaned.friendly_color {
-            if color.is_default() {
-                cleaned.friendly_color = None;
-            }
+        if let Some(color) = &cleaned.friendly_color
+            && color.is_default()
+        {
+            cleaned.friendly_color = None;
         }
 
         if cleaned.religion.as_deref() == Some("") {
@@ -312,10 +312,10 @@ impl Entity {
             cleaned.sphere_alignments = None;
         }
 
-        if let Some(positions) = &cleaned.positions {
-            if positions.is_empty() {
-                cleaned.positions = None;
-            }
+        if let Some(positions) = &cleaned.positions
+            && positions.is_empty()
+        {
+            cleaned.positions = None;
         }
         if cleaned.land_holder_trigger.as_deref() == Some("") {
             cleaned.land_holder_trigger = None;

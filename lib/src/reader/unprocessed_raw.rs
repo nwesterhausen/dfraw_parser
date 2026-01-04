@@ -1,13 +1,13 @@
 use tracing::{debug, warn};
 
 use crate::{
+    ParserError,
     creature::Creature,
     creature_variation::CreatureVariation,
     metadata::{ObjectType, RawMetadata},
     tags::ModificationTag,
     traits::RawObject,
     utilities::singularly_apply_creature_variation,
-    ParserError,
 };
 
 /// An unprocessed raw object
@@ -147,49 +147,48 @@ impl UnprocessedRaw {
         match modification.clone() {
             ModificationTag::AddBeforeTag { tag, raws } => {
                 // Check if last modification is also an `AddBeforeTag`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::AddBeforeTag {
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::AddBeforeTag {
                         tag: last_tag,
                         raws: last_raws,
                     } = last_modification
-                    {
-                        // Check if the tags are the same
-                        if &tag == last_tag {
-                            // They are the same, so we can combine them
-                            last_raws.extend(raws);
-                            return;
-                        }
+                {
+                    // Check if the tags are the same
+                    if &tag == last_tag {
+                        // They are the same, so we can combine them
+                        last_raws.extend(raws);
+                        return;
                     }
                 }
             }
             ModificationTag::AddToBeginning { raws } => {
                 // Check if last modification is also an `AddToBeginning`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::AddToBeginning { raws: last_raws } = last_modification {
-                        // They are the same, so we can combine them
-                        last_raws.extend(raws);
-                        return;
-                    }
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::AddToBeginning { raws: last_raws } = last_modification
+                {
+                    // They are the same, so we can combine them
+                    last_raws.extend(raws);
+                    return;
                 }
             }
             ModificationTag::AddToEnding { raws } => {
                 // Check if last modification is also an `AddToEnding`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::AddToEnding { raws: last_raws } = last_modification {
-                        // They are the same, so we can combine them
-                        last_raws.extend(raws);
-                        return;
-                    }
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::AddToEnding { raws: last_raws } = last_modification
+                {
+                    // They are the same, so we can combine them
+                    last_raws.extend(raws);
+                    return;
                 }
             }
             ModificationTag::MainRawBody { raws } => {
                 // Check if last modification is also an `MainRawBody`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::MainRawBody { raws: last_raws } = last_modification {
-                        // They are the same, so we can combine them
-                        last_raws.extend(raws);
-                        return;
-                    }
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::MainRawBody { raws: last_raws } = last_modification
+                {
+                    // They are the same, so we can combine them
+                    last_raws.extend(raws);
+                    return;
                 }
             }
             _ => {}

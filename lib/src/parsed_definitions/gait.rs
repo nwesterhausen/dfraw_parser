@@ -96,40 +96,40 @@ impl Gait {
 
         if has_build_up {
             // Next is turning max
-            if let Some(raw_value) = parts.next() {
-                if let Ok(value) = raw_value.parse::<u32>() {
-                    // Modify the build up modifier to include the turning max
-                    if let Some(GaitModifierTag::BuildUp {
+            if let Some(raw_value) = parts.next()
+                && let Ok(value) = raw_value.parse::<u32>()
+            {
+                // Modify the build up modifier to include the turning max
+                if let Some(GaitModifierTag::BuildUp {
+                    time,
+                    turning_max: _,
+                    start_speed,
+                }) = gait.modifiers.pop()
+                {
+                    gait.modifiers.push(GaitModifierTag::BuildUp {
                         time,
-                        turning_max: _,
+                        turning_max: value,
                         start_speed,
-                    }) = gait.modifiers.pop()
-                    {
-                        gait.modifiers.push(GaitModifierTag::BuildUp {
-                            time,
-                            turning_max: value,
-                            start_speed,
-                        });
-                    }
+                    });
                 }
             }
 
             // Next is start speed
-            if let Some(raw_value) = parts.next() {
-                if let Ok(value) = raw_value.parse::<u32>() {
-                    // Modify the build up modifier to include the start speed
-                    if let Some(GaitModifierTag::BuildUp {
+            if let Some(raw_value) = parts.next()
+                && let Ok(value) = raw_value.parse::<u32>()
+            {
+                // Modify the build up modifier to include the start speed
+                if let Some(GaitModifierTag::BuildUp {
+                    time,
+                    turning_max,
+                    start_speed: _,
+                }) = gait.modifiers.pop()
+                {
+                    gait.modifiers.push(GaitModifierTag::BuildUp {
                         time,
                         turning_max,
-                        start_speed: _,
-                    }) = gait.modifiers.pop()
-                    {
-                        gait.modifiers.push(GaitModifierTag::BuildUp {
-                            time,
-                            turning_max,
-                            start_speed: value,
-                        });
-                    }
+                        start_speed: value,
+                    });
                 }
             }
         }

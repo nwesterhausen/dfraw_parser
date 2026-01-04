@@ -15,7 +15,7 @@ use crate::{
     tags::{FuelTypeTag, MaterialPropertyTag, MaterialTypeTag, MaterialUsageTag},
     temperatures::Temperatures,
     tile::Tile,
-    traits::{searchable::clean_search_vec, Searchable},
+    traits::{Searchable, searchable::clean_search_vec},
 };
 
 /// A struct representing a material
@@ -523,17 +523,15 @@ impl Material {
         }
 
         // Materials can have syndromes attached and syndromes have creature effects attached.
-        if SYNDROME_TOKENS.contains_key(key)
+        if (SYNDROME_TOKENS.contains_key(key)
             || CREATURE_EFFECT_TOKENS.contains_key(key)
-            || key == "CE"
-        {
-            if let Some(syndromes) = self.syndromes.as_mut() {
+            || key == "CE")
+                && let Some(syndromes) = self.syndromes.as_mut() &&
                 // We need to add the tag to the last syndrome added (all syndromes start with SYNDROME key)
-                if let Some(syndrome) = syndromes.last_mut() {
-                    syndrome.parse_tag(key, value);
-                    return;
-                }
-            }
+                 let Some(syndrome) = syndromes.last_mut()
+        {
+            syndrome.parse_tag(key, value);
+            return;
         }
 
         warn!(
@@ -561,88 +559,88 @@ impl Material {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(material_type) = &cleaned.material_type {
-            if material_type.is_default() {
-                cleaned.material_type = None;
-            }
+        if let Some(material_type) = &cleaned.material_type
+            && material_type.is_default()
+        {
+            cleaned.material_type = None;
         }
-        if let Some(name) = &cleaned.name {
-            if name.is_empty() {
-                cleaned.name = None;
-            }
+        if let Some(name) = &cleaned.name
+            && name.is_empty()
+        {
+            cleaned.name = None;
         }
-        if let Some(fuel_type) = &cleaned.fuel_type {
-            if fuel_type.is_default() {
-                cleaned.fuel_type = None;
-            }
+        if let Some(fuel_type) = &cleaned.fuel_type
+            && fuel_type.is_default()
+        {
+            cleaned.fuel_type = None;
         }
-        if let Some(creature_identifier) = &cleaned.creature_identifier {
-            if creature_identifier.is_empty() {
-                cleaned.creature_identifier = None;
-            }
+        if let Some(creature_identifier) = &cleaned.creature_identifier
+            && creature_identifier.is_empty()
+        {
+            cleaned.creature_identifier = None;
         }
-        if let Some(plant_identifier) = &cleaned.plant_identifier {
-            if plant_identifier.is_empty() {
-                cleaned.plant_identifier = None;
-            }
+        if let Some(plant_identifier) = &cleaned.plant_identifier
+            && plant_identifier.is_empty()
+        {
+            cleaned.plant_identifier = None;
         }
-        if let Some(is_local_material) = &cleaned.is_local_material {
-            if !is_local_material {
-                cleaned.is_local_material = None;
-            }
+        if let Some(is_local_material) = &cleaned.is_local_material
+            && !is_local_material
+        {
+            cleaned.is_local_material = None;
         }
-        if let Some(reagent_identifier) = &cleaned.reagent_identifier {
-            if reagent_identifier.is_empty() {
-                cleaned.reagent_identifier = None;
-            }
+        if let Some(reagent_identifier) = &cleaned.reagent_identifier
+            && reagent_identifier.is_empty()
+        {
+            cleaned.reagent_identifier = None;
         }
-        if let Some(reaction_product_identifier) = &cleaned.reaction_product_identifier {
-            if reaction_product_identifier.is_empty() {
-                cleaned.reaction_product_identifier = None;
-            }
+        if let Some(reaction_product_identifier) = &cleaned.reaction_product_identifier
+            && reaction_product_identifier.is_empty()
+        {
+            cleaned.reaction_product_identifier = None;
         }
-        if let Some(template_identifier) = &cleaned.template_identifier {
-            if template_identifier.is_empty() {
-                cleaned.template_identifier = None;
-            }
+        if let Some(template_identifier) = &cleaned.template_identifier
+            && template_identifier.is_empty()
+        {
+            cleaned.template_identifier = None;
         }
-        if let Some(usage) = &cleaned.usage {
-            if usage.is_empty() {
-                cleaned.usage = None;
-            }
+        if let Some(usage) = &cleaned.usage
+            && usage.is_empty()
+        {
+            cleaned.usage = None;
         }
         if default_checks::is_one_u32(cleaned.value) {
             cleaned.value = None;
         }
-        if let Some(color) = &cleaned.color {
-            if color.is_default() {
-                cleaned.color = None;
-            }
+        if let Some(color) = &cleaned.color
+            && color.is_default()
+        {
+            cleaned.color = None;
         }
-        if let Some(state_names) = &cleaned.state_names {
-            if state_names.is_empty() {
-                cleaned.state_names = None;
-            }
+        if let Some(state_names) = &cleaned.state_names
+            && state_names.is_empty()
+        {
+            cleaned.state_names = None;
         }
-        if let Some(state_adjectives) = &cleaned.state_adjectives {
-            if state_adjectives.is_empty() {
-                cleaned.state_adjectives = None;
-            }
+        if let Some(state_adjectives) = &cleaned.state_adjectives
+            && state_adjectives.is_empty()
+        {
+            cleaned.state_adjectives = None;
         }
-        if let Some(state_colors) = &cleaned.state_colors {
-            if state_colors.is_empty() {
-                cleaned.state_colors = None;
-            }
+        if let Some(state_colors) = &cleaned.state_colors
+            && state_colors.is_empty()
+        {
+            cleaned.state_colors = None;
         }
-        if let Some(temperatures) = &cleaned.temperatures {
-            if temperatures.is_empty() {
-                cleaned.temperatures = None;
-            }
+        if let Some(temperatures) = &cleaned.temperatures
+            && temperatures.is_empty()
+        {
+            cleaned.temperatures = None;
         }
-        if let Some(properties) = &cleaned.properties {
-            if properties.is_empty() {
-                cleaned.properties = None;
-            }
+        if let Some(properties) = &cleaned.properties
+            && properties.is_empty()
+        {
+            cleaned.properties = None;
         }
         if let Some(syndromes) = &cleaned.syndromes {
             let mut cleaned_syndromes = Vec::new();
@@ -655,10 +653,10 @@ impl Material {
                 cleaned.syndromes = Some(cleaned_syndromes);
             }
         }
-        if let Some(mechanical_properties) = &cleaned.mechanical_properties {
-            if mechanical_properties.is_empty() {
-                cleaned.mechanical_properties = None;
-            }
+        if let Some(mechanical_properties) = &cleaned.mechanical_properties
+            && mechanical_properties.is_empty()
+        {
+            cleaned.mechanical_properties = None;
         }
         if default_checks::is_zero_i32(cleaned.liquid_density) {
             cleaned.liquid_density = None;
@@ -666,25 +664,25 @@ impl Material {
         if default_checks::is_zero_i32(cleaned.molar_mass) {
             cleaned.molar_mass = None;
         }
-        if let Some(build_color) = &cleaned.build_color {
-            if build_color.is_default() {
-                cleaned.build_color = None;
-            }
+        if let Some(build_color) = &cleaned.build_color
+            && build_color.is_default()
+        {
+            cleaned.build_color = None;
         }
-        if let Some(display_color) = &cleaned.display_color {
-            if display_color.is_default() {
-                cleaned.display_color = None;
-            }
+        if let Some(display_color) = &cleaned.display_color
+            && display_color.is_default()
+        {
+            cleaned.display_color = None;
         }
-        if let Some(tile) = &cleaned.tile {
-            if tile.is_default() {
-                cleaned.tile = None;
-            }
+        if let Some(tile) = &cleaned.tile
+            && tile.is_default()
+        {
+            cleaned.tile = None;
         }
-        if let Some(item_symbol) = &cleaned.item_symbol {
-            if item_symbol.is_empty() {
-                cleaned.item_symbol = None;
-            }
+        if let Some(item_symbol) = &cleaned.item_symbol
+            && item_symbol.is_empty()
+        {
+            cleaned.item_symbol = None;
         }
 
         cleaned

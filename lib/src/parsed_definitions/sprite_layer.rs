@@ -246,10 +246,10 @@ impl SpriteLayer {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(conditions) = &cleaned.conditions {
-            if conditions.is_empty() {
-                cleaned.conditions = None;
-            }
+        if let Some(conditions) = &cleaned.conditions
+            && conditions.is_empty()
+        {
+            cleaned.conditions = None;
         }
 
         cleaned

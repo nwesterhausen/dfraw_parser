@@ -7,7 +7,7 @@ use crate::{
     name::Name,
     raw_definitions::{PLANT_GROWTH_TOKENS, PLANT_PART_TOKENS},
     tags::{PlantGrowthTag, PlantGrowthTypeTag, PlantPartTag},
-    traits::{searchable::clean_search_vec, Searchable},
+    traits::{Searchable, searchable::clean_search_vec},
 };
 
 /// A struct representing a plant growth
@@ -219,16 +219,16 @@ impl PlantGrowth {
     pub fn cleaned(&self) -> Self {
         let mut cleaned = self.clone();
 
-        if let Some(host_tiles) = &cleaned.host_tiles {
-            if host_tiles.is_empty() {
-                cleaned.host_tiles = None;
-            }
+        if let Some(host_tiles) = &cleaned.host_tiles
+            && host_tiles.is_empty()
+        {
+            cleaned.host_tiles = None;
         }
 
-        if let Some(tags) = &cleaned.tags {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
+        if let Some(tags) = &cleaned.tags
+            && tags.is_empty()
+        {
+            cleaned.tags = None;
         }
 
         if default_checks::is_default_trunk_height_percentage(&cleaned.trunk_height_percentage) {
@@ -241,10 +241,10 @@ impl PlantGrowth {
             cleaned.timing = None;
         }
 
-        if let Some(print) = &cleaned.print {
-            if print.is_empty() {
-                cleaned.print = None;
-            }
+        if let Some(print) = &cleaned.print
+            && print.is_empty()
+        {
+            cleaned.print = None;
         }
 
         cleaned

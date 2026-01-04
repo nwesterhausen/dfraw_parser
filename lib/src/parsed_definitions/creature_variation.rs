@@ -125,10 +125,10 @@ impl CreatureVariation {
         let mut cleaned = self.clone();
 
         // Set metadata to None if it's hidden
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
+        if let Some(metadata) = &cleaned.metadata
+            && metadata.is_hidden()
+        {
+            cleaned.metadata = None;
         }
 
         cleaned

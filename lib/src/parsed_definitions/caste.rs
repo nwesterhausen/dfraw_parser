@@ -12,7 +12,7 @@ use crate::{
     raw_definitions::CASTE_TOKENS,
     tags::CasteTag,
     tile::Tile,
-    traits::{searchable::Searchable, RawObjectToken, TagOperations},
+    traits::{RawObjectToken, TagOperations, searchable::Searchable},
 };
 
 /// A struct representing a creature caste.
@@ -376,25 +376,25 @@ impl Caste {
             }
         }
         // For any of the other's values that are not default, overwrite self's values
-        if let Some(other_description) = &other.description {
-            if !other_description.is_empty() {
-                self.description = Some(other_description.clone());
-            }
+        if let Some(other_description) = &other.description
+            && !other_description.is_empty()
+        {
+            self.description = Some(other_description.clone());
         }
-        if let Some(other_baby_name) = &other.baby_name {
-            if !other_baby_name.is_empty() {
-                self.baby_name = Some(other_baby_name.clone());
-            }
+        if let Some(other_baby_name) = &other.baby_name
+            && !other_baby_name.is_empty()
+        {
+            self.baby_name = Some(other_baby_name.clone());
         }
-        if let Some(other_caste_name) = &other.caste_name {
-            if !other_caste_name.is_empty() {
-                self.caste_name = Some(other_caste_name.clone());
-            }
+        if let Some(other_caste_name) = &other.caste_name
+            && !other_caste_name.is_empty()
+        {
+            self.caste_name = Some(other_caste_name.clone());
         }
-        if let Some(other_child_name) = &other.child_name {
-            if !other_child_name.is_empty() {
-                self.child_name = Some(other_child_name.clone());
-            }
+        if let Some(other_child_name) = &other.child_name
+            && !other_child_name.is_empty()
+        {
+            self.child_name = Some(other_child_name.clone());
         }
         if !default_checks::min_max_is_zeroes(&other.clutch_size) {
             self.clutch_size = other.clutch_size;
@@ -435,25 +435,25 @@ impl Caste {
         if !default_checks::is_zero(other.change_body_size_percentage) {
             self.change_body_size_percentage = other.change_body_size_percentage;
         }
-        if let Some(other_creature_class) = &other.creature_class {
-            if !other_creature_class.is_empty() {
-                self.creature_class = Some(other_creature_class.clone());
-            }
+        if let Some(other_creature_class) = &other.creature_class
+            && !other_creature_class.is_empty()
+        {
+            self.creature_class = Some(other_creature_class.clone());
         }
-        if let Some(other_body_size) = &other.body_size {
-            if !other_body_size.is_empty() {
-                self.body_size = Some(other_body_size.clone());
-            }
+        if let Some(other_body_size) = &other.body_size
+            && !other_body_size.is_empty()
+        {
+            self.body_size = Some(other_body_size.clone());
         }
-        if let Some(other_milkable) = &other.milkable {
-            if !other_milkable.is_default() {
-                self.milkable = Some(other_milkable.clone());
-            }
+        if let Some(other_milkable) = &other.milkable
+            && !other_milkable.is_default()
+        {
+            self.milkable = Some(other_milkable.clone());
         }
-        if let Some(other_tile) = &other.tile {
-            if !other_tile.is_default() {
-                self.tile = Some(other_tile.clone());
-            }
+        if let Some(other_tile) = &other.tile
+            && !other_tile.is_default()
+        {
+            self.tile = Some(other_tile.clone());
         }
     }
     /// Returns true if the caste is an egg layer.
@@ -594,38 +594,38 @@ impl Caste {
         }
 
         // Set any default values to None.
-        if let Some(baby_name) = cleaned.baby_name.clone() {
-            if baby_name.is_empty() {
-                cleaned.baby_name = None;
-            }
+        if let Some(baby_name) = cleaned.baby_name.clone()
+            && baby_name.is_empty()
+        {
+            cleaned.baby_name = None;
         }
 
         // Set any default values to None.
-        if let Some(caste_name) = cleaned.caste_name.clone() {
-            if caste_name.is_empty() {
-                cleaned.caste_name = None;
-            }
+        if let Some(caste_name) = cleaned.caste_name.clone()
+            && caste_name.is_empty()
+        {
+            cleaned.caste_name = None;
         }
 
         // Set any default values to None.
-        if let Some(child_name) = cleaned.child_name.clone() {
-            if child_name.is_empty() {
-                cleaned.child_name = None;
-            }
+        if let Some(child_name) = cleaned.child_name.clone()
+            && child_name.is_empty()
+        {
+            cleaned.child_name = None;
         }
 
         // Set any default values to None.
-        if let Some(milkable) = cleaned.milkable.clone() {
-            if milkable.is_default() {
-                cleaned.milkable = None;
-            }
+        if let Some(milkable) = cleaned.milkable.clone()
+            && milkable.is_default()
+        {
+            cleaned.milkable = None;
         }
 
         // Set any default values to None.
-        if let Some(tile) = cleaned.tile.clone() {
-            if tile.is_default() {
-                cleaned.tile = None;
-            }
+        if let Some(tile) = cleaned.tile.clone()
+            && tile.is_default()
+        {
+            cleaned.tile = None;
         }
 
         cleaned
