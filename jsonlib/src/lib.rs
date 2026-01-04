@@ -60,6 +60,7 @@ for the steam workshop if it is a mod downloaded from the steam workshop.
 
 pub use dfraw_parser::*;
 
+pub mod bindings;
 /// This has utility functions for file operations and directory traversal.
 ///
 /// The functions provide functionality for working with directories, files, and paths.

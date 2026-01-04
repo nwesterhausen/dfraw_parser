@@ -10221,6 +10221,20 @@ export type RawModuleLocation =
 	| "LegendsExport";
 
 /**
+ * A struct purely for providing type hinting when working with parsed raws (as JSON) in typescript.
+ */
+export type RawObject = {
+	/**
+	 * The object identifier
+	 */
+	identifier: string;
+	/**
+	 * The metadata for this raw (includes the `ObjectType`, `RawModuleLocation` and other module info)
+	 */
+	metadata: Metadata;
+};
+
+/**
  * The tokens for the seasons
  */
 export type SeasonTag =
