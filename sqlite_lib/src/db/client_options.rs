@@ -1,5 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 /// Options for configuring the database client behavior.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct ClientOptions {
     /// If true, the database will be wiped and re-initialized on startup.
     pub reset_database: bool,

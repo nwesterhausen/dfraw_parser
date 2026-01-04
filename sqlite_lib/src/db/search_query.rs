@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// A query for searching raw objects in the database.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
 pub struct SearchQuery {
     /// A general text search string for names and descriptions.
     pub search_string: Option<String>,

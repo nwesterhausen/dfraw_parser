@@ -98,7 +98,7 @@ impl DbClient {
     /// # Errors
     /// - database error
     pub fn search_raws(&self, query: &SearchQuery) -> Result<Vec<Vec<u8>>> {
-        let mut sql = String::from("SELECT r.data_blob FROM raw_definitions r ");
+        let mut sql = String::from("SELECT json(r.data_blob) FROM raw_definitions r ");
         let mut conditions = Vec::new();
         let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
 
@@ -153,12 +153,20 @@ impl DbClient {
         let params_ref: Vec<&dyn rusqlite::ToSql> =
             params_vec.iter().map(std::convert::AsRef::as_ref).collect();
         let mut stmt = self.conn.prepare(&sql)?;
-        let rows = stmt.query_map(&params_ref[..], |row| row.get(0))?;
+
+        let rows = stmt.query_map(&params_ref[..], |row| {
+            let json_string: String = row.get(0)?; // Get as Text
+            Ok(json_string.into_bytes()) // Convert to Vec<u8> for the return type
+        })?;
 
         let mut results = Vec::new();
+        let mut rows_count = 0;
         for res in rows {
             results.push(res?);
+            rows_count += 1;
         }
+
+        info!("Search returned {rows_count} matches");
         Ok(results)
     }
 
@@ -193,7 +201,7 @@ impl DbClient {
                 self.insert_module_data(info, module_raws)?;
             }
         }
-
+        info!("Insertion Complete");
         Ok(())
     }
 }
