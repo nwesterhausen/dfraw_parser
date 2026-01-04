@@ -13,6 +13,7 @@ use crate::db::search_query::SearchQuery;
 use crate::db::util::get_current_schema_version;
 
 /// A client for interacting with the database
+#[derive(Debug)]
 pub struct DbClient {
     conn: Connection,
     options: ClientOptions,
@@ -98,7 +99,7 @@ impl DbClient {
     /// # Errors
     /// - database error
     pub fn search_raws(&self, query: &SearchQuery) -> Result<Vec<Vec<u8>>> {
-        let mut sql = String::from("SELECT json(r.data_blob) FROM raw_definitions r ");
+        let mut sql = String::from("FROM raw_definitions r ");
         let mut conditions = Vec::new();
         let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
 
@@ -122,7 +123,7 @@ impl DbClient {
 
         sql.push_str(" WHERE 1=1 ");
 
-        // 3. Identifier Filter (Standard LIKE)
+        // Identifier Filter
         if let Some(ident) = query.identifier_query.as_ref() {
             conditions.push(format!("r.identifier LIKE ?{}", params_vec.len() + 1));
             params_vec.push(Box::new(format!("%{ident}%")));
@@ -145,17 +146,50 @@ impl DbClient {
             sql.push_str(&conditions.join(" AND "));
         }
 
+        // We have to find total amount to provide pagination.
+        let total_count: u32 = {
+            let count_sql = format!("SELECT COUNT(DISTINCT r.id) {sql}");
+            let params_ref: Vec<&dyn rusqlite::ToSql> =
+                params_vec.iter().map(std::convert::AsRef::as_ref).collect();
+
+            self.conn
+                .query_row(&count_sql, &params_ref[..], |row| row.get(0))?
+        };
+
+        // Now we can set up our actual results
+        let mut results_sql = format!("SELECT json(r.data_blob) {sql}");
+
         // Ensure we use BM25 ranking if searching text
         if query.search_string.is_some() {
             // Specifies weights for columns in raw_search_index
             // name: weight 5
             // description: weight 1
-            sql.push_str(" ORDER BY bm25(raw_search_index, 5.0, 1.0)");
+            results_sql.push_str(" ORDER BY bm25(raw_search_index, 5.0, 1.0)");
+        } else {
+            // Specify a default sorting to keep pagination consistent
+            results_sql.push_str(" ORDER BY r.identifier ASC, r.id ASC");
         }
 
-        let params_ref: Vec<&dyn rusqlite::ToSql> =
-            params_vec.iter().map(std::convert::AsRef::as_ref).collect();
-        let mut stmt = self.conn.prepare(&sql)?;
+        // Apply Limit and Offset
+        let current_param_idx = params_vec.len();
+        let _ = write!(
+            results_sql,
+            " LIMIT ?{} OFFSET ?{}",
+            current_param_idx + 1,
+            current_param_idx + 2
+        );
+
+        let mut final_params = params_vec;
+        final_params.push(Box::new(query.limit));
+        let offset = (query.page.saturating_sub(1)) * query.limit;
+        final_params.push(Box::new(offset));
+
+        // Prepare parementers
+        let params_ref: Vec<&dyn rusqlite::ToSql> = final_params
+            .iter()
+            .map(std::convert::AsRef::as_ref)
+            .collect();
+        let mut stmt = self.conn.prepare(&results_sql)?;
 
         let rows = stmt.query_map(&params_ref[..], |row| {
             let json_string: String = row.get(0)?; // Get as Text
@@ -169,7 +203,11 @@ impl DbClient {
             rows_count += 1;
         }
 
-        info!("Search returned {rows_count} matches");
+        info!(
+            "search_raws: {rows_count}/{total_count} results, page {} of {}",
+            query.page,
+            (total_count / query.limit) as u32 + 1
+        );
         Ok(results)
     }
 
