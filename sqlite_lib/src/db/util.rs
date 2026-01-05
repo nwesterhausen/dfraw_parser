@@ -24,16 +24,16 @@ pub(super) fn remove_dup_strings(strv: Vec<&str>, remove_singular_when_plural: b
 
     deduped
         .iter()
-        .cloned()
+        .copied()
         .filter(|&word| {
             // Check if it's a singular word (doesn't end in 's')
-            if !word.ends_with('s') {
-                let plural = format!("{}s", word);
-                // Only keep it if the plural doesn't exist in our set
-                !deduped.contains(plural.as_str())
-            } else {
+            if word.ends_with('s') {
                 // Always keep words that already end in 's'
                 true
+            } else {
+                let plural = format!("{word}s");
+                // Only keep it if the plural doesn't exist in our set
+                !deduped.contains(plural.as_str())
             }
         })
         .collect()
