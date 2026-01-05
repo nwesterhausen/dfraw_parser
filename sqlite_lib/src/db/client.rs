@@ -108,13 +108,7 @@ impl DbClient {
         let mut conditions = Vec::new();
         let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
 
-        let is_full_text_search = if let Some(s) = &query.search_string
-            && s.len() > 2
-        {
-            true
-        } else {
-            false
-        };
+        let is_full_text_search = query.is_full_text_search();
 
         // Full-Text Search Join (Names & Descriptions)
         if is_full_text_search && let Some(search_text) = query.search_string.as_ref() {
@@ -134,34 +128,23 @@ impl DbClient {
             params_vec.push(Box::new(flag.clone()));
         }
 
+        // Module Join (if module info needed)
+        if !query.locations.is_empty() {
+            sql.push_str("JOIN modules m ON r.module_id = m.id ");
+        }
+
+        // A default condition that's always true to simplify adding an unknown amount of other conditions
         sql.push_str(" WHERE 1=1 ");
 
         // Identifier Filter
-        if let Some(ident) = query.identifier_query.as_ref() {
-            conditions.push(format!("r.identifier LIKE ?{}", params_vec.len() + 1));
-            params_vec.push(Box::new(format!("%{ident}%")));
-        }
+        add_identifier_filter(query, &mut conditions, &mut params_vec);
 
-        // Type Filter
-        if !query.raw_types.is_empty() {
-            // Build a list of placeholders: ?N, ?N+1...
-            let start_idx = params_vec.len() + 1;
-            let type_placeholders: Vec<String> = (0..query.raw_types.len())
-                .map(|i| format!("?{}", start_idx + i))
-                .collect();
+        add_type_filter(query, &mut conditions, &mut params_vec);
 
-            // Use IN clause to treat multiple types as OR
-            conditions.push(format!(
-                "r.raw_type_id IN (SELECT id FROM raw_types WHERE name IN ({}))",
-                type_placeholders.join(", ")
-            ));
+        // Location Filter
+        add_location_filter(query, &mut conditions, &mut params_vec);
 
-            // Put the types into the IN clause
-            for t in &query.raw_types {
-                params_vec.push(Box::new(ObjectType::get_key(t)));
-            }
-        }
-
+        // Append conditions to the SQL query using AND
         if !conditions.is_empty() {
             sql.push_str(" AND ");
             sql.push_str(&conditions.join(" AND "));
@@ -201,8 +184,7 @@ impl DbClient {
 
         let mut final_params = params_vec;
         final_params.push(Box::new(query.limit));
-        let offset = (query.page.saturating_sub(1)) * query.limit;
-        final_params.push(Box::new(offset));
+        final_params.push(Box::new(query.offset()));
 
         // Prepare parementers
         let params_ref: Vec<&dyn rusqlite::ToSql> = final_params
@@ -211,6 +193,7 @@ impl DbClient {
             .collect();
         let mut stmt = self.conn.prepare(&results_sql)?;
 
+        // Run query
         let rows = stmt.query_map(&params_ref[..], |row| {
             let json_string: String = row.get(0)?; // Get as Text
             Ok(json_string.into_bytes()) // Convert to Vec<u8> for the return type
@@ -264,6 +247,88 @@ impl DbClient {
         }
         info!("Insertion Complete");
         Ok(())
+    }
+}
+
+/// Internal function to add a LIKE clause to `conditions` to match the `query.identifier_query` string
+fn add_identifier_filter(
+    query: &SearchQuery,
+    conditions: &mut Vec<String>,
+    params_vec: &mut Vec<Box<dyn rusqlite::ToSql + 'static>>,
+) {
+    if let Some(ident) = query.identifier_query.as_ref() {
+        conditions.push(format!("r.identifier LIKE ?{}", params_vec.len() + 1));
+        params_vec.push(Box::new(format!("%{ident}%")));
+    }
+}
+
+/// Internal function to add the `RawModuleLocation` filter into `params_vec` and `conditions`
+///
+/// Will return early if `query.locations` is empty (no locations to filter on)
+///
+/// 1. Creates parameter placeholders based on which param number we are on, for each location to filter for
+/// 2. Appends an IN clause to conditions (which is joined with AND) to let the location filter function on OR
+/// 3. Pushes the actual locations to filter on into the `params_vec` for final prepare at end of `search_raws`
+fn add_location_filter(
+    query: &SearchQuery,
+    conditions: &mut Vec<String>,
+    params_vec: &mut Vec<Box<dyn rusqlite::ToSql + 'static>>,
+) {
+    if query.locations.is_empty() {
+        return;
+    }
+
+    // Placeholders
+    let start_idx = params_vec.len() + 1;
+    let location_placeholders: Vec<String> = (0..query.locations.len())
+        .map(|i| format!("?{}", start_idx + i))
+        .collect();
+
+    // Use an IN clause for OR
+    conditions.push(format!(
+        "m.module_location_id IN (SELECT id FROM module_locations WHERE name IN ({}))",
+        location_placeholders.join(", ")
+    ));
+
+    // Register the locations for insertion
+    for l in &query.locations {
+        // Locations stored in database by "name" string, i.e. Vanilla, Installed Mods, etc
+        params_vec.push(Box::new(l.to_string()));
+    }
+}
+
+/// Internal function to add the `ObjectType` filter into `params_vec` and `conditions`
+///
+/// Will return early if `query.raw_types` is empty (no types to filter on)
+///
+/// 1. Creates parameter placeholders based on which param number we are on, for each object type to filter for
+/// 2. Appends an IN clause to conditions (which is joined with AND) to let the object type filter function on OR
+/// 3. Pushes the actual object types to filter on into the `params_vec` for final prepare at end of `search_raws`
+fn add_type_filter(
+    query: &SearchQuery,
+    conditions: &mut Vec<String>,
+    params_vec: &mut Vec<Box<dyn rusqlite::ToSql + 'static>>,
+) {
+    if query.raw_types.is_empty() {
+        return;
+    }
+
+    // Build a list of placeholders: ?N, ?N+1...
+    let start_idx = params_vec.len() + 1;
+    let type_placeholders: Vec<String> = (0..query.raw_types.len())
+        .map(|i| format!("?{}", start_idx + i))
+        .collect();
+
+    // Use IN clause to treat multiple types as OR
+    conditions.push(format!(
+        "r.raw_type_id IN (SELECT id FROM raw_types WHERE name IN ({}))",
+        type_placeholders.join(", ")
+    ));
+
+    // Put the types into the IN clause
+    for t in &query.raw_types {
+        // Object types stored in database by "key", i.e. all caps: CREATURE, PLANT, etc
+        params_vec.push(Box::new(ObjectType::get_key(t)));
     }
 }
 

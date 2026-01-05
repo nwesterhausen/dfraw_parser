@@ -2,6 +2,7 @@
 
 use dfraw_parser::metadata::ObjectType;
 use dfraw_parser::metadata::ParserOptions;
+use dfraw_parser::metadata::RawModuleLocation;
 use dfraw_parser::metadata::RawModuleLocation::Vanilla;
 use dfraw_parser::parse;
 use dfraw_parser_sqlite_lib::ClientOptions;
@@ -94,6 +95,58 @@ fn test_parse_and_save_to_db() {
 
     println!(
         "Test successful: Inserted {} modules; found {} matches for searching 'dvark'",
+        num_info_files, search_results.1
+    );
+
+    // Search using a location filter
+    let query = SearchQuery {
+        locations: vec![RawModuleLocation::WorkshopMods],
+        ..Default::default()
+    };
+
+    let search_results = client.search_raws(&query).expect("Failed to query the db");
+
+    // We expect no results
+    assert!(
+        search_results.0.is_empty(),
+        "Should have had no results, but had some."
+    );
+    println!(
+        "Test successful: Inserted {} modules; found {} matches for only 'WorkshopMods' location",
+        num_info_files, search_results.1
+    );
+
+    let query = SearchQuery {
+        locations: vec![RawModuleLocation::Vanilla],
+        ..Default::default()
+    };
+
+    let search_results = client.search_raws(&query).expect("Failed to query the db");
+
+    // We expect results
+    assert!(
+        !search_results.0.is_empty(),
+        "Should have had results, but had none."
+    );
+    println!(
+        "Test successful: Inserted {} modules; found {} matches for only 'Vanilla' location",
+        num_info_files, search_results.1
+    );
+
+    let query = SearchQuery {
+        locations: vec![RawModuleLocation::Vanilla, RawModuleLocation::WorkshopMods],
+        ..Default::default()
+    };
+
+    let search_results = client.search_raws(&query).expect("Failed to query the db");
+
+    // We expect results
+    assert!(
+        !search_results.0.is_empty(),
+        "Should have had results, but had none."
+    );
+    println!(
+        "Test successful: Inserted {} modules; found {} matches for either 'Vanilla' or 'WorkshopMods' locations",
         num_info_files, search_results.1
     );
 }
