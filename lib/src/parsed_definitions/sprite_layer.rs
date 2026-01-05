@@ -105,7 +105,7 @@ impl SpriteLayer {
             }
         };
 
-        let offset_x: i32 = match fourth_position_token.parse() {
+        let offset_x: u32 = match fourth_position_token.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -116,7 +116,7 @@ impl SpriteLayer {
             }
         };
 
-        let offset_y: i32 = match tile_offset_y.parse() {
+        let offset_y: u32 = match tile_offset_y.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -151,7 +151,7 @@ impl SpriteLayer {
         tile_page_id: &str,
         split: &[&str],
     ) -> Option<Self> {
-        let x1: i32 = match split.first() {
+        let x1: u32 = match split.first() {
             Some(v) => match v.parse() {
                 Ok(n) => n,
                 Err(_e) => {
@@ -167,7 +167,7 @@ impl SpriteLayer {
             }
         };
 
-        let y1: i32 = match split.get(1) {
+        let y1: u32 = match split.get(1) {
             Some(v) => match v.parse() {
                 Ok(n) => n,
                 Err(_e) => {
@@ -183,7 +183,7 @@ impl SpriteLayer {
             }
         };
 
-        let x2: i32 = match split.get(2) {
+        let x2: u32 = match split.get(2) {
             Some(v) => match v.parse() {
                 Ok(n) => n,
                 Err(_e) => {
@@ -199,7 +199,7 @@ impl SpriteLayer {
             }
         };
 
-        let y2: i32 = match split.get(3) {
+        let y2: u32 = match split.get(3) {
             Some(v) => match v.parse() {
                 Ok(n) => n,
                 Err(_e) => {

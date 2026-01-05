@@ -17,25 +17,48 @@ use crate::raw_definitions::CONDITION_TOKENS;
 )]
 #[serde(rename_all = "camelCase")]
 pub enum ConditionTag {
+    #[default]
     /// No condition
     None,
     /// The start of a condition
     Condition,
-    /// Default condition
-    #[default]
+    /// Used when defining a default sprite image
+    ///
+    /// `[DEFAULT:...]`
     Default,
-    /// A condition of "being animated"
+    /// Used when defining a child sprite image
+    ///
+    /// `[CHILD:...]`
+    ChildPrime,
+    /// Displayed if the creature is raised from the dead, although it is not
+    /// known how this is decided. Raised status is not related to having a
+    /// syndrome with the class from `[CONDITION_SYN_CLASS]` or from having
+    /// `[NOT_LIVING]`/`[OPPOSED_TO_LIFE]`.
+    ///
+    /// Used when defining a sprite image.
+    ///
+    /// `[ANIMATED:...]`
     Animated,
-    /// Condition of being a corpse
+    /// Displayed as soon as the creature dies.
+    ///
+    /// `[CORPSE:...]`
     Corpse,
-    /// Condition of being a baby
-    Baby,
+    /// Displayed in menus. Useful for large images that would extend beyond the
+    /// menu boxes otherwise.
+    ///
+    /// `[LIST_ICON]`
+    ListIcon,
+    /// Displayed in interaction menus in Adventure Mode, overrides `LIST_ICON` when
+    /// specified in a creature `CAN_DO_INTERACTION` using `CDI:TOKEN:token_name`.
+    ///
+    /// Might accept referenced token_name before standard secondaries.
+    ///
+    /// `[CDI_LIST_ICON]`
+    CdiListIcon,
     /// Condition of being trained for hunting
     TrainedHunter,
     /// Condition of being trained for war
     TrainedWar,
-    /// Condition of being a list icont
-    ListIcon,
     /// Condition of being a skeleton
     Skeleton,
     /// Condition of being a skeleton with a skull
@@ -48,6 +71,8 @@ pub enum ConditionTag {
     Male,
     /// Condition of being female
     Female,
+    /// `[CONDITION_BABY]`
+    Baby,
     /// Condition of being a vampire
     VampireCursed,
     /// Condition of being a ghoul
@@ -56,6 +81,40 @@ pub enum ConditionTag {
     DisturbedDead,
     /// Condition of being remains
     Remains,
+    /// Displayed if the unit escorts a tax collector (unused).
+    ///
+    /// `[TAX_ESCORT]`
+    TaxEscort,
+    /// Displayed if the unit is law enforcement.
+    ///
+    /// `[LAW_ENFORCE]`
+    LawEnforcement,
+    /// Displayed if the creature is an adventurer.
+    ///
+    /// `[ADVENTURER]`
+    Adventurer,
+    /// The creature is in the dark. Graphical replacement for `[GLOWTILE]`.
+    ///
+    /// `[GLOW]`
+    Glow,
+    /// As `[GLOW]`, but with their left eye missing. If the sprite is facing forwards, then the
+    /// visually leftmost eye should remain.
+    ///
+    /// `[GLOW_LEFT_GONE]`
+    GlowLeftGone,
+    /// As `[GLOW]`, but with their left eye missing. If the sprite is facing forwards, then the
+    /// visually leftmost eye should remain.
+    ///
+    /// `[GLOW_RIGHT_GONE]`
+    GlowRightGone,
+    /// A child creature is in darkness. Does not have wound states.
+    ///
+    /// `[GLOW_CHILD]`
+    GlowChild,
+    /// The sprite for a clutch of eggs.
+    ///
+    /// `[EGG]`
+    Egg,
     /// The default graphic for this vermin.
     ///
     /// `[VERMIN]`
