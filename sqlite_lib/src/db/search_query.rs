@@ -35,6 +35,22 @@ pub struct SearchQuery {
 }
 
 impl SearchQuery {
+    /// Whether the query meets the requirements for a full-text search
+    #[must_use]
+    pub const fn is_full_text_search(&self) -> bool {
+        if let Some(s) = self.search_string.as_ref()
+            && s.len() > 2
+        {
+            true
+        } else {
+            false
+        }
+    }
+    /// Computed offset
+    #[must_use]
+    pub const fn offset(&self) -> u32 {
+        (self.page.saturating_sub(1)) * self.limit
+    }
     /// Cleans the query by setting any empty strings into None instead
     #[must_use]
     pub fn clean(&self) -> Self {
