@@ -120,4 +120,16 @@ pub static CONDITION_TOKENS: phf::Map<&'static str, ConditionTag> = phf::phf_map
   "POET" => ConditionTag::Poet,
   "BARD" => ConditionTag::Bard,
   "DANCER" => ConditionTag::Dancer,
+
+  "LS_PALETTE" => ConditionTag::LayerSetPalette,
+  "LS_PALETTE_FILE" => ConditionTag::LayerSetPaletteFile,
+  "LS_PALETTE_DEFAULT" => ConditionTag::LayerSetPaletteDefault,
+  "VERMIN_ALT" => ConditionTag::VerminAlt,
+  "LIGHT_VERMIN_ALT" => ConditionTag::LightVerminAlt,
+  "LIGHT_SWARM_SMALL" => ConditionTag::LightSwarmSmall,
+  "LIGHT_SWARM_MEDIUM" => ConditionTag::LightSwarmMedium,
+  "LIGHT_SWARM_LARGE" => ConditionTag::LightSwarmLarge,
+  "ITEM_QUALITY" => ConditionTag::ItemQuality,
+  "USE_PALETTE" => ConditionTag::UsePalette,
+  "USE_STANDARD_PALETTE_FROM_ITEM" => ConditionTag::UseStandardPaletteFromItem,
 };

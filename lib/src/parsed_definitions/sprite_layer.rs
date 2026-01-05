@@ -48,10 +48,6 @@ impl SpriteLayer {
                 conditions.push((*condition, String::from(value)));
             }
         } else {
-            // Manually avoid ISSUE_MIN_LENGTH which is a typo in one of the mods.. This hack should be removed once the mod is fixed.
-            if key == "ISSUE_MIN_LENGTH" {
-                return;
-            }
             warn!(
                 "Failed to parse {} as LayerCondition, unknown key {}",
                 value, key

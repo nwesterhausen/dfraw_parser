@@ -4,11 +4,14 @@ use tracing::warn;
 
 use crate::{
     custom_graphic_extension::CustomGraphicExtension,
+    graphic_palette::GraphicPalette,
     metadata::{ObjectType, RawMetadata},
-    raw_definitions::{CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS},
+    raw_definitions::{
+        CONDITION_TOKENS, CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS,
+    },
     sprite_graphic::SpriteGraphic,
     sprite_layer::SpriteLayer,
-    tags::GraphicTypeTag,
+    tags::{ConditionTag, GraphicTypeTag},
     traits::{RawObject, Searchable, searchable::clean_search_vec},
     utilities::build_object_id_from_pieces,
 };
@@ -41,6 +44,8 @@ pub struct Graphic {
 
     #[serde(skip)]
     layer_mode: bool,
+
+    palletes: Vec<GraphicPalette>,
 }
 
 impl Graphic {
@@ -104,23 +109,48 @@ impl Graphic {
             }
         }
     }
+
+    #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
+    fn parse_layer_palette_info(&mut self, key: &str, value: &str) {
+        if let Some(condition_tag) = CONDITION_TOKENS.get(key) {
+            let last_pallete = self.palletes.last_mut();
+            match condition_tag {
+                ConditionTag::LayerSetPalette => self.palletes.push(GraphicPalette::new(value)),
+                ConditionTag::LayerSetPaletteDefault => {
+                    if let Some(palette) = last_pallete {
+                        palette.set_default_row(value.parse().unwrap_or_default());
+                    }
+                }
+                ConditionTag::LayerSetPaletteFile => {
+                    if let Some(palette) = last_pallete {
+                        palette.set_file(value);
+                    }
+                }
+                _ => {}
+            }
+        } else {
+            warn!("Expected LS_PALETTE token was invalid")
+        }
+    }
+
+    #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
     fn parse_layer_condition_token(&mut self, key: &str, value: &str) {
         if let Some(layers) = self.layers.as_mut() {
             // Conditions get attached to the last layer in the last layer group
             #[allow(clippy::unwrap_used)]
-            if let Some(layer) = layers.last_mut().unwrap().1.last_mut() {
-                layer.parse_condition_token(key, value);
+            if let Some(layer_entry) = layers.last_mut() {
+                if layer_entry.1.is_empty() {
+                    warn!("Failed to parse, No SpriteLayer defined yet: {layer_entry:?}")
+                } else if let Some(layer) = layer_entry.1.last_mut() {
+                    layer.parse_condition_token(key, value);
+                } else {
+                    warn!("Failed to parse, no mutable SpriteLayer: {layer_entry:?}",);
+                }
             } else {
-                warn!(
-                    "Graphic::parse_condition_token: [{}] Failed to parse {}:{} as LayerCondition",
-                    self.identifier, key, value
-                );
+                warn!("Failed to parse, no layer to append to: {layers:?}");
             }
         } else {
-            warn!(
-                "Graphic::parse_condition_token: [{}] Failed to parse {}:{} as LayerCondition (No existing layers)",
-                self.identifier, key, value
-            );
+            warn!("Failed to parse, (No existing layers)");
         }
     }
     /// Parse a token from a tag into a `SpriteGraphic` and add it to the current sprite.
@@ -132,6 +162,12 @@ impl Graphic {
     /// * `graphic_type` - The type of graphic.
     #[allow(clippy::too_many_lines)]
     pub fn parse_sprite_from_tag(&mut self, key: &str, value: &str, graphic_type: GraphicTypeTag) {
+        // Check if key is related to setting palette information
+        if key == "LS_PALETTE" || key == "LS_PALETTE_FILE" || key == "LS_PALETTE_DEFAULT" {
+            self.parse_layer_palette_info(key, value);
+            return;
+        }
+
         // Check if key is LAYER_SET meaning a new layer group is starting
         if key == "LAYER_SET" {
             // Parse the value into a SpriteLayer
