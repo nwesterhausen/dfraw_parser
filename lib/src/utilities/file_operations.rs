@@ -19,6 +19,7 @@ use tracing::{debug, error, info, trace, warn};
 use walkdir::WalkDir;
 
 use crate::{
+    ParserError,
     creature::Creature,
     creature_variation::CreatureVariation,
     entity::Entity,
@@ -30,8 +31,7 @@ use crate::{
     regex::VARIATION_ARGUMENT_RE,
     select_creature::SelectCreature,
     tile_page::TilePage,
-    traits::{searchable::get_search_string, CreatureVariationRequirements, RawObject, Searchable},
-    ParserError,
+    traits::{CreatureVariationRequirements, RawObject, Searchable, searchable::get_search_string},
 };
 
 #[tracing::instrument]
@@ -276,7 +276,7 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
             .contains(&RawModuleLocation::InstalledMods)
             || validated_options
                 .locations_to_parse
-                .contains(&RawModuleLocation::Mods))
+                .contains(&RawModuleLocation::WorkshopMods))
             && validated_options
                 .locations
                 .get_user_data_directory()
@@ -322,9 +322,9 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
             );
         } else if !raw_module_path.is_dir() {
             warn!(
-              "options_validator: Discarding raw module directory because it isn't a directory:\n{}",
-              raw_module_path.display()
-          );
+                "options_validator: Discarding raw module directory because it isn't a directory:\n{}",
+                raw_module_path.display()
+            );
         } else {
             // Add the canonicalized path to the module
             let raw_module_path = raw_module_path.canonicalize().unwrap_or_else(|e| {

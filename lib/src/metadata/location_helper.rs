@@ -2,10 +2,10 @@
 use std::path::PathBuf;
 
 use crate::{
+    ParserError,
     constants::DF_STEAM_APPID,
     metadata::RawModuleLocation,
     utilities::{find_game_path, find_user_data_path},
-    ParserError,
 };
 
 /// Helper struct for managing locations related to the game directory and user directory.
@@ -77,7 +77,7 @@ impl LocationHelper {
             Err(e) => {
                 return Err(ParserError::InvalidOptions(format!(
                     "Unable to canonicalize Dwarf Fortress user data path!\n{path:?}\n{e:?}"
-                )))
+                )));
             }
         };
 
@@ -121,7 +121,7 @@ impl LocationHelper {
             Err(e) => {
                 return Err(ParserError::InvalidOptions(format!(
                     "Unable to canonicalize Dwarf Fortress path!\n{path:?}\n{e:?}"
-                )))
+                )));
             }
         };
 
@@ -153,7 +153,7 @@ impl LocationHelper {
     /// - `Option<PathBuf>`: The path to the module, or `None` if the location is unknown.
     pub fn get_path_for_location(&self, location: RawModuleLocation) -> Option<PathBuf> {
         match location {
-            RawModuleLocation::InstalledMods | RawModuleLocation::Mods => self
+            RawModuleLocation::InstalledMods | RawModuleLocation::WorkshopMods => self
                 .user_data_directory
                 .as_ref()
                 .map(|dir| dir.join(location.get_path())),

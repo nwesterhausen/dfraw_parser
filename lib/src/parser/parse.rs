@@ -3,16 +3,15 @@ use std::path::Path;
 use tracing::{error, info};
 
 use crate::{
-    legends_export,
+    Creature, CreatureVariation, ParserError, legends_export,
     metadata::{ObjectType, ParserOptions, RawModuleLocation},
     parser::{parse_location, parse_module},
-    reader::{parse_raw_file, UnprocessedRaw},
+    reader::{UnprocessedRaw, parse_raw_file},
     traits::RawObject,
     utilities::{clone_raw_object_box, log_summary, summarize_raws, validate_options},
-    Creature, CreatureVariation, ParserError,
 };
 
-use super::{info_file::parse_module_info_files, ParseResult};
+use super::{ParseResult, info_file::parse_module_info_files};
 
 #[allow(clippy::too_many_lines)]
 /// Given the supplied `ParserOptions`, parse the raws and return a vector of boxed dynamic raw objects.
@@ -85,12 +84,12 @@ pub fn parse(options: &ParserOptions) -> Result<ParseResult, ParserError> {
         }
         if options
             .locations_to_parse
-            .contains(&RawModuleLocation::Mods)
+            .contains(&RawModuleLocation::WorkshopMods)
         {
             info!("Dispatching parse for workshop/downloaded mods");
             if let Some(workshop_mods_path) = options
                 .locations
-                .get_path_for_location(RawModuleLocation::Mods)
+                .get_path_for_location(RawModuleLocation::WorkshopMods)
             {
                 let parsed_raws = parse_location(&workshop_mods_path, &options)?;
                 results.raws.extend(parsed_raws.parsed_raws);

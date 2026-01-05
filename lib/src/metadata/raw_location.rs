@@ -23,7 +23,7 @@ pub enum RawModuleLocation {
     /// The "installed" mods directory
     InstalledMods,
     /// The "downloaded" mods directory
-    Mods,
+    WorkshopMods,
     /// The vanilla data file location
     Vanilla,
     /// An unknown location
@@ -42,7 +42,7 @@ impl RawModuleLocation {
     #[must_use]
     pub fn get_path(self) -> PathBuf {
         match self {
-            Self::Mods => PathBuf::from("mods"),
+            Self::WorkshopMods => PathBuf::from("mods"),
             Self::InstalledMods => ["data", "installed_mods"].iter().collect(),
             Self::Vanilla => ["data", "vanilla"].iter().collect(),
             Self::Unknown => PathBuf::from("unknown"),
@@ -62,7 +62,7 @@ impl RawModuleLocation {
     pub fn from_path<P: AsRef<Path>>(path: &P) -> Self {
         for component in path.as_ref().iter().rev() {
             match component.to_string_lossy().as_ref() {
-                "mods" => return Self::Mods,
+                "mods" => return Self::WorkshopMods,
                 "installed_mods" => return Self::InstalledMods,
                 "vanilla" => return Self::Vanilla,
                 _ => continue, // Not a match, keep checking the next part
@@ -88,7 +88,7 @@ impl From<RawModuleLocation> for i32 {
     fn from(value: RawModuleLocation) -> Self {
         match value {
             RawModuleLocation::InstalledMods => 2,
-            RawModuleLocation::Mods => 3,
+            RawModuleLocation::WorkshopMods => 3,
             RawModuleLocation::Vanilla => 1,
             RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
         }
@@ -98,7 +98,7 @@ impl From<&RawModuleLocation> for i32 {
     fn from(value: &RawModuleLocation) -> Self {
         match *value {
             RawModuleLocation::InstalledMods => 2,
-            RawModuleLocation::Mods => 3,
+            RawModuleLocation::WorkshopMods => 3,
             RawModuleLocation::Vanilla => 1,
             RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
         }
