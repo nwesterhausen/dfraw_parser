@@ -108,8 +108,16 @@ impl DbClient {
         let mut conditions = Vec::new();
         let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
 
+        let is_full_text_search = if let Some(s) = &query.search_string
+            && s.len() > 2
+        {
+            true
+        } else {
+            false
+        };
+
         // Full-Text Search Join (Names & Descriptions)
-        if let Some(search_text) = query.search_string.as_ref() {
+        if is_full_text_search && let Some(search_text) = query.search_string.as_ref() {
             sql.push_str("JOIN raw_search_index s ON r.id = s.raw_id ");
             conditions.push(format!("raw_search_index MATCH ?{}", params_vec.len() + 1));
             params_vec.push(Box::new(search_text.clone()));
@@ -173,10 +181,9 @@ impl DbClient {
         let mut results_sql = format!("SELECT json(r.data_blob) {sql}");
 
         // Ensure we use BM25 ranking if searching text
-        if query.search_string.is_some() {
-            // Specifies weights for columns in raw_search_index
-            // name: weight 5
-            // description: weight 1
+        if is_full_text_search {
+            // Sorts by matching on text, best results at the top
+            // More info: https://sqlite.org/fts5.html#the_bm25_function
             results_sql.push_str(" ORDER BY bm25(raw_search_index, 5.0, 1.0)");
         } else {
             // Specify a default sorting to keep pagination consistent
