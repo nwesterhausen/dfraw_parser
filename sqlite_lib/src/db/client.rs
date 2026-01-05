@@ -98,7 +98,12 @@ impl DbClient {
     ///
     /// # Errors
     /// - database error
-    pub fn search_raws(&self, query: &SearchQuery) -> Result<Vec<Vec<u8>>> {
+    ///
+    /// # Returns
+    /// A tuple with
+    /// - json `RawObject` array (from Box dyn `RawObject`)
+    /// - total results
+    pub fn search_raws(&self, query: &SearchQuery) -> Result<(Vec<Vec<u8>>, u32)> {
         let mut sql = String::from("FROM raw_definitions r ");
         let mut conditions = Vec::new();
         let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
@@ -131,14 +136,22 @@ impl DbClient {
 
         // Type Filter
         if !query.raw_types.is_empty() {
-            query.raw_types.iter().for_each(|t| {
-                let type_name = t.to_string();
-                conditions.push(format!(
-                    "r.raw_type_id = (SELECT id FROM raw_types WHERE name = ?{})",
-                    params_vec.len() + 1
-                ));
-                params_vec.push(Box::new(type_name));
-            });
+            // Build a list of placeholders: ?N, ?N+1...
+            let start_idx = params_vec.len() + 1;
+            let type_placeholders: Vec<String> = (0..query.raw_types.len())
+                .map(|i| format!("?{}", start_idx + i))
+                .collect();
+
+            // Use IN clause to treat multiple types as OR
+            conditions.push(format!(
+                "r.raw_type_id IN (SELECT id FROM raw_types WHERE name IN ({}))",
+                type_placeholders.join(", ")
+            ));
+
+            // Put the types into the IN clause
+            for t in &query.raw_types {
+                params_vec.push(Box::new(ObjectType::get_key(t)));
+            }
         }
 
         if !conditions.is_empty() {
@@ -208,7 +221,7 @@ impl DbClient {
             query.page,
             (total_count / query.limit) as u32 + 1
         );
-        Ok(results)
+        Ok((results, total_count))
     }
 
     /// insert `ParseResult` from the `dfraw_parser::parse` function

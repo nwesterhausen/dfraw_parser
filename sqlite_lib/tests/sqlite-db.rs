@@ -1,5 +1,6 @@
 //! Test for the database
 
+use dfraw_parser::metadata::ObjectType;
 use dfraw_parser::metadata::ParserOptions;
 use dfraw_parser::metadata::RawModuleLocation::Vanilla;
 use dfraw_parser::parse;
@@ -57,7 +58,7 @@ fn test_parse_and_save_to_db() {
 
     // verify the data with a cross-module search
     let query = SearchQuery {
-        raw_type_name: Some("CREATURE".to_string()),
+        raw_types: vec![ObjectType::Creature],
         required_flags: vec!["FLIER".to_string()],
         ..Default::default()
     };
@@ -67,14 +68,13 @@ fn test_parse_and_save_to_db() {
         .expect("Failed to query the generated database");
 
     assert!(
-        !search_results.is_empty(),
+        !search_results.0.is_empty(),
         "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
     );
 
     println!(
         "Test successful: Inserted {} modules; found {} flying creatures",
-        num_info_files,
-        search_results.len()
+        num_info_files, search_results.1
     );
 
     // Search using the search index
@@ -88,13 +88,12 @@ fn test_parse_and_save_to_db() {
         .expect("Failed to query the generated database");
 
     assert!(
-        !search_results.is_empty(),
+        !search_results.0.is_empty(),
         "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
     );
 
     println!(
         "Test successful: Inserted {} modules; found {} matches for searching 'dvark'",
-        num_info_files,
-        search_results.len()
+        num_info_files, search_results.1
     );
 }
