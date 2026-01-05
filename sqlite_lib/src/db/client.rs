@@ -1,6 +1,6 @@
 use dfraw_parser::metadata::ObjectType;
 use dfraw_parser::traits::RawObject;
-use dfraw_parser::{Creature, InfoFile, ParseResult};
+use dfraw_parser::{Creature, InfoFile, ParseResult, Plant};
 use rusqlite::{Connection, Result, Transaction, params};
 use std::collections::HashMap;
 use std::fmt::Write as _;
@@ -10,7 +10,7 @@ use crate::db::client_options::ClientOptions;
 use crate::db::migrate::{apply_migrations, migrate_down};
 use crate::db::migrations::LATEST_SCHEMA_VERSION;
 use crate::db::search_query::SearchQuery;
-use crate::db::util::get_current_schema_version;
+use crate::db::util::{get_current_schema_version, remove_dup_strings};
 
 /// A client for interacting with the database
 #[derive(Debug)]
@@ -427,16 +427,8 @@ fn process_raw_insertions(
         for flag in raw.get_searchable_tokens() {
             insert_flag_stmt.execute(params![raw_db_id, flag])?;
         }
-        // Metadata extraction for search index
-        let mut search_names = Vec::<&str>::new();
-        let search_descriptions = if raw.get_type() == &ObjectType::Creature
-            && let Some(creature) = raw.as_any().downcast_ref::<Creature>()
-        {
-            search_names.clone_from(&creature.get_all_names());
-            creature.get_all_descriptions().clone()
-        } else {
-            Vec::new()
-        };
+
+        let (search_names, search_descriptions) = extract_names_and_descriptions(raw);
 
         // Populate Names Table (for Exact/Partial ID lookup)
         for name in &search_names {
@@ -446,12 +438,37 @@ fn process_raw_insertions(
         // Populate FTS5 Index (for high-speed text search)
         insert_search_stmt.execute(params![
             raw_db_id,
-            search_names.join(" "),
+            remove_dup_strings(search_names, true).join(" "),
             search_descriptions.join(" ")
         ])?;
     }
 
     Ok(())
+}
+
+#[allow(clippy::borrowed_box)]
+fn extract_names_and_descriptions(raw: &Box<dyn RawObject>) -> (Vec<&str>, Vec<&str>) {
+    // Metadata extraction for search index
+    let mut search_names = Vec::<&str>::new();
+    let mut search_descriptions = Vec::<&str>::new();
+
+    match raw.get_type() {
+        ObjectType::Creature => {
+            if let Some(creature) = raw.as_any().downcast_ref::<Creature>() {
+                search_names.clone_from(&creature.get_all_names());
+                search_descriptions.clone_from(&creature.get_all_descriptions());
+            }
+        }
+        ObjectType::Plant => {
+            if let Some(plant) = raw.as_any().downcast_ref::<Plant>() {
+                search_names.clone_from(&plant.get_all_names());
+                search_descriptions.clone_from(plant.get_pref_strings().as_ref());
+            }
+        }
+        _ => {}
+    }
+
+    (search_names, search_descriptions)
 }
 
 /// Simple extension trait for Rusqlite to handle Optional rows easily.
