@@ -114,6 +114,30 @@ impl Plant {
             .map_or_else(Vec::new, std::clone::Clone::clone)
     }
 
+    pub fn get_all_names(&self) -> Vec<&str> {
+        let mut names = HashSet::new();
+
+        names.insert(self.name.get_singular());
+        names.insert(self.name.get_plural());
+        names.insert(self.name.get_adjective());
+
+        if let Some(growths) = &self.growths {
+            for growth in growths {
+                names.insert(growth.name.get_singular());
+                names.insert(growth.name.get_plural());
+                names.insert(growth.name.get_adjective());
+            }
+        }
+
+        names.into_iter().collect()
+    }
+    pub fn get_pref_strings(&self) -> Vec<&str> {
+        if let Some(prefs) = self.pref_strings.as_ref() {
+            return prefs.iter().map(String::as_str).collect();
+        };
+        Vec::new()
+    }
+
     /// Function to "clean" the raw. This is used to remove any empty list or strings,
     /// and to remove any default values. By "removing" it means setting the value to None.
     ///

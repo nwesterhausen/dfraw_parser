@@ -19,7 +19,7 @@ pub struct PlantGrowth {
     /// data for the plant definition. They are defined instead by the type of growth.
     growth_type: PlantGrowthTypeTag,
     /// The name of the growth. This is actually defined with `GROWTH_NAME` key in the raws.
-    name: Name,
+    pub name: Name,
     /// The item grown by this growth. This is actually defined with `GROWTH_ITEM` key in the raws.
     /// This is a string until we make a proper item structure. Technically there are 2 arguments:
     /// 1. item token, 2: material token. Generally the item type should be `PLANT_GROWTH:NONE`.
