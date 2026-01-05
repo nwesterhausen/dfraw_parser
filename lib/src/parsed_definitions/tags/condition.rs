@@ -161,6 +161,14 @@ pub enum ConditionTag {
     ///
     /// `[BP_SCARRED]`
     BodyPartScarred,
+    /// True if creature size is greater than defined size.
+    ///
+    /// `[CONDITION_BODY_SIZE_MIN:size]`
+    BodySizeMin,
+    /// True if creature size is less than defined size.
+    ///
+    /// `[CONDITION_BODY_SIZE_MAX:size]`
+    BodySizeMax,
     /// Changes graphics based on any syndromes the creature is affected by. Vanilla values include:
     /// - `ZOMBIE`
     /// - `NECROMANCER`
@@ -205,6 +213,16 @@ pub enum ConditionTag {
     ///
     /// `[TISSUE_MAX_LENGTH:length]`
     TissueMaxLength,
+    /// Checks the current `[CONDITION_TISSUE_LAYER]`'s `DENSITY` appearance modifier. Is true if the `DENSITY` is
+    /// greater than the integer input.
+    ///
+    /// `[TISSUE_MIN_DENSITY:desnsity]`
+    TissueMinDensity,
+    /// Checks the current `[CONDITION_TISSUE_LAYER]`'s `DENSITY` appearance modifier. Is true if the `DENSITY` is
+    /// less than the integer input.
+    ///
+    /// `[TISSUE_MAX_DENSITY:desnsity]`
+    TissueMaxDensity,
     /// Condition of being a tissue at least so curly
     TissueMinCurly,
     /// Condition of being a tissue at most so curly

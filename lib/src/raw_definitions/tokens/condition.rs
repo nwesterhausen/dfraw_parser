@@ -132,4 +132,8 @@ pub static CONDITION_TOKENS: phf::Map<&'static str, ConditionTag> = phf::phf_map
   "ITEM_QUALITY" => ConditionTag::ItemQuality,
   "USE_PALETTE" => ConditionTag::UsePalette,
   "USE_STANDARD_PALETTE_FROM_ITEM" => ConditionTag::UseStandardPaletteFromItem,
+  "BP_APPEARANCE_MODIFIER_RANGE" => ConditionTag::BodyPartAppearanceModifierRange,
+  "CONDITION_BP" => ConditionTag::BodyPart,
+  "TISSUE_MIN_DENSITY" => ConditionTag::TissueMinDensity,
+  "TISSUE_MAX_DENSITY" => ConditionTag::TissueMaxDensity,
 };
