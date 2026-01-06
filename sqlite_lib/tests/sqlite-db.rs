@@ -69,13 +69,13 @@ fn test_parse_and_save_to_db() {
         .expect("Failed to query the generated database");
 
     assert!(
-        !search_results.0.is_empty(),
+        !search_results.results.is_empty(),
         "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
     );
 
     println!(
         "Test successful: Inserted {} modules; found {} flying creatures",
-        num_info_files, search_results.1
+        num_info_files, search_results.total_count
     );
 
     // Search using the search index
@@ -89,13 +89,13 @@ fn test_parse_and_save_to_db() {
         .expect("Failed to query the generated database");
 
     assert!(
-        !search_results.0.is_empty(),
+        !search_results.results.is_empty(),
         "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
     );
 
     println!(
         "Test successful: Inserted {} modules; found {} matches for searching 'dvark'",
-        num_info_files, search_results.1
+        num_info_files, search_results.total_count
     );
 
     // Search using a location filter
@@ -108,12 +108,12 @@ fn test_parse_and_save_to_db() {
 
     // We expect no results
     assert!(
-        search_results.0.is_empty(),
+        !search_results.results.is_empty(),
         "Should have had no results, but had some."
     );
     println!(
         "Test successful: Inserted {} modules; found {} matches for only 'WorkshopMods' location",
-        num_info_files, search_results.1
+        num_info_files, search_results.total_count
     );
 
     let query = SearchQuery {
@@ -125,12 +125,12 @@ fn test_parse_and_save_to_db() {
 
     // We expect results
     assert!(
-        !search_results.0.is_empty(),
+        !search_results.results.is_empty(),
         "Should have had results, but had none."
     );
     println!(
         "Test successful: Inserted {} modules; found {} matches for only 'Vanilla' location",
-        num_info_files, search_results.1
+        num_info_files, search_results.total_count
     );
 
     let query = SearchQuery {
@@ -142,11 +142,11 @@ fn test_parse_and_save_to_db() {
 
     // We expect results
     assert!(
-        !search_results.0.is_empty(),
+        !search_results.results.is_empty(),
         "Should have had results, but had none."
     );
     println!(
         "Test successful: Inserted {} modules; found {} matches for either 'Vanilla' or 'WorkshopMods' locations",
-        num_info_files, search_results.1
+        num_info_files, search_results.total_count
     );
 }
