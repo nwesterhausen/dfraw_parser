@@ -146,4 +146,6 @@ pub static CONDITION_TOKENS: phf::Map<&'static str, ConditionTag> = phf::phf_map
   "TAX_ESCORT" => ConditionTag::TaxEscort,
   "ADVENTURER" => ConditionTag::Adventurer,
   "EGG" => ConditionTag::Egg,
+  "CDI_LIST_ICON" => ConditionTag::CdiListIcon,
+  "BABY" => ConditionTag::BabyPrime,
 };

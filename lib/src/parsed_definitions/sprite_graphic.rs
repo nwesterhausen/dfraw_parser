@@ -177,6 +177,7 @@ impl SpriteGraphic {
             ..Self::default()
         })
     }
+    #[tracing::instrument]
     fn parse_tile_with_color_pallet_from_value(value: &str) -> Option<Self> {
         // .[TOOL_GRAPHICS_WOOD:        1:      ITEM_BOOKCASE:      0:      0]
         // (     key                color_id    tile_page_id    offset_x   offset_y)
@@ -186,11 +187,12 @@ impl SpriteGraphic {
             Some(v) => match v.parse() {
                 Ok(n) => n,
                 Err(_e) => {
-                    warn!(
-                        "parse_tile_with_color_pallet_from_value: Failed to parse {} as color_id {}",
-                        v, value
-                    );
-                    return None;
+                    if v == "ALL" {
+                        0
+                    } else {
+                        warn!("Failed to parse {v}");
+                        return None;
+                    }
                 }
             },
             _ => {
@@ -381,11 +383,15 @@ impl SpriteGraphic {
     /// Parses a sprite graphic for anything about a creature.
     ///
     /// Takes the key condition and uses it to confirm we know how to parse it.
+    #[tracing::instrument]
     fn parse_creature_sprite_from_token(token: &str) -> Option<Self> {
         let mut tokens: Vec<&str> = token.split(':').rev().collect();
         // reversed token list, so pop will remove the first token
         let first_token = tokens.pop().unwrap_or_default();
-        let key_condition = CONDITION_TOKENS.get(first_token)?;
+        let Some(key_condition) = CONDITION_TOKENS.get(first_token) else {
+            warn!("no condition token found '{first_token}'");
+            return None;
+        };
         tokens.reverse();
         let token_str = tokens.as_slice().join(":");
 
@@ -455,8 +461,22 @@ impl SpriteGraphic {
         let num_args = tokens.len();
 
         match num_args {
-            // Only List Icon
+            // List Icon or Creature without color
             3 => {
+                if key_condition == &ConditionTag::ListIcon {
+                    return Some(Self {
+                        primary_condition,
+                        // pos 1 (idx 0)
+                        tile_page_id: String::from(*tokens.first().unwrap_or(&"UNKNOWN")),
+                        // pos 2-3 (idx 1-2)
+                        offset: Dimensions::from_two_tokens(
+                            tokens.get(1).unwrap_or(&"0"),
+                            tokens.get(2).unwrap_or(&"0"),
+                        ),
+                        ..Default::default()
+                    });
+                }
+
                 Some(Self {
                     primary_condition,
                     // pos 1 (idx 0)
@@ -582,7 +602,10 @@ impl SpriteGraphic {
                     ..Default::default()
                 })
             }
-            _ => None,
+            _ => {
+                warn!("Fell through to none");
+                None
+            }
         }
     }
 

@@ -30,6 +30,10 @@ pub enum ConditionTag {
     ///
     /// `[CHILD:...]`
     ChildPrime,
+    /// Used when defining a baby sprite image
+    ///
+    /// `[BABY:...]`
+    BabyPrime,
     /// Displayed if the creature is raised from the dead, although it is not
     /// known how this is decided. Raised status is not related to having a
     /// syndrome with the class from `[CONDITION_SYN_CLASS]` or from having
