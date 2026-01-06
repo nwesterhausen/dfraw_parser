@@ -1,6 +1,7 @@
 //! Test for the database
 
-use dfraw_parser::metadata::ObjectType;
+use std::sync::{Arc, Mutex, OnceLock};
+
 use dfraw_parser::metadata::ParserOptions;
 use dfraw_parser::metadata::RawModuleLocation;
 use dfraw_parser::metadata::RawModuleLocation::Vanilla;
@@ -10,143 +11,177 @@ use dfraw_parser_sqlite_lib::DbClient;
 use dfraw_parser_sqlite_lib::SearchQuery;
 
 const TEST_DB_NAME: &str = "test.db";
+
+// We store a Result so that tests can check if setup worked.
+// We use Arc so multiple tests can own a reference to the client.
+static SHARED_CLIENT: OnceLock<Result<Arc<Mutex<DbClient>>, String>> = OnceLock::new();
+
+fn get_test_client() -> Arc<Mutex<DbClient>> {
+    // get_or_init ensures the setup runs exactly once
+    let result = SHARED_CLIENT.get_or_init(|| {
+        // 1. One-time tracing setup
+        let _ = tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::INFO)
+            .compact()
+            .try_init();
+
+        // 2. Setup test data
+        let vanilla_path = test_util::ensure_vanilla_raws();
+
+        // 3. Initialize the DbClient
+        let options = ClientOptions {
+            reset_database: true,
+            overwrite_raws: true,
+        };
+
+        let mut client =
+            DbClient::init_db(TEST_DB_NAME, options).map_err(|e| format!("DB Init Error: {e}"))?;
+
+        // 4. Parse and Insert
+        let mut parser_options = ParserOptions::default();
+        parser_options.add_location_to_parse(Vanilla);
+        parser_options.set_dwarf_fortress_directory(&vanilla_path);
+
+        let parse_results = parse(&parser_options).map_err(|e| format!("Parse Error: {e}"))?;
+        let num_info_files = parse_results.info_files.len();
+
+        client
+            .insert_parse_results(parse_results)
+            .map_err(|e| format!("DB Insert Error: {e}"))?;
+
+        println!("Sucessfully inserted {num_info_files} modules.");
+        Ok(Arc::new(Mutex::new(client)))
+    });
+
+    match result {
+        Ok(client_mutex) => Arc::clone(client_mutex),
+        Err(e) => panic!("Global test setup failed: {e}"),
+    }
+}
+
 #[test]
-fn test_parse_and_save_to_db() {
-    let subscriber = tracing_subscriber::FmtSubscriber::builder()
-        // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
-        // will be written to stdout.
-        .with_max_level(tracing::Level::INFO)
-        // make it pretty
-        .compact()
-        // completes the builder.
-        .finish();
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+fn has_zero_results_for_only_workshopmods_location() {
+    let client_mutex = get_test_client();
 
-    // Setup test data (Download if missing)
-    let vanilla_path = test_util::ensure_vanilla_raws();
-
-    // initialize the DbClient
-    let options = ClientOptions {
-        reset_database: true,
-        overwrite_raws: true,
-    };
-    let mut client =
-        DbClient::init_db(TEST_DB_NAME, options).expect("Failed to initialize DbClient");
-
-    // Parse the raws using dfraw_parser
-    // We create dummy InfoFile details for the test
-    let mut parser_options = ParserOptions::default();
-    parser_options.add_location_to_parse(Vanilla);
-    parser_options.set_dwarf_fortress_directory(&vanilla_path);
-
-    let parse_results = parse(&parser_options)
-        .expect("Failure to parse raws. Might be time to manually specify a directory.");
-
-    assert!(
-        !parse_results.raws.is_empty(),
-        "Parser returned no objects. Is Dwarf Fortress installed in the default path?"
-    );
-    assert!(
-        !parse_results.info_files.is_empty(),
-        "Parser returned no info files."
-    );
-
-    let num_info_files = parse_results.info_files.len();
-
-    client
-        .insert_parse_results(parse_results)
-        .unwrap_or_else(|_| panic!("Failed to insert parsed raws"));
-
-    // verify the data with a cross-module search
-    let query = SearchQuery {
-        raw_types: vec![ObjectType::Creature],
-        required_flags: vec!["FLIER".to_string()],
-        ..Default::default()
-    };
-
-    let search_results = client
-        .search_raws(&query)
-        .expect("Failed to query the generated database");
-
-    assert!(
-        !search_results.results.is_empty(),
-        "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
-    );
-
-    println!(
-        "Test successful: Inserted {} modules; found {} flying creatures",
-        num_info_files, search_results.total_count
-    );
-
-    // Search using the search index
-    let query = SearchQuery {
-        search_string: Some("dvark".to_string()),
-        ..Default::default()
-    };
-
-    let search_results = client
-        .search_raws(&query)
-        .expect("Failed to query the generated database");
-
-    assert!(
-        !search_results.results.is_empty(),
-        "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
-    );
-
-    println!(
-        "Test successful: Inserted {} modules; found {} matches for searching 'dvark'",
-        num_info_files, search_results.total_count
-    );
-
-    // Search using a location filter
+    // get all raws within only 'WorkshopMods' location
     let query = SearchQuery {
         locations: vec![RawModuleLocation::WorkshopMods],
         ..Default::default()
     };
 
-    let search_results = client.search_raws(&query).expect("Failed to query the db");
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query the generated database")
+    };
+
+    println!("{search_results:?} for only 'WorkshopMods' location");
 
     // We expect no results
     assert!(
-        !search_results.results.is_empty(),
+        search_results.results.is_empty(),
         "Should have had no results, but had some."
     );
-    println!(
-        "Test successful: Inserted {} modules; found {} matches for only 'WorkshopMods' location",
-        num_info_files, search_results.total_count
-    );
+}
 
+#[test]
+fn has_results_for_only_vanilla_location() {
+    let client_mutex = get_test_client();
+
+    // get all raws within only 'Vanilla' location
     let query = SearchQuery {
         locations: vec![RawModuleLocation::Vanilla],
         ..Default::default()
     };
 
-    let search_results = client.search_raws(&query).expect("Failed to query the db");
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query the generated database")
+    };
 
-    // We expect results
+    println!("{search_results:?} for only 'Vanilla' location");
+
     assert!(
         !search_results.results.is_empty(),
         "Should have had results, but had none."
     );
-    println!(
-        "Test successful: Inserted {} modules; found {} matches for only 'Vanilla' location",
-        num_info_files, search_results.total_count
-    );
+}
 
+#[test]
+fn has_results_for_vanilla_or_workshopmods_locations() {
+    let client_mutex = get_test_client();
+
+    // get all raws within either 'Vanilla' or 'WorkshopMods' locations
     let query = SearchQuery {
         locations: vec![RawModuleLocation::Vanilla, RawModuleLocation::WorkshopMods],
         ..Default::default()
     };
 
-    let search_results = client.search_raws(&query).expect("Failed to query the db");
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query the generated database")
+    };
 
-    // We expect results
+    println!("{search_results:?} for either 'Vanilla' or 'WorkshopMods' locations");
+
     assert!(
         !search_results.results.is_empty(),
         "Should have had results, but had none."
     );
-    println!(
-        "Test successful: Inserted {} modules; found {} matches for either 'Vanilla' or 'WorkshopMods' locations",
-        num_info_files, search_results.total_count
+}
+
+#[test]
+fn has_results_when_using_search_index() {
+    let client_mutex = get_test_client();
+
+    // Search using the search index.
+    // Searching 'dvark' should return 3 results on vanilla raws: aardvark, aardvark man, giant aardvark
+    let query = SearchQuery {
+        search_string: Some("dvark".to_string()),
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query the generated database")
+    };
+
+    println!("{search_results:?} for searching 'dvark'");
+
+    assert!(
+        !search_results.results.is_empty(),
+        "Search should have found some matches for 'dvark'"
+    );
+}
+
+#[test]
+fn has_results_for_required_flag() {
+    let client_mutex = get_test_client();
+
+    // get all raws with the `[FLIER]` tag
+    let query = SearchQuery {
+        required_flags: vec!["FLIER".to_string()],
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query the generated database")
+    };
+
+    println!("{search_results:?} with [FLIER] flag");
+
+    assert!(
+        !search_results.results.is_empty(),
+        "Search should have found flying creatures (e.g., Peregrine Falcons) in the database."
     );
 }
