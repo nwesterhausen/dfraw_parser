@@ -1,4 +1,4 @@
-use tracing::{debug, warn};
+use tracing::debug;
 
 use crate::{
     ParserError,
@@ -214,7 +214,6 @@ impl UnprocessedRaw {
     /// # Errors
     ///
     /// * `ParserError::NotYetImplemented` - If the raw type is not yet implemented
-    #[allow(dead_code)]
     pub fn resolve(
         &mut self,
         creature_variations: &[CreatureVariation],
@@ -253,7 +252,7 @@ impl UnprocessedRaw {
                         .collect::<Vec<Creature>>();
 
                     if source_creature_options.len() > 1 {
-                        warn!(
+                        debug!(
                             "Found {} creatures with identifier `{}` to copy tags from. Using the newest one.",
                             source_creature_options.len(),
                             identifier
@@ -312,7 +311,6 @@ impl UnprocessedRaw {
         Ok(Box::new(creature))
     }
 
-    #[allow(dead_code)]
     fn collapse_modifications(&mut self) {
         // Grab the base raws first
         let mut collapsed_raws: Vec<String> = Vec::new();
@@ -383,7 +381,7 @@ impl UnprocessedRaw {
                 } else {
                     // If we didn't find the index, just add the raws to the end
                     collapsed_raws.extend(raws.clone());
-                    warn!(
+                    debug!(
                         "resolve: Unable to find tag `{}` to add raws before. Adding raws to end instead.",
                         tag
                     );
