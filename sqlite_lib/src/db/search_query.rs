@@ -72,6 +72,8 @@ impl SearchQuery {
     }
 }
 
+pub const DEFAULT_SEARCH_LIMIT: u32 = 50;
+
 impl Default for SearchQuery {
     fn default() -> Self {
         Self {
@@ -81,7 +83,7 @@ impl Default for SearchQuery {
             raw_types: Vec::new(),
             required_flags: Vec::new(),
             numeric_filters: Vec::new(),
-            limit: 50,
+            limit: DEFAULT_SEARCH_LIMIT,
             page: 1,
         }
     }

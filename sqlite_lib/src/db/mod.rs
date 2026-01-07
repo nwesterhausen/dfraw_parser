@@ -2,6 +2,8 @@
 
 pub mod client;
 pub mod client_options;
+pub mod metadata;
+mod metadata_markers;
 mod migrate;
 mod migrations;
 mod queries;
