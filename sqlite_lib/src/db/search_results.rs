@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// A structured response for search operations, containing the requested page of data
 /// and the total count of matches in the database.
 #[derive(Clone, Serialize, Deserialize, specta::Type)]
-pub struct SearchResults<T> {
+pub struct SearchResults<T = serde_json::Value> {
     /// The page of results found.
     pub results: Vec<T>,
     /// The total number of matches in the database (ignoring pagination limits).
