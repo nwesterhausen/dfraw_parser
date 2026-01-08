@@ -43,8 +43,8 @@ impl std::fmt::Display for InclusionTypeTag {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Self::Cluster => write!(f, "Cluster"),
-            Self::ClusterSmall => write!(f, "ClusterSmall"),
-            Self::ClusterOne => write!(f, "ClusterOne"),
+            Self::ClusterSmall => write!(f, "Small Cluster"),
+            Self::ClusterOne => write!(f, "Singular Cluster"),
             Self::Vein => write!(f, "Vein"),
             Self::None => write!(f, "None"),
         }

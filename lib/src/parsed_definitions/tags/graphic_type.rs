@@ -257,3 +257,9 @@ pub enum GraphicTypeTag {
     /// The graphic is of a weapon upright 10-B
     WeaponUpright10B,
 }
+
+impl std::fmt::Display for GraphicTypeTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

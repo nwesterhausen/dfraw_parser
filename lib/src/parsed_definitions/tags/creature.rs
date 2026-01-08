@@ -568,8 +568,8 @@ pub enum CreatureTag {
 }
 
 impl std::fmt::Display for CreatureTag {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        format!("{self:?}").fmt(f)
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
     }
 }
 
@@ -712,11 +712,15 @@ impl TagOperations for CreatureTag {
                 }
 
                 let Ok(number) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: HarvestProduct failed to parse number value in position 0: {values:?}");
+                    tracing::warn!(
+                        "parse_complex_token: HarvestProduct failed to parse number value in position 0: {values:?}"
+                    );
                     return None;
                 };
                 let Ok(time) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: HarvestProduct failed to parse time value in position 1: {values:?}");
+                    tracing::warn!(
+                        "parse_complex_token: HarvestProduct failed to parse time value in position 1: {values:?}"
+                    );
                     return None;
                 };
 

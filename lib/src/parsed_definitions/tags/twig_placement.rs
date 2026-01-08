@@ -36,3 +36,9 @@ pub enum TwigPlacementTag {
     #[default]
     Unknown,
 }
+
+impl std::fmt::Display for TwigPlacementTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

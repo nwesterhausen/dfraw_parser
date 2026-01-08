@@ -40,3 +40,9 @@ pub enum GaitModifierTag {
         start_speed: u32,
     },
 }
+
+impl std::fmt::Display for GaitModifierTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

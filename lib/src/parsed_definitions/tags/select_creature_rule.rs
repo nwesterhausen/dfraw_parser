@@ -21,3 +21,9 @@ pub enum SelectCreatureRuleTag {
     /// Adds an additional previously defined caste to the selection. Used after `[SELECT_CASTE]`.
     SelectAdditionalCaste(String),
 }
+
+impl std::fmt::Display for SelectCreatureRuleTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

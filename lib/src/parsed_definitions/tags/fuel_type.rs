@@ -36,3 +36,9 @@ impl FuelTypeTag {
         matches!(self, Self::None)
     }
 }
+
+impl std::fmt::Display for FuelTypeTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

@@ -567,3 +567,9 @@ impl ConditionTag {
         self.is_default()
     }
 }
+
+impl std::fmt::Display for ConditionTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

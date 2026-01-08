@@ -40,3 +40,9 @@ pub enum PlantGrowthTag {
     #[default]
     Unknown,
 }
+
+impl std::fmt::Display for PlantGrowthTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

@@ -51,3 +51,9 @@ impl ColorModificationTag {
         matches!(self, Self::AsIs)
     }
 }
+
+impl std::fmt::Display for ColorModificationTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}
