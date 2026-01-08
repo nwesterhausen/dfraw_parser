@@ -1,20 +1,20 @@
 use crate::{
+    InfoFile, ParserError,
     constants::DF_ENCODING,
     creature_variation::CreatureVariation,
     entity::Entity,
     graphic::Graphic,
     inorganic::Inorganic,
     material_template::MaterialTemplate,
-    metadata::{ObjectType, ParserOptions, RawMetadata, RawModuleLocation, OBJECT_TOKEN_MAP},
+    metadata::{OBJECT_TOKEN_MAP, ObjectType, ParserOptions, RawMetadata, RawModuleLocation},
     plant::Plant,
     raw_definitions::GRAPHIC_TYPE_TOKENS,
-    reader::{unprocessed_raw::UnprocessedRaw, PARSABLE_OBJECT_TYPES},
+    reader::{PARSABLE_OBJECT_TYPES, unprocessed_raw::UnprocessedRaw},
     regex::RAW_TOKEN_RE,
     tags::{GraphicTypeTag, ModificationTag},
     tile_page::TilePage,
     traits::RawObject,
     utilities::try_get_file,
-    InfoFile, ParserError,
 };
 use encoding_rs_io::DecodeReaderBytesBuilder;
 use std::{
@@ -62,7 +62,7 @@ pub fn parse_raw_file<P: AsRef<Path>>(
     ) {
         Ok(m) => m,
         Err(e) => {
-            warn!("parse_raw_file: Using an empty InfoFile because of error parsing the file");
+            warn!("parse_raw_file: Using an empty InfoFile: {e}");
             debug!("{e:?}");
             InfoFile::new(
                 raw_file_path
@@ -148,8 +148,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     // If we aren't supposed to parse this type, we should quit here
     if !options.object_types_to_parse.contains(&object_type) {
         debug!(
-            "parse_raw_file_with_info: Quitting early because object type {:?} is not included in options!",
-            object_type
+            "parse_raw_file_with_info: quitting early: options.object_types_to_parse doesn't include '{object_type}'"
         );
         return Ok(FileParseResult {
             parsed_raws: Vec::new(),
@@ -158,10 +157,9 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     }
 
     // If the type of object is not in our known_list, we should quit here
-    if !PARSABLE_OBJECT_TYPES.contains(&&object_type) {
+    if !PARSABLE_OBJECT_TYPES.contains(&object_type) {
         debug!(
-            "parse_raw_file_with_info: Quitting early because object type {:?} is not parsable!",
-            object_type
+            "parse_raw_file_with_info: quitting early: '{object_type}' is not in PARSABLE_OBJECT_TYPES"
         );
         return Ok(FileParseResult {
             parsed_raws: Vec::new(),
@@ -213,8 +211,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
 
             trace!(
                 "parse_raw_file_with_info: Key: {} Value: {}",
-                captured_key,
-                captured_value
+                captured_key, captured_value
             );
 
             match captured_key {
@@ -389,21 +386,21 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                     last_parsed_type = ObjectType::Entity;
                 }
                 "GO_TO_END" => {
-                    debug!("began tracking AddToEnding modification");
+                    trace!("began tracking AddToEnding modification");
                     // Push the current modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(current_modification.clone());
                     // Update the current modification to be an AddToEnding
                     current_modification = ModificationTag::AddToEnding { raws: Vec::new() };
                 }
                 "GO_TO_START" => {
-                    debug!("began tracking AddToBeginning modification");
+                    trace!("began tracking AddToBeginning modification");
                     // Push the current modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(current_modification.clone());
                     // Update the current modification to be an AddToBeginning
                     current_modification = ModificationTag::AddToBeginning { raws: Vec::new() };
                 }
                 "GO_TO_TAG" => {
-                    debug!("began tracking AddBeforeTag:{captured_value} modification");
+                    trace!("began tracking AddBeforeTag:{captured_value} modification");
                     // Push the current modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(current_modification.clone());
                     // Update the current modification to be an AddBeforeTag
@@ -413,14 +410,14 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                     };
                 }
                 "COPY_TAGS_FROM" => {
-                    debug!("began tracking CopyTagsFrom:{captured_value} modification");
+                    trace!("began tracking CopyTagsFrom:{captured_value} modification");
                     // Push the CopyTagsFrom modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(ModificationTag::CopyTagsFrom {
                         identifier: captured_value.to_string(),
                     });
                 }
                 "APPLY_CREATURE_VARIATION" => {
-                    debug!("began tracking ApplyCreatureVariation:{captured_value} modification");
+                    trace!("began tracking ApplyCreatureVariation:{captured_value} modification");
                     // Push the ApplyCreatureVariation modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(
                         ModificationTag::ApplyCreatureVariation {
@@ -520,7 +517,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     }
 
     debug!(
-        "parse_raw_file_with_info: Parsed {} raws from {}",
+        "parse_raw_file_with_info: parsed {} raws from {}",
         created_raws.len(),
         raw_filename
     );

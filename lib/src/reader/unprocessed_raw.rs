@@ -1,4 +1,4 @@
-use tracing::debug;
+use tracing::{debug, trace};
 
 use crate::{
     ParserError,
@@ -195,7 +195,7 @@ impl UnprocessedRaw {
         }
 
         // If we get here, we can't combine the modifications, so we just add it
-        debug!("Adding modification: {:?}", modification);
+        trace!("Adding modification: {:?}", modification);
         self.modifications.push(modification);
     }
 
@@ -262,10 +262,6 @@ impl UnprocessedRaw {
                                 .get_module_numerical_version()
                                 .cmp(b.get_metadata().get_module_numerical_version())
                         });
-                        debug!(
-                            "Sorted creature options for {}: {:#?}",
-                            identifier, source_creature_options
-                        );
                     }
 
                     if let Some(source_creature) = source_creature_options.first() {
@@ -317,7 +313,7 @@ impl UnprocessedRaw {
         for modification in &self.modifications {
             if let ModificationTag::MainRawBody { raws } = modification {
                 collapsed_raws.extend(raws.clone());
-                debug!("collapsed {} base raws", raws.len());
+                trace!("collapsed {} base raws", raws.len());
             }
         }
 
@@ -330,7 +326,7 @@ impl UnprocessedRaw {
         for modification in &self.modifications {
             if let ModificationTag::AddToEnding { raws } = modification {
                 add_to_ending.extend(raws.clone());
-                debug!("collapsed {} add to ending raws", raws.len());
+                trace!("collapsed {} add to ending raws", raws.len());
             }
         }
 
@@ -343,7 +339,7 @@ impl UnprocessedRaw {
         for modification in &self.modifications {
             if let ModificationTag::AddToBeginning { raws } = modification {
                 add_to_beginning.extend(raws.clone());
-                debug!("collapsed {} add to beginning raws", raws.len());
+                trace!("collapsed {} add to beginning raws", raws.len());
             }
         }
 
@@ -373,7 +369,7 @@ impl UnprocessedRaw {
                 // If we found the index, insert the raws before the tag (without replacing)
                 if let Some(index) = index {
                     collapsed_raws.splice(index..index, raws.clone());
-                    debug!(
+                    trace!(
                         "collapsed {} add before tag raws, before tag {}",
                         raws.len(),
                         tag

@@ -65,6 +65,7 @@ impl DbClient {
     /// # Returns
     ///
     /// The `SearchResults` with the results as the JSON strings as byte arrays.
+    #[tracing::instrument(level = "debug", skip(self))]
     pub fn search_raws(&self, query: &SearchQuery) -> Result<SearchResults<Vec<u8>>> {
         self.add_recent_search_term(query.search_string.clone())?;
         queries::search_raws(&self.conn, query)
@@ -77,11 +78,11 @@ impl DbClient {
     /// - Database errors
     /// - Issues working with downcasting raws to obtain data to insert
     pub fn insert_parse_results(&mut self, parse_results: ParseResult) -> Result<()> {
-        queries::insert_parse_results(&mut self.conn, &self.options, parse_results)?;
         let start = Utc::now();
-        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &Utc::now().to_rfc3339())?;
+        queries::insert_parse_results(&mut self.conn, &self.options, parse_results)?;
         let end = Utc::now();
         let insertion_duration = end - start;
+        self.set_last_insertion_utc_datetime(&end)?;
         self.set_last_insertion_duration(&insertion_duration)?;
         Ok(())
     }
@@ -340,6 +341,37 @@ impl DbClient {
     pub fn get_preferred_search_limit(&self) -> Result<u32> {
         (queries::get_typed_metadata::<PreferredSearchLimit>(&self.conn)?)
             .map_or_else(|| Ok(DEFAULT_SEARCH_LIMIT), Ok)
+    }
+
+    /// Set the date of the last insertion. Expects a `DateTime` in UTC timezone.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_insertion_utc_datetime(&self, utc_date: &DateTime<Utc>) -> Result<()> {
+        let str_date = utc_date.to_rfc3339();
+        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
+    }
+    /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_insertion_date(&self, insertion_date: &str) -> Result<()> {
+        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &insertion_date.to_string())
+    }
+
+    /// Get the date of the last insertion.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn get_last_insertion_date(&self) -> Result<String> {
+        (queries::get_typed_metadata::<LastRawsInsertion>(&self.conn)?)
+            .map_or_else(|| Ok(String::new()), Ok)
     }
 
     /// Retrieves a raw object by its database ID.

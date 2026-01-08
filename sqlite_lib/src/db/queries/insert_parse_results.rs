@@ -20,6 +20,7 @@ pub fn insert_parse_results(
     options: &ClientOptions,
     parse_results: ParseResult,
 ) -> Result<()> {
+    let mut total_to_insert = 0;
     // group Raws by Module Identity
     // We use a composite key of (name, version, location_id) to match Raws to their InfoFiles.
     // This allows us to handle multi-module parsing (Vanilla + Mods) correctly.
@@ -32,8 +33,9 @@ pub fn insert_parse_results(
             i32::from(meta.get_location()),
         );
         module_map.entry(key).or_insert_with(Vec::new).push(raw);
+        total_to_insert += 1;
     }
-    // insert into Database
+
     // We iterate through the parsed info files and grab the raws associated with each.
     for info in &parse_results.info_files {
         let key = (
@@ -41,11 +43,10 @@ pub fn insert_parse_results(
             info.get_version(),
             i32::from(info.get_location()),
         );
-        info!("Inserting raws for {key:?}");
+        info!("Inserting {total_to_insert} raws for {key:?}");
         if let Some(module_raws) = module_map.get(&key) {
             insert_module_data(conn, options, info, module_raws)?;
         }
     }
-    info!("Insertion Complete");
     Ok(())
 }

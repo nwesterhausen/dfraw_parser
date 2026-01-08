@@ -1,8 +1,8 @@
 use std::path::{Path, PathBuf};
 
-use crate::metadata::LocationHelper;
+use strum::IntoEnumIterator;
 
-use super::{ObjectType, RawModuleLocation};
+use crate::metadata::{LocationHelper, ObjectType, RawModuleLocation};
 
 /// # Parsing Options
 ///
@@ -135,22 +135,14 @@ pub struct ParserOptions {
 
 impl Default for ParserOptions {
     fn default() -> Self {
+        let all_object_types = ObjectType::iter().collect();
         Self {
             attach_metadata_to_raws: false,
             skip_apply_copy_tags_from: false,
             skip_apply_creature_variations: false,
             include_warnings_for_info_file_format: false,
             log_summary: false,
-            object_types_to_parse: vec![
-                ObjectType::Creature,
-                ObjectType::CreatureVariation,
-                ObjectType::Entity,
-                ObjectType::Plant,
-                ObjectType::Inorganic,
-                ObjectType::MaterialTemplate,
-                ObjectType::Graphics,
-                ObjectType::TilePage,
-            ],
+            object_types_to_parse: all_object_types,
             locations_to_parse: vec![],
             locations: LocationHelper::new(),
             legends_exports_to_parse: Vec::new(),
