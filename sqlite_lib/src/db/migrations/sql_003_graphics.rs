@@ -9,6 +9,8 @@ CREATE TABLE tile_pages (
     file_path TEXT NOT NULL,
     tile_width INTEGER NOT NULL,
     tile_height INTEGER NOT NULL,
+    page_width INTEGER NOT NULL,
+    page_height INTEGER NOT NULL,
     FOREIGN KEY(raw_id) REFERENCES raw_definitions(id) ON DELETE CASCADE
 );
 
@@ -19,7 +21,10 @@ CREATE TABLE sprite_graphics (
     tile_page_identifier TEXT NOT NULL,
     offset_x INTEGER NOT NULL,
     offset_y INTEGER NOT NULL,
-    condition_type TEXT NOT NULL, -- e.g. DEFAULT, CHILD, SHAKING, etc.
+    offset_2_x INTEGER,
+    offset_2_y INTEGER,
+    primary_condition TEXT NOT NULL, -- e.g. DEFAULT, CHILD, SHAKING, etc.
+    secondary_condition TEXT,        -- (optional) e.g. DEFAULT, CHILD, SHAKING, etc.
     target_identifier TEXT NOT NULL, -- The identifier of the creature/item this represents
     FOREIGN KEY(raw_id) REFERENCES raw_definitions(id) ON DELETE CASCADE
 );
