@@ -29,6 +29,18 @@ pub struct TilePage {
 }
 
 impl TilePage {
+    #[must_use]
+    pub fn get_file_path(&self) -> PathBuf {
+        self.file.clone()
+    }
+    #[must_use]
+    pub fn get_tile_dimensions(&self) -> Dimensions {
+        self.tile_dim
+    }
+    #[must_use]
+    pub fn get_page_dimensions(&self) -> Dimensions {
+        self.page_dim
+    }
     /// Function to create a new empty `TilePage`.
     ///
     /// # Returns

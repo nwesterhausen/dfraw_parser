@@ -35,6 +35,32 @@ pub struct SpriteGraphic {
 }
 
 impl SpriteGraphic {
+    #[must_use]
+    pub fn get_offset(&self) -> Dimensions {
+        self.offset
+    }
+    #[must_use]
+    pub fn get_offset2(&self) -> Option<Dimensions> {
+        self.offset2
+    }
+    #[must_use]
+    pub fn get_primary_condition(&self) -> ConditionTag {
+        self.primary_condition
+    }
+    #[must_use]
+    pub fn get_secondary_condition(&self) -> ConditionTag {
+        match self.secondary_condition {
+            Some(condition) => condition,
+            None => ConditionTag::None,
+        }
+    }
+    #[must_use]
+    pub fn get_target_identifier(&self) -> &str {
+        match self.target_identifier.as_ref() {
+            Some(target) => target.as_str(),
+            None => "",
+        }
+    }
     /// Get the tile page ID.
     ///
     /// # Returns

@@ -6,6 +6,11 @@ use crate::{db::util::remove_dup_strings, search_helpers::extract_names_and_desc
 
 use super::super::rusqlite_extensions::OptionalResultExtension;
 
+/// Inserts a batch of raws using prepared statements for efficiency.
+///
+/// # Errors
+///
+/// - Database error (will not commit transaction if error)
 pub fn process_raw_insertions(
     tx: &Transaction,
     module_db_id: i64,
@@ -23,12 +28,6 @@ pub fn process_raw_insertions(
         "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
          VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))",
     )?;
-    // let mut update_raw_stmt =
-    //     tx.prepare_cached("UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2")?;
-    // let mut insert_flag_stmt =
-    //     tx.prepare_cached("INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)")?;
-    // let mut clear_flags_stmt =
-    //     tx.prepare_cached("DELETE FROM common_raw_flags WHERE raw_id = ?1")?;
 
     // Search Index Statements
     let mut insert_name_stmt =

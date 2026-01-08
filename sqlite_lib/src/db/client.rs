@@ -1,6 +1,7 @@
 use chrono::{TimeDelta, prelude::*};
 use dfraw_parser::ParseResult;
 use dfraw_parser::metadata::ParserOptions;
+use dfraw_parser::traits::RawObject;
 use rusqlite::{Connection, Result};
 use tracing::{debug, info, warn};
 
@@ -339,5 +340,104 @@ impl DbClient {
     pub fn get_preferred_search_limit(&self) -> Result<u32> {
         (queries::get_typed_metadata::<PreferredSearchLimit>(&self.conn)?)
             .map_or_else(|| Ok(DEFAULT_SEARCH_LIMIT), Ok)
+    }
+
+    /// Retrieves a raw object by its database ID.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn get_raw(&self, id: i64) -> Result<Box<dyn RawObject>> {
+        queries::get_raw_definition(&self.conn, id)
+    }
+
+    /// Creates a new raw definition and populates all associated search and graphics tables.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn create_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
+        queries::create_raw_definition(&self.conn, raw)
+    }
+
+    /// Updates or creates a raw definition based on its identifier and module identity.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn upsert_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
+        queries::upsert_raw_definition(&self.conn, raw)
+    }
+
+    /// Updates the data blob and associated tables for an existing raw definition.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn update_raw(&self, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
+        queries::update_raw_definition(&self.conn, id, raw)
+    }
+
+    /// Deletes a raw definition.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn delete_raw(&self, id: i64) -> Result<()> {
+        queries::delete_raw_definition(&self.conn, id)
+    }
+
+    /// Retrieves the top result for a module id matching the data in the raw's metadata.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn get_module_id_from_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
+        queries::get_module_id_from_raw(&self.conn, raw)
+    }
+
+    /// Creates a new raw defintion with a link to a specific module
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn create_raw_definition_with_module(
+        &self,
+        module_id: i64,
+        raw: &Box<dyn RawObject>,
+    ) -> Result<i64> {
+        queries::create_raw_definition_with_module(&self.conn, module_id, raw)
+    }
+
+    /// Returns true if the raw exists in the database.
+    ///
+    /// Searches for a match based on the raw identifier and its metadata: location,
+    /// module name and module version.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn exists_raw(&self, raw: &Box<dyn RawObject>) -> Result<bool> {
+        queries::exists_raw(&self.conn, raw)
+    }
+
+    /// Attempts to find the database ID for a specific raw definition.
+    ///
+    /// Returns `Ok(Some(id))` if it exists, or `Ok(None)` if it does not.
+    /// This is useful for checking existence and obtaining the key for updates
+    /// in a single operation.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn try_get_raw_id(&self, raw: &Box<dyn RawObject>) -> Result<Option<i64>> {
+        queries::try_get_raw_id(&self.conn, raw)
     }
 }

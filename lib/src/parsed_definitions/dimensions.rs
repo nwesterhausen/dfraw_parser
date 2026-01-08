@@ -5,8 +5,10 @@ use tracing::{error, warn};
 /// A struct representing a Dimensions object.
 #[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Default, specta::Type)]
 pub struct Dimensions {
-    x: u32,
-    y: u32,
+    /// The x coordinate
+    pub x: u32,
+    /// The y coordinate
+    pub y: u32,
 }
 
 #[allow(dead_code)] // Until we add graphics parsing

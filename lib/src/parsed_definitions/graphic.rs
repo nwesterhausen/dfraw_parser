@@ -49,6 +49,14 @@ pub struct Graphic {
 }
 
 impl Graphic {
+    /// Get the sprites defined in this graphic
+    #[must_use]
+    pub fn get_sprites(&self) -> Vec<SpriteGraphic> {
+        match self.sprites.as_ref() {
+            Some(sprites) => sprites.clone(),
+            None => Vec::new(),
+        }
+    }
     /// Function to create a new empty Graphic.
     ///
     /// # Returns

@@ -147,8 +147,8 @@ impl Metadata {
     ///
     /// * `RawModuleLocation` - The location of the owning raw module
     #[must_use]
-    pub const fn get_location(&self) -> &RawModuleLocation {
-        &self.raw_module_location
+    pub const fn get_location(&self) -> RawModuleLocation {
+        self.raw_module_location
     }
     /// Get the `object_id` of the owning raw module.
     ///
