@@ -315,3 +315,102 @@ fn test_trigram_substring_matching() {
         "Trigram search should find partial matches like 'toad'"
     );
 }
+
+#[test]
+fn verify_get_set_delete_favorite_raws() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let initial_favorite_raws = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_favorite_raws()
+        .expect("Get favorite raws failed");
+    client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .add_favorite_raw(13)
+        .expect("Failed to add favorite raw 13");
+    client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .add_favorite_raw(203)
+        .expect("Failed to add favorite raw 203");
+    let after_favorite_raws = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_favorite_raws()
+        .expect("Get favorite raws failed");
+    client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .remove_favorite_raw(13)
+        .expect("Failed to remove favorite raw 13");
+    let final_favorite_raws = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_favorite_raws()
+        .expect("Get favorite raws failed");
+
+    // Verify
+    assert_eq!(initial_favorite_raws.len(), 0);
+    assert_eq!(after_favorite_raws.len(), 2);
+    assert_eq!(final_favorite_raws.len(), 1);
+    assert_eq!(final_favorite_raws.first().unwrap_or(&0), &203);
+}
+
+#[test]
+fn verify_previous_insertion_duration() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let duration = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_last_insertion_duration()
+        .expect("Failed to get last insertion duration")
+        .expect("No insertion duration found when expected");
+
+    tracing::info!(
+        "Last insertion duration was {}ms",
+        duration.num_milliseconds()
+    );
+}
+
+#[test]
+fn verify_previous_insertion_date() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let date = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_last_insertion_date()
+        .expect("Failed to get last insertion duration");
+
+    tracing::info!("Last insertion date {date}");
+}
+
+#[test]
+fn verify_previous_parse_date() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let date = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_last_parse_operation_date()
+        .expect("Failed to get last insertion duration");
+
+    tracing::info!("Last parse operation date {date}");
+}
+
+#[test]
+fn verify_previous_parse_duration() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let duration = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_last_parse_duration()
+        .expect("Failed to get last insertion duration")
+        .expect("No insertion duration found when expected");
+
+    tracing::info!("Last parse duration was {}ms", duration.num_milliseconds());
+}

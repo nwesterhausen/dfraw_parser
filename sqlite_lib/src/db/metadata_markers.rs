@@ -22,6 +22,15 @@ impl TypedMetadata for LastRawsInsertion {
     }
 }
 
+/// Marker struct for the last insertion timestamp.
+pub struct LastRawsParsingOperation;
+impl TypedMetadata for LastRawsParsingOperation {
+    type Value = String; // Store as ISO-8601 string
+    fn key() -> AppMetadataKey {
+        AppMetadataKey::LastRawsParsingOperation
+    }
+}
+
 /// Marker struct for Steam autodetect preference.
 pub struct UseSteamAutodetect;
 impl TypedMetadata for UseSteamAutodetect {

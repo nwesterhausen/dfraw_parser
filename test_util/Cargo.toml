@@ -8,6 +8,7 @@ workspace = true
 
 [dependencies]
 zip = "7.0.0"
+chrono={workspace=true}
 dfraw_parser_sqlite_lib = {workspace=true}
 dfraw_parser = {workspace=true}
 

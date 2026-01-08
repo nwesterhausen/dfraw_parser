@@ -32,12 +32,12 @@ pub fn process_raw_insertions(
     // Search Index Statements
     let mut insert_name_stmt =
         tx.prepare_cached("INSERT INTO raw_names (raw_id, name) VALUES (?1, ?2)")?;
-    // let mut clear_names_stmt = tx.prepare_cached("DELETE FROM raw_names WHERE raw_id = ?1")?;
     let mut insert_search_stmt = tx.prepare_cached(
         "INSERT INTO raw_search_index (raw_id, names, description) VALUES (?1, ?2, ?3)",
     )?;
-    // let mut delete_search_stmt =
-    //     tx.prepare_cached("DELETE FROM raw_search_index WHERE raw_id = ?1")?;
+    let mut clear_names_stmt = tx.prepare_cached("DELETE FROM raw_names WHERE raw_id = ?1")?;
+    let mut delete_search_stmt =
+        tx.prepare_cached("DELETE FROM raw_search_index WHERE raw_id = ?1")?;
 
     let mut update_raw_stmt =
         tx.prepare_cached("UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2")?;
@@ -82,6 +82,8 @@ pub fn process_raw_insertions(
             Some(id) if overwrite_raws => {
                 update_raw_stmt.execute(params![json_payload, id])?;
                 clear_flags_stmt.execute(params![id])?;
+                clear_names_stmt.execute(params![id])?;
+                delete_search_stmt.execute(params![id])?;
                 id
             }
             Some(_) => continue, // Skip if exists and not overwriting

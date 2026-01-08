@@ -1,4 +1,5 @@
 //! Utility to gather vanilla raws to use for testing.
+use chrono::prelude::*;
 use dfraw_parser::metadata::{ParserOptions, RawModuleLocation};
 use dfraw_parser::parse;
 use dfraw_parser_sqlite_lib::{ClientOptions, DbClient};
@@ -42,8 +43,18 @@ pub fn get_test_client() -> Arc<Mutex<DbClient>> {
         parser_options.add_location_to_parse(RawModuleLocation::Vanilla);
         parser_options.set_dwarf_fortress_directory(&vanilla_path);
 
+        let start = Utc::now();
         let parse_results = parse(&parser_options).map_err(|e| format!("Parse Error: {e}"))?;
+        let end = Utc::now();
+        let duration = end - start;
         let num_info_files = parse_results.info_files.len();
+
+        client
+            .set_last_parse_duration(&duration)
+            .map_err(|e| format!("DB Metadata Set last parse duration Error: {e}"))?;
+        client
+            .set_last_parse_operation_utc_datetime(&end)
+            .map_err(|e| format!("DB Metadata Set last parse date Error: {e}"))?;
 
         client
             .insert_parse_results(parse_results)

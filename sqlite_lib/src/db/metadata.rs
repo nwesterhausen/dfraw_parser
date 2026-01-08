@@ -23,6 +23,8 @@ pub enum AppMetadataKey {
     FavoriteRaws,
     /// The user preference for how many results per page
     PreferredSearchLimit,
+    /// The ISO-8601 (RFC 3339) timestamp of the last successful raw parsing operation
+    LastRawsParsingOperation,
 }
 
 impl AppMetadataKey {
@@ -40,6 +42,7 @@ impl AppMetadataKey {
             Self::FavoriteRaws => "favorite_raws",
             Self::PreferredSearchLimit => "preferred_search_limit",
             Self::PreviousInsertionDuration => "previous_insertion_duration",
+            Self::LastRawsParsingOperation => "last_raws_parse",
         }
     }
 
@@ -68,6 +71,9 @@ impl AppMetadataKey {
             Self::PreferredSearchLimit => "The user preference for how many results per page",
             Self::PreviousInsertionDuration => {
                 "The duration of the last raws insertion to the database"
+            }
+            Self::LastRawsParsingOperation => {
+                "The ISO-8601 (RFC 3339) timestamp of the last successful raw parsing operation"
             }
         }
     }

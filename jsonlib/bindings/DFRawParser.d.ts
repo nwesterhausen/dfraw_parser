@@ -5740,7 +5740,15 @@ export type CustomGraphicExtension = { extensionType: GraphicTypeTag; tilePageId
 /**
  * A struct representing a Dimensions object.
  */
-export type Dimensions = { x: number; y: number }
+export type Dimensions = { 
+/**
+ * The x coordinate
+ */
+x: number; 
+/**
+ * The y coordinate
+ */
+y: number }
 
 /**
  * A struct representing an Entity object.

@@ -8,9 +8,9 @@ use tracing::{debug, info, warn};
 use crate::SearchResults;
 use crate::db::client_options::ClientOptions;
 use crate::db::metadata_markers::{
-    FavoriteRaws, LastRawsInsertion, PreferredSearchLimit, PreviousDwarfFortressGamePath,
-    PreviousDwarfFortressUserPath, PreviousInsertionDuration, PreviousParseDuration,
-    PreviousParserOptions, RecentSearchTerms, UseSteamAutodetect,
+    FavoriteRaws, LastRawsInsertion, LastRawsParsingOperation, PreferredSearchLimit,
+    PreviousDwarfFortressGamePath, PreviousDwarfFortressUserPath, PreviousInsertionDuration,
+    PreviousParseDuration, PreviousParserOptions, RecentSearchTerms, UseSteamAutodetect,
 };
 use crate::db::migrate::{apply_migrations, migrate_down};
 use crate::db::migrations::LATEST_SCHEMA_VERSION;
@@ -353,6 +353,7 @@ impl DbClient {
         let str_date = utc_date.to_rfc3339();
         queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
     }
+
     /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
     ///
     /// # Errors
@@ -371,6 +372,40 @@ impl DbClient {
     /// - serialization error
     pub fn get_last_insertion_date(&self) -> Result<String> {
         (queries::get_typed_metadata::<LastRawsInsertion>(&self.conn)?)
+            .map_or_else(|| Ok(String::new()), Ok)
+    }
+
+    /// Set the date of the last insertion. Expects a `DateTime` in UTC timezone.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_parse_operation_utc_datetime(&self, utc_date: &DateTime<Utc>) -> Result<()> {
+        let str_date = utc_date.to_rfc3339();
+        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &str_date)
+    }
+    /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_parse_operation_date(&self, insertion_date: &str) -> Result<()> {
+        queries::set_typed_metadata::<LastRawsParsingOperation>(
+            &self.conn,
+            &insertion_date.to_string(),
+        )
+    }
+
+    /// Get the date of the last insertion.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn get_last_parse_operation_date(&self) -> Result<String> {
+        (queries::get_typed_metadata::<LastRawsParsingOperation>(&self.conn)?)
             .map_or_else(|| Ok(String::new()), Ok)
     }
 
