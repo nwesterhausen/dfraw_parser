@@ -55,6 +55,9 @@ pub fn get_test_client() -> Arc<Mutex<DbClient>> {
         client
             .set_last_parse_operation_utc_datetime(&end)
             .map_err(|e| format!("DB Metadata Set last parse date Error: {e}"))?;
+        client
+            .set_last_used_parser_options(&parser_options)
+            .map_err(|e| format!("DB Metadata Set last parse options Error: {e}"))?;
 
         client
             .insert_parse_results(parse_results)
