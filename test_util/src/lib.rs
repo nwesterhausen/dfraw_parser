@@ -1,12 +1,63 @@
 //! Utility to gather vanilla raws to use for testing.
+use dfraw_parser::metadata::{ParserOptions, RawModuleLocation};
+use dfraw_parser::parse;
+use dfraw_parser_sqlite_lib::{ClientOptions, DbClient};
 use std::fs::{self, File};
 use std::io::{self, Cursor};
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex, OnceLock};
 use zip::ZipArchive;
 
 const VANILLA_RAW_URL: &str = "https://build-deps.ci.nwest.one/dwarffortress/vanilla_latest.zip";
 const TEST_DATA_DIR: &str = "test-data";
 const TEST_INNER_DIR: &str = "data/vanilla";
+const TEST_DB_NAME: &str = "test.db";
+
+// We store a Result so that tests can check if setup worked.
+// We use Arc so multiple tests can own a reference to the client.
+static SHARED_CLIENT: OnceLock<Result<Arc<Mutex<DbClient>>, String>> = OnceLock::new();
+
+/// Get a shared test dbclient that is only initialized once
+///
+/// # Panics
+///
+/// Will panic if some part of setting up the test database errors out
+pub fn get_test_client() -> Arc<Mutex<DbClient>> {
+    // get_or_init ensures the setup runs exactly once
+    let result = SHARED_CLIENT.get_or_init(|| {
+        // Setup test data
+        let vanilla_path = ensure_vanilla_raws();
+
+        // Initialize the DbClient
+        let options = ClientOptions {
+            reset_database: true,
+            overwrite_raws: true,
+        };
+
+        let mut client =
+            DbClient::init_db(TEST_DB_NAME, options).map_err(|e| format!("DB Init Error: {e}"))?;
+
+        // Parse and Insert
+        let mut parser_options = ParserOptions::default();
+        parser_options.add_location_to_parse(RawModuleLocation::Vanilla);
+        parser_options.set_dwarf_fortress_directory(&vanilla_path);
+
+        let parse_results = parse(&parser_options).map_err(|e| format!("Parse Error: {e}"))?;
+        let num_info_files = parse_results.info_files.len();
+
+        client
+            .insert_parse_results(parse_results)
+            .map_err(|e| format!("DB Insert Error: {e}"))?;
+
+        println!("Sucessfully inserted {num_info_files} modules.");
+        Ok(Arc::new(Mutex::new(client)))
+    });
+
+    match result {
+        Ok(client_mutex) => Arc::clone(client_mutex),
+        Err(e) => panic!("Global test setup failed: {e}"),
+    }
+}
 
 /// Ensures the vanilla raw files are available for testing.
 /// Returns the path to the directory containing the raws.

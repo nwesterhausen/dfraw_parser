@@ -1,66 +1,16 @@
-//! Test for the database
+//! Tests for verifying that the various search functions work.
 
-use std::sync::{Arc, Mutex, OnceLock};
-
-use dfraw_parser::metadata::ParserOptions;
 use dfraw_parser::metadata::RawModuleLocation;
-use dfraw_parser::metadata::RawModuleLocation::Vanilla;
-use dfraw_parser::parse;
-use dfraw_parser_sqlite_lib::ClientOptions;
-use dfraw_parser_sqlite_lib::DbClient;
 use dfraw_parser_sqlite_lib::SearchQuery;
+use test_util::get_test_client;
 
-const TEST_DB_NAME: &str = "test.db";
+use crate::common::setup_tracing;
 
-// We store a Result so that tests can check if setup worked.
-// We use Arc so multiple tests can own a reference to the client.
-static SHARED_CLIENT: OnceLock<Result<Arc<Mutex<DbClient>>, String>> = OnceLock::new();
-
-fn get_test_client() -> Arc<Mutex<DbClient>> {
-    // get_or_init ensures the setup runs exactly once
-    let result = SHARED_CLIENT.get_or_init(|| {
-        // 1. One-time tracing setup
-        let _ = tracing_subscriber::fmt()
-            .with_max_level(tracing::Level::INFO)
-            .compact()
-            .try_init();
-
-        // 2. Setup test data
-        let vanilla_path = test_util::ensure_vanilla_raws();
-
-        // 3. Initialize the DbClient
-        let options = ClientOptions {
-            reset_database: true,
-            overwrite_raws: true,
-        };
-
-        let mut client =
-            DbClient::init_db(TEST_DB_NAME, options).map_err(|e| format!("DB Init Error: {e}"))?;
-
-        // 4. Parse and Insert
-        let mut parser_options = ParserOptions::default();
-        parser_options.add_location_to_parse(Vanilla);
-        parser_options.set_dwarf_fortress_directory(&vanilla_path);
-
-        let parse_results = parse(&parser_options).map_err(|e| format!("Parse Error: {e}"))?;
-        let num_info_files = parse_results.info_files.len();
-
-        client
-            .insert_parse_results(parse_results)
-            .map_err(|e| format!("DB Insert Error: {e}"))?;
-
-        println!("Sucessfully inserted {num_info_files} modules.");
-        Ok(Arc::new(Mutex::new(client)))
-    });
-
-    match result {
-        Ok(client_mutex) => Arc::clone(client_mutex),
-        Err(e) => panic!("Global test setup failed: {e}"),
-    }
-}
+mod common;
 
 #[test]
 fn has_zero_results_for_only_workshopmods_location() {
+    setup_tracing();
     let client_mutex = get_test_client();
 
     // get all raws within only 'WorkshopMods' location
@@ -87,6 +37,7 @@ fn has_zero_results_for_only_workshopmods_location() {
 
 #[test]
 fn has_results_for_only_vanilla_location() {
+    setup_tracing();
     let client_mutex = get_test_client();
 
     // get all raws within only 'Vanilla' location
@@ -112,6 +63,7 @@ fn has_results_for_only_vanilla_location() {
 
 #[test]
 fn has_results_for_vanilla_or_workshopmods_locations() {
+    setup_tracing();
     let client_mutex = get_test_client();
 
     // get all raws within either 'Vanilla' or 'WorkshopMods' locations
@@ -137,6 +89,7 @@ fn has_results_for_vanilla_or_workshopmods_locations() {
 
 #[test]
 fn has_results_when_using_search_index() {
+    setup_tracing();
     let client_mutex = get_test_client();
 
     // Search using the search index.
@@ -163,6 +116,7 @@ fn has_results_when_using_search_index() {
 
 #[test]
 fn has_results_for_required_flag() {
+    setup_tracing();
     let client_mutex = get_test_client();
 
     // get all raws with the `[FLIER]` tag

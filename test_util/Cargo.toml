@@ -8,6 +8,8 @@ workspace = true
 
 [dependencies]
 zip = "7.0.0"
+dfraw_parser_sqlite_lib = {workspace=true}
+dfraw_parser = {workspace=true}
 
 [dependencies.reqwest]
 version = "0.13.1"
