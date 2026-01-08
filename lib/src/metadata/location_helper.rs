@@ -32,13 +32,15 @@ impl LocationHelper {
     }
 
     /// Get the game directory.
-    pub fn get_df_directory(&self) -> Option<&PathBuf> {
-        self.df_directory.as_ref()
+    #[must_use]
+    pub fn get_df_directory(&self) -> Option<PathBuf> {
+        self.df_directory.clone()
     }
 
     /// Get the user directory.
-    pub fn get_user_data_directory(&self) -> Option<&PathBuf> {
-        self.user_data_directory.as_ref()
+    #[must_use]
+    pub fn get_user_data_directory(&self) -> Option<PathBuf> {
+        self.user_data_directory.clone()
     }
 
     /// Initialize the game directory and user directory.
