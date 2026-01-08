@@ -3,7 +3,7 @@ use rusqlite::{Connection, Result};
 use std::fmt::Write as _;
 use tracing::info;
 
-use crate::{SearchQuery, SearchResults};
+use crate::{ResultWithId, SearchQuery, SearchResults};
 
 /// Uses the provided `SearchQuery` to return the JSON of all matching raws defined in the database.
 ///
@@ -71,7 +71,7 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
     };
 
     // Now we can set up our actual results
-    let mut results_sql = format!("SELECT json(r.data_blob) {sql}");
+    let mut results_sql = format!("SELECT r.id,json(r.data_blob) {sql}");
 
     // Ensure we use BM25 ranking if searching text
     if is_full_text_search {
@@ -105,8 +105,12 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
 
     // Run query
     let rows = stmt.query_map(&params_ref[..], |row| {
-        let json_string: String = row.get(0)?; // Get as Text
-        Ok(json_string.into_bytes()) // Convert to Vec<u8> for the return type
+        let id: i64 = row.get(0)?;
+        let json_string: String = row.get(1)?; // Get as Text
+        Ok(ResultWithId {
+            id,
+            data: json_string.into_bytes(), // Convert to Vec<u8> for the return type
+        })
     })?;
 
     let mut results = Vec::new();

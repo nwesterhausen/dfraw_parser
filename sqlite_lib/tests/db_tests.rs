@@ -158,7 +158,7 @@ fn test_identifier_partial_matching() {
     for result in search_results.results {
         // Since search_raws returns blobs, we deserialize to check the identifier if needed,
         // but here we just verify existence based on the SQL logic.
-        assert!(!result.is_empty());
+        assert!(!result.data.is_empty());
     }
 }
 

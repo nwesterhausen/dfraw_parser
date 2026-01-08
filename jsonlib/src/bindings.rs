@@ -94,6 +94,7 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser_sqlite_lib::SpriteGraphicData>()
         .register::<dfraw_parser_sqlite_lib::ClientOptions>()
         .register::<dfraw_parser_sqlite_lib::SearchQuery>()
+        .register::<dfraw_parser_sqlite_lib::ResultWithId>()
         .register::<dfraw_parser_sqlite_lib::SearchResults>();
 
     exporter.export_to(output_path, &types)
