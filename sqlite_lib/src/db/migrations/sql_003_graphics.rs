@@ -21,8 +21,8 @@ CREATE TABLE sprite_graphics (
     tile_page_identifier TEXT NOT NULL,
     offset_x INTEGER NOT NULL,
     offset_y INTEGER NOT NULL,
-    offset_2_x INTEGER,
-    offset_2_y INTEGER,
+    offset_x_2 INTEGER,
+    offset_y_2 INTEGER,
     primary_condition TEXT NOT NULL, -- e.g. DEFAULT, CHILD, SHAKING, etc.
     secondary_condition TEXT,        -- (optional) e.g. DEFAULT, CHILD, SHAKING, etc.
     target_identifier TEXT NOT NULL, -- The identifier of the creature/item this represents

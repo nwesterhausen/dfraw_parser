@@ -5,6 +5,8 @@ mod insert_raw_definitions;
 mod module_locations;
 mod raw_definitions;
 mod search_raw_definitions;
+mod sprite_graphics;
+mod tile_pages;
 
 pub(super) use get_set_db_metadata::*;
 pub(super) use insert_modules::*;
@@ -13,3 +15,5 @@ pub(super) use insert_raw_definitions::*;
 pub(super) use module_locations::*;
 pub(super) use raw_definitions::*;
 pub(super) use search_raw_definitions::*;
+pub(super) use sprite_graphics::*;
+pub(super) use tile_pages::*;

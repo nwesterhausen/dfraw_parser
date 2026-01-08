@@ -7,7 +7,6 @@ use dfraw_parser::traits::RawObject;
 use rusqlite::{Connection, Result};
 use tracing::{debug, info, warn};
 
-use crate::SearchResults;
 use crate::db::client_options::ClientOptions;
 use crate::db::metadata_markers::{
     FavoriteRaws, LastRawsInsertion, LastRawsParsingOperation, PreferredSearchLimit,
@@ -19,6 +18,7 @@ use crate::db::migrations::LATEST_SCHEMA_VERSION;
 use crate::db::queries::{self};
 use crate::db::search_query::{DEFAULT_SEARCH_LIMIT, SearchQuery};
 use crate::db::util::get_current_schema_version;
+use crate::{SearchResults, SpriteGraphicData, TilePageData};
 
 /// A client for interacting with a database to contain details about parsed raws.
 #[derive(Debug)]
@@ -519,5 +519,69 @@ impl DbClient {
     #[allow(clippy::borrowed_box)]
     pub fn try_get_raw_id(&self, raw: &Box<dyn RawObject>) -> Result<Option<i64>> {
         queries::try_get_raw_id(&self.conn, raw)
+    }
+
+    /// Get a tile page by its id
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no tile page with given `id`
+    pub fn get_tile_page_by_id(&self, id: i64) -> Result<TilePageData> {
+        queries::get_tile_page_by_id(&self.conn, id)
+    }
+
+    /// Get a tile page by its identifier
+    ///
+    /// This returns only the top result. If no results, returns None
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn get_tile_page_by_identifier(&self, identifier: &str) -> Result<Option<TilePageData>> {
+        queries::get_tile_page_by_identifier(&self.conn, identifier)
+    }
+
+    /// Get a tile page by its linked raw id
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no tile page with given `raw id`
+    pub fn get_tile_page_by_raw_id(&self, raw_id: i64) -> Result<TilePageData> {
+        queries::get_tile_page_by_raw_id(&self.conn, raw_id)
+    }
+
+    /// Get a sprite graphic by its linked raw id
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no sprite graphic with given `raw_id`
+    pub fn get_sprite_graphics_for_target_identifier(
+        &self,
+        target_identifier: &str,
+    ) -> Result<Vec<SpriteGraphicData>> {
+        queries::get_sprite_graphics_for_target_identifier(&self.conn, target_identifier)
+    }
+
+    /// Get a sprite graphic by its linked raw id
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no sprite graphic with given `raw_id`
+    pub fn get_sprite_graphic_by_raw_id(&self, raw_id: i64) -> Result<SpriteGraphicData> {
+        queries::get_sprite_graphic_by_raw_id(&self.conn, raw_id)
+    }
+
+    /// Get a sprite graphic by its id
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no sprite graphic with given `id`
+    pub fn get_sprite_graphic_by_id(&self, id: i64) -> Result<SpriteGraphicData> {
+        queries::get_sprite_graphic_by_id(&self.conn, id)
     }
 }

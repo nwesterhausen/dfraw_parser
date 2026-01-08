@@ -10,6 +10,7 @@ pub(crate) mod search_helpers;
 
 pub use db::client::DbClient;
 pub use db::client_options::ClientOptions;
+pub use db::graphics_data::*;
 pub use db::metadata;
 pub use db::search_query::SearchQuery;
 pub use db::search_results::SearchResults;

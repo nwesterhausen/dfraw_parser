@@ -1,4 +1,4 @@
-use dfraw_parser::{InfoFile, traits::RawObject};
+use dfraw_parser::{Graphic, InfoFile, TilePage, metadata::ObjectType, traits::RawObject};
 use rusqlite::{Result, Transaction, params};
 use tracing::error;
 
@@ -11,6 +11,7 @@ use super::super::rusqlite_extensions::OptionalResultExtension;
 /// # Errors
 ///
 /// - Database error (will not commit transaction if error)
+#[allow(clippy::too_many_lines)]
 pub fn process_raw_insertions(
     tx: &Transaction,
     module_db_id: i64,
@@ -20,33 +21,65 @@ pub fn process_raw_insertions(
 ) -> Result<()> {
     let mut error_count = 0;
 
+    // Check if a raw exists already
     let mut check_raw_stmt = tx.prepare_cached(
         "SELECT id FROM raw_definitions WHERE module_id = ?1 AND identifier = ?2 LIMIT 1",
     )?;
 
+    // Insert new raw data
     let mut insert_raw_stmt = tx.prepare_cached(
         "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
          VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))",
     )?;
 
-    // Search Index Statements
+    // Search by name
     let mut insert_name_stmt =
         tx.prepare_cached("INSERT INTO raw_names (raw_id, name) VALUES (?1, ?2)")?;
+
+    // Search descriptions/details about raw
     let mut insert_search_stmt = tx.prepare_cached(
         "INSERT INTO raw_search_index (raw_id, names, description) VALUES (?1, ?2, ?3)",
     )?;
+
+    // Clear search names (used when overwriting raws) - virutal table doesn't support delete cascade
     let mut clear_names_stmt = tx.prepare_cached("DELETE FROM raw_names WHERE raw_id = ?1")?;
+
+    // Clear search descriptions (used when overwriting raws) - virutal table doesn't support delete cascade
     let mut delete_search_stmt =
         tx.prepare_cached("DELETE FROM raw_search_index WHERE raw_id = ?1")?;
 
+    // Update raw_defintion (used when overwriting raws)
     let mut update_raw_stmt =
         tx.prepare_cached("UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2")?;
 
+    // Insert common flags (flags without values) into searchable table
     let mut insert_flag_stmt =
         tx.prepare_cached("INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)")?;
 
+    // Clear common flags (if we overwrite, then reset stored flags)
     let mut clear_flags_stmt =
         tx.prepare_cached("DELETE FROM common_raw_flags WHERE raw_id = ?1")?;
+
+    // Special case for graphics for ease of retrieval.
+    let mut insert_tile_page_stmt = tx.prepare_cached(
+        "INSERT INTO tile_pages
+            (raw_id, identifier, file_path, tile_width, tile_height, page_width, page_height)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+    )?;
+
+    // Regular sprite
+    let mut insert_sprite_graphic_stmt = tx.prepare_cached(
+        "INSERT INTO sprite_graphics
+        (raw_id, tile_page_identifier, offset_x, offset_y, primary_condition, secondary_condition, target_identifier)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+    )?;
+
+    // Large sprites
+    let mut insert_large_sprite_graphic_stmt = tx.prepare_cached(
+        "INSERT INTO sprite_graphics
+        (raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+    )?;
 
     for raw in raws {
         let existing_raw_id: Option<i64> = check_raw_stmt
@@ -123,6 +156,56 @@ pub fn process_raw_insertions(
             remove_dup_strings(search_names, true).join(" "),
             search_descriptions.join(" ")
         ])?;
+
+        // Handle extra graphic data
+        match raw.get_type() {
+            ObjectType::TilePage => {
+                if let Some(tp) = raw.as_any().downcast_ref::<TilePage>() {
+                    let tile_dimensions = tp.get_tile_dimensions();
+                    let page_dimensions = tp.get_page_dimensions();
+                    insert_tile_page_stmt.execute(params![
+                        raw_db_id,
+                        tp.get_identifier(),
+                        tp.get_file_path().to_str(),
+                        tile_dimensions.x,
+                        tile_dimensions.y,
+                        page_dimensions.x,
+                        page_dimensions.y
+                    ])?;
+                }
+            }
+            ObjectType::Graphics => {
+                if let Some(g) = raw.as_any().downcast_ref::<Graphic>() {
+                    for s in &g.get_sprites() {
+                        let s_offset = s.get_offset();
+                        if let Some(s_offset_2) = s.get_offset2() {
+                            insert_large_sprite_graphic_stmt.execute(params![
+                                raw_db_id,
+                                s.get_tile_page_id(),
+                                s_offset.x,
+                                s_offset.y,
+                                s_offset_2.x,
+                                s_offset_2.y,
+                                &s.get_primary_condition().to_string(),
+                                &s.get_secondary_condition().to_string(),
+                                g.get_identifier()
+                            ])?;
+                        } else {
+                            insert_sprite_graphic_stmt.execute(params![
+                                raw_db_id,
+                                s.get_tile_page_id(),
+                                s_offset.x,
+                                s_offset.y,
+                                &s.get_primary_condition().to_string(),
+                                &s.get_secondary_condition().to_string(),
+                                g.get_identifier()
+                            ])?;
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
     }
 
     Ok(())
