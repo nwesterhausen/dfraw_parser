@@ -225,10 +225,17 @@ fn populate_side_tables(conn: &Connection, raw_id: i64, raw: &Box<dyn RawObject>
             if let Some(g) = raw.as_any().downcast_ref::<Graphic>() {
                 for s in &g.get_sprites() {
                     let s_offset = s.get_offset();
-                    conn.execute(
+                    if let Some(s_offset_2) = s.get_offset2() {
+                        conn.execute(
+                        "INSERT INTO sprite_graphics (raw_id, tile_page_identifier, offset_x, offset_y, offset_2_x, offset_2_y, condition_type, target_identifier) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                        params![raw_id, s.get_tile_page_id(), s_offset.x, s_offset.y, s_offset_2.x, s_offset_2.y, &s.get_primary_condition().to_string(), g.get_identifier()]
+                    )?;
+                    } else {
+                        conn.execute(
                     "INSERT INTO sprite_graphics (raw_id, tile_page_identifier, offset_x, offset_y, condition_type, target_identifier) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
                     params![raw_id, s.get_tile_page_id(), s_offset.x, s_offset.y, &s.get_primary_condition().to_string(), g.get_identifier()]
                 )?;
+                    }
                 }
             }
         }

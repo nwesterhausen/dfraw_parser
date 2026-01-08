@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use chrono::{TimeDelta, prelude::*};
 use dfraw_parser::ParseResult;
 use dfraw_parser::metadata::ParserOptions;
@@ -96,6 +98,21 @@ impl DbClient {
     /// - database error
     /// - seialization error
     pub fn set_last_used_parser_options(&self, options: &ParserOptions) -> Result<()> {
+        self.set_last_used_df_game_dir(
+            options
+                .locations
+                .get_df_directory()
+                .unwrap_or_default()
+                .as_path(),
+        )?;
+        self.set_last_used_df_user_dir(
+            options
+                .locations
+                .get_user_data_directory()
+                .unwrap_or_default()
+                .as_path(),
+        )?;
+
         queries::set_typed_metadata::<PreviousParserOptions>(&self.conn, options)
     }
 
@@ -228,11 +245,9 @@ impl DbClient {
     ///
     /// - database error
     /// - serialization error
-    pub fn set_last_used_df_game_dir(&self, dwarf_fortress_directory: &str) -> Result<()> {
-        queries::set_typed_metadata::<PreviousDwarfFortressGamePath>(
-            &self.conn,
-            &String::from(dwarf_fortress_directory),
-        )
+    pub fn set_last_used_df_game_dir(&self, dwarf_fortress_directory: &Path) -> Result<()> {
+        let path_str = dwarf_fortress_directory.to_string_lossy().to_string();
+        queries::set_typed_metadata::<PreviousDwarfFortressGamePath>(&self.conn, &path_str)
     }
 
     /// Get the last used Dwarf Fortress installation directory
@@ -252,11 +267,9 @@ impl DbClient {
     ///
     /// - database error
     /// - serialization error
-    pub fn set_last_used_df_user_dir(&self, user_data_dir: &str) -> Result<()> {
-        queries::set_typed_metadata::<PreviousDwarfFortressUserPath>(
-            &self.conn,
-            &String::from(user_data_dir),
-        )
+    pub fn set_last_used_df_user_dir(&self, user_data_dir: &Path) -> Result<()> {
+        let path_str = user_data_dir.to_string_lossy().to_string();
+        queries::set_typed_metadata::<PreviousDwarfFortressUserPath>(&self.conn, &path_str)
     }
 
     /// Get the last used Dwarf Fortress user directory

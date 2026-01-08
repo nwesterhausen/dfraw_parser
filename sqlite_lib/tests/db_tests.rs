@@ -1,5 +1,6 @@
 //! Tests for verifying that the various search functions work.
 
+use chrono::TimeDelta;
 use dfraw_parser::metadata::{ObjectType, RawModuleLocation};
 use dfraw_parser_sqlite_lib::SearchQuery;
 use test_util::get_test_client;
@@ -368,7 +369,7 @@ fn verify_previous_insertion_duration() {
         .get_last_insertion_duration()
         .expect("Failed to get last insertion duration")
         .expect("No insertion duration found when expected");
-
+    assert_ne!(duration, TimeDelta::zero(), "duration should not be zero");
     tracing::info!(
         "Last insertion duration was {}ms",
         duration.num_milliseconds()
@@ -384,7 +385,7 @@ fn verify_previous_insertion_date() {
         .expect("Failed to lock DbClient")
         .get_last_insertion_date()
         .expect("Failed to get last insertion duration");
-
+    assert!(!date.is_empty());
     tracing::info!("Last insertion date {date}");
 }
 
@@ -397,7 +398,7 @@ fn verify_previous_parse_date() {
         .expect("Failed to lock DbClient")
         .get_last_parse_operation_date()
         .expect("Failed to get last insertion duration");
-
+    assert!(!date.is_empty());
     tracing::info!("Last parse operation date {date}");
 }
 
@@ -411,6 +412,75 @@ fn verify_previous_parse_duration() {
         .get_last_parse_duration()
         .expect("Failed to get last insertion duration")
         .expect("No insertion duration found when expected");
-
+    assert_ne!(duration, TimeDelta::zero(), "duration should not be zero");
     tracing::info!("Last parse duration was {}ms", duration.num_milliseconds());
+}
+
+#[test]
+fn verify_previous_df_dir() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let game_dir = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_last_used_df_game_dir()
+        .expect("Failed to get last insertion duration");
+
+    assert!(!game_dir.is_empty(), "game dir shouldn't be empty");
+    tracing::info!("Last df game dir was {game_dir}");
+}
+#[test]
+fn verify_previous_user_dir() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let user_dir = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_last_used_df_user_dir()
+        .expect("Failed to get last insertion duration");
+
+    assert!(!user_dir.is_empty(), "user dir shouldn't be empty");
+    tracing::info!("Last df user dir was {user_dir}");
+}
+
+#[test]
+fn get_last_used_parser_options() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let parser_options = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_last_used_parser_options()
+        .expect("Failed to get last parser options")
+        .expect("Last parser options shouldn't be None");
+
+    tracing::info!("Last used parsing options: {parser_options:?}");
+}
+
+#[test]
+fn verify_preferred_search_limit() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+    let page_limit_1 = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_preferred_search_limit()
+        .expect("Failed to get preferred search limit");
+    client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .set_preferred_search_limit(page_limit_1 + 10)
+        .expect("Failed to set preferred search limit");
+    let page_limit_2 = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_preferred_search_limit()
+        .expect("Failed to get preferred search limit");
+
+    assert_ne!(
+        page_limit_1, page_limit_2,
+        "page limits should be different"
+    );
+    assert_ne!(page_limit_1, 0, "page limit cannot be zero");
+    assert_ne!(page_limit_2, 0, "page limit cannot be zero");
 }
