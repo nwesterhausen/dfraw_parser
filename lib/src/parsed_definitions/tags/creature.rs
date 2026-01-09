@@ -1,10 +1,9 @@
 //! Contains the `CreatureTag` enum and associated implementations.
 
 use crate::{
-    creature::Creature,
     custom_types::TileCharacter,
     raw_definitions::CREATURE_TOKENS,
-    traits::{RawObjectToken, TagOperations, TokenParser},
+    traits::{TagOperations, TokenParser},
 };
 
 /// An enum representing a creature tag.
@@ -570,13 +569,6 @@ pub enum CreatureTag {
 impl std::fmt::Display for CreatureTag {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(self, f)
-    }
-}
-
-#[typetag::serialize]
-impl RawObjectToken<Creature> for CreatureTag {
-    fn is_within(&self, object: &Creature) -> bool {
-        object.get_tags().contains(self)
     }
 }
 

@@ -1,13 +1,22 @@
+use crate::Creature;
 use crate::raw_definitions::tokens::caste::CASTE_TOKENS;
 use crate::tags::CasteTag;
+use crate::traits::RawObjectToken;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-impl CasteTag {
-    /// Retrieves the original string token key for this tag (e.g., "PET_VALUE").
-    /// Uses a cached reverse-lookup map for O(1) performance.
-    pub fn get_key(&self) -> Option<&'static str> {
+#[typetag::serialize]
+impl RawObjectToken<Creature> for CasteTag {
+    fn is_within(&self, object: &Creature) -> bool {
+        for caste in object.get_castes() {
+            if caste.get_tags().contains(self) {
+                return true;
+            }
+        }
+        false
+    }
+    fn get_key(&self) -> Option<&'static str> {
         // 1. Define a static storage for the reverse map
         static REVERSE_MAP: OnceLock<HashMap<Discriminant<CasteTag>, &'static str>> =
             OnceLock::new();

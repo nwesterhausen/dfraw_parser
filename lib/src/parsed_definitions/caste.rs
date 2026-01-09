@@ -4,7 +4,6 @@ use tracing::warn;
 
 use crate::{
     body_size::BodySize,
-    creature::Creature,
     default_checks,
     gait::Gait,
     milkable::Milkable,
@@ -12,7 +11,7 @@ use crate::{
     raw_definitions::CASTE_TOKENS,
     tags::CasteTag,
     tile::Tile,
-    traits::{RawObjectToken, TagOperations, searchable::Searchable},
+    traits::{TagOperations, searchable::Searchable},
 };
 
 /// A struct representing a creature caste.
@@ -718,17 +717,5 @@ impl Searchable for Caste {
         }
 
         vec
-    }
-}
-
-#[typetag::serialize]
-impl RawObjectToken<Creature> for CasteTag {
-    fn is_within(&self, object: &Creature) -> bool {
-        for caste in object.get_castes() {
-            if caste.get_tags().contains(self) {
-                return true;
-            }
-        }
-        false
     }
 }

@@ -1,13 +1,18 @@
+use crate::Creature;
 use crate::raw_definitions::tokens::creature::CREATURE_TOKENS;
 use crate::tags::CreatureTag;
+use crate::traits::RawObjectToken;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-impl CreatureTag {
-    /// Retrieves the original string token key for this tag (e.g., "FREQUENCY").
-    /// Uses a cached reverse-lookup map for O(1) performance.
-    pub fn get_key(&self) -> Option<&'static str> {
+#[typetag::serialize]
+impl RawObjectToken<Creature> for CreatureTag {
+    fn is_within(&self, object: &Creature) -> bool {
+        object.get_tags().contains(self)
+    }
+
+    fn get_key(&self) -> Option<&'static str> {
         // Static lazy-initialized reverse map from enum discriminant -> token string
         static REVERSE_MAP: OnceLock<HashMap<Discriminant<CreatureTag>, &'static str>> =
             OnceLock::new();

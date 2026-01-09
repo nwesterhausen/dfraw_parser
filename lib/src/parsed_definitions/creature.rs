@@ -16,7 +16,7 @@ use crate::{
     tags::{BiomeTag, CasteTag, CreatureTag},
     tile::Tile,
     traits::{
-        CreatureVariationRequirements, RawObject, Searchable, TagOperations,
+        CreatureVariationRequirements, RawObject, RawObjectToken, Searchable, TagOperations,
         searchable::clean_search_vec,
     },
     utilities::build_object_id_from_pieces,
