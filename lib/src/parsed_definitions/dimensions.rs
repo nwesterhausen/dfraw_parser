@@ -22,6 +22,14 @@ impl Dimensions {
     pub const fn zero() -> Self {
         Self { x: 0, y: 0 }
     }
+    /// Returns a new Dimension where each component is the maximum of the two.
+    #[must_use]
+    pub fn max_components(self, other: Dimensions) -> Dimensions {
+        Dimensions {
+            x: self.x.max(other.x),
+            y: self.y.max(other.y),
+        }
+    }
     /// Function to create a new Dimensions object with given x and y values.
     ///
     /// # Parameters
