@@ -1,4 +1,6 @@
-use dfraw_parser::{Graphic, InfoFile, TilePage, metadata::ObjectType, traits::RawObject};
+use dfraw_parser::{
+    Graphic, InfoFile, TilePage, metadata::ObjectType, tags::ConditionTag, traits::RawObject,
+};
 use rusqlite::{Result, Transaction, params};
 use tracing::error;
 
@@ -196,8 +198,9 @@ pub fn process_raw_insertions(
                                 s.get_tile_page_id(),
                                 s_offset.x,
                                 s_offset.y,
-                                &s.get_primary_condition().to_string(),
-                                &s.get_secondary_condition().to_string(),
+                                ConditionTag::get_key(&s.get_primary_condition())
+                                    .unwrap_or_default(),
+                                ConditionTag::get_key(&s.get_secondary_condition()),
                                 g.get_identifier()
                             ])?;
                         }
