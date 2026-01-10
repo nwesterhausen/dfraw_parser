@@ -5,18 +5,21 @@ use crate::SpriteGraphicData;
 const GET_SPRITE_GRAPHIC_BY_ID: &str = r"
 SELECT
     id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+FROM sprite_graphics
 WHERE
     id = ?1;
 ";
 const GET_SPRITE_GRAPHIC_BY_RAW_ID: &str = r"
 SELECT
     id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+FROM sprite_graphics
 WHERE
     raw_id = ?1;
 ";
 const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER: &str = r"
 SELECT
     id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+FROM sprite_graphics
 WHERE
     target_identifier = ?1;
 ";
