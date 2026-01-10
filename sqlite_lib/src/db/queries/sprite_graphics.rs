@@ -41,7 +41,7 @@ pub fn get_sprite_graphic_by_id(conn: &Connection, id: i64) -> Result<SpriteGrap
             offset_x_2: row.get(5)?,
             offset_y_2: row.get(6)?,
             primary_condition: row.get(7)?,
-            secondary_condition: row.get(8)?,
+            secondary_condition: row.get(8).unwrap_or_default(),
             target_identifier: row.get(9)?,
         })
     })
@@ -64,7 +64,7 @@ pub fn get_sprite_graphic_by_raw_id(conn: &Connection, raw_id: i64) -> Result<Sp
             offset_x_2: row.get(5)?,
             offset_y_2: row.get(6)?,
             primary_condition: row.get(7)?,
-            secondary_condition: row.get(8)?,
+            secondary_condition: row.get(8).unwrap_or_default(),
             target_identifier: row.get(9)?,
         })
     })
@@ -94,7 +94,7 @@ pub fn get_sprite_graphics_for_target_identifier(
             offset_x_2: row.get(5)?,
             offset_y_2: row.get(6)?,
             primary_condition: row.get(7)?,
-            secondary_condition: row.get(8)?,
+            secondary_condition: row.get(8).unwrap_or_default(),
             target_identifier: row.get(9)?,
         });
     }
