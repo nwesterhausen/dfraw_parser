@@ -3,6 +3,7 @@ use std::fmt::Debug;
 /// A structured response for search operations, containing the requested page of data
 /// and the total count of matches in the database.
 #[derive(serde::Serialize, serde::Deserialize, Clone, Default, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchResults<T = serde_json::Value> {
     /// The page of results found.
     pub results: Vec<ResultWithId<T>>,

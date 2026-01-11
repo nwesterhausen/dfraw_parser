@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// A query for searching raw objects in the database.
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchQuery {
     /// A general text search string for names and descriptions.
     pub search_string: Option<String>,
