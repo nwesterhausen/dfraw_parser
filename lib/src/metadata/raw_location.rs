@@ -21,14 +21,14 @@ use tracing::warn;
 )]
 pub enum RawModuleLocation {
     /// The "installed" mods directory
-    InstalledMods,
+    InstalledMods = 3,
     /// The "downloaded" mods directory
-    WorkshopMods,
+    WorkshopMods = 2,
     /// The vanilla data file location
-    Vanilla,
+    Vanilla = 1,
     /// An unknown location
     #[default]
-    Unknown,
+    Unknown = 4,
     /// Used for handling legends exported files
     LegendsExport,
 }

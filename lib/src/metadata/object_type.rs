@@ -61,92 +61,92 @@ pub static OBJECT_TOKEN_MAP: phf::Map<&'static str, ObjectType> = phf::phf_map! 
 )]
 pub enum ObjectType {
     /// A creature
-    Creature,
+    Creature = 1,
     /// An inorganic material
-    Inorganic,
+    Inorganic = 2,
     /// A plant
-    Plant,
+    Plant = 3,
     /// An item
-    Item,
+    Item = 4,
     /// An item of type ammo
-    ItemAmmo,
+    ItemAmmo = 5,
     /// An item of type armor
-    ItemArmor,
+    ItemArmor = 6,
     /// An item of type food
-    ItemFood,
+    ItemFood = 7,
     /// An item of type gloves
-    ItemGloves,
+    ItemGloves = 8,
     /// An item of type helm
-    ItemHelm,
+    ItemHelm = 9,
     /// An item of type instrument
-    ItemInstrument,
+    ItemInstrument = 10,
     /// An item of type pants
-    ItemPants,
+    ItemPants = 11,
     /// An item of type shield
-    ItemShield,
+    ItemShield = 12,
     /// An item of type shoes
-    ItemShoes,
+    ItemShoes = 13,
     /// An item of type siege ammo
-    ItemSiegeAmmo,
+    ItemSiegeAmmo = 14,
     /// An item of type tool
-    ItemTool,
+    ItemTool = 15,
     /// An item of type toy
-    ItemToy,
+    ItemToy = 16,
     /// An item of type trap component
-    ItemTrapComponent,
+    ItemTrapComponent = 17,
     /// An item of type weapon
-    ItemWeapon,
+    ItemWeapon = 18,
     /// A building
-    Building,
+    Building = 19,
     /// A workshop building
-    BuildingWorkshop,
+    BuildingWorkshop = 20,
     /// A furnace building
-    BuildingFurnace,
+    BuildingFurnace = 21,
     /// A reaction
-    Reaction,
+    Reaction = 22,
     /// Graphics
-    Graphics,
+    Graphics = 23,
     /// A material template
-    MaterialTemplate,
+    MaterialTemplate = 24,
     /// A body detail plan
-    BodyDetailPlan,
+    BodyDetailPlan = 25,
     /// A body
-    Body,
+    Body = 26,
     /// An entity
-    Entity,
+    Entity = 27,
     /// A language
-    Language,
+    Language = 28,
     /// A translation
-    Translation,
+    Translation = 29,
     /// A tissue template
-    TissueTemplate,
+    TissueTemplate = 30,
     /// A creature variation
-    CreatureVariation,
+    CreatureVariation = 31,
     /// A text set
-    TextSet,
+    TextSet = 32,
     /// A tile page
-    TilePage,
+    TilePage = 33,
     /// A descriptor color
-    DescriptorColor,
+    DescriptorColor = 34,
     /// A descriptor pattern
-    DescriptorPattern,
+    DescriptorPattern = 35,
     /// A descriptor shape
-    DescriptorShape,
+    DescriptorShape = 36,
     /// A palette
-    Palette,
+    Palette = 37,
     /// Music
-    Music,
+    Music = 38,
     /// Sound
-    Sound,
+    Sound = 39,
     /// An interaction
-    Interaction,
+    Interaction = 40,
     /// An unknown object type
     #[default]
-    Unknown,
+    Unknown = 99,
     /// `SelectCreature` tag
-    SelectCreature,
+    SelectCreature = 41,
     /// A creature caste
-    CreatureCaste,
+    CreatureCaste = 42,
 }
 
 impl Display for ObjectType {
