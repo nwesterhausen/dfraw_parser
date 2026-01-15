@@ -1,4 +1,4 @@
-use dfraw_parser::metadata::ObjectType;
+use dfraw_parser::metadata::{ObjectType, RawModuleLocation};
 use rusqlite::{Connection, Result};
 use std::fmt::Write as _;
 use tracing::info;
@@ -174,8 +174,14 @@ fn add_location_filter(
 
     // Register the locations for insertion
     for l in &query.locations {
-        // Locations stored in database by "name" string, i.e. Vanilla, Installed Mods, etc
-        params_vec.push(Box::new(l.to_string()));
+        // Map enum variants to exact DB strings
+        let db_name = match l {
+            RawModuleLocation::Vanilla => "Vanilla",
+            RawModuleLocation::WorkshopMods => "Workshop Mods",
+            RawModuleLocation::InstalledMods => "Installed Mods",
+            _ => "Unknown",
+        };
+        params_vec.push(Box::new(db_name.to_string()));
     }
 }
 
