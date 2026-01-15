@@ -24,3 +24,21 @@ the description of the animal, if they laid eggs, if they were milkable, and how
 
 - Parses raw files for creatures
 - Parses raw files for plants
+
+## Documentation
+
+- **[API Documentation](https://docs.rs/dfraw_parser)** - Generated documentation for all public APIs
+- **[Documentation Improvements](DOCUMENTATION_IMPROVEMENTS.md)** - Detailed analysis of documentation status and improvement suggestions
+- **[Quick Reference](DOCUMENTATION_QUICK_REFERENCE.md)** - Quick reference for documenting code
+
+## Contributing
+
+Contributions are welcome! Please see:
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guidelines for contributing, including documentation standards
+- **[DOCUMENTATION_SUMMARY.md](DOCUMENTATION_SUMMARY.md)** - Overview of documentation resources and current status
+
+To check for missing documentation:
+```bash
+cargo clippy --package dfraw_parser -- -D missing_docs
+```
