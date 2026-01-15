@@ -123,7 +123,7 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
     info!(
         "search_raws: {rows_count}/{total_count} results, page {} of {}",
         query.page,
-        (total_count / query.limit) as u32 + 1
+        (total_count / query.limit) + 1
     );
 
     Ok(SearchResults {
