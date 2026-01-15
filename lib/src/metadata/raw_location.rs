@@ -87,8 +87,8 @@ impl Display for RawModuleLocation {
 impl From<RawModuleLocation> for i32 {
     fn from(value: RawModuleLocation) -> Self {
         match value {
-            RawModuleLocation::InstalledMods => 2,
-            RawModuleLocation::WorkshopMods => 3,
+            RawModuleLocation::InstalledMods => 3,
+            RawModuleLocation::WorkshopMods => 2,
             RawModuleLocation::Vanilla => 1,
             RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
         }
@@ -97,8 +97,8 @@ impl From<RawModuleLocation> for i32 {
 impl From<&RawModuleLocation> for i32 {
     fn from(value: &RawModuleLocation) -> Self {
         match *value {
-            RawModuleLocation::InstalledMods => 2,
-            RawModuleLocation::WorkshopMods => 3,
+            RawModuleLocation::InstalledMods => 3,
+            RawModuleLocation::WorkshopMods => 2,
             RawModuleLocation::Vanilla => 1,
             RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
         }
