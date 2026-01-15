@@ -552,17 +552,51 @@ impl DbClient {
         queries::get_tile_page_by_raw_id(&self.conn, raw_id)
     }
 
-    /// Get a sprite graphic by its linked raw id
+    /// Get a sprite graphic by its target identifier
     ///
     /// # Errors
     ///
     /// - database error
-    /// - no sprite graphic with given `raw_id`
+    /// - no sprite graphic with given `target`
     pub fn get_sprite_graphics_for_target_identifier(
         &self,
         target_identifier: &str,
     ) -> Result<Vec<SpriteGraphicData>> {
         queries::get_sprite_graphics_for_target_identifier(&self.conn, target_identifier)
+    }
+
+    /// Get a sprite graphic by its target identifier and include any caste-specific matches
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no sprite graphic with given `target`
+    pub fn get_sprite_graphics_for_target_identifier_and_any_castes(
+        &self,
+        target_identifier: &str,
+    ) -> Result<Vec<SpriteGraphicData>> {
+        queries::get_sprite_graphics_for_target_identifier_and_any_castes(
+            &self.conn,
+            target_identifier,
+        )
+    }
+
+    /// Get a sprite graphic by its target identifier and caste
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no sprite graphic with given `target`
+    pub fn get_sprite_graphics_for_target_identifier_and_caste(
+        &self,
+        target_identifier: &str,
+        target_caste: &str,
+    ) -> Result<Vec<SpriteGraphicData>> {
+        queries::get_sprite_graphics_for_target_identifier_and_caste(
+            &self.conn,
+            target_identifier,
+            target_caste,
+        )
     }
 
     /// Get a sprite graphic by its linked raw id

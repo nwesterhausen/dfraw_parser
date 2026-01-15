@@ -23,6 +23,21 @@ FROM sprite_graphics
 WHERE
     target_identifier = ?1;
 ";
+const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_CASTE: &str = r"
+SELECT
+    id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+FROM sprite_graphics
+WHERE
+    target_identifier = ?1;
+";
+const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_ANY_CASTES: &str = r"
+SELECT
+    id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+FROM sprite_graphics
+WHERE
+    target_identifier = ?1
+ OR target_identifier LIKE ?2;
+";
 
 /// Get a sprite graphic by its id
 ///
@@ -70,7 +85,7 @@ pub fn get_sprite_graphic_by_raw_id(conn: &Connection, raw_id: i64) -> Result<Sp
     })
 }
 
-/// Get a sprite graphic by its linked raw id
+/// Get a sprite graphic by its linked raw identifier
 ///
 /// # Errors
 ///
@@ -82,6 +97,72 @@ pub fn get_sprite_graphics_for_target_identifier(
 ) -> Result<Vec<SpriteGraphicData>> {
     let mut stmt = conn.prepare(GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER)?;
     let mut rows = stmt.query(params![target_identifier])?;
+    let mut sprites = Vec::new();
+
+    while let Some(row) = rows.next()? {
+        sprites.push(SpriteGraphicData {
+            id: row.get(0)?,
+            raw_id: row.get(1)?,
+            tile_page_identifier: row.get(2)?,
+            offset_x: row.get(3)?,
+            offset_y: row.get(4)?,
+            offset_x_2: row.get(5)?,
+            offset_y_2: row.get(6)?,
+            primary_condition: row.get(7)?,
+            secondary_condition: row.get(8).unwrap_or_default(),
+            target_identifier: row.get(9)?,
+        });
+    }
+
+    Ok(sprites)
+}
+
+/// Get a sprite graphic by its linked raw identifier and caste
+///
+/// # Errors
+///
+/// - database error
+/// - no sprite graphic with given `raw_id`
+pub fn get_sprite_graphics_for_target_identifier_and_caste(
+    conn: &Connection,
+    target_identifier: &str,
+    target_caste: &str,
+) -> Result<Vec<SpriteGraphicData>> {
+    let mut stmt = conn.prepare(GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_CASTE)?;
+    let mut rows = stmt.query(params![format!("{target_identifier}:{target_caste}")])?;
+    let mut sprites = Vec::new();
+
+    while let Some(row) = rows.next()? {
+        sprites.push(SpriteGraphicData {
+            id: row.get(0)?,
+            raw_id: row.get(1)?,
+            tile_page_identifier: row.get(2)?,
+            offset_x: row.get(3)?,
+            offset_y: row.get(4)?,
+            offset_x_2: row.get(5)?,
+            offset_y_2: row.get(6)?,
+            primary_condition: row.get(7)?,
+            secondary_condition: row.get(8).unwrap_or_default(),
+            target_identifier: row.get(9)?,
+        });
+    }
+
+    Ok(sprites)
+}
+
+/// Get a sprite graphic by its linked raw identifier and include any graphics for its castes.
+///
+/// # Errors
+///
+/// - database error
+/// - no sprite graphic with given `raw_id`
+pub fn get_sprite_graphics_for_target_identifier_and_any_castes(
+    conn: &Connection,
+    target_identifier: &str,
+) -> Result<Vec<SpriteGraphicData>> {
+    let mut stmt = conn.prepare(GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_ANY_CASTES)?;
+    let caste_pattern = format!("{target_identifier}:%");
+    let mut rows = stmt.query(params![target_identifier, caste_pattern])?;
     let mut sprites = Vec::new();
 
     while let Some(row) = rows.next()? {
