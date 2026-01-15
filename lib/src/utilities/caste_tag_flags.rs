@@ -1,6 +1,10 @@
 use crate::tags::CasteTag;
 
 impl CasteTag {
+    /// Array of all caste tags that represent boolean flags.
+    ///
+    /// These tags don't require additional parameters and are either present or absent.
+    /// Used for efficient lookup and validation of flag-type tags.
     pub const FLAG_TOKENS: [&CasteTag; 163] = [
         &CasteTag::AdoptsOwner,
         &CasteTag::AlcoholDependent,

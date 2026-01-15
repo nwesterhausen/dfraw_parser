@@ -1,3 +1,22 @@
+//! Utility functions and helpers for parsing Dwarf Fortress raw files.
+//!
+//! This module provides various utilities including:
+//! - File operations for reading and writing raw files
+//! - Directory lookup functions for Steam and user data directories
+//! - Tag lookup tables for creatures, plants, entities, and more
+//! - Flag constants for various game object types
+//!
+//! # Examples
+//!
+//! Finding the game installation path:
+//! ```no_run
+//! use dfraw_parser::utilities::find_game_path;
+//!
+//! if let Some(path) = find_game_path() {
+//!     println!("Game found at: {:?}", path);
+//! }
+//! ```
+
 mod biome_tag_lookup;
 mod caste_tag_flags;
 mod condition_tag_lookup;

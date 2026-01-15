@@ -212,79 +212,142 @@ impl Caste {
             _ => {}
         }
     }
-    /// Function to get the identifier of the creature.
+    /// Returns the identifier of this caste.
     ///
-    /// # Returns
-    ///
-    /// * `&str` - The identifier of the creature.
+    /// The identifier is the unique name used in the raw files to reference this caste.
     #[must_use]
     pub fn get_identifier(&self) -> &str {
         &self.identifier
     }
+
+    /// Returns the description of this caste, if available.
+    ///
+    /// This is the descriptive text shown in-game for creatures of this caste.
     #[must_use]
     pub fn get_description(&self) -> Option<&str> {
         self.description.as_deref()
     }
+
+    /// Returns the pet value of this caste, if specified.
+    ///
+    /// The pet value affects how desirable this creature is as a pet and influences
+    /// its trade value.
     #[must_use]
     pub fn get_pet_value(&self) -> Option<u32> {
         self.pet_value
     }
+
+    /// Returns the age at which creatures of this caste are considered babies.
+    ///
+    /// This value is specified in ticks (game time units).
     #[must_use]
     pub fn get_baby_age(&self) -> Option<u32> {
         self.baby
     }
+
+    /// Returns the age at which creatures of this caste are considered children.
+    ///
+    /// This value is specified in ticks (game time units).
     #[must_use]
     pub fn get_child_age(&self) -> Option<u32> {
         self.child
     }
+
+    /// Returns the difficulty rating for this caste.
+    ///
+    /// Higher values indicate more challenging creatures in arena mode or similar contexts.
     #[must_use]
     pub fn get_difficulty(&self) -> Option<u32> {
         self.difficulty
     }
+
+    /// Returns the size of eggs laid by this caste, if applicable.
+    ///
+    /// Measured in cubic centimeters (cm³).
     #[must_use]
     pub fn get_egg_size(&self) -> Option<u32> {
         self.egg_size
     }
+
+    /// Returns the population ratio for this caste.
+    ///
+    /// This determines the relative frequency of this caste in wild populations.
+    /// For example, a pop_ratio of 50 means this caste appears 50% of the time.
     #[must_use]
     pub fn get_pop_ratio(&self) -> Option<u32> {
         self.pop_ratio
     }
+
+    /// Returns the clutch size range for this caste, if it lays eggs.
+    ///
+    /// Returns a tuple of `[min, max]` eggs per clutch.
     #[must_use]
     pub fn get_clutch_size(&self) -> Option<[u32; 2]> {
         self.clutch_size
     }
+
+    /// Returns the litter size range for this caste, if it gives live birth.
+    ///
+    /// Returns a tuple of `[min, max]` offspring per litter.
     #[must_use]
     pub fn get_litter_size(&self) -> Option<[u32; 2]> {
         self.litter_size
     }
+
+    /// Returns the maximum age range for this caste.
+    ///
+    /// Returns a tuple of `[min, max]` age in game ticks. Creatures die of old age
+    /// within this range.
     #[must_use]
     pub fn get_max_age(&self) -> Option<[u32; 2]> {
         self.max_age
     }
+
+    /// Returns the name used for baby creatures of this caste.
     #[must_use]
     pub fn get_baby_name(&self) -> Option<&Name> {
         self.baby_name.as_ref()
     }
+
+    /// Returns the name used for child creatures of this caste.
     #[must_use]
     pub fn get_child_name(&self) -> Option<&Name> {
         self.child_name.as_ref()
     }
+
+    /// Returns the name used for adult creatures of this caste.
     #[must_use]
     pub fn get_caste_name(&self) -> Option<&Name> {
         self.caste_name.as_ref()
     }
+
+    /// Returns the tile graphics information for this caste.
+    ///
+    /// This defines the character and colors used to display this caste in ASCII mode.
     #[must_use]
     pub fn get_tile(&self) -> Option<&Tile> {
         self.tile.as_ref()
     }
+
+    /// Returns a slice of body sizes for this caste at different life stages.
+    ///
+    /// Body size affects combat, carrying capacity, and butchering yields.
     #[must_use]
     pub fn get_body_sizes(&self) -> &[BodySize] {
         self.body_size.as_deref().unwrap_or(&[])
     }
+
+    /// Returns a slice of creature classes this caste belongs to.
+    ///
+    /// Creature classes are used for targeting by interactions, syndromes, and other effects.
     #[must_use]
     pub fn get_creature_classes(&self) -> &[String] {
         self.creature_class.as_deref().unwrap_or(&[])
     }
+
+    /// Returns a slice of gaits (movement modes) available to this caste.
+    ///
+    /// Examples include walking, crawling, flying, and swimming.
     #[must_use]
     pub fn get_gaits(&self) -> &[Gait] {
         self.gaits.as_deref().unwrap_or(&[])

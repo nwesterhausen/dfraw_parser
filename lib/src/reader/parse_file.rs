@@ -25,32 +25,42 @@ use tracing::{debug, error, trace, warn};
 
 use super::{parse_result::FileParseResult, read_raw_file_type};
 
-/// Parse a raw file into a list of parsed raws and a list of unprocessed raws.
+/// Parses a raw file at the specified path.
 ///
-/// This function performs the following steps:
-///
-/// 1. Parse the raw file into a list of parsed raws.
-/// 2. Filter the parsed raws into a list of unprocessed raws.
-/// 3. Return the parsed raws and unprocessed raws.
-///
-/// The unprocessed raws need to be resolved so that they can become parsed raws. This is done
-/// by calling `resolve` on an `UnprocessedRaw` object. That requires the entirety of the parsed
-/// raws to be passed in, so that it can find the raws it needs to resolve against.
+/// This function reads and parses a single Dwarf Fortress raw file, extracting
+/// all object definitions it contains.
 ///
 /// # Arguments
 ///
-/// * `raw_file_path` - The path to the raw file to parse.
-/// * `options` - The parser options to use when parsing the raw file.
+/// * `raw_file_path` - Path to the raw file to parse
+/// * `options` - Parser configuration options
 ///
 /// # Returns
 ///
-/// * `Result<FileParseResult, ParserError>` - The results of parsing the raw file.
+/// Returns a `FileParseResult` containing all parsed objects from the file.
 ///
 /// # Errors
 ///
-/// * `ParserError::InvalidRawFile` - If the raw file is invalid.
-/// * `ParserError::IOError` - If there is an error reading the raw file.
-/// * `ParserError::InfoFileError` - If there is an error reading the module info file.
+/// Returns `ParserError`
+/// - `IOError`: The file cannot be read
+/// - `IOError`: The file contains invalid UTF-8 or Latin-1 encoding
+/// - `InvalidRawFile`: The file structure is malformed
+/// - `InfoFileError`: There is an error reading the module's info.txt file
+///
+/// # Examples
+///
+/// ```no_run
+/// use dfraw_parser::{parse_raw_file, ParserOptions};
+/// use std::path::Path;
+///
+/// let path = Path::new("data/vanilla/objects/creature_standard.txt");
+/// let options = ParserOptions::default();
+///
+/// match parse_raw_file(&path, &options) {
+///     Ok(result) => println!("Parsed {} objects", result.creatures.len()),
+///     Err(e) => eprintln!("Parse error: {}", e),
+/// }
+/// ```
 #[allow(dead_code)]
 pub fn parse_raw_file<P: AsRef<Path>>(
     raw_file_path: &P,

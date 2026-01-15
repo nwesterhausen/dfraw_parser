@@ -10,6 +10,16 @@ pub struct TileCharacter {
 }
 
 impl TileCharacter {
+    /// Creates a new `TileCharacter` with the default '?' character.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dfraw_parser::custom_types::TileCharacter;
+    ///
+    /// let tile_char = TileCharacter::new();
+    /// assert_eq!(tile_char.value, '?');
+    /// ```
     pub const fn new() -> Self {
         Self { value: '?' }
     }
