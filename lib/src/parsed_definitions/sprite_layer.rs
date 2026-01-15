@@ -21,6 +21,18 @@ pub struct SpriteLayer {
 }
 
 impl SpriteLayer {
+    #[must_use]
+    pub fn get_offset(&self) -> Dimensions {
+        self.offset
+    }
+    #[must_use]
+    pub fn get_offset2(&self) -> Option<Dimensions> {
+        self.offset_2
+    }
+    #[must_use]
+    pub fn get_name(&self) -> String {
+        self.layer_name.clone()
+    }
     /// Returns the `tile_page_id` of the `SpriteLayer`.
     ///
     /// # Returns

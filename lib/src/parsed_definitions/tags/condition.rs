@@ -20,6 +20,8 @@ pub enum ConditionTag {
     #[default]
     /// No condition
     None,
+    /// A portrait of the creature, used when interacting with them
+    Portrait,
     /// The start of a condition
     Condition,
     /// Used when defining a default sprite image

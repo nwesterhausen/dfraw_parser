@@ -5,6 +5,7 @@ use crate::tags::ConditionTag;
 /// Map of condition tags to their string representation.
 pub static CONDITION_TOKENS: phf::Map<&'static str, ConditionTag> = phf::phf_map! {
   "DEFAULT" => ConditionTag::Default,
+  "PORTRAIT" => ConditionTag::Portrait,
   "ANIMATED" => ConditionTag::Animated,
   "CORPSE" => ConditionTag::Corpse,
   "CHILD" => ConditionTag::ChildPrime,

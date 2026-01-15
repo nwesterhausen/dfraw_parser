@@ -1,6 +1,6 @@
 use dfraw_parser::{InfoFile, traits::RawObject};
 use rusqlite::{Connection, Result, Transaction, params};
-use tracing::info;
+use tracing::{debug, info};
 
 use crate::{ClientOptions, db::queries::process_raw_insertions};
 
@@ -27,6 +27,12 @@ pub fn insert_module_data(
         ],
         |row| row.get(0),
     ).optional()?;
+    debug!(
+        "existing_module_id searched '{}' '{}' '{}' => {existing_module_id:?}",
+        info.get_identifier(),
+        i64::from(info.get_numeric_version()),
+        info.get_location() as i32
+    );
 
     let module_db_id = if let Some(id) = existing_module_id {
         if !overwrite_raws {

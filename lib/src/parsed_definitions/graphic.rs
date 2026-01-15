@@ -57,6 +57,14 @@ impl Graphic {
             None => Vec::new(),
         }
     }
+    /// Get the sprites defined in this graphic
+    #[must_use]
+    pub fn get_layers(&self) -> Vec<(String, Vec<SpriteLayer>)> {
+        match self.layers.as_ref() {
+            Some(layers) => layers.clone(),
+            None => Vec::new(),
+        }
+    }
     /// Function to create a new empty Graphic.
     ///
     /// # Returns
