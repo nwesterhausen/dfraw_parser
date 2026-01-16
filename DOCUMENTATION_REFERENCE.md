@@ -33,8 +33,6 @@ pub fn get_description(&self) -> Option<&str> {
 ```rust
 /// Adds a tag to this object.
 ///
-/// # Arguments
-///
 /// * `tag` - The tag to add
 ///
 /// # Examples
@@ -54,19 +52,14 @@ pub fn add_tag(&mut self, tag: Tag) {
 ```rust
 /// Parses a raw file and returns the parsed objects.
 ///
-/// # Arguments
-///
 /// * `path` - Path to the raw file
-///
-/// # Returns
 ///
 /// Returns a `ParseResult` containing all parsed objects.
 ///
 /// # Errors
 ///
-/// Returns `ParserError`
-/// - `IOError`: The file cannot be read.
-/// - `InvalidRawFile`: The file format is invalid.
+/// - [`ParserError::IOError`]: The file cannot be read.
+/// - [`ParserError::InvalidRawFile`]: The file format is invalid.
 ///
 /// # Examples
 ///
@@ -86,8 +79,6 @@ pub fn parse_file(path: &Path) -> Result<ParseResult, ParserError> {
 
 ```rust
 /// Creates a new creature with the given identifier.
-///
-/// # Arguments
 ///
 /// * `identifier` - The unique identifier for this creature
 ///
@@ -128,6 +119,8 @@ pub trait Searchable {
 
 ```rust
 /// Represents the state of a material.
+/// 
+/// This is used in material defintion raws.
 #[derive(Debug, Clone, Copy)]
 pub enum MaterialState {
     /// Solid state (e.g., ice, stone)
@@ -174,11 +167,9 @@ for it to correctly parse an object.
 /// Represents a single creature definition from a raw file.
 ///
 /// A creature is defined by the `[CREATURE:ID]` token and encompasses
-/// all properties until the next top-level object.
-///
-/// ### Invariants
-/// - The `identifier` must be uppercase as per DF standards.
-/// - At least one `[NAME]` tag is expected for valid game loading.
+/// all properties until the next top-level object. See the wiki for more
+/// information on what's in a creature raw file: 
+/// [Creature](https://dwarffortresswiki.org/index.php/Creature_token)
 pub struct Creature { ... }
 ```
 
@@ -186,12 +177,14 @@ pub struct Creature { ... }
 
 Use these sections in your documentation:
 
-- `# Arguments` - Parameter descriptions
-- `# Returns` - Return value description
-- `# Errors` - Error conditions for Result types
-- `# Panics` - When the function might panic
-- `# Safety` - Safety requirements (unsafe functions only)
-- `# Examples` - Usage examples
+1. One line, concise description
+2. Parameter descriptions (if parameters)
+3. Returns
+4. Extra details/description or links to supporting documentation (if relevant)
+5. `# Errors` - Error conditions for Result types
+6. `# Panics` - When the function might panic (if it panics)
+7. `# Safety` - Safety requirements for unsafe functions
+8. `# Examples` - Usage examples with descriptions of why it would be used
 
 ## Code Example Attributes
 
