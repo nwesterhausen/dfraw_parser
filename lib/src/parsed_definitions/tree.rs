@@ -35,21 +35,21 @@ pub struct Tree {
     /// Valid values: 1-8
     /// Default: 1
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_one_u8")]
+    #[is_empty(value = 1)]
     max_trunk_height: Option<u8>,
     /// Upper limit of trunk thickness, in tiles. Has a geometric effect on log yield.
     /// Valid values: 1-3
     /// Default: 1
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_one_u8")]
+    #[is_empty(value = 1)]
     max_trunk_diameter: Option<u8>,
     /// The number of years the trunk takes to grow one z-level upward. Default: 1
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_one_u8")]
+    #[is_empty(value = 1)]
     trunk_period: Option<u8>,
     /// The number of years the trunk takes to grow one tile wider. Default: 1
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_one_u8")]
+    #[is_empty(value = 1)]
     trunk_width_period: Option<u8>,
     /// What thin branches of the tree are named.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -94,42 +94,50 @@ pub struct Tree {
     cap_name: Option<Name>,
     /// Similar to the other PERIOD tags, influences the rate of the mushroom cap growth. Only makes sense with `TREE_HAS_MUSHROOM_CAP`. Default: 1
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_one_u8")]
+    #[is_empty(value = 1)]
     cap_period: Option<u8>,
     /// The radius of a mushroom cap. Only makes sense with `TREE_HAS_MUSHROOM_CAP`. Default: 0
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     cap_radius: Option<u8>,
     /// The tile used for trees of this type on the world map. Defaults to 24 (↑).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = "↑")]
     tree_tile: Option<String>,
     /// The tile used for (un)dead trees and deciduous trees (generally in winter) of this type. Defaults to 198 (╞).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = "╞")]
     dead_tree_tile: Option<String>,
     /// The tile used for saplings of this tree. Defaults to 231 (τ).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = "τ")]
     sapling_tile: Option<String>,
     /// The tile used for dead saplings of this tree. Defaults to 231 (τ).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = "τ")]
     dead_sapling_tile: Option<String>,
     /// The color of the tree on the map. Defaults to 2:0:0 (dark green).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (2,0,0))]
     tree_color: Option<Color>,
     /// The color of the tree on the map when (un)dead. Defaults to 0:0:1 (dark gray).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (0,0,1))]
     dead_tree_color: Option<Color>,
     /// The color of saplings of this tree. Defaults to 2:0:0 (dark green).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (2,0,0))]
     sapling_color: Option<Color>,
     /// The color of dead saplings of this tree. Defaults to 0:0:1 (dark gray).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (0,0,1))]
     dead_sapling_color: Option<Color>,
     /// The sapling of this tree will drown once the water on its tile reaches this level. Defaults to 4.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_sapling_drown_level")]
+    #[is_empty(value = 4)]
     sapling_drown_level: Option<u8>,
     /// The water depth at which this tree will drown. Exact behavior is unknown. Defaults to 7.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_tree_drown_level")]
+    #[is_empty(value = 7)]
     tree_drown_level: Option<u8>,
     /// Token tags for the tree.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]

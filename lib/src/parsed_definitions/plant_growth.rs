@@ -46,7 +46,6 @@ pub struct PlantGrowth {
     /// The second value must be -1, but might be intended to control whether it starts height counting
     /// from the bottom or top.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_trunk_height_percentage")]
     trunk_height_percentage: Option<[i32; 2]>,
     /// Currently has no effect.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -58,7 +57,7 @@ pub struct PlantGrowth {
     /// Specifies at which part of the year the growth appears. Default is all year round.
     /// Minimum: 0, Maximum: `402_200`. This is defined with `GROWTH_TIMING` key.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_growth_timing")]
+    #[is_empty(value = [0, 402_200])]
     timing: Option<[u32; 2]>,
     /// Where we gather some of the growth's tags.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]

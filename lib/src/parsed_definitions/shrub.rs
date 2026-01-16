@@ -34,7 +34,7 @@ pub struct Shrub {
     /// How long the plant takes to grow to harvest in a farm plot. Unit hundreds of ticks.
     /// There are 1008 GROWDUR units in a season. Defaults to 300.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_grow_duration")]
+    #[is_empty(value = 300)]
     grow_duration: Option<u32>,
     /// Has no known effect. Previously set the value of the harvested plant.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -42,39 +42,43 @@ pub struct Shrub {
     /// The tile used when the plant is harvested whole, or is ready to be picked from a farm plot. May either be a cp437
     /// tile number, or a character between single quotes. See character table. Defaults to 231 (τ).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_picked_tile")]
+    #[is_empty(value = 231)]
     picked_tile: Option<u8>,
     /// The tile used when a plant harvested whole has wilted. Defaults to 169 (⌐).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_dead_picked_tile")]
+    #[is_empty(value = 169)]
     dead_picked_tile: Option<u8>,
     /// The tile used to represent this plant when it is wild, alive, and has no growths. Defaults to 34 (").
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_shrub_tile")]
+    #[is_empty(value = 34)]
     shrub_tile: Option<u8>,
     /// The tile used to represent this plant when it is dead in the wild. Defaults to 34 (").
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_dead_shrub_tile")]
+    #[is_empty(value = 34)]
     dead_shrub_tile: Option<u8>,
     /// The maximum stack size collected when gathered via herbalism (possibly also from farm plots?). Defaults to 5.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_cluster_size")]
+    #[is_empty(value = 5)]
     cluster_size: Option<u32>,
     /// The color of the plant when it has been picked whole, or when it is ready for harvest in a farm plot. Defaults to 2:0:0 (dark green).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (2,0,0))]
     picked_color: Option<Color>,
     /// The color of the plant when it has been picked whole, but has wilted. Defaults to 0:0:1 (dark gray).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (0,0,1))]
     dead_picked_color: Option<Color>,
     /// The color of the plant when it is alive, wild, and has no growths. Defaults to 2:0:0 (dark green).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (2,0,0))]
     shrub_color: Option<Color>,
     /// The color of the plant when it is dead in the wild. Defaults to 6:0:0 (brown).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = (6,0,0))]
     dead_shrub_color: Option<Color>,
     /// The shrub will drown once the water on its tile reaches this level. Defaults to 4.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_shrub_drown_level")]
+    #[is_empty(value = 4)]
     shrub_drown_level: Option<u8>,
 
     // Todo: fix these with actual values (materials and seed)

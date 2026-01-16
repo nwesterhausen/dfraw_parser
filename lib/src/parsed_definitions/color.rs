@@ -90,3 +90,19 @@ impl Color {
         self.brightness
     }
 }
+
+impl std::convert::From<(u8, u8, u8)> for Color {
+    fn from(value: (u8, u8, u8)) -> Self {
+        Self {
+            foreground: value.0,
+            background: value.1,
+            brightness: value.2,
+        }
+    }
+}
+
+impl PartialEq<(u8, u8, u8)> for Color {
+    fn eq(&self, other: &(u8, u8, u8)) -> bool {
+        self.foreground == other.0 && self.background == other.1 && self.brightness == other.2
+    }
+}

@@ -55,13 +55,13 @@ pub struct Entity {
     world_constructions: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_500_u32")]
+    #[is_empty(value = 500)]
     max_pop_number: Option<u32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_50_u32")]
+    #[is_empty(value = 50)]
     max_site_pop_number: Option<u32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_3_u32")]
+    #[is_empty(value = 3)]
     max_starting_civ_number: Option<u32>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]

@@ -85,20 +85,20 @@ pub struct Creature {
     ///
     /// Note: not to be confused with `[POP_RATIO]`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_default_frequency")]
+    #[is_empty(value = 50)]
     frequency: Option<u32>,
     /// The minimum/maximum numbers of how many creatures per spawned cluster. Vermin fish with this token in combination with
     /// temperate ocean and river biome tokens will perform seasonal migrations.
     ///
     /// Defaults to [1,1] if not specified.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::min_max_is_ones")]
+    #[is_empty(value = [1,1])]
     cluster_number: Option<[u32; 2]>,
     /// The minimum/maximum numbers of how many of these creatures are present in each world map tile of the appropriate region.
     ///
     /// Defaults to [1,1] if not specified.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::min_max_is_ones")]
+    #[is_empty(value = [1,1])]
     population_number: Option<[u32; 2]>,
     /// Depth that the creature appears underground. Numbers can be from 0 to 5. 0 is actually 'above ground' and can be used if the
     /// creature is to appear both above and below ground. Values from 1-3 are the respective cavern levels, 4 is the magma sea and

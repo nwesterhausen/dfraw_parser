@@ -2,6 +2,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Fields, LitStr, parse_macro_input};
 
+/// Implmentation of the derive macro for `dfraw_parser::traits::Cleanable`
 #[allow(clippy::too_many_lines)]
 pub fn impl_derive_cleanable(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

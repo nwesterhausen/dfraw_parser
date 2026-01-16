@@ -70,7 +70,7 @@ pub struct Material {
     usage: Option<Vec<MaterialUsageTag>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[is_empty(is_default = "crate::default_checks::is_one_u32")]
+    #[is_empty(value = 1)]
     value: Option<u32>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
