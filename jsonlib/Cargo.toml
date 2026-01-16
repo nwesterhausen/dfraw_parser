@@ -1,6 +1,6 @@
 [package]
 name = "dfraw_json_parser"
-version = "0.17.5"
+version = "0.18.0"
 edition = "2024"
 readme = "README.md"
 authors = ["Nicholas Westerhausen <nick@westmail.cc>"]
