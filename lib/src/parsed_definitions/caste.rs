@@ -11,7 +11,7 @@ use crate::{
     raw_definitions::CASTE_TOKENS,
     tags::CasteTag,
     tile::Tile,
-    traits::{TagOperations, searchable::Searchable},
+    traits::{Searchable, TagOperations},
 };
 
 /// A struct representing a creature caste.

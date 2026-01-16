@@ -2,8 +2,8 @@
 
 use crate::{
     metadata::{ObjectType, RawMetadata},
-    traits::{RawObject, Searchable, searchable::clean_search_vec},
-    utilities::build_object_id_from_pieces,
+    traits::{RawObject, Searchable},
+    utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
 /// A struct representing a creature selection

@@ -15,7 +15,8 @@ use crate::{
     tags::{FuelTypeTag, MaterialPropertyTag, MaterialTypeTag, MaterialUsageTag},
     temperatures::Temperatures,
     tile::Tile,
-    traits::{Searchable, searchable::clean_search_vec},
+    traits::Searchable,
+    utilities::clean_search_vec,
 };
 
 /// A struct representing a material

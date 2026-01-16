@@ -7,7 +7,8 @@ use crate::{
     name::Name,
     raw_definitions::{PLANT_GROWTH_TOKENS, PLANT_PART_TOKENS},
     tags::{PlantGrowthTag, PlantGrowthTypeTag, PlantPartTag},
-    traits::{Searchable, searchable::clean_search_vec},
+    traits::Searchable,
+    utilities::clean_search_vec,
 };
 
 /// A struct representing a plant growth

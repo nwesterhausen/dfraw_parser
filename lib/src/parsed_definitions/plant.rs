@@ -16,9 +16,9 @@ use crate::{
     },
     shrub::Shrub,
     tags::{BiomeTag, PlantGrowthTag, PlantGrowthTypeTag, PlantTag},
-    traits::{RawObject, Searchable, searchable::clean_search_vec},
+    traits::{RawObject, Searchable},
     tree::Tree,
-    utilities::{build_object_id_from_pieces, parse_min_max_range},
+    utilities::{build_object_id_from_pieces, clean_search_vec, parse_min_max_range},
 };
 
 /// A struct representing a plant

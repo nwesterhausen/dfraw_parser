@@ -15,11 +15,8 @@ use crate::{
     select_creature::SelectCreature,
     tags::{BiomeTag, CasteTag, CreatureTag},
     tile::Tile,
-    traits::{
-        CreatureVariationRequirements, RawObject, RawObjectToken, Searchable, TagOperations,
-        searchable::clean_search_vec,
-    },
-    utilities::build_object_id_from_pieces,
+    traits::{CreatureVariationRequirements, RawObject, RawObjectToken, Searchable, TagOperations},
+    utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
 /// The `Creature` struct represents a creature in a Dwarf Fortress, with the properties

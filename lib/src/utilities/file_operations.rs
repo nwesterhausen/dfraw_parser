@@ -31,7 +31,7 @@ use crate::{
     regex::VARIATION_ARGUMENT_RE,
     select_creature::SelectCreature,
     tile_page::TilePage,
-    traits::{CreatureVariationRequirements, RawObject, Searchable, searchable::get_search_string},
+    traits::{CreatureVariationRequirements, RawObject},
 };
 
 #[tracing::instrument]
@@ -1232,19 +1232,4 @@ pub fn singularly_apply_creature_variation(
     }
 
     Some(updated_creature)
-}
-
-/// The function `build_search_string` takes a `raw_object` that implements the `Searchable` trait and
-/// returns a string representation of the object for searching purposes.
-///
-/// Arguments:
-///
-/// * `raw_object`: The `raw_object` parameter is a reference to an object that implements the
-///   `Searchable` trait.
-///
-/// Returns:
-///
-/// The function `build_search_string` returns a `String` value.
-pub fn build_search_string(raw_object: &dyn Searchable) -> String {
-    get_search_string(raw_object)
 }

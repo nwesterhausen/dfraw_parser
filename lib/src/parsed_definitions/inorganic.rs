@@ -6,8 +6,8 @@ use crate::{
     metadata::{ObjectType, RawMetadata},
     raw_definitions::{ENVIRONMENT_CLASS_TOKENS, INCLUSION_TYPE_TOKENS, INORGANIC_TOKENS},
     tags::{EnvironmentClassTag, InclusionTypeTag, InorganicTag},
-    traits::{RawObject, Searchable, searchable::clean_search_vec},
-    utilities::build_object_id_from_pieces,
+    traits::{RawObject, Searchable},
+    utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
 /// The raw representation of an inorganic object.

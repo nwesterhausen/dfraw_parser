@@ -6,7 +6,8 @@ use crate::{
     default_checks,
     raw_definitions::{CREATURE_EFFECT_TOKENS, SYNDROME_TOKENS},
     tags::SyndromeTag,
-    traits::{Searchable, searchable::clean_search_vec},
+    traits::Searchable,
+    utilities::clean_search_vec,
 };
 
 /// A struct representing a syndrome
