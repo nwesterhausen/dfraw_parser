@@ -10,6 +10,16 @@ pub struct TileCharacter {
 }
 
 impl TileCharacter {
+    /// Creates a new `TileCharacter` with the default '?' character.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dfraw_parser::custom_types::TileCharacter;
+    ///
+    /// let tile_char = TileCharacter::new();
+    /// assert_eq!(tile_char.value, '?');
+    /// ```
     pub const fn new() -> Self {
         Self { value: '?' }
     }
@@ -31,10 +41,10 @@ impl FromStr for TileCharacter {
 
         if s.len() > 1 {
             // Sometimes an integer is provided for the ASCII character code.
-            if let Ok(ascii_code) = s.parse::<u32>() {
-                if let Some(ascii_char) = char::from_u32(ascii_code) {
-                    return Ok(TileCharacter { value: ascii_char });
-                }
+            if let Ok(ascii_code) = s.parse::<u32>()
+                && let Some(ascii_char) = char::from_u32(ascii_code)
+            {
+                return Ok(TileCharacter { value: ascii_char });
             };
             // Othertimes it's a literal quoted character with `'`: `'t'`
             let stripped = s.trim_matches('\'');

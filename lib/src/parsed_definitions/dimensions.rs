@@ -1,12 +1,26 @@
 //! A module containing the `Dimensions` struct and its implementations.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::{error, warn};
 
 /// A struct representing a Dimensions object.
-#[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 pub struct Dimensions {
-    x: i32,
-    y: i32,
+    /// The x coordinate
+    pub x: u32,
+    /// The y coordinate
+    pub y: u32,
 }
 
 #[allow(dead_code)] // Until we add graphics parsing
@@ -20,6 +34,14 @@ impl Dimensions {
     pub const fn zero() -> Self {
         Self { x: 0, y: 0 }
     }
+    /// Returns a new Dimension where each component is the maximum of the two.
+    #[must_use]
+    pub fn max_components(self, other: Dimensions) -> Dimensions {
+        Dimensions {
+            x: self.x.max(other.x),
+            y: self.y.max(other.y),
+        }
+    }
     /// Function to create a new Dimensions object with given x and y values.
     ///
     /// # Parameters
@@ -31,7 +53,7 @@ impl Dimensions {
     ///
     /// * `Dimensions` - The new Dimensions object with the given x and y values.
     #[must_use]
-    pub const fn from_xy(x: i32, y: i32) -> Self {
+    pub const fn from_xy(x: u32, y: u32) -> Self {
         Self { x, y }
     }
     /// Function to create a new Dimensions object from a token.
@@ -63,17 +85,23 @@ impl Dimensions {
             return Self { x: 0, y: 0 };
         };
 
-        let x: i32 = match dim_x.parse() {
+        Self::from_two_tokens(dim_x, dim_y)
+    }
+    /// Creates a `Dimensions` from two tokens, one for the `xpos` and one for `ypos`
+    ///
+    /// If it fails to parse a token, returns `0` for that value.
+    pub fn from_two_tokens(dim_x: &&str, dim_y: &&str) -> Self {
+        let x: u32 = match dim_x.parse() {
             Ok(n) => n,
             Err(e) => {
-                warn!("Failed to parse {} as Dimensions:x, {:?}", token, e);
+                warn!("Failed to parse dim_x: {e}");
                 0
             }
         };
-        let y: i32 = match dim_y.parse() {
+        let y: u32 = match dim_y.parse() {
             Ok(n) => n,
             Err(e) => {
-                warn!("Failed to parse {} as Dimensions:y, {:?}", token, e);
+                warn!("Failed to parse dim_y: {e}");
                 0
             }
         };

@@ -1,5 +1,7 @@
 //! Position tags are used to define the properties of a position in the game. They are used in the `position` token.
 
+use crate::traits::IsEmpty;
+
 /// Represents a position token
 #[derive(
     serde::Serialize,
@@ -247,4 +249,16 @@ pub enum PositionTag {
     /// An uknow token.
     #[default]
     Unknown,
+}
+
+impl std::fmt::Display for PositionTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for PositionTag {
+    fn is_empty(&self) -> bool {
+        self == &PositionTag::Unknown
+    }
 }

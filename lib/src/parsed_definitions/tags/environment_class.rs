@@ -1,5 +1,7 @@
 //! The class of environment that the stone appears in.
 
+use crate::traits::IsEmpty;
+
 /// The class of environment that the stone appears in.
 #[derive(
     serde::Serialize,
@@ -54,17 +56,23 @@ impl EnvironmentClassTag {
 impl std::fmt::Display for EnvironmentClassTag {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Self::AllStone => write!(f, "AllStone"),
-            Self::IgneousAll => write!(f, "IgneousAll"),
-            Self::IgneousExtrusive => write!(f, "IgneousExtrusive"),
-            Self::IgneousIntrusive => write!(f, "IgneousIntrusive"),
+            Self::AllStone => write!(f, "All Stone"),
+            Self::IgneousAll => write!(f, "Igneous (All)"),
+            Self::IgneousExtrusive => write!(f, "Igneous Extrusive"),
+            Self::IgneousIntrusive => write!(f, "Igneous Intrusive"),
             Self::Soil => write!(f, "Soil"),
-            Self::SoilSand => write!(f, "SoilSand"),
-            Self::SoilOcean => write!(f, "SoilOcean"),
+            Self::SoilSand => write!(f, "Sand"),
+            Self::SoilOcean => write!(f, "Ocean Floor"),
             Self::Sedimentary => write!(f, "Sedimentary"),
             Self::Metamorphic => write!(f, "Metamorphic"),
             Self::Alluvial => write!(f, "Alluvial"),
             Self::None => write!(f, "None"),
         }
+    }
+}
+
+impl IsEmpty for EnvironmentClassTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::None
     }
 }

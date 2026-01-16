@@ -4,7 +4,9 @@ use std::str::FromStr;
 /// The 'HABIT_NUM' value which can be a number or "TEST_ALL"
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, specta::Type, Eq)]
 pub enum HabitCount {
+    /// Test all possible habit values
     TestAll,
+    /// Test a specific number of habits
     Specific(u32),
 }
 

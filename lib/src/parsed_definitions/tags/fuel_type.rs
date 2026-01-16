@@ -1,5 +1,7 @@
 //! A material fuel type that can be set in a material definition.
 
+use crate::traits::IsEmpty;
+
 /// A material fuel type that can be set in a material definition.
 #[derive(
     serde::Serialize,
@@ -34,5 +36,17 @@ impl FuelTypeTag {
     #[must_use]
     pub const fn is_default(&self) -> bool {
         matches!(self, Self::None)
+    }
+}
+
+impl std::fmt::Display for FuelTypeTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for FuelTypeTag {
+    fn is_empty(&self) -> bool {
+        self == &FuelTypeTag::None
     }
 }

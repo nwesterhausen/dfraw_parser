@@ -1,5 +1,7 @@
 //! The types of growths
 
+use crate::traits::IsEmpty;
+
 /// The types of growths
 #[derive(
     serde::Serialize,
@@ -43,4 +45,16 @@ pub enum PlantGrowthTypeTag {
     /// An unknown growth type
     #[default]
     None,
+}
+
+impl std::fmt::Display for PlantGrowthTypeTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for PlantGrowthTypeTag {
+    fn is_empty(&self) -> bool {
+        self == &PlantGrowthTypeTag::None
+    }
 }

@@ -1,6 +1,31 @@
+//! Token parsing utilities for Dwarf Fortress raw file tokens.
+
 use std::fmt::Debug;
 use std::str::FromStr;
 
+/// Trait for parsing tokens from Dwarf Fortress raw files.
+///
+/// This trait provides helper methods for parsing values from raw file tokens,
+/// with special handling for the "NONE" keyword and error cases.
+///
+/// # Examples
+///
+/// ```rust
+/// use dfraw_parser::traits::TokenParser;
+///
+/// #[derive(Debug)]
+/// struct MyParser;
+///
+/// impl TokenParser for MyParser {}
+///
+/// let parser = MyParser;
+/// let value: Option<u32> = parser.parse_value("42");
+/// assert_eq!(value, Some(42));
+///
+/// // "NONE" returns default value (0)
+/// let none_value: Option<u32> = parser.parse_value("NONE");
+/// assert_eq!(none_value, Some(0));
+/// ```
 pub trait TokenParser: Debug {
     /// Internal Helper: Parses a string into T.
     /// specialized logic: If parsing fails and the value is "NONE", returns T::default() (0).

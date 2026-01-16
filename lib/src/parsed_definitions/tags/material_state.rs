@@ -34,3 +34,9 @@ pub enum MaterialStateTag {
     /// Denotes '`Solid`', '`Powder`', '`Paste`', and '`Pressed`'
     AllSolid,
 }
+
+impl std::fmt::Display for MaterialStateTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

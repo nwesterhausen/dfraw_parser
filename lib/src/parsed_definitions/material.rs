@@ -1,10 +1,10 @@
 //! A module to handle the parsing of material definitions from the raws.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
 use crate::{
     color::Color,
-    default_checks,
     material_mechanics::MaterialMechanics,
     raw_definitions::{
         CREATURE_EFFECT_TOKENS, FUEL_TYPE_TOKENS, MATERIAL_PROPERTY_TOKENS, MATERIAL_TYPE_TOKENS,
@@ -15,93 +15,105 @@ use crate::{
     tags::{FuelTypeTag, MaterialPropertyTag, MaterialTypeTag, MaterialUsageTag},
     temperatures::Temperatures,
     tile::Tile,
-    traits::{searchable::clean_search_vec, Searchable},
+    traits::Searchable,
+    utilities::clean_search_vec,
 };
 
 /// A struct representing a material
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Material {
     /// The type of the material is also the trigger to start tracking a material
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     material_type: Option<MaterialTypeTag>,
     /// The material might have a name, but its more likely that there is only an identifier to
     /// refer to another creature/plant/reaction, which are listed elsewhere.
     /// If there is no name provided, then it is a special hardcoded case, e.g. magma or green glass.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     name: Option<String>,
     /// For the coal tag, it specifies the type of fuel that can be used. It will never be None.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     fuel_type: Option<FuelTypeTag>,
     /// Linked creature identifier (and then `material_name` might be "skin", like for "`CREATURE_MAT:DWARF:SKIN`")
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     creature_identifier: Option<String>,
     /// Linked plant identifier (and then `material_name` might be "leaf", like for "`PLANT_MAT:BUSH_QUARRY:LEAF`")
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     plant_identifier: Option<String>,
     /// If a material is defined within a creature itself, it will use `LOCAL_CREATURE_MAT` tag, which implies
     /// that the material is only used by that creature. This is also true for plants and `LOCAL_PLANT_MAT`.
     // skip if false
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     is_local_material: Option<bool>,
     /// Within a reaction, there can be special material definitions. Todo: Figure this out.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     reagent_identifier: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     reaction_product_identifier: Option<String>,
     /// If material is defined from a template, we need a way to refer to that
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     template_identifier: Option<String>,
 
     /// Usage tags
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     usage: Option<Vec<MaterialUsageTag>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = 1)]
     value: Option<u32>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     color: Option<Color>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     state_names: Option<StateNames>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     state_adjectives: Option<StateNames>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     state_colors: Option<StateNames>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     temperatures: Option<Temperatures>,
 
     /// Catch-all for remaining tags we identify but don't do anything with... yet.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     properties: Option<Vec<String>>,
 
     // Syndromes attached to materials..
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     syndromes: Option<Vec<Syndrome>>,
     // Material Mechanical Properties
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     mechanical_properties: Option<MaterialMechanics>,
     // Technically, the material mechanics wouldn't apply to liquid or gaseous forms
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     liquid_density: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     molar_mass: Option<i32>,
 
     // Colors
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     build_color: Option<Color>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     display_color: Option<Color>,
 
     // Display
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tile: Option<Tile>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     item_symbol: Option<String>,
 }
 
@@ -523,171 +535,21 @@ impl Material {
         }
 
         // Materials can have syndromes attached and syndromes have creature effects attached.
-        if SYNDROME_TOKENS.contains_key(key)
+        if (SYNDROME_TOKENS.contains_key(key)
             || CREATURE_EFFECT_TOKENS.contains_key(key)
-            || key == "CE"
-        {
-            if let Some(syndromes) = self.syndromes.as_mut() {
+            || key == "CE")
+                && let Some(syndromes) = self.syndromes.as_mut() &&
                 // We need to add the tag to the last syndrome added (all syndromes start with SYNDROME key)
-                if let Some(syndrome) = syndromes.last_mut() {
-                    syndrome.parse_tag(key, value);
-                    return;
-                }
-            }
+                 let Some(syndrome) = syndromes.last_mut()
+        {
+            syndrome.parse_tag(key, value);
+            return;
         }
 
         warn!(
             "Material::parse_tag() was provided a key that was not recognized: {}",
             key
         );
-    }
-
-    /// Function to "clean" the raw. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new material with all empty or default values removed.
-    #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(material_type) = &cleaned.material_type {
-            if material_type.is_default() {
-                cleaned.material_type = None;
-            }
-        }
-        if let Some(name) = &cleaned.name {
-            if name.is_empty() {
-                cleaned.name = None;
-            }
-        }
-        if let Some(fuel_type) = &cleaned.fuel_type {
-            if fuel_type.is_default() {
-                cleaned.fuel_type = None;
-            }
-        }
-        if let Some(creature_identifier) = &cleaned.creature_identifier {
-            if creature_identifier.is_empty() {
-                cleaned.creature_identifier = None;
-            }
-        }
-        if let Some(plant_identifier) = &cleaned.plant_identifier {
-            if plant_identifier.is_empty() {
-                cleaned.plant_identifier = None;
-            }
-        }
-        if let Some(is_local_material) = &cleaned.is_local_material {
-            if !is_local_material {
-                cleaned.is_local_material = None;
-            }
-        }
-        if let Some(reagent_identifier) = &cleaned.reagent_identifier {
-            if reagent_identifier.is_empty() {
-                cleaned.reagent_identifier = None;
-            }
-        }
-        if let Some(reaction_product_identifier) = &cleaned.reaction_product_identifier {
-            if reaction_product_identifier.is_empty() {
-                cleaned.reaction_product_identifier = None;
-            }
-        }
-        if let Some(template_identifier) = &cleaned.template_identifier {
-            if template_identifier.is_empty() {
-                cleaned.template_identifier = None;
-            }
-        }
-        if let Some(usage) = &cleaned.usage {
-            if usage.is_empty() {
-                cleaned.usage = None;
-            }
-        }
-        if default_checks::is_one_u32(cleaned.value) {
-            cleaned.value = None;
-        }
-        if let Some(color) = &cleaned.color {
-            if color.is_default() {
-                cleaned.color = None;
-            }
-        }
-        if let Some(state_names) = &cleaned.state_names {
-            if state_names.is_empty() {
-                cleaned.state_names = None;
-            }
-        }
-        if let Some(state_adjectives) = &cleaned.state_adjectives {
-            if state_adjectives.is_empty() {
-                cleaned.state_adjectives = None;
-            }
-        }
-        if let Some(state_colors) = &cleaned.state_colors {
-            if state_colors.is_empty() {
-                cleaned.state_colors = None;
-            }
-        }
-        if let Some(temperatures) = &cleaned.temperatures {
-            if temperatures.is_empty() {
-                cleaned.temperatures = None;
-            }
-        }
-        if let Some(properties) = &cleaned.properties {
-            if properties.is_empty() {
-                cleaned.properties = None;
-            }
-        }
-        if let Some(syndromes) = &cleaned.syndromes {
-            let mut cleaned_syndromes = Vec::new();
-            for syndrome in syndromes {
-                cleaned_syndromes.push(syndrome.cleaned());
-            }
-            if cleaned_syndromes.is_empty() {
-                cleaned.syndromes = None;
-            } else {
-                cleaned.syndromes = Some(cleaned_syndromes);
-            }
-        }
-        if let Some(mechanical_properties) = &cleaned.mechanical_properties {
-            if mechanical_properties.is_empty() {
-                cleaned.mechanical_properties = None;
-            }
-        }
-        if default_checks::is_zero_i32(cleaned.liquid_density) {
-            cleaned.liquid_density = None;
-        }
-        if default_checks::is_zero_i32(cleaned.molar_mass) {
-            cleaned.molar_mass = None;
-        }
-        if let Some(build_color) = &cleaned.build_color {
-            if build_color.is_default() {
-                cleaned.build_color = None;
-            }
-        }
-        if let Some(display_color) = &cleaned.display_color {
-            if display_color.is_default() {
-                cleaned.display_color = None;
-            }
-        }
-        if let Some(tile) = &cleaned.tile {
-            if tile.is_default() {
-                cleaned.tile = None;
-            }
-        }
-        if let Some(item_symbol) = &cleaned.item_symbol {
-            if item_symbol.is_empty() {
-                cleaned.item_symbol = None;
-            }
-        }
-
-        cleaned
     }
 }
 

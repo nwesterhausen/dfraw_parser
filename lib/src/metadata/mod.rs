@@ -5,6 +5,7 @@ mod object_type;
 mod parser_options;
 mod raw_location;
 mod raw_metadata;
+mod raw_object;
 mod token_complexity;
 
 pub use location_helper::LocationHelper;
@@ -15,5 +16,6 @@ pub use raw_location::RawModuleLocation;
 #[allow(clippy::module_name_repetitions)]
 /// Metadata about the raw file
 pub use raw_metadata::Metadata as RawMetadata;
+pub use raw_object::RawObject;
 /// The complexity of a raw object token
 pub use token_complexity::TagComplexity;

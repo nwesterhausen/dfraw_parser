@@ -1,13 +1,13 @@
-use tracing::{debug, warn};
+use tracing::{debug, trace};
 
 use crate::{
+    ParserError,
     creature::Creature,
     creature_variation::CreatureVariation,
     metadata::{ObjectType, RawMetadata},
     tags::ModificationTag,
     traits::RawObject,
     utilities::singularly_apply_creature_variation,
-    ParserError,
 };
 
 /// An unprocessed raw object
@@ -147,56 +147,55 @@ impl UnprocessedRaw {
         match modification.clone() {
             ModificationTag::AddBeforeTag { tag, raws } => {
                 // Check if last modification is also an `AddBeforeTag`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::AddBeforeTag {
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::AddBeforeTag {
                         tag: last_tag,
                         raws: last_raws,
                     } = last_modification
-                    {
-                        // Check if the tags are the same
-                        if &tag == last_tag {
-                            // They are the same, so we can combine them
-                            last_raws.extend(raws);
-                            return;
-                        }
+                {
+                    // Check if the tags are the same
+                    if &tag == last_tag {
+                        // They are the same, so we can combine them
+                        last_raws.extend(raws);
+                        return;
                     }
                 }
             }
             ModificationTag::AddToBeginning { raws } => {
                 // Check if last modification is also an `AddToBeginning`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::AddToBeginning { raws: last_raws } = last_modification {
-                        // They are the same, so we can combine them
-                        last_raws.extend(raws);
-                        return;
-                    }
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::AddToBeginning { raws: last_raws } = last_modification
+                {
+                    // They are the same, so we can combine them
+                    last_raws.extend(raws);
+                    return;
                 }
             }
             ModificationTag::AddToEnding { raws } => {
                 // Check if last modification is also an `AddToEnding`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::AddToEnding { raws: last_raws } = last_modification {
-                        // They are the same, so we can combine them
-                        last_raws.extend(raws);
-                        return;
-                    }
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::AddToEnding { raws: last_raws } = last_modification
+                {
+                    // They are the same, so we can combine them
+                    last_raws.extend(raws);
+                    return;
                 }
             }
             ModificationTag::MainRawBody { raws } => {
                 // Check if last modification is also an `MainRawBody`
-                if let Some(last_modification) = self.modifications.last_mut() {
-                    if let ModificationTag::MainRawBody { raws: last_raws } = last_modification {
-                        // They are the same, so we can combine them
-                        last_raws.extend(raws);
-                        return;
-                    }
+                if let Some(last_modification) = self.modifications.last_mut()
+                    && let ModificationTag::MainRawBody { raws: last_raws } = last_modification
+                {
+                    // They are the same, so we can combine them
+                    last_raws.extend(raws);
+                    return;
                 }
             }
             _ => {}
         }
 
         // If we get here, we can't combine the modifications, so we just add it
-        debug!("Adding modification: {:?}", modification);
+        trace!("Adding modification: {:?}", modification);
         self.modifications.push(modification);
     }
 
@@ -215,7 +214,6 @@ impl UnprocessedRaw {
     /// # Errors
     ///
     /// * `ParserError::NotYetImplemented` - If the raw type is not yet implemented
-    #[allow(dead_code)]
     pub fn resolve(
         &mut self,
         creature_variations: &[CreatureVariation],
@@ -254,7 +252,7 @@ impl UnprocessedRaw {
                         .collect::<Vec<Creature>>();
 
                     if source_creature_options.len() > 1 {
-                        warn!(
+                        debug!(
                             "Found {} creatures with identifier `{}` to copy tags from. Using the newest one.",
                             source_creature_options.len(),
                             identifier
@@ -264,10 +262,6 @@ impl UnprocessedRaw {
                                 .get_module_numerical_version()
                                 .cmp(b.get_metadata().get_module_numerical_version())
                         });
-                        debug!(
-                            "Sorted creature options for {}: {:#?}",
-                            identifier, source_creature_options
-                        );
                     }
 
                     if let Some(source_creature) = source_creature_options.first() {
@@ -313,14 +307,13 @@ impl UnprocessedRaw {
         Ok(Box::new(creature))
     }
 
-    #[allow(dead_code)]
     fn collapse_modifications(&mut self) {
         // Grab the base raws first
         let mut collapsed_raws: Vec<String> = Vec::new();
         for modification in &self.modifications {
             if let ModificationTag::MainRawBody { raws } = modification {
                 collapsed_raws.extend(raws.clone());
-                debug!("collapsed {} base raws", raws.len());
+                trace!("collapsed {} base raws", raws.len());
             }
         }
 
@@ -333,7 +326,7 @@ impl UnprocessedRaw {
         for modification in &self.modifications {
             if let ModificationTag::AddToEnding { raws } = modification {
                 add_to_ending.extend(raws.clone());
-                debug!("collapsed {} add to ending raws", raws.len());
+                trace!("collapsed {} add to ending raws", raws.len());
             }
         }
 
@@ -346,7 +339,7 @@ impl UnprocessedRaw {
         for modification in &self.modifications {
             if let ModificationTag::AddToBeginning { raws } = modification {
                 add_to_beginning.extend(raws.clone());
-                debug!("collapsed {} add to beginning raws", raws.len());
+                trace!("collapsed {} add to beginning raws", raws.len());
             }
         }
 
@@ -376,7 +369,7 @@ impl UnprocessedRaw {
                 // If we found the index, insert the raws before the tag (without replacing)
                 if let Some(index) = index {
                     collapsed_raws.splice(index..index, raws.clone());
-                    debug!(
+                    trace!(
                         "collapsed {} add before tag raws, before tag {}",
                         raws.len(),
                         tag
@@ -384,7 +377,7 @@ impl UnprocessedRaw {
                 } else {
                     // If we didn't find the index, just add the raws to the end
                     collapsed_raws.extend(raws.clone());
-                    warn!(
+                    debug!(
                         "resolve: Unable to find tag `{}` to add raws before. Adding raws to end instead.",
                         tag
                     );

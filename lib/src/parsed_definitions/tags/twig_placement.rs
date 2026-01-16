@@ -1,5 +1,7 @@
 //! Twig placement tags
 
+use crate::traits::IsEmpty;
+
 /// The placement of twigs on a tree
 #[derive(
     serde::Serialize,
@@ -35,4 +37,16 @@ pub enum TwigPlacementTag {
     /// An unknown twig placement
     #[default]
     Unknown,
+}
+
+impl std::fmt::Display for TwigPlacementTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for TwigPlacementTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::Unknown
+    }
 }

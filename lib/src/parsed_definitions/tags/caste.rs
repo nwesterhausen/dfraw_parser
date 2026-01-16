@@ -2196,3 +2196,9 @@ pub enum CasteTag {
     /// Is a flying curious beast
     CannotBreatheAir,
 }
+
+impl std::fmt::Display for CasteTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

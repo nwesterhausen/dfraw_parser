@@ -4,19 +4,21 @@ use tracing::warn;
 
 use crate::tags::{GaitModifierTag, GaitTypeTag};
 
-/// Gaits are a way to describe how a creature moves. Defined in the raws with:
+/// A struct describing how a creature moves.
 ///
-/// "GAIT:type:name:full speed:build up time:turning max:start speed:energy use"
+/// Gaits define the mechanics of movement modes like walking, swimming, or flying,
+/// including speed, acceleration, and energy costs. They are defined in raw files
+/// using the `[GAIT:type:name:full_speed:build_up:turning:start_speed:energy_use]` tag.
 ///
-/// * use `NO_BUILD_UP` if you jump immediately to full speed
-///
-/// these optional flags go at the end:
+/// These optional flags go at the end:
 ///
 /// * `LAYERS_SLOW` - fat/muscle layers slow the movement (muscle-slowing counter-acted by strength bonus)
 /// * `STRENGTH` - strength attribute can speed/slow movement
 /// * `AGILITY` - agility attribute can speed/slow movement
 /// * `STEALTH_SLOWS:<n>` - n is percentage slowed
-/// * it would be interesting to allow quirky attributes (like mental stats), but they aren't supported yet
+///
+/// Instead of specifying a `build_up` you can use `NO_BUILD_UP` to instantly get to speed.
+///
 ///
 /// Examples:
 ///
@@ -31,30 +33,38 @@ use crate::tags::{GaitModifierTag, GaitTypeTag};
 )]
 #[serde(rename_all = "camelCase")]
 pub struct Gait {
-    /// The type of gait
+    /// The movement medium (e.g., [`GaitTypeTag::Walk`], [`GaitTypeTag::Swim`]).
     gait_type: GaitTypeTag,
-    /// The name of the gait
+    /// The descriptive name of the movement (e.g., "Sprint", "Jog").
     name: String,
-    /// The maximum speed achievable by a creature using this gait.
+    /// The maximum speed achievable, where lower values are faster.
     max_speed: u32,
-    /// The energy use of the gait
+    /// The time in game ticks required to reach full speed.
+    build_up_time: u32,
+    /// The maximum speed at which the creature can turn effectively.
+    turning_max: u32,
+    /// The speed at which the creature begins moving from a standstill.
+    start_speed: u32,
+    /// The fatigue or energy cost associated with this movement.
     energy_use: u32,
-    /// The gait modifiers
-    ///
-    /// These are optional, and may be empty.
+    /// Optional modifiers affecting speed based on attributes or stealth.
     modifiers: Vec<GaitModifierTag>,
 }
 
 impl Gait {
-    /// Parse a gait given the raw string (i.e. the string after the `GAIT:` tag)
+    /// Parses a gait definition from a raw string value.
     ///
-    /// ## Parameters
+    /// * `value` - The colon-separated string from a `GAIT` tag.
     ///
-    /// * `raw_gait` - The raw string to parse
+    /// Returns a [`Gait`] populated with the parsed values. Optional flags like
+    /// `LAYERS_SLOW` or `STEALTH_SLOWS` are parsed into the `modifiers` list.
     ///
-    /// ## Returns
+    /// # Examples
     ///
-    /// The parsed gait
+    /// ```
+    /// use dfraw_parser::Gait;
+    /// let gait = Gait::from_value("WALK:Sprint:1000:NO_BUILD_UP:3:500:50:STRENGTH");
+    /// ```
     #[must_use]
     pub fn from_value(value: &str) -> Self {
         let mut gait = Self::default();
@@ -96,40 +106,40 @@ impl Gait {
 
         if has_build_up {
             // Next is turning max
-            if let Some(raw_value) = parts.next() {
-                if let Ok(value) = raw_value.parse::<u32>() {
-                    // Modify the build up modifier to include the turning max
-                    if let Some(GaitModifierTag::BuildUp {
+            if let Some(raw_value) = parts.next()
+                && let Ok(value) = raw_value.parse::<u32>()
+            {
+                // Modify the build up modifier to include the turning max
+                if let Some(GaitModifierTag::BuildUp {
+                    time,
+                    turning_max: _,
+                    start_speed,
+                }) = gait.modifiers.pop()
+                {
+                    gait.modifiers.push(GaitModifierTag::BuildUp {
                         time,
-                        turning_max: _,
+                        turning_max: value,
                         start_speed,
-                    }) = gait.modifiers.pop()
-                    {
-                        gait.modifiers.push(GaitModifierTag::BuildUp {
-                            time,
-                            turning_max: value,
-                            start_speed,
-                        });
-                    }
+                    });
                 }
             }
 
             // Next is start speed
-            if let Some(raw_value) = parts.next() {
-                if let Ok(value) = raw_value.parse::<u32>() {
-                    // Modify the build up modifier to include the start speed
-                    if let Some(GaitModifierTag::BuildUp {
+            if let Some(raw_value) = parts.next()
+                && let Ok(value) = raw_value.parse::<u32>()
+            {
+                // Modify the build up modifier to include the start speed
+                if let Some(GaitModifierTag::BuildUp {
+                    time,
+                    turning_max,
+                    start_speed: _,
+                }) = gait.modifiers.pop()
+                {
+                    gait.modifiers.push(GaitModifierTag::BuildUp {
                         time,
                         turning_max,
-                        start_speed: _,
-                    }) = gait.modifiers.pop()
-                    {
-                        gait.modifiers.push(GaitModifierTag::BuildUp {
-                            time,
-                            turning_max,
-                            start_speed: value,
-                        });
-                    }
+                        start_speed: value,
+                    });
                 }
             }
         }
@@ -158,23 +168,84 @@ impl Gait {
         gait
     }
 
-    /// Returns true if the gait is empty (i.e. unset/default)
+    /// Returns true if the gait is empty or uninitialized.
     ///
-    /// ## Returns
-    ///
-    /// True if the gait is empty, false otherwise.
+    /// A gait is considered empty if its type is [`GaitTypeTag::Unknown`].
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.gait_type == GaitTypeTag::Unknown
     }
-    /// Returns the type tag of the gait
+
+    /// Returns the movement medium tag for this gait.
+    ///
+    /// This indicates if the movement is walking, swimming, flying, etc.
     #[must_use]
-    pub fn get_type(&self) -> &GaitTypeTag {
+    pub fn get_gait_type(&self) -> &GaitTypeTag {
         &self.gait_type
     }
-    /// Returns the max speed of the gait
+
+    /// Returns the descriptive name of the gait.
+    ///
+    /// Examples include "Sprint", "Run", or "Humble Walk".
     #[must_use]
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the maximum speed value.
+    ///
+    /// In Dwarf Fortress, lower values represent higher speeds.
+    #[must_use]
+    pub fn get_full_speed(&self) -> u32 {
+        self.max_speed
+    }
+
+    /// Returns the maximum speed value.
+    ///
+    /// In Dwarf Fortress, lower values represent higher speeds.
+    #[must_use]
+    #[deprecated = "Use `get_full_speed` instead."]
     pub fn get_max_speed(&self) -> u32 {
         self.max_speed
+    }
+
+    /// Returns the time required to reach full speed.
+    ///
+    /// Measured in game ticks. A value of 0 usually indicates "NO_BUILD_UP".
+    #[must_use]
+    pub fn get_build_up_time(&self) -> u32 {
+        self.build_up_time
+    }
+
+    /// Returns the turning speed limit.
+    ///
+    /// This limits how fast a creature can change direction while using this gait.
+    #[must_use]
+    pub fn get_turning_max(&self) -> u32 {
+        self.turning_max
+    }
+
+    /// Returns the initial movement speed.
+    ///
+    /// The speed at which movement starts before the build-up phase begins.
+    #[must_use]
+    pub fn get_start_speed(&self) -> u32 {
+        self.start_speed
+    }
+
+    /// Returns the energy or fatigue cost of this movement.
+    ///
+    /// Higher values cause the creature to tire more quickly.
+    #[must_use]
+    pub fn get_energy_use(&self) -> u32 {
+        self.energy_use
+    }
+
+    /// Returns a slice of active modifiers for this gait.
+    ///
+    /// These include attribute scaling (Strength, Agility) and stealth penalties.
+    #[must_use]
+    pub fn get_modifiers(&self) -> &[GaitModifierTag] {
+        self.modifiers.as_slice()
     }
 }

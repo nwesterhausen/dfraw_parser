@@ -1,26 +1,50 @@
 //! A module containing the `Color` struct and its implementations.
 
-/// A struct representing a color in the format "foreground:background:brightness".
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+
+/// Represents a Dwarf Fortress color triplet.
+///
+/// This format is used throughout the game raws to define the foreground,
+/// background, and brightness/intensity of tiles and text.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+    specta::Type,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Color {
+    /// The foreground color index (0-7).
     foreground: u8,
+    /// The background color index (0-7).
     background: u8,
+    /// The brightness or intensity toggle (0 or 1).
     brightness: u8,
 }
 
 impl Color {
-    /// The function `from_value` takes a string value and splits it into three parts to create a
-    /// `Color` struct, or returns a default `Color` if the string does not have three parts.
+    /// Parses a color triplet from a string value.
     ///
-    /// # Arguments
+    /// * `value` - A string representing a color in the format "foreground:background:brightness".
     ///
-    /// * `value`: A string representing a color in the format "foreground:background:brightness".
+    /// Returns a new [Color] instance, or [Color::default] if the string format is invalid.
     ///
-    /// # Returns
+    /// This is typically used to parse values from tags like `[COLOR:7:0:1]` found in raw files.
     ///
-    /// * the `Color` struct.
+    /// # Examples
+    ///
+    /// ```
+    /// use dfraw_parser::Color;
+    /// let color = Color::from_value("7:0:1");
+    /// assert_eq!(color.get_foreground(), 7);
+    /// ```
     #[must_use]
     pub fn from_value(value: &str) -> Self {
         let split = value.split(':').collect::<Vec<&str>>();
@@ -33,13 +57,52 @@ impl Color {
         }
         Self::default()
     }
-    /// The function `is_default` returns whether the color is the default color.
+
+    /// Returns true if the color is the default (all components are 0).
     ///
-    /// # Returns
-    ///
-    /// * `true` if the color is the default color, `false` otherwise.
+    /// This indicates that no specific color was defined or parsing failed.
     #[must_use]
     pub const fn is_default(&self) -> bool {
         self.foreground == 0 && self.background == 0 && self.brightness == 0
+    }
+
+    /// Returns the foreground color index.
+    ///
+    /// This value corresponds to the 0-7 color palette indices used by the game.
+    #[must_use]
+    pub fn get_foreground(&self) -> u8 {
+        self.foreground
+    }
+
+    /// Returns the background color index.
+    ///
+    /// This value corresponds to the 0-7 color palette indices used by the game.
+    #[must_use]
+    pub fn get_background(&self) -> u8 {
+        self.background
+    }
+
+    /// Returns the brightness value.
+    ///
+    /// A value of 1 typically represents a "bright" or "bold" version of the foreground color.
+    #[must_use]
+    pub fn get_brightness(&self) -> u8 {
+        self.brightness
+    }
+}
+
+impl std::convert::From<(u8, u8, u8)> for Color {
+    fn from(value: (u8, u8, u8)) -> Self {
+        Self {
+            foreground: value.0,
+            background: value.1,
+            brightness: value.2,
+        }
+    }
+}
+
+impl PartialEq<(u8, u8, u8)> for Color {
+    fn eq(&self, other: &(u8, u8, u8)) -> bool {
+        self.foreground == other.0 && self.background == other.1 && self.brightness == other.2
     }
 }

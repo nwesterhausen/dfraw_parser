@@ -1,7 +1,20 @@
 //! Name struct for singular, plural, and adjective names (or any combination thereof)
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+
 /// A name with a singular, plural, and adjective form
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    specta::Type,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Name {
     singular: String,

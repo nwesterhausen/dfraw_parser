@@ -14,6 +14,7 @@ pub mod dimensions;
 pub mod entity;
 pub mod gait;
 pub mod graphic;
+pub mod graphic_palette;
 pub mod info_file;
 pub mod inorganic;
 pub mod material;

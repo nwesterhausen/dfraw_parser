@@ -1,7 +1,9 @@
-//! A module containing the `BodySize` struct and its implementation.
+//! A module containing the `[BodySize]` struct and its implementation.
 
-/// A struct representing a body size in the format `years:days:size_cm3`
-#[allow(clippy::module_name_repetitions)]
+/// Represents a creature's body size at a specific age.
+///
+/// This structure is used to define growth stages for creatures in Dwarf Fortress raw files.
+/// It corresponds to the `[BODY_SIZE:YEARS:DAYS:SIZE_CM3]` tag.
 #[derive(
     serde::Serialize, serde::Deserialize, Debug, Clone, Default, PartialEq, Eq, specta::Type,
 )]
@@ -13,15 +15,21 @@ pub struct BodySize {
 }
 
 impl BodySize {
-    /// Creates a new `BodySize` struct with the given years, days, and `size_cm3`
+    /// Parses a raw body size value string into a [`BodySize`] struct.
     ///
-    /// # Arguments
+    /// * `value` - A string slice in the format `years:days:size_cm3`.
     ///
-    /// * `value` - The value to parse into a `BodySize` struct (e.g. `1:2:3`)
+    /// Returns a new instance of [`BodySize`].
     ///
-    /// # Returns
+    /// The string is split by the colon delimiter. If any component fails to parse as a `u32`
+    /// or if the string does not contain exactly three parts, the respective fields default to 0.
     ///
-    /// * The `BodySize` struct
+    /// # Examples
+    ///
+    /// ```
+    /// use dfraw_parser::BodySize;
+    /// let size = BodySize::from_value("1:150:5000");
+    /// ```
     #[must_use]
     pub fn from_value(value: &str) -> Self {
         let split = value.split(':').collect::<Vec<&str>>();
@@ -48,5 +56,26 @@ impl BodySize {
     #[must_use]
     pub fn get_size(&self) -> u32 {
         self.size_cm3
+    }
+}
+
+impl std::fmt::Display for BodySize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let year_ending = if self.years != 1 { "s" } else { "" };
+        let day_ending = if self.days != 1 { "s" } else { "" };
+
+        match (self.years, self.days) {
+            (_, 0) => write!(
+                f,
+                "{}cm³ at {} year{}",
+                self.size_cm3, self.years, year_ending
+            ),
+            (0, _) => write!(f, "{}cm³ at {} day{}", self.size_cm3, self.days, day_ending),
+            _ => write!(
+                f,
+                "{}cm³ at {} year{}, {} day{}",
+                self.size_cm3, self.years, year_ending, self.days, day_ending
+            ),
+        }
     }
 }

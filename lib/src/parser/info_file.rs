@@ -4,9 +4,9 @@ use tracing::{debug, error, info};
 use walkdir::DirEntry;
 
 use crate::{
+    InfoFile, ParserError,
     metadata::{ParserOptions, RawModuleLocation},
     utilities::subdirectories,
-    InfoFile, ParserError,
 };
 
 /// The function `parse_module_info_files` parses module information files based on the provided options.
@@ -65,12 +65,12 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
         }
         if options
             .locations_to_parse
-            .contains(&RawModuleLocation::Mods)
+            .contains(&RawModuleLocation::WorkshopMods)
         {
             info!("Dispatching info.txt parse for workshop mod raws");
             if let Some(workshop_mods_path) = options
                 .locations
-                .get_path_for_location(RawModuleLocation::Mods)
+                .get_path_for_location(RawModuleLocation::WorkshopMods)
             {
                 results.extend(parse_module_info_files_at_location(
                     &workshop_mods_path,

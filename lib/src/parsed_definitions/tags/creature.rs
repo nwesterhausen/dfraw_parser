@@ -1,10 +1,9 @@
 //! Contains the `CreatureTag` enum and associated implementations.
 
 use crate::{
-    creature::Creature,
     custom_types::TileCharacter,
     raw_definitions::CREATURE_TOKENS,
-    traits::{RawObjectToken, TagOperations, TokenParser},
+    traits::{TagOperations, TokenParser},
 };
 
 /// An enum representing a creature tag.
@@ -568,15 +567,8 @@ pub enum CreatureTag {
 }
 
 impl std::fmt::Display for CreatureTag {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        format!("{self:?}").fmt(f)
-    }
-}
-
-#[typetag::serialize]
-impl RawObjectToken<Creature> for CreatureTag {
-    fn is_within(&self, object: &Creature) -> bool {
-        object.get_tags().contains(self)
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
     }
 }
 
@@ -712,11 +704,15 @@ impl TagOperations for CreatureTag {
                 }
 
                 let Ok(number) = (*values.first().unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: HarvestProduct failed to parse number value in position 0: {values:?}");
+                    tracing::warn!(
+                        "parse_complex_token: HarvestProduct failed to parse number value in position 0: {values:?}"
+                    );
                     return None;
                 };
                 let Ok(time) = (*values.get(1).unwrap_or(&"")).parse::<u32>() else {
-                    tracing::warn!("parse_complex_token: HarvestProduct failed to parse time value in position 1: {values:?}");
+                    tracing::warn!(
+                        "parse_complex_token: HarvestProduct failed to parse time value in position 1: {values:?}"
+                    );
                     return None;
                 };
 

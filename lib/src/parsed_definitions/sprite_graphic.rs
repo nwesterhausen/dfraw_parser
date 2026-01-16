@@ -1,10 +1,10 @@
 //! A module that contains the `SpriteGraphic` struct and its implementation.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use itertools::Itertools;
 use tracing::warn;
 
 use crate::{
-    default_checks,
     dimensions::Dimensions,
     raw_definitions::{CONDITION_TOKENS, GRAPHIC_TYPE_TOKENS},
     tags::{ColorModificationTag, ConditionTag, GraphicTypeTag},
@@ -12,29 +12,67 @@ use crate::{
 
 /// A struct representing a sprite graphic.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct SpriteGraphic {
     primary_condition: ConditionTag,
     tile_page_id: String,
     offset: Dimensions,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[is_empty(only_if_none)]
     color: Option<ColorModificationTag>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     large_image: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     offset2: Option<Dimensions>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[is_empty(only_if_none)]
     secondary_condition: Option<ConditionTag>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     color_pallet_swap: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     target_identifier: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     extra_descriptor: Option<String>,
 }
 
 impl SpriteGraphic {
+    #[must_use]
+    pub fn get_offset(&self) -> Dimensions {
+        self.offset
+    }
+    #[must_use]
+    pub fn get_offset2(&self) -> Option<Dimensions> {
+        self.offset2
+    }
+    #[must_use]
+    pub fn get_primary_condition(&self) -> ConditionTag {
+        self.primary_condition
+    }
+    #[must_use]
+    pub fn get_secondary_condition(&self) -> ConditionTag {
+        match self.secondary_condition {
+            Some(condition) => condition,
+            None => ConditionTag::None,
+        }
+    }
+    #[must_use]
+    pub fn get_target_identifier(&self) -> &str {
+        match self.target_identifier.as_ref() {
+            Some(target) => target.as_str(),
+            None => "",
+        }
+    }
     /// Get the tile page ID.
     ///
     /// # Returns
@@ -65,9 +103,13 @@ impl SpriteGraphic {
             .unwrap_or(graphic_type);
 
         match specific_graphic_type {
-            GraphicTypeTag::Creature | GraphicTypeTag::CreatureCaste => {
+            GraphicTypeTag::Creature
+            | GraphicTypeTag::CreatureCaste
+            | GraphicTypeTag::StatueCreature
+            | GraphicTypeTag::StatueCreatureCaste
+            | GraphicTypeTag::StatuesSurfaceGiant => {
                 // parse creature
-                Self::parse_creature_from_token(&token)
+                Self::parse_creature_sprite_from_token(&token)
             }
             GraphicTypeTag::Plant => {
                 // parse plant
@@ -87,9 +129,6 @@ impl SpriteGraphic {
             | GraphicTypeTag::ShapeSmallGem => {
                 Self::parse_tile_with_extra_descriptor_from_value(value)
             }
-            GraphicTypeTag::StatueCreature
-            | GraphicTypeTag::StatueCreatureCaste
-            | GraphicTypeTag::StatuesSurfaceGiant => Self::parse_creature_statue_from_token(&token),
             GraphicTypeTag::Template
             | GraphicTypeTag::CustomWorkshop
             | GraphicTypeTag::AddTool
@@ -147,7 +186,7 @@ impl SpriteGraphic {
             }
         };
 
-        let offset_x: i32 = match tile_offset_x.parse() {
+        let offset_x: u32 = match tile_offset_x.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -158,7 +197,7 @@ impl SpriteGraphic {
             }
         };
 
-        let offset_y: i32 = match tile_offset_y.parse() {
+        let offset_y: u32 = match tile_offset_y.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -176,6 +215,7 @@ impl SpriteGraphic {
             ..Self::default()
         })
     }
+    #[tracing::instrument]
     fn parse_tile_with_color_pallet_from_value(value: &str) -> Option<Self> {
         // .[TOOL_GRAPHICS_WOOD:        1:      ITEM_BOOKCASE:      0:      0]
         // (     key                color_id    tile_page_id    offset_x   offset_y)
@@ -185,12 +225,12 @@ impl SpriteGraphic {
             Some(v) => match v.parse() {
                 Ok(n) => n,
                 Err(_e) => {
-                    warn!(
-                        "parse_tile_with_color_pallet_from_value: Failed to parse {} as color_id {}",
-                        v,
-                        value
-                    );
-                    return None;
+                    if v == "ALL" {
+                        0
+                    } else {
+                        warn!("Failed to parse {v}");
+                        return None;
+                    }
                 }
             },
             _ => {
@@ -217,7 +257,7 @@ impl SpriteGraphic {
             }
         };
 
-        let offset_x: i32 = match tile_offset_x.parse() {
+        let offset_x: u32 = match tile_offset_x.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -228,7 +268,7 @@ impl SpriteGraphic {
             }
         };
 
-        let offset_y: i32 = match tile_offset_y.parse() {
+        let offset_y: u32 = match tile_offset_y.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -280,7 +320,7 @@ impl SpriteGraphic {
         // Target identifier is optional
         let target_identifier = split.join(":");
 
-        let offset_x: i32 = match tile_offset_x.parse() {
+        let offset_x: u32 = match tile_offset_x.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -291,7 +331,7 @@ impl SpriteGraphic {
             }
         };
 
-        let offset_y: i32 = match tile_offset_y.parse() {
+        let offset_y: u32 = match tile_offset_y.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
@@ -347,25 +387,23 @@ impl SpriteGraphic {
         // Target identifier is optional
         let target_identifier = split.join(":");
 
-        let offset_x: i32 = match tile_offset_x.parse() {
+        let offset_x: u32 = match tile_offset_x.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
                     "parse_tile_with_extra_descriptor_from_value: Failed to parse {} as offset_x {}",
-                    tile_offset_x,
-                    value
+                    tile_offset_x, value
                 );
                 return None;
             }
         };
 
-        let offset_y: i32 = match tile_offset_y.parse() {
+        let offset_y: u32 = match tile_offset_y.parse() {
             Ok(n) => n,
             Err(_e) => {
                 warn!(
                     "parse_tile_with_extra_descriptor_from_value: Failed to parse {} as offset_y {}",
-                    tile_offset_y,
-                    value
+                    tile_offset_y, value
                 );
                 return None;
             }
@@ -379,374 +417,233 @@ impl SpriteGraphic {
             ..Self::default()
         })
     }
-    fn parse_creature_statue_from_token(token: &str) -> Option<Self> {
-        // [DEFAULT:    STATUES_LAYERED:        0:  0:  0:  1]
-        // [DEFAULT:    STATUES_SURFACE_LARGE:  1:  0:  1:  1]
-        //  condition   tile_page_id            x1  y1  x2  y2
-        let mut split = token.split(':');
 
-        let condition = match split.next() {
-            Some(v) => String::from(v),
-            _ => {
-                return None;
-            }
-        };
-
-        let x1: i32 = match split.next() {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_creature_statue_from_token: Failed to parse {} as x1 {}",
-                        v, token
-                    );
-                    return None;
-                }
-            },
-            _ => {
-                return None;
-            }
-        };
-        let y1: i32 = match split.next() {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_creature_statue_from_token: Failed to parse {} as y1 {}",
-                        v, token
-                    );
-                    return None;
-                }
-            },
-            _ => {
-                return None;
-            }
-        };
-        let x2: i32 = match split.next() {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_creature_statue_from_token: Failed to parse {} as x2 {}",
-                        v, token
-                    );
-                    return None;
-                }
-            },
-            _ => {
-                return None;
-            }
-        };
-        let y2: i32 = match split.next() {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_creature_statue_from_token: Failed to parse {} as y2 {}",
-                        v, token
-                    );
-                    return None;
-                }
-            },
-            _ => {
-                return None;
-            }
-        };
-
-        let primary_condition = ConditionTag::from_token(condition.as_str()).unwrap_or_else(|| {
-            warn!(
-                "parse_creature_statue_from_token: Failed to parse {} as primary_condition in {}",
-                condition, token
-            );
-            ConditionTag::None
-        });
-
-        Some(Self {
-            primary_condition,
-            tile_page_id: String::from("STATUES"),
-            offset: Dimensions::from_xy(x1, y1),
-            offset2: Some(Dimensions::from_xy(x2, y2)),
-            ..Self::default()
-        })
-    }
-    fn parse_creature_from_token(token: &str) -> Option<Self> {
-        // [<condition>:<tile page identifier>:<x position>:<y position>:<color type>:<secondary condition>]
-        //   0           1                      2            3             4            5
-        // [<condition>:<tile page identifier>:LARGE_IMAGE:<x1>:<y1>:<x2>:<y2>:<color type>:<secondary condition>]
-        //   0           1                      2          3    4     5    6    7            8
-
-        // Based on the length of the split, we can determine if this is a large image or not
-        let mut split = token.split(':');
-
-        let condition = match split.next() {
-            Some(v) => String::from(v),
-            _ => {
-                return None;
-            }
-        };
-
-        let tile_page_id = match split.next() {
-            Some(v) => String::from(v),
-            _ => {
-                return None;
-            }
-        };
-
-        let fourth_position_token = match split.next() {
-            Some(v) => String::from(v),
-            _ => {
-                return None;
-            }
-        };
-
-        let large_image = matches!(fourth_position_token.as_str(), "LARGE_IMAGE");
-
-        if large_image {
-            return Self::parse_large_creature_with_split(
-                condition.as_str(),
-                tile_page_id.as_str(),
-                split.collect::<Vec<&str>>().as_slice(),
-            );
-        }
-
-        // x1 actually is parsed from fourth_position_token
-        let x1: i32 = match fourth_position_token.parse() {
-            Ok(n) => n,
-            Err(_e) => {
-                warn!(
-                    "parse_creature_from_token: Failed to parse {} as x1 {}",
-                    fourth_position_token, token
-                );
-                return None;
-            }
-        };
-
-        let y1: i32 = match split.next() {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_creature_from_token: Failed to parse {} as y1 {}",
-                        v, token
-                    );
-                    return None;
-                }
-            },
-            _ => {
-                return None;
-            }
-        };
-
-        let color = split.next().map_or(ColorModificationTag::AsIs, |v| {
-            ColorModificationTag::from_token(v)
-        });
-
-        let primary_condition = ConditionTag::from_token(condition.as_str()).unwrap_or_else(|| {
-            warn!(
-                "Failed to parse {} as primary_condition in {}",
-                condition, token
-            );
-            ConditionTag::None
-        });
-
-        let secondary_condition = split.next().map_or(ConditionTag::None, |v| {
-            ConditionTag::from_token(v).unwrap_or_else(|| {
-                warn!("Failed to parse {} as secondary_condition in {}", v, token);
-                ConditionTag::None
-            })
-        });
-
-        if primary_condition == ConditionTag::None {
-            warn!(
-                "Failed to parse {} as primary_condition large_animal_sprite {}",
-                condition, tile_page_id
-            );
+    /// Parses a sprite graphic for anything about a creature.
+    ///
+    /// Takes the key condition and uses it to confirm we know how to parse it.
+    #[tracing::instrument]
+    fn parse_creature_sprite_from_token(token: &str) -> Option<Self> {
+        let mut tokens: Vec<&str> = token.split(':').rev().collect();
+        // reversed token list, so pop will remove the first token
+        let first_token = tokens.pop().unwrap_or_default();
+        let Some(key_condition) = CONDITION_TOKENS.get(first_token) else {
+            warn!("no condition token found '{first_token}'");
             return None;
-        }
+        };
+        tokens.reverse();
+        let token_str = tokens.as_slice().join(":");
 
-        Some(Self {
-            primary_condition,
-            tile_page_id,
-            offset: Dimensions::from_xy(x1, y1),
-            color: Some(color),
-            secondary_condition: Some(secondary_condition),
-            ..Self::default()
-        })
+        Self::parse_creature_sprite_from_keyed_token(key_condition, &token_str)
     }
-    #[allow(clippy::too_many_lines)]
-    fn parse_large_creature_with_split(
-        condition: &str,
-        tile_page_id: &str,
-        split: &[&str],
+
+    /// Parses a sprite graphic that has one of the 6 accepted basic condition tags:
+    /// `DEFAULT`,`CHILD`,`ANIMATED`,`CORPSE`,`LIST_ICON`, or `CDI_LIST_ICON`
+    ///
+    /// ## Default Sprite Example:
+    ///
+    /// ```txt
+    /// [CREATURE_GRAPHICS:GORLAK]
+    ///     [DEFAULT:CREATURES_UNDERGROUND:0:11:AS_IS]
+    ///     [key-----0---------------------1-2--3----] len: 4
+    ///     [DEFAULT:CREATURES_UNDERGROUND:0:11:AS_IS:CORPSE]
+    ///     [key-----0---------------------1-2--3-----4-----] len: 5
+    /// ```
+    ///
+    /// ## Large Sprite Example:
+    ///
+    /// ```txt
+    /// [CREATURE_GRAPHICS:CAVE_DRAGON]
+    ///     [DEFAULT:CREATURES_UNDERGROUND_LARGE:LARGE_IMAGE:0:0:2:1:AS_IS]
+    ///     [key-----0---------------------------1-----------2-3-4-5-6----] len: 7
+    ///     [DEFAULT:CREATURES_UNDERGROUND_LARGE:LARGE_IMAGE:0:0:2:1:AS_IS:CHILD]
+    ///     [key-----0---------------------------1-----------2-3-4-5-6-----7----] len: 8
+    /// ```
+    ///
+    /// Alternatively, statues are tall and so define it as a larger size without the indicator
+    /// flag `LARGE_IMAGE`.
+    ///
+    /// ```txt
+    /// [STATUE_CREATURE_GRAPHICS:SERPENT_MAN]
+    ///     [DEFAULT:STATUES_UNDERGROUND_CIV:0:8:0:9]
+    ///     [key-----0-----------------------1-2-3-4] len: 5
+    /// ```
+    ///
+    /// ## List Icon Example:
+    ///
+    /// Typically only exists if it is a giant/oddly sized normal sprite that wouldn't fit.
+    ///
+    /// ```txt
+    /// [LIST_ICON:CREATURES_SURFACE_GIANT:10:54]
+    /// [LIST_ICON:CREATURES_ANIMAL_PEOPLE_TALL:2:76]
+    /// [key-------0----------------------------1-2-] len: 3
+    /// ```
+    ///
+    /// ## CDI List Icon Example:
+    ///
+    /// An interaction list icon. Supercedes any list icon for the interaction list. Also replaces the normal
+    /// sprite if a CDI_LIST_ICON exists for specific interaction.
+    ///
+    /// ```txt
+    /// [CREATURE_GRAPHICS:ELEMENTMAN_FIRE]
+    ///      [CDI_LIST_ICON:HURL_FIREBALL:CREATURE_ABILITY_LIST_ICONS:20:0:4:3]
+    ///      [CDI_LIST_ICON:SPRAY_FIRE_JET:CREATURE_ABILITY_LIST_ICONS:24:0:4:3]
+    ///      [key-----------0--------------1---------------------------2--3-4-5] len: 6
+    /// ```
+    #[tracing::instrument]
+    fn parse_creature_sprite_from_keyed_token(
+        key_condition: &ConditionTag,
+        token: &str,
     ) -> Option<Self> {
-        // [<condition>:<tile page identifier>:LARGE_IMAGE:<x1>:<y1>:<x2>:<y2>:<color type>:<secondary condition>]
-        //   0           1                      2          3    4     5    6    7            8
-        let x1: i32 = match split.first() {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_large_creature_with_split: Failed to parse {} as offset_x1 {:?}",
-                        v, split
-                    );
-                    return None;
+        let primary_condition = *key_condition;
+        let tokens: Vec<&str> = token.split(':').collect();
+        let num_args = tokens.len();
+
+        match num_args {
+            // List Icon or Creature without color
+            3 => {
+                if key_condition == &ConditionTag::ListIcon {
+                    return Some(Self {
+                        primary_condition,
+                        // pos 1 (idx 0)
+                        tile_page_id: String::from(*tokens.first().unwrap_or(&"UNKNOWN")),
+                        // pos 2-3 (idx 1-2)
+                        offset: Dimensions::from_two_tokens(
+                            tokens.get(1).unwrap_or(&"0"),
+                            tokens.get(2).unwrap_or(&"0"),
+                        ),
+                        ..Default::default()
+                    });
                 }
-            },
-            _ => {
-                return None;
-            }
-        };
 
-        let y1: i32 = match split.get(1) {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_large_creature_with_split: Failed to parse {} as offset_y1 {:?}",
-                        v, split
-                    );
-                    return None;
+                Some(Self {
+                    primary_condition,
+                    // pos 1 (idx 0)
+                    tile_page_id: String::from(*tokens.first().unwrap_or(&"UNKNOWN")),
+                    // pos 2-3 (idx 1-2)
+                    offset: Dimensions::from_two_tokens(
+                        tokens.get(1).unwrap_or(&"0"),
+                        tokens.get(2).unwrap_or(&"0"),
+                    ),
+                    ..Default::default()
+                })
+            }
+            // Only creature
+            4 => {
+                Some(Self {
+                    primary_condition,
+                    // pos 1 (idx 0)
+                    tile_page_id: String::from(*tokens.first().unwrap_or(&"UNKNOWN")),
+                    // pos 2-3 (idx 1-2)
+                    offset: Dimensions::from_two_tokens(
+                        tokens.get(1).unwrap_or(&"0"),
+                        tokens.get(2).unwrap_or(&"0"),
+                    ),
+                    // pos 4 (idx 3)
+                    // always is AS_IS (as of df53.08)
+                    color: Some(ColorModificationTag::AsIs),
+                    ..Default::default()
+                })
+            }
+            // Can be creature sprite + 2nd condition or statue
+            5 => {
+                // If the final token is not `u32` then we have a secondary condition.
+                if tokens.get(4).unwrap_or(&"!").parse::<u32>().is_err() {
+                    // pos 5 (idx 4) (only sometimes present)
+                    let secondary_condition: Option<ConditionTag> =
+                        CONDITION_TOKENS.get(tokens.get(4).unwrap_or(&"")).copied();
+                    return Some(Self {
+                        primary_condition,
+                        // pos 1 (idx 0)
+                        tile_page_id: String::from(*tokens.first().unwrap_or(&"UNKNOWN")),
+                        // pos 2-3 (idx 1-2)
+                        offset: Dimensions::from_two_tokens(
+                            tokens.get(1).unwrap_or(&"0"),
+                            tokens.get(2).unwrap_or(&"0"),
+                        ),
+                        // pos 4 (idx 3)
+                        // always is AS_IS (as of df53.08)
+                        color: Some(ColorModificationTag::AsIs),
+                        // pos 5 (idx 4) (only sometimes present)
+                        secondary_condition,
+                        ..Default::default()
+                    });
                 }
-            },
+
+                // Tall/wide Sprite
+                // Used for statues (tall)
+                Some(Self {
+                    primary_condition,
+                    // pos 1 (idx 0)
+                    tile_page_id: String::from(*tokens.first().unwrap_or(&"UNKNOWN")),
+                    // pos 2-3 (idx 1-2)
+                    offset: Dimensions::from_two_tokens(
+                        tokens.get(1).unwrap_or(&"0"),
+                        tokens.get(2).unwrap_or(&"0"),
+                    ),
+                    // pos 4 (idx 3)
+                    // always is AS_IS (as of df53.08)
+                    color: Some(ColorModificationTag::AsIs),
+                    ..Default::default()
+                })
+            }
+            // Only cdi list icon
+            6 => {
+                Some(Self {
+                    primary_condition,
+                    // pos 1 (idx 0)
+                    extra_descriptor: Some(String::from(*tokens.first().unwrap_or(&"UNKNOWN"))),
+                    // pos 2 (idx 1)
+                    tile_page_id: String::from(*tokens.get(1).unwrap_or(&"UNKNOWN")),
+                    // pos 3-4 (idx 2-3)
+                    offset: Dimensions::from_two_tokens(
+                        tokens.get(2).unwrap_or(&"0"),
+                        tokens.get(3).unwrap_or(&"0"),
+                    ),
+                    // pos 5-6 (idx 4-5)
+                    offset2: Some(Dimensions::from_two_tokens(
+                        tokens.get(4).unwrap_or(&"0"),
+                        tokens.get(5).unwrap_or(&"0"),
+                    )),
+                    ..Default::default()
+                })
+            }
+            // Only large creature (and lrg + 2nd cond)
+            7 | 8 => {
+                // pos 8 (idx 7) (only sometimes present)
+                let secondary_condition: Option<ConditionTag> = if num_args == 8 {
+                    CONDITION_TOKENS.get(tokens.get(7).unwrap_or(&"")).copied()
+                } else {
+                    None
+                };
+                // Large Sprite
+                Some(Self {
+                    primary_condition,
+                    // pos 1 (idx 0)
+                    tile_page_id: String::from(*tokens.first().unwrap_or(&"UNKNOWN")),
+                    // pos 2 (idx 1)
+                    // literally: LARGE_IMAGE (discarded)
+                    large_image: Some(true),
+                    // pos 3-4 (idx 2-3)
+                    offset: Dimensions::from_two_tokens(
+                        tokens.get(2).unwrap_or(&"0"),
+                        tokens.get(3).unwrap_or(&"0"),
+                    ),
+                    // pos 5-6 (idx 4-5)
+                    offset2: Some(Dimensions::from_two_tokens(
+                        tokens.get(4).unwrap_or(&"0"),
+                        tokens.get(5).unwrap_or(&"0"),
+                    )),
+                    // pos 7 (idx 6)
+                    // always is AS_IS (as of df53.08)
+                    color: Some(ColorModificationTag::AsIs),
+                    secondary_condition,
+                    ..Default::default()
+                })
+            }
             _ => {
-                return None;
-            }
-        };
-
-        let x2: i32 = match split.get(2) {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_large_creature_with_split: Failed to parse {} as offset_x2 {:?}",
-                        v, split
-                    );
-                    return None;
-                }
-            },
-            _ => {
-                return None;
-            }
-        };
-
-        let y2: i32 = match split.get(3) {
-            Some(v) => match v.parse() {
-                Ok(n) => n,
-                Err(_e) => {
-                    warn!(
-                        "parse_large_creature_with_split: Failed to parse {} as offset_y2 {:?}",
-                        v, split
-                    );
-                    return None;
-                }
-            },
-            _ => {
-                return None;
-            }
-        };
-
-        let color = split.get(4).map_or(ColorModificationTag::AsIs, |v| {
-            ColorModificationTag::from_token(v)
-        });
-
-        let primary_condition = ConditionTag::from_token(condition).unwrap_or_else(|| {
-            warn!(
-                "Failed to parse {} as primary_condition in {}",
-                condition,
-                split.join(":")
-            );
-            ConditionTag::None
-        });
-
-        let secondary_condition = split.get(5).map_or(ConditionTag::None, |v| {
-            ConditionTag::from_token(v).unwrap_or_else(|| {
-                warn!(
-                    "Failed to parse {} as secondary_condition in {}",
-                    v,
-                    split.join(":")
-                );
-                ConditionTag::None
-            })
-        });
-
-        if primary_condition == ConditionTag::None {
-            warn!(
-                "Failed to parse {} as primary_condition large_animal_sprite {}",
-                condition, tile_page_id
-            );
-            return None;
-        }
-
-        Some(Self {
-            primary_condition,
-            tile_page_id: String::from(tile_page_id),
-            offset: Dimensions::from_xy(x1, y1),
-            color: Some(color),
-            large_image: Some(true),
-            offset2: Some(Dimensions::from_xy(x2, y2)),
-            secondary_condition: Some(secondary_condition),
-            ..Self::default()
-        })
-    }
-
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new sprite graphic with the cleaned values.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        // Set any empty string to None.
-        if let Some(extra_descriptor) = cleaned.extra_descriptor.as_ref() {
-            if extra_descriptor.is_empty() {
-                cleaned.extra_descriptor = None;
+                warn!("Fell through to none");
+                None
             }
         }
-
-        // Set any empty string to None.
-        if let Some(target_identifier) = cleaned.target_identifier.as_ref() {
-            if target_identifier.is_empty() {
-                cleaned.target_identifier = None;
-            }
-        }
-
-        // Set any default values to None.
-        if let Some(color) = cleaned.color.as_ref() {
-            if color.is_default() {
-                cleaned.color = None;
-            }
-        }
-
-        // Set any default values to None.
-        if let Some(offset2) = cleaned.offset2.as_ref() {
-            if offset2.is_empty() {
-                cleaned.offset2 = None;
-            }
-        }
-
-        // Set any default values to None.
-        if let Some(secondary_condition) = cleaned.secondary_condition.as_ref() {
-            if secondary_condition.is_none() {
-                cleaned.secondary_condition = None;
-            }
-        }
-
-        // Set any default values to None.
-        if default_checks::is_zero(cleaned.color_pallet_swap) {
-            cleaned.color_pallet_swap = None;
-        }
-
-        cleaned
     }
 }

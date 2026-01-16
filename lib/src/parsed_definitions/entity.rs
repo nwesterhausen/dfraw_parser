@@ -1,160 +1,173 @@
 //! Contains the Entity struct and implementations.
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
     color::Color,
-    default_checks,
     metadata::{ObjectType, RawMetadata},
     position::Position,
     raw_definitions::{ENTITY_TOKENS, POSITION_TOKENS},
     tags::EntityTag,
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
-    utilities::build_object_id_from_pieces,
+    traits::{RawObject, Searchable},
+    utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
 /// A struct representing an Entity object.
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Entity {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
     object_id: String,
 
     tags: Vec<EntityTag>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     creature: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     translation: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     exclusive_start_biome: Option<String>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     biome_support: Option<Vec<(String, u32)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     settlement_biome: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     start_biome: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     likes_sites: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tolerates_sites: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     world_constructions: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = 500)]
     max_pop_number: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = 50)]
     max_site_pop_number: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = 3)]
     max_starting_civ_number: Option<u32>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     permitted_buildings: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     permitted_jobs: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     permitted_reactions: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     currency: Option<Vec<(String, u32)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     art_facet_modifier: Option<Vec<(String, u32)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     art_image_element_modifier: Option<Vec<(String, u32)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     item_improvement_modifier: Option<Vec<(String, u32)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     select_symbols: Option<Vec<(String, String)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     subselect_symbols: Option<Vec<(String, String)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     cull_symbols: Option<Vec<(String, String)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     friendly_color: Option<Color>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     religion: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     religion_spheres: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     sphere_alignments: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     positions: Option<Vec<Position>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     land_holder_trigger: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     site_variable_positions: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     variable_positions: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     ethics: Option<Vec<(String, String)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     values: Option<Vec<(String, u32)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     variable_values: Option<Vec<(String, u32, u32)>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     active_season: Option<String>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     banditry: Option<f32>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     progress_trigger_population: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     progress_trigger_production: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     progress_trigger_trade: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     progress_trigger_population_siege: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     progress_trigger_production_siege: Option<u8>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     progress_trigger_trade_siege: Option<u8>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     scholars: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     ammo: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     armors: Option<Vec<(String, u16)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     diggers: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     gloves: Option<Vec<(String, u16)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     helms: Option<Vec<(String, u16)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     instrument: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pants: Option<Vec<(String, u16)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     shields: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     shoes: Option<Vec<(String, u16)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     siege_ammo: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tool: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     toys: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     trap_components: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     weapons: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     gem_shape: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     stone_shape: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     source_hfid: Option<u32>,
 }
 
@@ -198,235 +211,13 @@ impl Entity {
             ..Default::default()
         }
     }
-
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps:
-    /// - Set the metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// * `Entity` - The cleaned Entity.
-    #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        // Remove metadata if hidden
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
-        }
-
-        // Remove empty strings
-        if cleaned.creature.as_deref() == Some("") {
-            cleaned.creature = None;
-        }
-        if cleaned.translation.as_deref() == Some("") {
-            cleaned.translation = None;
-        }
-        if cleaned.exclusive_start_biome.as_deref() == Some("") {
-            cleaned.exclusive_start_biome = None;
-        }
-
-        if cleaned.biome_support.as_deref() == Some(&[]) {
-            cleaned.biome_support = None;
-        }
-        if cleaned.settlement_biome.as_deref() == Some(&[]) {
-            cleaned.settlement_biome = None;
-        }
-        if cleaned.start_biome.as_deref() == Some(&[]) {
-            cleaned.start_biome = None;
-        }
-        if cleaned.likes_sites.as_deref() == Some(&[]) {
-            cleaned.likes_sites = None;
-        }
-        if cleaned.tolerates_sites.as_deref() == Some(&[]) {
-            cleaned.tolerates_sites = None;
-        }
-        if cleaned.world_constructions.as_deref() == Some(&[]) {
-            cleaned.world_constructions = None;
-        }
-
-        if default_checks::is_500_u32(cleaned.max_pop_number) {
-            cleaned.max_pop_number = None;
-        }
-        if default_checks::is_50_u32(cleaned.max_site_pop_number) {
-            cleaned.max_site_pop_number = None;
-        }
-        if default_checks::is_3_u32(cleaned.max_starting_civ_number) {
-            cleaned.max_starting_civ_number = None;
-        }
-
-        if cleaned.permitted_buildings.as_deref() == Some(&[]) {
-            cleaned.permitted_buildings = None;
-        }
-        if cleaned.permitted_jobs.as_deref() == Some(&[]) {
-            cleaned.permitted_jobs = None;
-        }
-        if cleaned.permitted_reactions.as_deref() == Some(&[]) {
-            cleaned.permitted_reactions = None;
-        }
-
-        if cleaned.currency.as_deref() == Some(&[]) {
-            cleaned.currency = None;
-        }
-        if cleaned.art_facet_modifier.as_deref() == Some(&[]) {
-            cleaned.art_facet_modifier = None;
-        }
-        if cleaned.art_image_element_modifier.as_deref() == Some(&[]) {
-            cleaned.art_image_element_modifier = None;
-        }
-        if cleaned.item_improvement_modifier.as_deref() == Some(&[]) {
-            cleaned.item_improvement_modifier = None;
-        }
-        if cleaned.select_symbols.as_deref() == Some(&[]) {
-            cleaned.select_symbols = None;
-        }
-        if cleaned.subselect_symbols.as_deref() == Some(&[]) {
-            cleaned.subselect_symbols = None;
-        }
-        if cleaned.cull_symbols.as_deref() == Some(&[]) {
-            cleaned.cull_symbols = None;
-        }
-        if let Some(color) = &cleaned.friendly_color {
-            if color.is_default() {
-                cleaned.friendly_color = None;
-            }
-        }
-
-        if cleaned.religion.as_deref() == Some("") {
-            cleaned.religion = None;
-        }
-        if cleaned.religion_spheres.as_deref() == Some(&[]) {
-            cleaned.religion_spheres = None;
-        }
-        if cleaned.sphere_alignments.as_deref() == Some(&[]) {
-            cleaned.sphere_alignments = None;
-        }
-
-        if let Some(positions) = &cleaned.positions {
-            if positions.is_empty() {
-                cleaned.positions = None;
-            }
-        }
-        if cleaned.land_holder_trigger.as_deref() == Some("") {
-            cleaned.land_holder_trigger = None;
-        }
-        if cleaned.site_variable_positions.as_deref() == Some(&[]) {
-            cleaned.site_variable_positions = None;
-        }
-        if cleaned.variable_positions.as_deref() == Some(&[]) {
-            cleaned.variable_positions = None;
-        }
-
-        if cleaned.ethics.as_deref() == Some(&[]) {
-            cleaned.ethics = None;
-        }
-        if cleaned.values.as_deref() == Some(&[]) {
-            cleaned.values = None;
-        }
-        if cleaned.variable_values.as_deref() == Some(&[]) {
-            cleaned.variable_values = None;
-        }
-
-        if cleaned.active_season.as_deref() == Some("") {
-            cleaned.active_season = None;
-        }
-
-        if default_checks::is_zero_f32(cleaned.banditry) {
-            cleaned.banditry = None;
-        }
-
-        if default_checks::is_zero_u8(cleaned.progress_trigger_population) {
-            cleaned.progress_trigger_population = None;
-        }
-        if default_checks::is_zero_u8(cleaned.progress_trigger_production) {
-            cleaned.progress_trigger_production = None;
-        }
-        if default_checks::is_zero_u8(cleaned.progress_trigger_trade) {
-            cleaned.progress_trigger_trade = None;
-        }
-        if default_checks::is_zero_u8(cleaned.progress_trigger_population_siege) {
-            cleaned.progress_trigger_population_siege = None;
-        }
-        if default_checks::is_zero_u8(cleaned.progress_trigger_production_siege) {
-            cleaned.progress_trigger_production_siege = None;
-        }
-        if default_checks::is_zero_u8(cleaned.progress_trigger_trade_siege) {
-            cleaned.progress_trigger_trade_siege = None;
-        }
-
-        if cleaned.scholars.as_deref() == Some(&[]) {
-            cleaned.scholars = None;
-        }
-        if cleaned.ammo.as_deref() == Some(&[]) {
-            cleaned.ammo = None;
-        }
-        if cleaned.armors.as_deref() == Some(&[]) {
-            cleaned.armors = None;
-        }
-        if cleaned.diggers.as_deref() == Some(&[]) {
-            cleaned.diggers = None;
-        }
-        if cleaned.gloves.as_deref() == Some(&[]) {
-            cleaned.gloves = None;
-        }
-        if cleaned.helms.as_deref() == Some(&[]) {
-            cleaned.helms = None;
-        }
-        if cleaned.instrument.as_deref() == Some(&[]) {
-            cleaned.instrument = None;
-        }
-        if cleaned.pants.as_deref() == Some(&[]) {
-            cleaned.pants = None;
-        }
-        if cleaned.shields.as_deref() == Some(&[]) {
-            cleaned.shields = None;
-        }
-        if cleaned.shoes.as_deref() == Some(&[]) {
-            cleaned.shoes = None;
-        }
-        if cleaned.siege_ammo.as_deref() == Some(&[]) {
-            cleaned.siege_ammo = None;
-        }
-        if cleaned.tool.as_deref() == Some(&[]) {
-            cleaned.tool = None;
-        }
-        if cleaned.toys.as_deref() == Some(&[]) {
-            cleaned.toys = None;
-        }
-        if cleaned.trap_components.as_deref() == Some(&[]) {
-            cleaned.trap_components = None;
-        }
-        if cleaned.weapons.as_deref() == Some(&[]) {
-            cleaned.weapons = None;
-        }
-
-        if cleaned.gem_shape.as_deref() == Some(&[]) {
-            cleaned.gem_shape = None;
-        }
-        if cleaned.stone_shape.as_deref() == Some(&[]) {
-            cleaned.stone_shape = None;
-        }
-
-        if default_checks::is_zero_u32(cleaned.source_hfid) {
-            cleaned.source_hfid = None;
-        }
-
-        cleaned
-    }
 }
 
 #[typetag::serde]
 impl RawObject for Entity {
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
+    }
     fn get_object_id(&self) -> &str {
         self.object_id.as_str()
     }
@@ -447,14 +238,8 @@ impl RawObject for Entity {
     fn get_name(&self) -> &str {
         &self.identifier
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Entity
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
     #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
     fn parse_tag(&mut self, key: &str, value: &str) {

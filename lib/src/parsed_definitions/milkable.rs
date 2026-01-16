@@ -1,7 +1,20 @@
 //! Milkable struct and implementation
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    specta::Type,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 /// How often a creature can be milked and what material it produces
 pub struct Milkable {

@@ -1,18 +1,31 @@
 //! Material template definition
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+
 use crate::{
     material::Material,
     metadata::{ObjectType, RawMetadata},
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
-    utilities::build_object_id_from_pieces,
+    traits::{RawObject, Searchable},
+    utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
 /// A struct representing a material template
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct MaterialTemplate {
     identifier: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     object_id: String,
     material: Material,
@@ -58,39 +71,12 @@ impl MaterialTemplate {
             ..Self::default()
         }
     }
-
-    /// Function to "clean" the raw. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new material template with all empty or default values removed.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
-        }
-
-        cleaned
-    }
 }
 
 #[typetag::serde]
 impl RawObject for MaterialTemplate {
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
     }
     fn get_identifier(&self) -> &str {
         &self.identifier
@@ -123,9 +109,6 @@ impl RawObject for MaterialTemplate {
     }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::MaterialTemplate
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
 }
 

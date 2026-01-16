@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
@@ -9,16 +10,27 @@ use crate::{
     metadata::{ObjectType, RawMetadata},
     raw_definitions::TILE_PAGE_TOKENS,
     tags::TilePageTag,
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
-    utilities::build_object_id_from_pieces,
+    traits::{RawObject, Searchable},
+    utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
 /// A struct representing a `TilePage` object.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct TilePage {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
     object_id: String,
@@ -29,6 +41,18 @@ pub struct TilePage {
 }
 
 impl TilePage {
+    #[must_use]
+    pub fn get_file_path(&self) -> PathBuf {
+        self.file.clone()
+    }
+    #[must_use]
+    pub fn get_tile_dimensions(&self) -> Dimensions {
+        self.tile_dim
+    }
+    #[must_use]
+    pub fn get_page_dimensions(&self) -> Dimensions {
+        self.page_dim
+    }
     /// Function to create a new empty `TilePage`.
     ///
     /// # Returns
@@ -64,32 +88,6 @@ impl TilePage {
             ..Self::default()
         }
     }
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// * `TilePage` - The cleaned `TilePage`.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
-        }
-
-        cleaned
-    }
 }
 
 #[typetag::serde]
@@ -111,14 +109,8 @@ impl RawObject for TilePage {
     fn get_name(&self) -> &str {
         &self.identifier
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::TilePage
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {
@@ -146,7 +138,9 @@ impl RawObject for TilePage {
             }
         }
     }
-
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
+    }
     fn get_object_id(&self) -> &str {
         &self.object_id
     }

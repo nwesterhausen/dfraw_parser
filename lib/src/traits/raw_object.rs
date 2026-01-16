@@ -3,7 +3,10 @@
 
 use std::any::Any;
 
-use crate::metadata::{ObjectType, RawMetadata};
+use crate::{
+    metadata::{ObjectType, RawMetadata},
+    traits::Cleanable,
+};
 
 use super::searchable::Searchable;
 
@@ -12,13 +15,11 @@ use super::searchable::Searchable;
 /// The `RawObject` trait is implemented by all raw objects. This trait is used
 /// to provide a common interface for all raw objects, so that they can be
 /// stored in a single vector. It also provides a common interface for parsing.
-pub trait RawObject: RawObjectToAny + Send + Sync + Searchable {
+pub trait RawObject: RawObjectToAny + Send + Sync + Searchable + Cleanable {
     /// Get the metadata for the raw.
     fn get_metadata(&self) -> RawMetadata;
     /// Get the identifier of the raw.
     fn get_identifier(&self) -> &str;
-    /// Returns true if the raw is empty.
-    fn is_empty(&self) -> bool;
     /// Get the type of the raw.
     fn get_type(&self) -> &ObjectType;
     /// Parse a new tag from the raw file into this raw object.
@@ -35,11 +36,15 @@ pub trait RawObject: RawObjectToAny + Send + Sync + Searchable {
     /// If no name is found, the identifier is returned instead.
     /// This is used for searching.
     fn get_name(&self) -> &str;
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
+    /// Function to return "flag" tokens (as strings) for things like `[FLIER]` or `[INTELLIGENT]`, etc
+    fn get_searchable_tokens(&self) -> Vec<&str>;
+    /// Function to "clean" the raw. This is used to remove any empty list or strings,
     /// and to remove any default values. By "removing" it means setting the value to None.
     ///
     /// This also will remove the metadata if is_metadata_hidden is true.
-    fn clean_self(&mut self);
+    fn clean_self(&mut self) {
+        self.clean()
+    }
 }
 
 /// The `RawObjectToAny` trait is implemented by all raw objects. This trait is

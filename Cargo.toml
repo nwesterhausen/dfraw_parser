@@ -1,21 +1,51 @@
 [workspace]
 
-members = ["lib", "cli", "jsonlib", "sqlite_lib"]
+members = ["lib", "cli", "jsonlib", "sqlite_lib", "test_util", "proc_macros"]
 resolver = "3"
 
 # Some very strict lints.
+# These lints can be used from the cli as well:
+#
+# cargo clippy -- -D clippy::pedantic -D clippy::nursery -D clippy::unwrap_used -D clippy::enum_glob_use -D unreachable_patterns -D unreachable_code -D missing_docs -D unsafe_code
 [workspace.lints.rust]
 unsafe_code = "forbid"
 missing_docs = "warn"
 unreachable_code = "warn"
 unreachable_patterns = "warn"
 [workspace.lints.clippy]
-module_name_repetition = "allow"
+module_name_repetitions = "allow"
 enum_glob_use = { level = "deny", priority = -1 }
 pedantic= { level = "deny", priority = -2 }
 nursery = { level = "deny", priority = 1 }
 unwrap_used = { level = "deny", priority = 2 }
 
-# These lints can be used from the cli as well:
-#
-# cargo clippy -- -D clippy::pedantic -D clippy::nursery -D clippy::unwrap_used -D clippy::enum_glob_use -D unreachable_patterns -D unreachable_code -D missing_docs -D unsafe_code
+[workspace.dependencies]
+chrono = "0.4"
+dfraw_json_parser = { version = "0", path = "jsonlib" }
+dfraw_parser = { version = "0", path = "lib" }
+dfraw_parser_sqlite_lib = { version = "0", path = "sqlite_lib" }
+dfraw_parser_proc_macros = { version = "0", path = "proc_macros" }
+directories = "6.0.0"
+encoding_rs = "0.8.34"
+encoding_rs_io = "0.1"
+fern = "0.7.1"
+itertools = "0.14.0"
+lazy-regex = "3.1.0"
+lexopt = "0.3"
+once_cell = "1.19.0"
+phf = "0.13.1"
+quick-xml = "0.38.4"
+rusqlite = "0.38.0"
+serde = "1.0.228"
+serde_json = "1.0.148"
+slug = "0.1.5"
+specta = "2.0.0-rc.22"
+specta-typescript = "0.0.9"
+strum = "0.27"
+strum_macros = "0.27"
+test_util = {version = "0", path = "test_util"}
+thiserror = "2"
+tracing = "0.1.43"
+tracing-subscriber = "0.3.18"
+typetag = "0.2"
+walkdir = "2.5.0"

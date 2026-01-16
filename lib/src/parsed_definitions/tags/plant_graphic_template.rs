@@ -33,3 +33,9 @@ pub enum PlantGraphicTemplateTag {
     /// The standard flowers 4
     StandardFlowers4,
 }
+
+impl std::fmt::Display for PlantGraphicTemplateTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

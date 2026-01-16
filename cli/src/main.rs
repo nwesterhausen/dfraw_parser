@@ -176,7 +176,7 @@ fn parse_args() -> Result<Args, lexopt::Error> {
                 args.locations.push(RawModuleLocation::Vanilla);
             }
             Long("mods") => {
-                args.locations.push(RawModuleLocation::Mods);
+                args.locations.push(RawModuleLocation::WorkshopMods);
             }
             Long("installed") => {
                 args.locations.push(RawModuleLocation::InstalledMods);
@@ -314,7 +314,9 @@ fn write_output_file<P: AsRef<Path>>(
     tracing::info!("Opened {} for writing", output_path.as_ref().display());
 
     if skip_info_files && skip_raws {
-        tracing::info!("Specified --skip-info-files and --skip-raws, so not writing anything to the output file");
+        tracing::info!(
+            "Specified --skip-info-files and --skip-raws, so not writing anything to the output file"
+        );
         return Ok(());
     }
 

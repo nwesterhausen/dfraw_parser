@@ -19,19 +19,19 @@ use tracing::{debug, error, info, trace, warn};
 use walkdir::WalkDir;
 
 use crate::{
+    ParserError,
     creature::Creature,
     creature_variation::CreatureVariation,
     entity::Entity,
     graphic::Graphic,
     inorganic::Inorganic,
     material_template::MaterialTemplate,
-    metadata::{ObjectType, ParserOptions, RawMetadata},
+    metadata::{ObjectType, ParserOptions, RawMetadata, RawModuleLocation},
     plant::Plant,
     regex::VARIATION_ARGUMENT_RE,
     select_creature::SelectCreature,
     tile_page::TilePage,
-    traits::{searchable::get_search_string, CreatureVariationRequirements, RawObject, Searchable},
-    ParserError,
+    traits::{CreatureVariationRequirements, IsEmpty, RawObject},
 };
 
 #[tracing::instrument]
@@ -262,7 +262,7 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
         ..Default::default()
     };
 
-    validated_options.locations.init();
+    validated_options.locations.init(false);
 
     // Guard against invalid path if locations are set
     if !validated_options.locations_to_parse.is_empty() {
@@ -271,10 +271,16 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
                 "Dwarf Fortress directory cannot be None".to_string(),
             ));
         }
-        if validated_options
-            .locations
-            .get_user_data_directory()
-            .is_none()
+        if (validated_options
+            .locations_to_parse
+            .contains(&RawModuleLocation::InstalledMods)
+            || validated_options
+                .locations_to_parse
+                .contains(&RawModuleLocation::WorkshopMods))
+            && validated_options
+                .locations
+                .get_user_data_directory()
+                .is_none()
         {
             return Err(ParserError::InvalidOptions(
                 "Dwarf Fortress user data directory cannot be None".to_string(),
@@ -316,9 +322,9 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
             );
         } else if !raw_module_path.is_dir() {
             warn!(
-              "options_validator: Discarding raw module directory because it isn't a directory:\n{}",
-              raw_module_path.display()
-          );
+                "options_validator: Discarding raw module directory because it isn't a directory:\n{}",
+                raw_module_path.display()
+            );
         } else {
             // Add the canonicalized path to the module
             let raw_module_path = raw_module_path.canonicalize().unwrap_or_else(|e| {
@@ -1226,19 +1232,4 @@ pub fn singularly_apply_creature_variation(
     }
 
     Some(updated_creature)
-}
-
-/// The function `build_search_string` takes a `raw_object` that implements the `Searchable` trait and
-/// returns a string representation of the object for searching purposes.
-///
-/// Arguments:
-///
-/// * `raw_object`: The `raw_object` parameter is a reference to an object that implements the
-///   `Searchable` trait.
-///
-/// Returns:
-///
-/// The function `build_search_string` returns a `String` value.
-pub fn build_search_string(raw_object: &dyn Searchable) -> String {
-    get_search_string(raw_object)
 }

@@ -1,9 +1,11 @@
 //! Plant definition and parsing
 
+use std::collections::HashSet;
+
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{debug, warn};
 
 use crate::{
-    default_checks,
     material::Material,
     metadata::{ObjectType, RawMetadata},
     name::Name,
@@ -14,51 +16,62 @@ use crate::{
     },
     shrub::Shrub,
     tags::{BiomeTag, PlantGrowthTag, PlantGrowthTypeTag, PlantTag},
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
+    traits::{RawObject, Searchable},
     tree::Tree,
-    utilities::{build_object_id_from_pieces, parse_min_max_range},
+    utilities::{build_object_id_from_pieces, clean_search_vec, parse_min_max_range},
 };
 
 /// A struct representing a plant
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Plant {
     /// Common Raw file Things
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
     object_id: String,
 
     // Basic Tokens
     name: Name,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pref_strings: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<PlantTag>>,
 
     // Environment Tokens
     /// Default [0, 0] (aboveground)
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     underground_depth: Option<[u32; 2]>,
     /// Default frequency is 50
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     frequency: Option<u32>,
     /// List of biomes this plant can grow in
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     biomes: Option<Vec<BiomeTag>>,
 
     /// Growth Tokens define the growths of the plant (leaves, fruit, etc.)
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     growths: Option<Vec<PlantGrowth>>,
     /// If plant is a tree, it will have details about the tree.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tree_details: Option<Tree>,
     /// If plant is a shrub, it will have details about the shrub.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     shrub_details: Option<Shrub>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     materials: Option<Vec<Material>>,
 }
 
@@ -112,77 +125,30 @@ impl Plant {
             .map_or_else(Vec::new, std::clone::Clone::clone)
     }
 
-    /// Function to "clean" the raw. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new plant with all empty or default values removed.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
+    pub fn get_all_names(&self) -> Vec<&str> {
+        let mut names = HashSet::new();
 
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
-        }
+        names.insert(self.name.get_singular());
+        names.insert(self.name.get_plural());
+        names.insert(self.name.get_adjective());
 
-        if let Some(pref_strings) = &cleaned.pref_strings {
-            if pref_strings.is_empty() {
-                cleaned.pref_strings = None;
-            }
-        }
-
-        if let Some(tags) = &cleaned.tags {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
-        }
-
-        if default_checks::min_max_is_zeroes(&cleaned.underground_depth) {
-            cleaned.underground_depth = None;
-        }
-
-        if default_checks::is_default_frequency(cleaned.frequency) {
-            cleaned.frequency = None;
-        }
-
-        if let Some(biomes) = &cleaned.biomes {
-            if biomes.is_empty() {
-                cleaned.biomes = None;
-            }
-        }
-
-        if let Some(growths) = &cleaned.growths {
-            let mut cleaned_growths = Vec::new();
+        if let Some(growths) = &self.growths {
             for growth in growths {
-                cleaned_growths.push(growth.cleaned());
+                names.insert(growth.name.get_singular());
+                names.insert(growth.name.get_plural());
+                names.insert(growth.name.get_adjective());
             }
-            cleaned.growths = Some(cleaned_growths);
         }
 
-        if let Some(materials) = &cleaned.materials {
-            let mut cleaned_materials = Vec::new();
-            for material in materials {
-                cleaned_materials.push(material.cleaned());
-            }
-            if cleaned_materials.is_empty() {
-                cleaned.materials = None;
-            }
-            cleaned.materials = Some(cleaned_materials);
-        }
-
-        cleaned
+        names.into_iter().collect()
     }
+    pub fn get_pref_strings(&self) -> Vec<&str> {
+        if let Some(prefs) = self.pref_strings.as_ref() {
+            return prefs.iter().map(String::as_str).collect();
+        };
+        Vec::new()
+    }
+
     /// Add a tag to the plant.
     ///
     /// This handles making sure the tags vector is initialized.
@@ -249,6 +215,27 @@ impl Plant {
 
 #[typetag::serde]
 impl RawObject for Plant {
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        let mut tokens = HashSet::new();
+
+        for token in PlantTag::FLAG_TOKENS {
+            if self.has_tag(token) {
+                tokens.insert(PlantTag::get_key(token).unwrap_or_default());
+            }
+        }
+
+        if let Some(growths) = &self.growths {
+            for growth in growths {
+                if PlantGrowthTypeTag::FLAG_TOKENS.contains(&growth.get_growth_type()) {
+                    tokens.insert(
+                        PlantGrowthTypeTag::get_key(growth.get_growth_type()).unwrap_or_default(),
+                    );
+                }
+            }
+        }
+
+        tokens.into_iter().collect()
+    }
     fn get_metadata(&self) -> RawMetadata {
         self.metadata.as_ref().map_or_else(
             || {
@@ -269,13 +256,7 @@ impl RawObject for Plant {
     fn get_name(&self) -> &str {
         self.name.get_singular()
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
 
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
-    }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Plant
     }

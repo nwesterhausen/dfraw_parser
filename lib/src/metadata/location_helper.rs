@@ -2,10 +2,10 @@
 use std::path::PathBuf;
 
 use crate::{
+    ParserError,
     constants::DF_STEAM_APPID,
     metadata::RawModuleLocation,
     utilities::{find_game_path, find_user_data_path},
-    ParserError,
 };
 
 /// Helper struct for managing locations related to the game directory and user directory.
@@ -27,28 +27,34 @@ impl LocationHelper {
             df_directory: None,
             user_data_directory: None,
         };
-        helper.init();
+        helper.init(true);
         helper
     }
 
     /// Get the game directory.
-    pub fn get_df_directory(&self) -> Option<&PathBuf> {
-        self.df_directory.as_ref()
+    #[must_use]
+    pub fn get_df_directory(&self) -> Option<PathBuf> {
+        self.df_directory.clone()
     }
 
     /// Get the user directory.
-    pub fn get_user_data_directory(&self) -> Option<&PathBuf> {
-        self.user_data_directory.as_ref()
+    #[must_use]
+    pub fn get_user_data_directory(&self) -> Option<PathBuf> {
+        self.user_data_directory.clone()
     }
 
     /// Initialize the game directory and user directory.
     ///
     /// This can be called at any time to update the game directory and user directory.
-    pub fn init(&mut self) {
+    pub fn init(&mut self, force: bool) {
         // Get app installation directory
-        self.df_directory = find_game_path(DF_STEAM_APPID);
+        if force || self.df_directory.is_none() {
+            self.df_directory = find_game_path(DF_STEAM_APPID);
+        }
         // Get user directory
-        self.user_data_directory = find_user_data_path();
+        if force || self.user_data_directory.is_none() {
+            self.user_data_directory = find_user_data_path();
+        }
     }
 
     /// Set the Dwarf Fortress user data directory explicitly
@@ -73,7 +79,7 @@ impl LocationHelper {
             Err(e) => {
                 return Err(ParserError::InvalidOptions(format!(
                     "Unable to canonicalize Dwarf Fortress user data path!\n{path:?}\n{e:?}"
-                )))
+                )));
             }
         };
 
@@ -117,7 +123,7 @@ impl LocationHelper {
             Err(e) => {
                 return Err(ParserError::InvalidOptions(format!(
                     "Unable to canonicalize Dwarf Fortress path!\n{path:?}\n{e:?}"
-                )))
+                )));
             }
         };
 
@@ -149,7 +155,7 @@ impl LocationHelper {
     /// - `Option<PathBuf>`: The path to the module, or `None` if the location is unknown.
     pub fn get_path_for_location(&self, location: RawModuleLocation) -> Option<PathBuf> {
         match location {
-            RawModuleLocation::InstalledMods | RawModuleLocation::Mods => self
+            RawModuleLocation::InstalledMods | RawModuleLocation::WorkshopMods => self
                 .user_data_directory
                 .as_ref()
                 .map(|dir| dir.join(location.get_path())),

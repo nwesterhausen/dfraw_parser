@@ -1,7 +1,19 @@
 //! State names for materials
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 /// Represents the name of a materials 3 states (solid, liquid, gas)
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase", rename = "StateName")]
 pub struct StateNames {
     solid: String,

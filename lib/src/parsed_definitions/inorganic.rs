@@ -1,40 +1,51 @@
 //! Parsed Inorganic object definition.
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 use crate::{
-    default_checks,
     material::Material,
     metadata::{ObjectType, RawMetadata},
     raw_definitions::{ENVIRONMENT_CLASS_TOKENS, INCLUSION_TYPE_TOKENS, INORGANIC_TOKENS},
     tags::{EnvironmentClassTag, InclusionTypeTag, InorganicTag},
-    traits::{searchable::clean_search_vec, RawObject, Searchable},
-    utilities::build_object_id_from_pieces,
+    traits::{RawObject, Searchable},
+    utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
 /// The raw representation of an inorganic object.
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Inorganic {
     identifier: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     object_id: String,
     material: Material,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metal_ore_chance: Option<Vec<(String, u8)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     thread_metal_chance: Option<Vec<(String, u8)>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     environment_class: Option<EnvironmentClassTag>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     environment_inclusion_type: Option<InclusionTypeTag>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     environment_inclusion_frequency: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     environment_class_specific: Option<Vec<String>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<InorganicTag>>,
 }
 
@@ -78,61 +89,7 @@ impl Inorganic {
             ..Self::default()
         }
     }
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new Inorganic object with all empty or default values set to None.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
 
-        if let Some(metadata) = &cleaned.metadata {
-            if metadata.is_hidden() {
-                cleaned.metadata = None;
-            }
-        }
-
-        if let Some(metal_ore_chance) = &cleaned.metal_ore_chance {
-            if metal_ore_chance.is_empty() {
-                cleaned.metal_ore_chance = None;
-            }
-        }
-        if let Some(thread_metal_chance) = &cleaned.thread_metal_chance {
-            if thread_metal_chance.is_empty() {
-                cleaned.thread_metal_chance = None;
-            }
-        }
-        if let Some(environment_class) = &cleaned.environment_class {
-            if environment_class.is_default() {
-                cleaned.environment_class = None;
-            }
-        }
-        if let Some(environment_inclusion_type) = &cleaned.environment_inclusion_type {
-            if environment_inclusion_type.is_default() {
-                cleaned.environment_inclusion_type = None;
-            }
-        }
-        if default_checks::is_zero(cleaned.environment_inclusion_frequency) {
-            cleaned.environment_inclusion_frequency = None;
-        }
-        if let Some(environment_class_specific) = &cleaned.environment_class_specific {
-            if environment_class_specific.is_empty() {
-                cleaned.environment_class_specific = None;
-            }
-        }
-
-        cleaned
-    }
     /// Add a tag to the inorganic raw.
     ///
     /// This handles making sure the tags vector is initialized.
@@ -179,6 +136,9 @@ impl Inorganic {
 
 #[typetag::serde]
 impl RawObject for Inorganic {
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
+    }
     fn get_identifier(&self) -> &str {
         &self.identifier
     }
@@ -196,14 +156,8 @@ impl RawObject for Inorganic {
             std::clone::Clone::clone,
         )
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Inorganic
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {

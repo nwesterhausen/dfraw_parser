@@ -1,5 +1,7 @@
 //! Inclusion type tag.
 
+use crate::traits::IsEmpty;
+
 /// The type of inclusion that the stone has.
 #[derive(
     serde::Serialize,
@@ -43,10 +45,16 @@ impl std::fmt::Display for InclusionTypeTag {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Self::Cluster => write!(f, "Cluster"),
-            Self::ClusterSmall => write!(f, "ClusterSmall"),
-            Self::ClusterOne => write!(f, "ClusterOne"),
+            Self::ClusterSmall => write!(f, "Small Cluster"),
+            Self::ClusterOne => write!(f, "Singular Cluster"),
             Self::Vein => write!(f, "Vein"),
             Self::None => write!(f, "None"),
         }
+    }
+}
+
+impl IsEmpty for InclusionTypeTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::None
     }
 }

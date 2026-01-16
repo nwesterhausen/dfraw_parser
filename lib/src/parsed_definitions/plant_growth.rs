@@ -1,32 +1,43 @@
 //! Contains the struct for plant growths and its implementation.
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{error, warn};
 
 use crate::{
-    default_checks,
     name::Name,
     raw_definitions::{PLANT_GROWTH_TOKENS, PLANT_PART_TOKENS},
     tags::{PlantGrowthTag, PlantGrowthTypeTag, PlantPartTag},
-    traits::{searchable::clean_search_vec, Searchable},
+    traits::Searchable,
+    utilities::clean_search_vec,
 };
 
 /// A struct representing a plant growth
-#[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct PlantGrowth {
     /// Plant growths are not given an identifier, since they are just supporting
     /// data for the plant definition. They are defined instead by the type of growth.
     growth_type: PlantGrowthTypeTag,
     /// The name of the growth. This is actually defined with `GROWTH_NAME` key in the raws.
-    name: Name,
+    pub name: Name,
     /// The item grown by this growth. This is actually defined with `GROWTH_ITEM` key in the raws.
     /// This is a string until we make a proper item structure. Technically there are 2 arguments:
     /// 1. item token, 2: material token. Generally the item type should be `PLANT_GROWTH:NONE`.
     item: String,
     /// Specifies on which part of the plant this growth grows. This is defined with `GROWTH_HOST_TILE` key.
     /// This can be unused, like in the case of crops where the plant is the growth (I think?).
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     host_tiles: Option<Vec<PlantPartTag>>,
     /// Controls the height on the trunk above which the growth begins to appear.
     /// The first value is the percent of the trunk height where the growth begins appearing:
@@ -34,21 +45,22 @@ pub struct PlantGrowth {
     /// at the topmost trunk tile. Can be larger than 100 to cause it to appear above the trunk.
     /// The second value must be -1, but might be intended to control whether it starts height counting
     /// from the bottom or top.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     trunk_height_percentage: Option<[i32; 2]>,
     /// Currently has no effect.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     density: Option<u32>,
     /// Specifies the appearance of the growth. This is defined with `GROWTH_PRINT` key.
     /// This is a string until we make a proper print structure.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     print: Option<String>,
     /// Specifies at which part of the year the growth appears. Default is all year round.
     /// Minimum: 0, Maximum: `402_200`. This is defined with `GROWTH_TIMING` key.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(value = [0, 402_200])]
     timing: Option<[u32; 2]>,
     /// Where we gather some of the growth's tags.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<PlantGrowthTag>>,
 }
 
@@ -68,6 +80,21 @@ impl PlantGrowth {
             growth_type,
             ..Self::default()
         }
+    }
+    /// Returns the type of growth this is
+    pub fn get_growth_type(&self) -> &PlantGrowthTypeTag {
+        &self.growth_type
+    }
+    /// Returns true if tag exists on this plant growth
+    pub fn has_tag(&self, tag: &PlantGrowthTag) -> bool {
+        if let Some(tags) = &self.tags {
+            for t in tags {
+                if std::mem::discriminant(t) == std::mem::discriminant(tag) {
+                    return true;
+                }
+            }
+        }
+        false
     }
     /// Parses a tag and value into the plant growth
     ///
@@ -184,55 +211,6 @@ impl PlantGrowth {
                 }
             }
         }
-    }
-
-    /// Function to "clean" the raw. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new plant growth with all empty or default values removed.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(host_tiles) = &cleaned.host_tiles {
-            if host_tiles.is_empty() {
-                cleaned.host_tiles = None;
-            }
-        }
-
-        if let Some(tags) = &cleaned.tags {
-            if tags.is_empty() {
-                cleaned.tags = None;
-            }
-        }
-
-        if default_checks::is_default_trunk_height_percentage(&cleaned.trunk_height_percentage) {
-            cleaned.trunk_height_percentage = None;
-        }
-        if default_checks::is_default_growth_density(cleaned.density) {
-            cleaned.density = None;
-        }
-        if default_checks::is_default_growth_timing(&cleaned.timing) {
-            cleaned.timing = None;
-        }
-
-        if let Some(print) = &cleaned.print {
-            if print.is_empty() {
-                cleaned.print = None;
-            }
-        }
-
-        cleaned
     }
 }
 

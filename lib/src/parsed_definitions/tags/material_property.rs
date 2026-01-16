@@ -215,3 +215,9 @@ pub enum MaterialPropertyTag {
     #[default]
     Unknown,
 }
+
+impl std::fmt::Display for MaterialPropertyTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}

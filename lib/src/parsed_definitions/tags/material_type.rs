@@ -1,5 +1,7 @@
 //! Material type tags
 
+use crate::traits::IsEmpty;
+
 /// A material template
 #[derive(
     serde::Serialize,
@@ -111,11 +113,17 @@ impl std::fmt::Display for MaterialTypeTag {
             Self::Mud => write!(f, "Mud"),
             Self::Vomit => write!(f, "Vomit"),
             Self::Salt => write!(f, "Salt"),
-            Self::FilthB => write!(f, "FilthB"),
-            Self::FilthY => write!(f, "FilthY"),
+            Self::FilthB => write!(f, "Brown Filth"),
+            Self::FilthY => write!(f, "Yellow Filth"),
             Self::UnknownSubstance => write!(f, "Unknown Substance"),
             Self::Grime => write!(f, "Grime"),
             Self::Unknown => write!(f, "Unknown"),
         }
+    }
+}
+
+impl IsEmpty for MaterialTypeTag {
+    fn is_empty(&self) -> bool {
+        self == &MaterialTypeTag::Unknown
     }
 }

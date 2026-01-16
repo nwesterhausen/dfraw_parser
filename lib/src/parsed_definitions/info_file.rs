@@ -5,22 +5,34 @@ use std::{
     path::Path,
 };
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use encoding_rs_io::DecodeReaderBytesBuilder;
 use slug::slugify;
 use tracing::{debug, error, trace, warn};
 
 use crate::{
+    ParserError,
     constants::DF_ENCODING,
     metadata::RawModuleLocation,
     regex::{NON_DIGIT_RE, RAW_TOKEN_RE},
     utilities::{get_parent_dir_name, try_get_file},
-    ParserError,
 };
 
 use super::steam_data::SteamData;
 
 /// Represents the `info.txt` file for a raw module
-#[derive(serde::Serialize, serde::Deserialize, Default, Clone, Debug, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Default,
+    Clone,
+    Debug,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct InfoFile {
     identifier: String,
@@ -35,15 +47,15 @@ pub struct InfoFile {
     name: String,
     description: String,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     requires_ids: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     conflicts_with_ids: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     requires_ids_before: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     requires_ids_after: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     steam_data: Option<SteamData>,
 }
 
@@ -196,8 +208,7 @@ impl InfoFile {
 
                 trace!(
                     "ModuleInfoFile::parse: Key: {} Value: {}",
-                    captured_key,
-                    captured_value
+                    captured_key, captured_value
                 );
 
                 match captured_key {
@@ -211,10 +222,10 @@ impl InfoFile {
                         Err(_e) => {
                             if warn_on_format_issue {
                                 warn!(
-                                "ModuleInfoFile::parse: 'NUMERIC_VERSION' should be integer '{}' in {}",
-                                captured_value,
-                                info_file_path.as_ref().display()
-                            );
+                                    "ModuleInfoFile::parse: 'NUMERIC_VERSION' should be integer '{}' in {}",
+                                    captured_value,
+                                    info_file_path.as_ref().display()
+                                );
                             }
                             // match on \D to replace any non-digit characters with empty string
                             let digits_only =
@@ -235,10 +246,10 @@ impl InfoFile {
                         Err(_e) => {
                             if warn_on_format_issue {
                                 warn!(
-                                "ModuleInfoFile::parse: 'EARLIEST_COMPATIBLE_NUMERIC_VERSION' should be integer '{}' in {:?}",
-                                captured_value,
-                                info_file_path.as_ref().display()
-                            );
+                                    "ModuleInfoFile::parse: 'EARLIEST_COMPATIBLE_NUMERIC_VERSION' should be integer '{}' in {:?}",
+                                    captured_value,
+                                    info_file_path.as_ref().display()
+                                );
                             }
                             // match on \D to replace any non-digit characters with empty string
                             let digits_only =
@@ -377,10 +388,10 @@ impl InfoFile {
                         Err(_e) => {
                             if warn_on_format_issue {
                                 warn!(
-                                "ModuleInfoFile::parse: 'STEAM_FILE_ID' should be integer, was {} in {}",
-                                captured_value,
-                                info_file_path.as_ref().display()
-                            );
+                                    "ModuleInfoFile::parse: 'STEAM_FILE_ID' should be integer, was {} in {}",
+                                    captured_value,
+                                    info_file_path.as_ref().display()
+                                );
                             }
                             // match on \D to replace any non-digit characters with empty string
                             let digits_only =
@@ -450,10 +461,51 @@ impl InfoFile {
     pub fn get_version(&self) -> String {
         String::from(&self.displayed_version)
     }
+    /// Returns the numeric version for the `InfoFile`
+    #[must_use]
+    pub fn get_numeric_version(&self) -> u32 {
+        self.numeric_version
+    }
+    /// Returns the `earliest_compatible_numeric_version` for the `InfoFile`
+    #[must_use]
+    pub fn get_earliest_compatible_numeric_version(&self) -> u32 {
+        self.earliest_compatible_numeric_version
+    }
+    /// Returns the `earliest_compatible_displayed_version` for the `InfoFile`
+    #[must_use]
+    pub fn get_earliest_compatible_displayed_version(&self) -> String {
+        String::from(&self.earliest_compatible_displayed_version)
+    }
+    /// Returns the author for the `InfoFile`
+    #[must_use]
+    pub fn get_author(&self) -> String {
+        String::from(&self.author)
+    }
     /// Returns the module's object id
     #[must_use]
     pub fn get_object_id(&self) -> String {
         String::from(&self.object_id)
+    }
+    /// Returns the `SteamData` for the info file if it exists.
+    #[must_use]
+    pub fn get_steam_data(&self) -> Option<SteamData> {
+        self.steam_data.clone()
+    }
+    #[must_use]
+    pub fn get_requires_ids(&self) -> Option<Vec<String>> {
+        self.requires_ids.clone()
+    }
+    #[must_use]
+    pub fn get_requires_ids_before(&self) -> Option<Vec<String>> {
+        self.requires_ids_before.clone()
+    }
+    #[must_use]
+    pub fn get_requires_ids_after(&self) -> Option<Vec<String>> {
+        self.requires_ids_after.clone()
+    }
+    #[must_use]
+    pub fn get_conflicts_with_ids(&self) -> Option<Vec<String>> {
+        self.conflicts_with_ids.clone()
     }
     /// Returns the directory the `InfoFile` was parsed from
     ///
