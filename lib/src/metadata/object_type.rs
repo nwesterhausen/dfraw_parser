@@ -2,6 +2,8 @@ use std::fmt::{Debug, Display};
 
 use serde::{Deserialize, Serialize};
 
+use crate::traits::IsEmpty;
+
 /// A map of the object tokens to their respective object types.
 pub static OBJECT_TOKEN_MAP: phf::Map<&'static str, ObjectType> = phf::phf_map! {
     "CREATURE" => ObjectType::Creature,
@@ -196,5 +198,11 @@ impl Display for ObjectType {
             Self::SelectCreature => write!(f, "Select Creature"),
             Self::CreatureCaste => write!(f, "Creature Caste"),
         }
+    }
+}
+
+impl IsEmpty for ObjectType {
+    fn is_empty(&self) -> bool {
+        self == &ObjectType::Unknown
     }
 }

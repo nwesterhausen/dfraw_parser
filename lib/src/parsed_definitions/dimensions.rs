@@ -1,9 +1,21 @@
 //! A module containing the `Dimensions` struct and its implementations.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::{error, warn};
 
 /// A struct representing a Dimensions object.
-#[derive(serde::Serialize, serde::Deserialize, Copy, Clone, Debug, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 pub struct Dimensions {
     /// The x coordinate
     pub x: u32,

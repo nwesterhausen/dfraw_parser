@@ -1,22 +1,33 @@
 //! Contains the `SpriteLayer` struct and associated functions.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
 use crate::{dimensions::Dimensions, raw_definitions::CONDITION_TOKENS, tags::ConditionTag};
 
 /// A struct representing a `SpriteLayer` object.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct SpriteLayer {
     layer_name: String,
     tile_page_id: String,
     offset: Dimensions,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     offset_2: Option<Dimensions>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     large_image: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     conditions: Option<Vec<(ConditionTag, String)>>,
 }
 
@@ -235,31 +246,5 @@ impl SpriteLayer {
             offset_2: Some(Dimensions::from_xy(x2, y2)),
             ..Self::default()
         })
-    }
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// * `SpriteLayer` - The cleaned `SpriteLayer`.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(conditions) = &cleaned.conditions
-            && conditions.is_empty()
-        {
-            cleaned.conditions = None;
-        }
-
-        cleaned
     }
 }

@@ -1,12 +1,23 @@
 //! Seed material definition
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
 use crate::{color::Color, name::Name};
 
 /// A struct representing a seed material
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct SeedMaterial {
     name: Name,

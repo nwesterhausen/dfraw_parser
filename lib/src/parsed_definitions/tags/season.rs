@@ -1,5 +1,7 @@
 //! The tokens for the seasons
 
+use crate::traits::IsEmpty;
+
 /// The tokens for the seasons
 #[derive(
     serde::Serialize,
@@ -30,5 +32,11 @@ pub enum SeasonTag {
 impl std::fmt::Display for SeasonTag {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for SeasonTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::Unknown
     }
 }

@@ -17,6 +17,7 @@ path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
+dfraw_parser_proc_macros = {workspace = true}
 # directories used to find data directory and home directory on linux
 directories = { workspace = true }
 # Used to be able to force reading the raw files as Latin1.

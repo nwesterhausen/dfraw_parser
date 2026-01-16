@@ -1,5 +1,6 @@
 //! Graphic object definition and parsing.
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
@@ -18,28 +19,40 @@ use crate::{
 
 /// A struct representing a Graphic object.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Graphic {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
     object_id: String,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     caste_identifier: Option<String>,
+    #[cleanable(ignore)]
     kind: GraphicTypeTag,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     sprites: Option<Vec<SpriteGraphic>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     layers: Option<Vec<(String, Vec<SpriteLayer>)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     growths: Option<Vec<(String, Vec<SpriteGraphic>)>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     custom_extensions: Option<Vec<CustomGraphicExtension>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<String>>,
 
     #[serde(skip)]
@@ -340,76 +353,6 @@ impl Graphic {
         }
         vec
     }
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// * `Graphic` - The cleaned Graphic.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(metadata) = &cleaned.metadata
-            && metadata.is_hidden()
-        {
-            cleaned.metadata = None;
-        }
-
-        if let Some(custom_extensions) = &cleaned.custom_extensions
-            && custom_extensions.is_empty()
-        {
-            cleaned.custom_extensions = None;
-        }
-
-        if let Some(tags) = &cleaned.tags
-            && tags.is_empty()
-        {
-            cleaned.tags = None;
-        }
-
-        if let Some(sprites) = &cleaned.sprites {
-            let mut new_sprites = Vec::new();
-            for sprite in sprites {
-                new_sprites.push(sprite.cleaned());
-            }
-            cleaned.sprites = Some(new_sprites);
-        }
-
-        if let Some(layers) = &cleaned.layers {
-            let mut new_layers = Vec::new();
-            for (name, sprites) in layers {
-                let mut new_sprites = Vec::new();
-                for sprite in sprites {
-                    new_sprites.push(sprite.cleaned());
-                }
-                new_layers.push((name.clone(), new_sprites));
-            }
-            cleaned.layers = Some(new_layers);
-        }
-
-        if let Some(growths) = &cleaned.growths {
-            let mut new_growths = Vec::new();
-            for (name, sprites) in growths {
-                let mut new_sprites = Vec::new();
-                for sprite in sprites {
-                    new_sprites.push(sprite.cleaned());
-                }
-                new_growths.push((name.clone(), new_sprites));
-            }
-            cleaned.growths = Some(new_growths);
-        }
-
-        cleaned
-    }
 }
 
 #[typetag::serde]
@@ -439,9 +382,6 @@ impl RawObject for Graphic {
     }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Graphics
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {

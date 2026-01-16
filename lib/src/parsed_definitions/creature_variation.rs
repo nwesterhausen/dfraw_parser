@@ -1,5 +1,6 @@
 //! A module for the creature variation definition.
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
@@ -12,11 +13,22 @@ use crate::{
 
 /// A creature variation.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct CreatureVariation {
     /// Common Raw file Things
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
     object_id: String,
@@ -105,34 +117,6 @@ impl CreatureVariation {
             })
             .collect()
     }
-
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new creature variation with all empty values set to None.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        // Set metadata to None if it's hidden
-        if let Some(metadata) = &cleaned.metadata
-            && metadata.is_hidden()
-        {
-            cleaned.metadata = None;
-        }
-
-        cleaned
-    }
 }
 
 #[typetag::serde]
@@ -162,10 +146,6 @@ impl RawObject for CreatureVariation {
 
     fn get_type(&self) -> &ObjectType {
         &ObjectType::CreatureVariation
-    }
-
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
 
     #[allow(clippy::too_many_lines)]

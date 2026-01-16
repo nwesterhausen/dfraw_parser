@@ -1,6 +1,6 @@
 //! Tags for conditions that can be applied to a tile/entity (graphics)
 
-use crate::raw_definitions::CONDITION_TOKENS;
+use crate::{raw_definitions::CONDITION_TOKENS, traits::IsEmpty};
 
 /// A condition that can be applied to a tile/entity
 #[derive(
@@ -573,5 +573,11 @@ impl ConditionTag {
 impl std::fmt::Display for ConditionTag {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for ConditionTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::None
     }
 }

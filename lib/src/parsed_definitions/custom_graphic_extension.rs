@@ -1,20 +1,31 @@
 //! Custom graphic extension definition.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
 use crate::tags::GraphicTypeTag;
 
 /// A custom graphic extension.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct CustomGraphicExtension {
     extension_type: GraphicTypeTag,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tile_page_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     value_1: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     value_2: Option<u32>,
 }
 

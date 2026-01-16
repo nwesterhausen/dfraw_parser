@@ -1,5 +1,7 @@
 //! An enum representing a creature effect property tag.
 
+use crate::traits::IsEmpty;
+
 /// An enum representing a creature effect property tag.
 #[derive(
     serde::Serialize,
@@ -72,5 +74,11 @@ pub enum CreatureEffectPropertyTag {
 impl std::fmt::Display for CreatureEffectPropertyTag {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for CreatureEffectPropertyTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::Unknown
     }
 }

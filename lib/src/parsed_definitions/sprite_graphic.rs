@@ -1,10 +1,10 @@
 //! A module that contains the `SpriteGraphic` struct and its implementation.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use itertools::Itertools;
 use tracing::warn;
 
 use crate::{
-    default_checks,
     dimensions::Dimensions,
     raw_definitions::{CONDITION_TOKENS, GRAPHIC_TYPE_TOKENS},
     tags::{ColorModificationTag, ConditionTag, GraphicTypeTag},
@@ -12,25 +12,37 @@ use crate::{
 
 /// A struct representing a sprite graphic.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct SpriteGraphic {
     primary_condition: ConditionTag,
     tile_page_id: String,
     offset: Dimensions,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[is_empty(only_if_none)]
     color: Option<ColorModificationTag>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     large_image: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     offset2: Option<Dimensions>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[is_empty(only_if_none)]
     secondary_condition: Option<ConditionTag>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     color_pallet_swap: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     target_identifier: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     extra_descriptor: Option<String>,
 }
 
@@ -633,66 +645,5 @@ impl SpriteGraphic {
                 None
             }
         }
-    }
-
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A new sprite graphic with the cleaned values.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        // Set any empty string to None.
-        if let Some(extra_descriptor) = cleaned.extra_descriptor.as_ref()
-            && extra_descriptor.is_empty()
-        {
-            cleaned.extra_descriptor = None;
-        }
-
-        // Set any empty string to None.
-        if let Some(target_identifier) = cleaned.target_identifier.as_ref()
-            && target_identifier.is_empty()
-        {
-            cleaned.target_identifier = None;
-        }
-
-        // Set any default values to None.
-        if let Some(color) = cleaned.color.as_ref()
-            && color.is_default()
-        {
-            cleaned.color = None;
-        }
-
-        // Set any default values to None.
-        if let Some(offset2) = cleaned.offset2.as_ref()
-            && offset2.is_empty()
-        {
-            cleaned.offset2 = None;
-        }
-
-        // Set any default values to None.
-        if let Some(secondary_condition) = cleaned.secondary_condition.as_ref()
-            && secondary_condition.is_none()
-        {
-            cleaned.secondary_condition = None;
-        }
-
-        // Set any default values to None.
-        if default_checks::is_zero(cleaned.color_pallet_swap) {
-            cleaned.color_pallet_swap = None;
-        }
-
-        cleaned
     }
 }

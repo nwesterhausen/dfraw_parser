@@ -1,5 +1,7 @@
 //! The class of environment that the stone appears in.
 
+use crate::traits::IsEmpty;
+
 /// The class of environment that the stone appears in.
 #[derive(
     serde::Serialize,
@@ -66,5 +68,11 @@ impl std::fmt::Display for EnvironmentClassTag {
             Self::Alluvial => write!(f, "Alluvial"),
             Self::None => write!(f, "None"),
         }
+    }
+}
+
+impl IsEmpty for EnvironmentClassTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::None
     }
 }

@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use serde::{Deserialize, Serialize};
 
 use crate::InfoFile;
@@ -29,7 +30,9 @@ use super::{ObjectType, RawModuleLocation};
 /// * `hidden`: The `hidden` property is a boolean value that indicates whether the raw metadata should
 ///   be hidden or not when exporting. By default, it is set to `true`, meaning that the raw metadata will
 ///   be hidden unless specified in the `ParsingOptions` struct.
-#[derive(Serialize, Deserialize, Clone, Debug, Default, specta::Type)]
+#[derive(
+    Serialize, Deserialize, Clone, Debug, Default, specta::Type, PartialEq, Eq, IsEmpty, Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
     // The object_id of the raw module

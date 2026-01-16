@@ -1,9 +1,9 @@
 //! Syndrome struct and implementation
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::{debug, warn};
 
 use crate::{
-    default_checks,
     raw_definitions::{CREATURE_EFFECT_TOKENS, SYNDROME_TOKENS},
     tags::SyndromeTag,
     traits::Searchable,
@@ -11,35 +11,45 @@ use crate::{
 };
 
 /// A struct representing a syndrome
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Syndrome {
     /// Seen the `[SYN_IDENTIFIER:INEBRIATION]` tag in `material_templates.txt`
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     identifier: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     name: Option<String>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     affected_classes: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     immune_classes: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     affected_creatures: Option<Vec<(String, String)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     immune_creatures: Option<Vec<(String, String)>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     classes: Option<Vec<String>>,
 
     /// Seen the `[SYN_CONCENTRATION_ADDED:100:1000]` tag in `material_templates.txt`
     /// default is 0:0
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     concentration_added: Option<[u32; 2]>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<SyndromeTag>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     conditions: Option<Vec<String>>,
 }
 
@@ -68,72 +78,6 @@ impl Syndrome {
             name: Some(String::from(name)),
             ..Self::default()
         }
-    }
-
-    /// Function to "clean" the raw. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(identifier) = &cleaned.identifier
-            && identifier.is_empty()
-        {
-            cleaned.identifier = None;
-        }
-        if let Some(name) = &cleaned.name
-            && name.is_empty()
-        {
-            cleaned.name = None;
-        }
-        if let Some(affected_classes) = &cleaned.affected_classes
-            && affected_classes.is_empty()
-        {
-            cleaned.affected_classes = None;
-        }
-        if let Some(immune_classes) = &cleaned.immune_classes
-            && immune_classes.is_empty()
-        {
-            cleaned.immune_classes = None;
-        }
-        if let Some(affected_creatures) = &cleaned.affected_creatures
-            && affected_creatures.is_empty()
-        {
-            cleaned.affected_creatures = None;
-        }
-        if let Some(immune_creatures) = &cleaned.immune_creatures
-            && immune_creatures.is_empty()
-        {
-            cleaned.immune_creatures = None;
-        }
-        if let Some(classes) = &cleaned.classes
-            && classes.is_empty()
-        {
-            cleaned.classes = None;
-        }
-        if default_checks::min_max_is_zeroes(&cleaned.concentration_added) {
-            cleaned.concentration_added = None;
-        }
-        if let Some(tags) = &cleaned.tags
-            && tags.is_empty()
-        {
-            cleaned.tags = None;
-        }
-        if let Some(conditions) = &cleaned.conditions
-            && conditions.is_empty()
-        {
-            cleaned.conditions = None;
-        }
-
-        cleaned
     }
     /// Parses a tag into the Syndrome struct
     ///

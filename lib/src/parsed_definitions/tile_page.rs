@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
@@ -15,10 +16,21 @@ use crate::{
 
 /// A struct representing a `TilePage` object.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct TilePage {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
     object_id: String,
@@ -76,32 +88,6 @@ impl TilePage {
             ..Self::default()
         }
     }
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// * `TilePage` - The cleaned `TilePage`.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(metadata) = &cleaned.metadata
-            && metadata.is_hidden()
-        {
-            cleaned.metadata = None;
-        }
-
-        cleaned
-    }
 }
 
 #[typetag::serde]
@@ -128,9 +114,6 @@ impl RawObject for TilePage {
     }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::TilePage
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {

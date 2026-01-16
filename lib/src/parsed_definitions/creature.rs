@@ -4,18 +4,21 @@
 
 use std::collections::HashSet;
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{debug, trace, warn};
 
 use crate::{
     caste::Caste,
-    default_checks,
     metadata::{ObjectType, RawMetadata},
     name::Name,
     raw_definitions::{BIOME_TOKENS, CASTE_TOKENS, CREATURE_TOKENS},
     select_creature::SelectCreature,
     tags::{BiomeTag, CasteTag, CreatureTag},
     tile::Tile,
-    traits::{CreatureVariationRequirements, RawObject, RawObjectToken, Searchable, TagOperations},
+    traits::{
+        Cleanable, CreatureVariationRequirements, RawObject, RawObjectToken, Searchable,
+        TagOperations,
+    },
     utilities::{build_object_id_from_pieces, clean_search_vec},
 };
 
@@ -29,12 +32,23 @@ use crate::{
 /// based on the properties of the creature they are applied to. But right now the application
 /// of those changes is not applied, in order to preserve the original creature. So instead,
 /// they are saved and can be applied later (at the consumer's discretion).
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Creature {
     /// The `metadata` field is of type `RawMetadata` and is used to provide additional information
     /// about the raws the `Creature` is found in.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     /// The `identifier` field is a string that represents the identifier of the creature. It is used
     /// to uniquely identify the creature (however it is not guaranteed to be unique across object types
@@ -45,19 +59,19 @@ pub struct Creature {
     /// its own properties, such as `name`, `description`, `body`, `flags`, etc.
     ///
     /// A lot of the properties of the `Creature` object are actually properties of a special `Caste`, `ALL`.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     castes: Vec<Caste>,
     /// Any tags that are not parsed into their own fields are stored in the `tags` field.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<CreatureTag>>,
     /// The biomes that this creature can be found in
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     biomes: Option<Vec<BiomeTag>>,
     /// Pref strings are things that make dwarves (or others?) like or dislike the creature.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pref_strings: Option<Vec<String>>,
     /// The tile that represents the creature in the game (classic mode)
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tile: Option<Tile>,
     /// Determines the chances of a creature appearing within its environment, with higher values resulting in more frequent appearance.
     ///
@@ -70,18 +84,21 @@ pub struct Creature {
     /// Minimum value is 0, maximum value is 100.
     ///
     /// Note: not to be confused with `[POP_RATIO]`.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(is_default = "crate::default_checks::is_default_frequency")]
     frequency: Option<u32>,
     /// The minimum/maximum numbers of how many creatures per spawned cluster. Vermin fish with this token in combination with
     /// temperate ocean and river biome tokens will perform seasonal migrations.
     ///
     /// Defaults to [1,1] if not specified.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(is_default = "crate::default_checks::min_max_is_ones")]
     cluster_number: Option<[u32; 2]>,
     /// The minimum/maximum numbers of how many of these creatures are present in each world map tile of the appropriate region.
     ///
     /// Defaults to [1,1] if not specified.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[is_empty(is_default = "crate::default_checks::min_max_is_ones")]
     population_number: Option<[u32; 2]>,
     /// Depth that the creature appears underground. Numbers can be from 0 to 5. 0 is actually 'above ground' and can be used if the
     /// creature is to appear both above and below ground. Values from 1-3 are the respective cavern levels, 4 is the magma sea and
@@ -92,13 +109,13 @@ pub struct Creature {
     /// Civilizations that can use underground plants or animals will only export (via the embark screen or caravans) things that are available at depth 1.
     ///
     /// Default [0, 0] (aboveground)
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     underground_depth: Option<[u32; 2]>,
     /// Like `[BABYNAME]`, but applied regardless of caste.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     general_baby_name: Option<Name>,
     /// Like `[CHILDNAME]`, but applied regardless of caste.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     general_child_name: Option<Name>,
     /// The generic name for any creature of this type - will be used when distinctions between caste are unimportant. For names for specific castes,
     /// use `[CASTE_NAME]` instead. If left undefined, the creature will be labeled as "nothing" by the game.
@@ -108,19 +125,19 @@ pub struct Creature {
     /// which can then be modified. Often used in combination with `[APPLY_CREATURE_VARIATION]` to import standard variations from a file.
     ///
     /// The vanilla giant animals and animal peoples are examples of this token combination.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     copy_tags_from: Option<String>,
     /// Applies the specified creature variation.
     ///
     /// These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     apply_creature_variation: Option<Vec<String>>,
     /// A generated field that is used to uniquely identify this object. It is generated from the `metadata`, `identifier`, and `ObjectType`.
     ///
     /// This field is always serialized.
     object_id: String,
     /// Various `SELECT_CREATUR` modifications.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     select_creature_variation: Option<Vec<SelectCreature>>,
 }
 
@@ -651,70 +668,6 @@ impl Creature {
         }
     }
 
-    /// Function to "clean" the creature. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        // Set the metadata to None if it is hidden
-        if let Some(metadata) = &cleaned.metadata
-            && metadata.is_hidden()
-        {
-            cleaned.metadata = None;
-        }
-
-        // Remove any empty lists
-        if cleaned.tags.is_some() && cleaned.tags.as_deref() == Some(&[]) {
-            cleaned.tags = None;
-        }
-        if cleaned.biomes.is_some() && cleaned.biomes.as_deref() == Some(&[]) {
-            cleaned.biomes = None;
-        }
-        if cleaned.pref_strings.is_some() && cleaned.pref_strings.as_deref() == Some(&[]) {
-            cleaned.pref_strings = None;
-        }
-        if let Some(create_variations) = &cleaned.apply_creature_variation
-            && create_variations.is_empty()
-        {
-            cleaned.apply_creature_variation = None;
-        }
-
-        // Remove any default values
-        if default_checks::is_default_frequency(cleaned.frequency) {
-            cleaned.frequency = None;
-        }
-        if default_checks::min_max_is_ones(&cleaned.cluster_number) {
-            cleaned.cluster_number = None;
-        }
-        if default_checks::min_max_is_ones(&cleaned.population_number) {
-            cleaned.population_number = None;
-        }
-        if default_checks::min_max_is_zeroes(&cleaned.underground_depth) {
-            cleaned.underground_depth = None;
-        }
-
-        if let Some(general_baby_name) = &cleaned.general_baby_name
-            && general_baby_name.is_empty()
-        {
-            cleaned.general_baby_name = None;
-        }
-        if let Some(general_child_name) = &cleaned.general_child_name
-            && general_child_name.is_empty()
-        {
-            cleaned.general_child_name = None;
-        }
-        if let Some(tile) = &cleaned.tile
-            && tile.is_default()
-        {
-            cleaned.tile = None;
-        }
-
-        cleaned
-    }
-
     /// Check whether the creature has the specified creature tag (found in the `tags` field).
     ///
     /// # Arguments
@@ -918,9 +871,6 @@ impl RawObject for Creature {
     }
     fn get_name(&self) -> &str {
         self.name.get_singular()
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
     fn get_searchable_tokens(&self) -> Vec<&str> {
         let mut tokens = HashSet::new();

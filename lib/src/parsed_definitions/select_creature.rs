@@ -1,4 +1,5 @@
 //! Parsed `SelectCreature` definition
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 use crate::{
     metadata::{ObjectType, RawMetadata},
@@ -7,15 +8,26 @@ use crate::{
 };
 
 /// A struct representing a creature selection
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct SelectCreature {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
     object_id: String,
 
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Vec<String>,
 }
 impl SelectCreature {
@@ -58,33 +70,6 @@ impl SelectCreature {
             ..Self::default()
         }
     }
-
-    /// Function to "clean" the raw. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    ///
-    /// # Returns
-    ///
-    /// A cleaned `SelectCreature`
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(metadata) = &cleaned.metadata
-            && metadata.is_hidden()
-        {
-            cleaned.metadata = None;
-        }
-
-        cleaned
-    }
 }
 
 #[typetag::serde]
@@ -105,9 +90,6 @@ impl RawObject for SelectCreature {
             },
             std::clone::Clone::clone,
         )
-    }
-    fn clean_self(&mut self) {
-        *self = self.cleaned();
     }
     fn get_identifier(&self) -> &str {
         &self.identifier

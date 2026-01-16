@@ -1,43 +1,28 @@
 //! Additional data specific to the steam workshop that may be included in the `info.txt` file for a raw module.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use serde::{Deserialize, Serialize};
 
 /// The additional data specific to the steam workshop
-#[derive(Serialize, Deserialize, Default, Clone, Debug, specta::Type)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug, specta::Type, PartialEq, Eq, IsEmpty)]
 #[serde(rename_all = "camelCase")]
 pub struct SteamData {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     title: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     key_value_tags: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     changelog: Option<String>,
     file_id: u64,
 }
 
 impl SteamData {
-    /// Returns whether the steam data is empty
-    ///
-    /// # Returns
-    ///
-    /// * `true` if the steam data is empty, `false` otherwise.
-    #[allow(dead_code)]
-    #[must_use]
-    pub const fn is_empty(&self) -> bool {
-        self.title.is_none()
-            && self.description.is_none()
-            && self.tags.is_none()
-            && self.key_value_tags.is_none()
-            && self.metadata.is_none()
-            && self.changelog.is_none()
-            && self.file_id == 0
-    }
     /// Sets the title of the steam data
     ///
     /// # Arguments

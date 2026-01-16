@@ -1,5 +1,7 @@
 //! Graphic type tags for the tileset
 
+use crate::traits::IsEmpty;
+
 /// The graphic type of the tile
 #[derive(
     serde::Serialize,
@@ -261,5 +263,11 @@ pub enum GraphicTypeTag {
 impl std::fmt::Display for GraphicTypeTag {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl IsEmpty for GraphicTypeTag {
+    fn is_empty(&self) -> bool {
+        self == &Self::Unknown
     }
 }

@@ -1,11 +1,24 @@
 //! A module containing the `Color` struct and its implementations.
 
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+
 /// Represents a Dwarf Fortress color triplet.
 ///
 /// This format is used throughout the game raws to define the foreground,
 /// background, and brightness/intensity of tiles and text.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    PartialEq,
+    Eq,
+    IsEmpty,
+    Cleanable,
+    specta::Type,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct Color {
     /// The foreground color index (0-7).

@@ -14,6 +14,8 @@ use std::{
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
+use crate::traits::IsEmpty;
+
 /// Raws are part of modules since 50.xx. Raw modules are loaded from 3 common locations:
 /// `{df_directory}/data/vanilla`, `{df_directory}/mods`, and `{df_directory/data/installed_mods}`
 #[derive(
@@ -102,5 +104,11 @@ impl From<&RawModuleLocation> for i32 {
             RawModuleLocation::Vanilla => 1,
             RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
         }
+    }
+}
+
+impl IsEmpty for RawModuleLocation {
+    fn is_empty(&self) -> bool {
+        self == &RawModuleLocation::Unknown
     }
 }

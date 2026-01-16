@@ -1,34 +1,43 @@
 //! Contains the `MaterialMechanics` struct and associated functions.
 
+use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::{
-    default_checks, mechanical_properties::MechanicalProperties, tags::MaterialPropertyTag,
-};
+use crate::{mechanical_properties::MechanicalProperties, tags::MaterialPropertyTag};
 
 /// Represents the specific yield, fracture, and elasticity of a material for the various
 /// types of mechanical stress.
 #[allow(clippy::module_name_repetitions)]
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default, specta::Type)]
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    PartialEq,
+    Eq,
+    IsEmpty,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct MaterialMechanics {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     impact: Option<MechanicalProperties>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     compressive: Option<MechanicalProperties>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tensile: Option<MechanicalProperties>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     torsion: Option<MechanicalProperties>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     shear: Option<MechanicalProperties>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     bending: Option<MechanicalProperties>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     max_edge: Option<i32>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     solid_density: Option<i32>,
 }
 
@@ -221,59 +230,5 @@ impl MaterialMechanics {
                 warn!("Unhandled material mechanics token: '{:?}'", key);
             }
         }
-    }
-    /// Function to "clean" the raw. This is used to remove any empty list or strings,
-    /// and to remove any default values. By "removing" it means setting the value to None.
-    ///
-    /// This also will remove the metadata if `is_metadata_hidden` is true.
-    ///
-    /// Steps for all "Option" fields:
-    /// - Set any metadata to None if `is_metadata_hidden` is true.
-    /// - Set any empty string to None.
-    /// - Set any empty list to None.
-    /// - Set any default values to None.
-    #[must_use]
-    pub fn cleaned(&self) -> Self {
-        let mut cleaned = self.clone();
-
-        if let Some(impact) = &cleaned.impact
-            && impact.is_empty()
-        {
-            cleaned.impact = None;
-        }
-        if let Some(compressive) = &cleaned.compressive
-            && compressive.is_empty()
-        {
-            cleaned.compressive = None;
-        }
-        if let Some(tensile) = &cleaned.tensile
-            && tensile.is_empty()
-        {
-            cleaned.tensile = None;
-        }
-        if let Some(torsion) = &cleaned.torsion
-            && torsion.is_empty()
-        {
-            cleaned.torsion = None;
-        }
-        if let Some(shear) = &cleaned.shear
-            && shear.is_empty()
-        {
-            cleaned.shear = None;
-        }
-        if let Some(bending) = &cleaned.bending
-            && bending.is_empty()
-        {
-            cleaned.bending = None;
-        }
-
-        if default_checks::is_zero_i32(cleaned.max_edge) {
-            cleaned.max_edge = None;
-        }
-        if default_checks::is_zero_i32(cleaned.solid_density) {
-            cleaned.solid_density = None;
-        }
-
-        cleaned
     }
 }

@@ -1,0 +1,16 @@
+[package]
+name = "dfraw_parser_proc_macros"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+# This is the crucial part that enables the proc_macro crate
+proc-macro = true
+
+[lints]
+workspace = true
+
+[dependencies]
+proc-macro2 = "1.0.105"
+quote = "1.0.43"
+syn ={version= "2.0.114", features=["full"]}
