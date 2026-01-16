@@ -13,7 +13,7 @@ use crate::{
     regex::RAW_TOKEN_RE,
     tags::{GraphicTypeTag, ModificationTag},
     tile_page::TilePage,
-    traits::RawObject,
+    traits::{IsEmpty, RawObject},
     utilities::try_get_file,
 };
 use encoding_rs_io::DecodeReaderBytesBuilder;

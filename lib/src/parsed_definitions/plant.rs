@@ -256,9 +256,6 @@ impl RawObject for Plant {
     fn get_name(&self) -> &str {
         self.name.get_singular()
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
 
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Plant

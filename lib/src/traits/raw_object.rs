@@ -20,8 +20,6 @@ pub trait RawObject: RawObjectToAny + Send + Sync + Searchable + Cleanable {
     fn get_metadata(&self) -> RawMetadata;
     /// Get the identifier of the raw.
     fn get_identifier(&self) -> &str;
-    /// Returns true if the raw is empty.
-    fn is_empty(&self) -> bool;
     /// Get the type of the raw.
     fn get_type(&self) -> &ObjectType;
     /// Parse a new tag from the raw file into this raw object.

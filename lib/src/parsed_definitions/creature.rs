@@ -749,9 +749,6 @@ impl RawObject for Creature {
     fn get_identifier(&self) -> &str {
         &self.identifier
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Creature
     }

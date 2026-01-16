@@ -140,10 +140,6 @@ impl RawObject for CreatureVariation {
         self.identifier.as_str()
     }
 
-    fn is_empty(&self) -> bool {
-        self.rules.is_empty() && self.identifier.is_empty()
-    }
-
     fn get_type(&self) -> &ObjectType {
         &ObjectType::CreatureVariation
     }

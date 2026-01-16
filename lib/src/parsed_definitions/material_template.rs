@@ -78,9 +78,6 @@ impl RawObject for MaterialTemplate {
     fn get_searchable_tokens(&self) -> Vec<&str> {
         Vec::new()
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
     fn get_identifier(&self) -> &str {
         &self.identifier
     }

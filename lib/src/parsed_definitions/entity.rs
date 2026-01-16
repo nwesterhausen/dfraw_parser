@@ -238,9 +238,6 @@ impl RawObject for Entity {
     fn get_name(&self) -> &str {
         &self.identifier
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Entity
     }

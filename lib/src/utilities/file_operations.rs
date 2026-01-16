@@ -31,7 +31,7 @@ use crate::{
     regex::VARIATION_ARGUMENT_RE,
     select_creature::SelectCreature,
     tile_page::TilePage,
-    traits::{CreatureVariationRequirements, RawObject},
+    traits::{CreatureVariationRequirements, IsEmpty, RawObject},
 };
 
 #[tracing::instrument]

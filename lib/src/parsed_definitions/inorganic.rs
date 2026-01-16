@@ -156,9 +156,6 @@ impl RawObject for Inorganic {
             std::clone::Clone::clone,
         )
     }
-    fn is_empty(&self) -> bool {
-        self.identifier.is_empty()
-    }
     fn get_type(&self) -> &ObjectType {
         &ObjectType::Inorganic
     }
