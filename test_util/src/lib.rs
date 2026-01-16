@@ -83,8 +83,10 @@ fn get_user_dir() -> PathBuf {
         panic!("Unable to grab correct directory");
     };
     let test_data_dir = root_dir.join(TEST_DATA_DIR);
+    let user_data_dir = test_data_dir.join(TEST_USER_DIR);
+    fs::create_dir_all(&user_data_dir).expect("Failed to create user data dir!");
 
-    test_data_dir.join(TEST_USER_DIR)
+    user_data_dir
 }
 
 /// Ensures the vanilla raw files are available for testing.
