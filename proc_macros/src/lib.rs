@@ -5,7 +5,7 @@ mod derive_is_empty;
 
 use proc_macro::TokenStream;
 
-/// Derives [`dfraw_parser::traits::Cleanable`]
+/// Derives `dfraw_parser::traits::Cleanable`
 ///
 /// This macro generates the `clean(&mut self)` method, which is used to reduce
 /// the memory footprint of a struct by pruning "empty" values (setting `Option`
@@ -27,7 +27,7 @@ pub fn derive_cleanable(input: TokenStream) -> TokenStream {
     derive_cleanable::impl_derive_cleanable(input)
 }
 
-/// Derives [`dfraw_parser::traits::IsEmpty`] for a struct.
+/// Derives `dfraw_parser::traits::IsEmpty` for a struct.
 ///
 /// This macro determines if a struct is "empty", which is used by [`Cleanable`]
 /// and can be used for optimized serialization (e.g., `skip_serializing_if`).
