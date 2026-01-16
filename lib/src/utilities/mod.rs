@@ -9,10 +9,12 @@
 //! # Examples
 //!
 //! Finding the game installation path:
-//! ```no_run
+//!
+//! ```
 //! use dfraw_parser::utilities::find_game_path;
 //!
-//! if let Some(path) = find_game_path() {
+//! let app_id = 975370
+//! if let Some(path) = find_game_path(app_id) {
 //!     println!("Game found at: {:?}", path);
 //! }
 //! ```

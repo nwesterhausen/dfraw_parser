@@ -13,6 +13,7 @@ const VANILLA_RAW_URL: &str = "https://build-deps.ci.nwest.one/dwarffortress/van
 const TEST_DATA_DIR: &str = "test-data";
 const TEST_INNER_DIR: &str = "data/vanilla";
 const TEST_DB_NAME: &str = "test.db";
+const TEST_USER_DIR: &str = "user";
 
 // We store a Result so that tests can check if setup worked.
 // We use Arc so multiple tests can own a reference to the client.
@@ -28,6 +29,7 @@ pub fn get_test_client() -> Arc<Mutex<DbClient>> {
     let result = SHARED_CLIENT.get_or_init(|| {
         // Setup test data
         let vanilla_path = ensure_vanilla_raws();
+        let user_path = get_user_dir();
 
         // Initialize the DbClient
         let options = ClientOptions {
@@ -42,6 +44,7 @@ pub fn get_test_client() -> Arc<Mutex<DbClient>> {
         let mut parser_options = ParserOptions::default();
         parser_options.add_location_to_parse(RawModuleLocation::Vanilla);
         parser_options.set_dwarf_fortress_directory(&vanilla_path);
+        parser_options.set_user_data_directory(&user_path);
 
         let start = Utc::now();
         let parse_results = parse(&parser_options).map_err(|e| format!("Parse Error: {e}"))?;
@@ -71,6 +74,17 @@ pub fn get_test_client() -> Arc<Mutex<DbClient>> {
         Ok(client_mutex) => Arc::clone(client_mutex),
         Err(e) => panic!("Global test setup failed: {e}"),
     }
+}
+
+/// Helper that just assembles the [`PathBuf`] for the testing user data dir.
+fn get_user_dir() -> PathBuf {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let Some(root_dir) = manifest_dir.parent() else {
+        panic!("Unable to grab correct directory");
+    };
+    let test_data_dir = root_dir.join(TEST_DATA_DIR);
+
+    test_data_dir.join(TEST_USER_DIR)
 }
 
 /// Ensures the vanilla raw files are available for testing.

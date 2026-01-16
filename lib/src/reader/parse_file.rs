@@ -50,14 +50,14 @@ use super::{parse_result::FileParseResult, read_raw_file_type};
 /// # Examples
 ///
 /// ```no_run
-/// use dfraw_parser::{parse_raw_file, ParserOptions};
+/// use dfraw_parser::{parse_raw_file, metadata::ParserOptions};
 /// use std::path::Path;
 ///
 /// let path = Path::new("data/vanilla/objects/creature_standard.txt");
 /// let options = ParserOptions::default();
 ///
 /// match parse_raw_file(&path, &options) {
-///     Ok(result) => println!("Parsed {} objects", result.creatures.len()),
+///     Ok(result) => println!("Parsed {} objects", result.parsed_raws.len()),
 ///     Err(e) => eprintln!("Parse error: {}", e),
 /// }
 /// ```
