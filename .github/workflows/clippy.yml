@@ -85,7 +85,7 @@ jobs:
           toolchain: stable
 
       - name: Install bun
-        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 #v1
+        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 #v1
       - name: Generate Type Bindings
         run: |
           cargo build
