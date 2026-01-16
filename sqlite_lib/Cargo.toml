@@ -14,7 +14,7 @@ chrono = {workspace = true, features = ["serde"]}
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
-test_util = { workspace = true }
+dfraw_parser_test_util = { workspace = true }
 
 [lints]
 workspace = true
