@@ -4,9 +4,9 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
-    metadata::{ObjectType, RawMetadata},
+    metadata::RawMetadata,
     raw_definitions::CREATURE_VARIATION_TOKENS,
-    tags::{CreatureVariationRuleTag, CreatureVariationTag},
+    tags::{CreatureVariationRuleTag, CreatureVariationTag, ObjectType},
     traits::{RawObject, Searchable},
     utilities::build_object_id_from_pieces,
 };

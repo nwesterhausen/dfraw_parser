@@ -3,10 +3,7 @@
 
 use std::any::Any;
 
-use crate::{
-    metadata::{ObjectType, RawMetadata},
-    traits::Cleanable,
-};
+use crate::{metadata::RawMetadata, tags::ObjectType, traits::Cleanable};
 
 use super::searchable::Searchable;
 

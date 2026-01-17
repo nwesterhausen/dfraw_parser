@@ -1,7 +1,7 @@
 //! The `ExportedEntity` struct is used to store information about an entity that has been exported
 //! from the Legends Viewer.
 
-use crate::{entity::Entity, metadata::RawMetadata};
+use crate::{Entity, metadata::RawMetadata};
 
 /// The `ExportedEntity` struct is used to store information about an entity that has been exported
 #[derive(Debug, Default)]

@@ -1,4 +1,4 @@
-use dfraw_parser::metadata::{ObjectType, RawModuleLocation};
+use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType};
 use rusqlite::{Connection, Result};
 use std::fmt::Write as _;
 use tracing::info;

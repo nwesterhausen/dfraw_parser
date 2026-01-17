@@ -3,7 +3,7 @@
 //! The `ExportedCreature` struct is used to store information about a creature that has been exported
 //! from the Legends Viewer.
 
-use crate::{creature::Creature, metadata::RawMetadata, name::Name};
+use crate::{Creature, Name, metadata::RawMetadata};
 
 /// The `ExportedCreature` struct is used to store information about a creature that has been exported
 #[derive(Debug, Default)]

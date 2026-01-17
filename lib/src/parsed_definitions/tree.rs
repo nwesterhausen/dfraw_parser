@@ -4,8 +4,7 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{error, warn};
 
 use crate::{
-    color::Color,
-    name::Name,
+    Color, Name,
     raw_definitions::TREE_TOKENS,
     tags::{TreeTag, TwigPlacementTag},
 };

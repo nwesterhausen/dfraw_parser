@@ -1,7 +1,7 @@
-use crate::raw_definitions::tokens::creature_effect_property::CREATURE_EFFECT_PROPERTY_TOKENS;
+use crate::raw_definitions::tokens::CREATURE_EFFECT_PROPERTY_TOKENS;
 use crate::tags::CreatureEffectPropertyTag;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
 /// Utility impl to provide a reverse lookup from `CreatureEffectPropertyTag` enum

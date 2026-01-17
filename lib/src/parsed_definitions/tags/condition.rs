@@ -321,7 +321,7 @@ pub enum ConditionTag {
     BodyUpper,
     /// Condition of being a copy of a template
     CopyOfTemplate,
-    /// Checks the current [CONDITION_ITEM_WORN]'s quality. 0 is base quality, 5 is masterwork.
+    /// Checks the current `[CONDITION_ITEM_WORN]`'s quality. 0 is base quality, 5 is masterwork.
     /// See `[CONDITION_MATERIAL_FLAG:NOT_ARTIFACT]` for non-artifact-quality items.
     ///
     /// `[ITEM_QUALITY:quality id]`

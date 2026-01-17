@@ -4,17 +4,12 @@ use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
 use crate::{
-    color::Color,
-    material_mechanics::MaterialMechanics,
+    Color, MaterialMechanics, StateNames, Syndrome, Temperatures, Tile,
     raw_definitions::{
         CREATURE_EFFECT_TOKENS, FUEL_TYPE_TOKENS, MATERIAL_PROPERTY_TOKENS, MATERIAL_TYPE_TOKENS,
         MATERIAL_USAGE_TOKENS, SYNDROME_TOKENS,
     },
-    state_names::StateNames,
-    syndrome::Syndrome,
     tags::{FuelTypeTag, MaterialPropertyTag, MaterialTypeTag, MaterialUsageTag},
-    temperatures::Temperatures,
-    tile::Tile,
     traits::Searchable,
     utilities::clean_search_vec,
 };

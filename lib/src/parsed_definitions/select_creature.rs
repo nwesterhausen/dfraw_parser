@@ -2,7 +2,8 @@
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 use crate::{
-    metadata::{ObjectType, RawMetadata},
+    metadata::RawMetadata,
+    tags::ObjectType,
     traits::{RawObject, Searchable},
     utilities::{build_object_id_from_pieces, clean_search_vec},
 };

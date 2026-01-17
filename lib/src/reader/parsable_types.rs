@@ -1,4 +1,4 @@
-use crate::metadata::ObjectType;
+use crate::tags::ObjectType;
 
 /// The object types that can be parsed by the parser.
 pub const PARSABLE_OBJECT_TYPES: [ObjectType; 8] = [

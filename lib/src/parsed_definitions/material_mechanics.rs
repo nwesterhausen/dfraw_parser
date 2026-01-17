@@ -3,7 +3,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::{mechanical_properties::MechanicalProperties, tags::MaterialPropertyTag};
+use crate::{MechanicalProperties, tags::MaterialPropertyTag};
 
 /// Represents the specific yield, fracture, and elasticity of a material for the various
 /// types of mechanical stress.

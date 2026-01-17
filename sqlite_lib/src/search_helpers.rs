@@ -1,6 +1,6 @@
 //! Helpers used in regards to compiling data used for filling search indices
 
-use dfraw_parser::{Creature, Plant, metadata::ObjectType, traits::RawObject};
+use dfraw_parser::{Creature, Plant, tags::ObjectType, traits::RawObject};
 
 /// Given a raw object (via `&Box<dyn RawObject>`) will extract names and descriptions to use in
 /// the search indices.

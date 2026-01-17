@@ -4,15 +4,12 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
-    custom_graphic_extension::CustomGraphicExtension,
-    graphic_palette::GraphicPalette,
-    metadata::{ObjectType, RawMetadata},
+    CustomGraphicExtension, GraphicPalette, SpriteGraphic, SpriteLayer,
+    metadata::RawMetadata,
     raw_definitions::{
         CONDITION_TOKENS, CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS,
     },
-    sprite_graphic::SpriteGraphic,
-    sprite_layer::SpriteLayer,
-    tags::{ConditionTag, GraphicTypeTag},
+    tags::{ConditionTag, GraphicTypeTag, ObjectType},
     traits::{RawObject, Searchable},
     utilities::{build_object_id_from_pieces, clean_search_vec},
 };

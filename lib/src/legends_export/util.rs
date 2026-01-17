@@ -1,8 +1,9 @@
 use std::path::Path;
 
 use crate::{
-    metadata::{ObjectType, ParserOptions, RawMetadata, RawModuleLocation},
     InfoFile,
+    metadata::{ParserOptions, RawMetadata, RawModuleLocation},
+    tags::ObjectType,
 };
 
 pub fn legends_metadata(

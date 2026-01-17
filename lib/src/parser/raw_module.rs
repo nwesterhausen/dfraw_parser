@@ -5,10 +5,11 @@ use tracing::{debug, info};
 use walkdir::WalkDir;
 
 use crate::{
-    metadata::{ObjectType, ParserOptions},
-    reader::{parse_raw_file, FileParseResult, UnprocessedRaw},
-    traits::RawObject,
     InfoFile, ParserError,
+    metadata::ParserOptions,
+    reader::{FileParseResult, UnprocessedRaw, parse_raw_file},
+    tags::ObjectType,
+    traits::RawObject,
 };
 
 #[allow(clippy::too_many_lines)]

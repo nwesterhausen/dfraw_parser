@@ -1,7 +1,7 @@
-use crate::raw_definitions::tokens::biome::BIOME_TOKENS;
+use crate::raw_definitions::tokens::BIOME_TOKENS;
 use crate::tags::BiomeTag;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
 impl BiomeTag {

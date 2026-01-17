@@ -1,7 +1,7 @@
 //! Tags that can be used to define a creature's caste.
 
 use crate::{
-    custom_types::TileCharacter, metadata::ObjectType, parsed_definitions::custom_types::HabitCount,
+    custom_types::TileCharacter, parsed_definitions::custom_types::HabitCount, tags::ObjectType,
 };
 
 /// Tokens that can be found in a creature's caste definitions.
@@ -17,20 +17,21 @@ use crate::{
     strum_macros::EnumIter,
 )]
 pub enum CasteTag {
-    /// Prevents tamed creature from being made available for adoption, instead allowing it to automatically adopt whoever it wants.
-    /// The basic requirements for adoption are intact, and the creature will only adopt individuals who have a preference for their species.
-    /// Used by cats in the vanilla game. When viewing a tame creature with this token, the message "This animal isn't interested in your
-    /// wishes" will appear instead of "This adorable animal can't work" or "This animal is waiting to be trained".
+    /// Prevents tamed creature from being made available for adoption, instead allowing it to automatically adopt
+    /// whoever it wants. The basic requirements for adoption are intact, and the creature will only adopt individuals
+    /// who have a preference for their species. Used by cats in the vanilla game. When viewing a tame creature with
+    /// this token, the message "This animal isn't interested in your wishes" will appear instead of "This adorable
+    /// animal can't work" or "This animal is waiting to be trained".
     ///
     /// Appears as `ADOPTS_OWNER`
     AdoptsOwner,
-    /// Makes the creature need alcohol to get through the working day; it will choose to drink booze instead of water if possible.
-    /// Going sober for too long reduces speed.
+    /// Makes the creature need alcohol to get through the working day; it will choose to drink booze instead of water
+    /// if possible. Going sober for too long reduces speed.
     ///
     /// Appears as `ALCOHOL_DEPENDENT`
     AlcoholDependent,
-    /// Sets the creature to be active during the day, night, and twilight in Adventurer Mode. Seems to be a separate value from `[DIURNAL]/[NOCTURNAL]/[CREPUSCULAR]`,
-    /// rather than implying them.
+    /// Sets the creature to be active during the day, night, and twilight in Adventurer Mode. Seems to be a separate
+    /// value from `[DIURNAL]/[NOCTURNAL]/[CREPUSCULAR]`, rather than implying them.
     ///
     /// Appears as `ALL_ACTIVE`
     AllActive,
@@ -41,16 +42,16 @@ pub enum CasteTag {
         /// The tile to use
         tile: TileCharacter,
     },
-    /// Found on `[LargePredator]`s who ambush their prey. Instead of charging relentlessly at prey, the predator will wait till the prey is
-    /// within a few squares before charging. May or may not work on other creatures.
+    /// Found on `[LargePredator]`s who ambush their prey. Instead of charging relentlessly at prey, the predator will
+    /// wait till the prey is within a few squares before charging. May or may not work on other creatures.
     ///
     /// Appears as `AMBUSHPREDATOR`
     AmbushPredator,
-    /// Allows a creature to breathe both in and out of water (unlike [Aquatic]) - does not prevent drowning in magma.
+    /// Allows a creature to breathe both in and out of water (unlike `[Aquatic]`) - does not prevent drowning in magma.
     ///
     /// Appears as `AMPHIBIOUS`
     Amphibious,
-    /// Applies the specified creature variation with the given arguments to the creature. See `[ApplyCreatureVariation]` for more information.
+    /// Applies the specified creature variation with the given arguments to the creature.
     ///
     /// Appears as `APPLY_CREATURE_VARIATION:SOME_VARIATION` or `APPLY_CREATURE_VARIATION:SOME_VARIATION:ARG1:ARG2:ARG3`
     ApplyCreatureVariation {
@@ -59,7 +60,8 @@ pub enum CasteTag {
         /// (Optional) any number of arguments to pass to the creature variation
         args: Vec<u32>,
     },
-    /// Applies the effects of all pending `[CV_ADD_TAG]` and `[CV_REMOVE_TAG]` tokens that have been defined in the current creature (so far).
+    /// Applies the effects of all pending `[CV_ADD_TAG]` and `[CV_REMOVE_TAG]` tokens that have been defined in the
+    /// current creature (so far).
     ///
     /// Appears as `APPLY_CURRENT_CREATURE_VARIATION`
     ApplyCurrentCreatureVariation,
@@ -67,11 +69,12 @@ pub enum CasteTag {
     ///
     /// Appears as `AQUATIC`
     Aquatic,
-    /// Causes the creature to be excluded from the object testing arena's creature spawning list. Typically applied to spoileriffic creatures.
+    /// Causes the creature to be excluded from the object testing arena's creature spawning list. Typically applied to
+    /// spoileriffic creatures.
     ///
     /// Appears as `ARENA_RESTRICTED`
     ArenaRestricted,
-    /// Prevents the creature from attacking or frightening creatures with the [Natural] tag.
+    /// Prevents the creature from attacking or frightening creatures with the `[Natural]` tag.
     ///
     /// Appears as `AT_PEACE_WITH_WILDLIFE`
     AtPeaceWithWildlife,
@@ -84,8 +87,8 @@ pub enum CasteTag {
         /// The body part selector used for the attack
         selector: Vec<String>,
     },
-    /// Specifies when a megabeast or semi-megabeast will attack the fortress. The attacks will start occurring when at least one of the requirements is met.
-    /// Setting a value to 0 disables the trigger.
+    /// Specifies when a megabeast or semi-megabeast will attack the fortress. The attacks will start occurring when at
+    /// least one of the requirements is met. Setting a value to 0 disables the trigger.
     ///
     /// Appears as `ATTACK_TRIGGER:0:1:2`
     AttackTrigger {
@@ -96,14 +99,16 @@ pub enum CasteTag {
         /// Created wealth trigger
         created_wealth: u32,
     },
-    /// Age at which creature is considered a child, the default is zero. One can think of this as the duration of the baby stage.
+    /// Age at which creature is considered a child, the default is zero. One can think of this as the duration of the
+    /// baby stage.
     ///
     /// Appears as `BABY:12`
     Baby {
         /// The age at which the creature is considered a child
         age: u32,
     },
-    /// Defines a new name for a creature in baby state at the caste level. For non-caste-specific baby names, see `[CreatureToken::GeneralBabyName]`.
+    /// Defines a new name for a creature in baby state at the caste level. For non-caste-specific baby names, see
+    /// [`crate::tags::CreatureTag::GeneralBabyName`].
     ///
     /// Appears as `BABYNAME:SomeName:SomeNames`
     BabyName {
@@ -112,16 +117,19 @@ pub enum CasteTag {
         /// Plural name for the baby
         plural: String,
     },
-    /// Creature may be subject to beaching, becoming stranded on shores, where they will eventually air-drown. The number indicates the frequency of the occurrence.
-    /// Presumably requires the creature to be [Aquatic]. Used by orcas, sperm whales and sea nettle jellyfish in the vanilla game.
+    /// Creature may be subject to beaching, becoming stranded on shores, where they will eventually air-drown. The
+    /// number indicates the frequency of the occurrence. Presumably requires the creature to be `[Aquatic]`. Used by
+    /// orcas, sperm whales and sea nettle jellyfish in the vanilla game.
     ///
     /// Appears as `BEACH_FREQUENCY:100`
     BeachFrequency {
         /// Frequency of beaching
         frequency: u32,
     },
-    /// The creature is non-aggressive by default, and will never automatically be engaged by companions or soldiers, running away from any creatures
-    /// that are not friendly to it, and will only defend itself if it becomes enraged. Can be thought of as the counterpoint of the `[LargePredator]` tag.
+    /// The creature is non-aggressive by default, and will never automatically be engaged by companions or soldiers,
+    /// running away from any creatures that are not friendly to it, and will only defend itself if it becomes enraged.
+    /// Can be thought of as the counterpoint of the `[LargePredator]` tag.
+    ///
     /// When tamed, animals with this tag will be useless for fortress defense.
     ///
     /// Appears as `BENIGN`
@@ -135,8 +143,9 @@ pub enum CasteTag {
         /// Blood token
         state: String,
     },
-    /// Causes vampire-like behavior; the creature will suck the blood of unconscious victims when its thirst for blood grows sufficiently large. When controlling the
-    /// creature in adventure mode, this can be done at will. Seems to be required to make the creature denouncable (in-world) as a creature of the night.
+    /// Causes vampire-like behavior; the creature will suck the blood of unconscious victims when its thirst for blood
+    /// grows sufficiently large. When controlling the creature in adventure mode, this can be done at will. Seems to be
+    /// required to make the creature denouncable (in-world) as a creature of the night.
     ///
     /// Appears as `BLOODSUCKER`
     BloodSucker,
@@ -147,25 +156,29 @@ pub enum CasteTag {
         /// Body parts arguments
         body_parts: Vec<String>,
     },
-    /// These body modifiers give individual creatures different characteristics. In the case of `HEIGHT`, `BROADNESS` and `LENGTH`, the modifier is also a percentage change to
-    /// the `BODY_SIZE` of the individual creature. The seven numbers afterward give a distribution of ranges. Each interval has an equal chance of occurring.
+    /// These body modifiers give individual creatures different characteristics. In the case of `HEIGHT`, `BROADNESS`
+    /// and `LENGTH`, the modifier is also a percentage change to the `BODY_SIZE` of the individual creature. The seven
+    /// numbers afterward give a distribution of ranges. Each interval has an equal chance of occurring.
     ///
     /// Example: `BODY_APPEARANCE_MODIFIER:HEIGHT:90:95:98:100:102:105:110`
     ///
     /// * `HEIGHT`: marks the height to be changed
-    /// * `90:95:98:100:102:105:110`: sets the range from the shortest (90% of the average height) to the tallest (110% of the average height) creature variation.
+    /// * `90:95:98:100:102:105:110`: sets the range from the shortest (90% of the average height) to the
+    ///   tallest (110% of the average height) creature variation.
     BodyAppearanceModifier {
         /// Body part to modify
         attribute: String,
         /// Range of values, spread from lowest to median to highest
         values: [u32; 7],
     },
-    /// Loads a plan from listed `OBJECT:BODY_DETAIL_PLAN` files, such as `b_detail_plan_default.txt`. Mass applies `USE_MATERIAL_TEMPLATE`, mass alters RELSIZE, alters
-    /// body part positions, and will allow tissue layers to be defined. Tissue layers are defined in order of skin to bone here.
+    /// Loads a plan from listed `OBJECT:BODY_DETAIL_PLAN` files, such as `b_detail_plan_default.txt`. Mass applies
+    /// `USE_MATERIAL_TEMPLATE`, mass alters RELSIZE, alters body part positions, and will allow tissue layers to be
+    /// defined. Tissue layers are defined in order of skin to bone here.
     ///
     /// Example: `BODY_DETAIL_PLAN:VERTEBRATE_TISSUE_LAYERS:SKIN:FAT:MUSCLE:BONE:CARTILAGE`
     ///
-    /// This creates the detailed body of a fox, the skin, fat, muscle, bones and cartilage out of the vertebrate tissues. A maggot would only need:
+    /// This creates the detailed body of a fox, the skin, fat, muscle, bones and cartilage out of the vertebrate
+    /// tissues. A maggot would only need:
     ///
     /// `BODY_DETAIL_PLAN:EXOSKELETON_TISSUE_LAYERS:SKIN:FAT:MUSCLE`
     BodyDetailPlan {
@@ -174,7 +187,8 @@ pub enum CasteTag {
         /// Body detail plan arguments
         arguments: Vec<String>,
     },
-    /// Sets size at a given age. Size is in cubic centimeters, and for normal body materials, is roughly equal to the creature's average weight in grams.
+    /// Sets size at a given age. Size is in cubic centimeters, and for normal body materials, is roughly equal to the
+    /// creature's average weight in grams.
     ///
     /// Appears as `BODY_SIZE:0:0:1000`
     BodySize {
@@ -185,18 +199,20 @@ pub enum CasteTag {
         /// Size in cubic centimeters
         size: u32,
     },
-    /// Substitutes body part text with replacement text. Draws gloss information from `OBJECT:BODY`files (such as `body_default.txt`)
+    /// Substitutes body part text with replacement text. Draws gloss information from `OBJECT:BODY`files
+    /// (such as `body_default.txt`)
     ///
     /// Appears as `BODYGLOSS:SomeGloss`
     BodyGloss {
         /// The gloss to use on the body part
         gloss: String,
     },
-    /// Creature eats bones. Implies [Carnivore]. Adventurers with this token are currently unable to eat bones.
+    /// Creature eats bones. Implies `[Carnivore]`. Adventurers with this token are currently unable to eat bones.
     ///
     /// Appears as `BONECARN`
     BoneCarn,
-    /// Adds a type to a body part - used with `[SetBodyPartGroup]`. In vanilla DF, this is used for adding the type `[Geldable]` to the lower body of certain creatures.
+    /// Adds a type to a body part - used with `[SetBodyPartGroup]`. In vanilla DF, this is used for adding the type
+    /// `[Geldable]` to the lower body of certain creatures.
     ///
     /// Appears as `BP_ADD_TYPE:SomeBodyPartType`
     BodyPartAddType {
@@ -228,12 +244,13 @@ pub enum CasteTag {
         /// The body part type to remove
         body_part_type: String,
     },
-    /// Allows a creature to destroy furniture and buildings. Value `1` targets mostly doors, hatches, furniture and the like. Value `2` targets
-    /// anything not made with the b + C commands.
+    /// Allows a creature to destroy furniture and buildings. Value `1` targets mostly doors, hatches, furniture and
+    /// the like. Value `2` targets anything not made with the b + C commands.
     ///
     /// Appears as `BUILDINGDESTROYER:1`
     BuildingDestroyer {
-        /// Whether the creature focuses on doors, hatches, furniture, etc. (`1`) or anything not made with the b + C commands (`2`)
+        /// Whether the creature focuses on doors, hatches, furniture, etc. (`1`) or anything not made with
+        /// the b + C commands (`2`)
         door_and_furniture_focused: bool,
     },
     /// The creature can perform an interaction.
@@ -243,9 +260,10 @@ pub enum CasteTag {
         /// Interaction to allow
         interaction: String,
     },
-    /// The creature gains skills and can have professions. If a member of a civilization (even a pet) has this token, it'll need to eat, drink and sleep.
-    /// Note that this token makes the creature unable to be eaten by an adventurer, so it is not recommended for uncivilized monsters. Adventurers lacking
-    /// this token can allocate but not increase attributes and skills. Skills allocated will disappear on start.
+    /// The creature gains skills and can have professions. If a member of a civilization (even a pet) has this token,
+    /// it'll need to eat, drink and sleep. Note that this token makes the creature unable to be eaten by an adventurer,
+    /// so it is not recommended for uncivilized monsters. Adventurers lacking this token can allocate but not increase
+    /// attributes and skills. Skills allocated will disappear on start.
     ///
     /// Appears as `CAN_LEARN`
     CanLearn,
@@ -265,12 +283,14 @@ pub enum CasteTag {
     ///
     /// Appears as `CANNOT_UNDEAD`
     CannotUndead,
-    /// Allows the creature to open doors that are set to be unpassable for pets. In adventure mode, creatures lacking this token will be unable to pass through door
-    /// tiles except whilst these are occupied by other creatures. Not currently useful in Fortress mode as doors can no longer be set unpassable for pets.
+    /// Allows the creature to open doors that are set to be unpassable for pets. In adventure mode, creatures lacking
+    /// this token will be unable to pass through door tiles except whilst these are occupied by other creatures. Not
+    /// currently useful in Fortress mode as doors can no longer be set unpassable for pets.
     ///
     /// Appears as `CANOPENDOORS`
     CanOpenDoors,
-    /// Creature only eats meat. If the creature goes on rampages in worldgen, it will often devour the people/animals it kills.
+    /// Creature only eats meat. If the creature goes on rampages in worldgen, it will often devour the
+    /// people/animals it kills.
     /// Does not seem to affect the diet of the adventurer in adventure mode.
     ///
     /// Appears as `CARNIVORE`
@@ -286,15 +306,16 @@ pub enum CasteTag {
         /// The percentage to change the body size by
         percent: u32,
     },
-    /// Age at which creature is considered an adult - one can think of this as the duration of the child stage. Allows the creature's offspring to be
-    /// rendered fully tame if trained during their childhood.
+    /// Age at which creature is considered an adult - one can think of this as the duration of the child stage.
+    /// Allows the creature's offspring to be rendered fully tame if trained during their childhood.
     ///
     /// Appears as `CHILD:12`
     Child {
         /// The age at which the creature is considered an adult
         age: u32,
     },
-    /// Defines a name for the creature in child state at the caste level. For non-caste-specific child names, see `[CreatureToken::GeneralChildName]`.
+    /// Defines a name for the creature in child state at the caste level. For non-caste-specific child names, see
+    /// `[crate::tags::CreatureToken::GeneralChildName]`.
     ///
     /// Appears as `CHILDNAME:SomeName:SomeNames`
     ChildName {
@@ -329,13 +350,17 @@ pub enum CasteTag {
         /// The brightness of the color
         brightness: u32,
     },
-    /// When combined with any of `[Pet]`, `[PackAnimal]`, `[WagonPuller]` and/or `[Mount]`, the creature is guaranteed to be domesticated by any civilization with
-    /// `[EntityToken::CommonDomesticPet]`, `[EntityToken::CommonDomesticPackAnimal]`, `[EntityToken::CommonDomesticWagonPuller]` and/or `[EntityToken::CommonDomesticMount]`
-    /// respectively. Such civilizations will always have access to the creature, even in the absence of wild populations. This token is invalid on `[CreatureToken::Fanciful]` creatures.
+    /// When combined with any of `[Pet]`, `[PackAnimal]`, `[WagonPuller]` and/or `[Mount]`, the creature is guaranteed
+    /// to be domesticated by any civilization with `[crate::tags::EntityToken::CommonDomesticPet]`,
+    /// `[crate::tags::EntityToken::CommonDomesticPackAnimal]`, `[crate::tags::EntityToken::CommonDomesticWagonPuller]`
+    /// and/or `[crate::tags::EntityToken::CommonDomesticMount]` respectively. Such civilizations will always have
+    /// access to the creature, even in the absence of wild populations. This token is invalid on
+    /// `[crate::tags::CreatureToken::Fanciful]` creatures.
     ///
     /// Appears as `COMMON_DOMESTIC`
     CommonDomestic,
-    /// Creatures of this caste's species with the `[SpouseConverter]` and `[NightCreatureHunter]` tokens will kidnap `[SpouseConversionTarget]`s of an appropriate
+    /// Creatures of this caste's species with the [`CasteTag::SpouseConverter`] and [`CasteTag::NightCreatureHunter`] tokens will kidnap
+    /// `[SpouseConversionTarget]`s of an appropriate
     /// sex and convert them into castes with `CONVERTED_SPOUSE`.
     ///
     /// Appears as `CONVERTED_SPOUSE`
@@ -489,7 +514,7 @@ pub enum CasteTag {
     /// Hides the creature from displaying in a `world_sites_and_pops.txt` file. Does not create historical figures like generated forgotten beasts do.
     ///
     /// Requires specifying a `[Biome]` in which the creature will live, and both surface and subterranean biomes are allowed. Does not stack with `[LargeRoaming]` and if
-    /// both are used the creature will not spawn. Appears to be incompatible with [Demon] even if used in separate castes.
+    /// both are used the creature will not spawn. Appears to be incompatible with `[Demon]` even if used in separate castes.
     ///
     /// Appears as `FEATURE_BEAST`
     FeatureBeast,
@@ -540,9 +565,9 @@ pub enum CasteTag {
     /// Appears as `FLIER`
     Flier,
     /// Defines a gait by which the creature can move. Typically defined by using `APPLY_CREATURE_VARIATION:STANDARD_GAIT:xxx` in the creature's raws, instead of
-    /// by using this token directly. See [Gait] for more detailed information.
+    /// by using this token directly. See `[Gait]` for more detailed information.
     ///
-    /// Since it's a bit complicated, we let the [Gait] `from_value()` handle parsing this token.
+    /// Since it's a bit complicated, we let [`crate::Gait`] `from_value()` handle parsing this token.
     ///
     /// Appears (typically) as `CV_NEW_TAG:GAIT:WALK:Sprint:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50`
     Gait {
@@ -656,7 +681,7 @@ pub enum CasteTag {
     /// * `GIANT_NEST`
     /// * `COLLECT_WEALTH`
     ///
-    /// These require the creature to have a [Lair] to work properly, and also don't seem to work on creatures who are not a `[SemiMegabeast]`, `[Megabeast]`, or `[NightCreatureHunter]`.
+    /// These require the creature to have a `[Lair]` to work properly, and also don't seem to work on creatures who are not a `[SemiMegabeast]`, `[Megabeast]`, or `[NightCreatureHunter]`.
     ///
     /// Appears as `HABIT:SomeHabit`
     Habit {
@@ -693,7 +718,7 @@ pub enum CasteTag {
     ///
     /// Appears as `IMMOBILE`
     Immobile,
-    /// The creature is immobile while on land. Only works on [Aquatic] creatures which can't breathe on land.
+    /// The creature is immobile while on land. Only works on `[Aquatic]` creatures which can't breathe on land.
     ///
     /// Appears as `IMMOBILE_LAND`
     ImmobileLand,
@@ -998,7 +1023,7 @@ pub enum CasteTag {
     Matutinal,
     /// Determines the creature's natural lifespan, using the specified minimum and maximum age values (in years). Each individual creature with this token is generated with a
     /// predetermined date (calculated down to the exact tick!) between these values, at which it is destined to die of old age, should it live long enough. Note that the
-    /// probability of death at any given age does not increase as the creature gets older [3].
+    /// probability of death at any given age does not increase as the creature gets older.
     ///
     /// Creatures which lack this token are naturally immortal. The `NO_AGING` syndrome tag will prevent death by old age from occurring. Also note that, among civilized creatures,
     /// castes which lack this token will refuse to marry others with it, and vice versa.
@@ -1104,7 +1129,8 @@ pub enum CasteTag {
         /// The value to modify
         value: String,
     },
-    /// Creature may be used as a mount. No use for the player in fortress mode, but enemy sieging forces may arrive with cavalry. Mounts are usable in adventure mode.
+    /// Creature may be used as a mount. No use for the player in fortress mode,
+    /// but enemy sieging forces may arrive with cavalry. Mounts are usable in adventure mode.
     ///
     /// Appears as `MOUNT`
     Mount,
@@ -1116,7 +1142,8 @@ pub enum CasteTag {
     ///
     /// Appears as `MULTIPART_FULL_VISION`
     MultipartFullVision,
-    /// Makes the species usually produce a single offspring per birth, with a 1/500 chance of using the [LITTERSIZE] as usual. Requires [FEMALE].
+    /// Makes the species usually produce a single offspring per birth, with a 1/500
+    /// chance of using the `[LITTERSIZE]` as usual. Requires `[FEMALE]`.
     ///
     /// Appears as `MULTIPLE_LITTER_RARE`
     MultipleLitterRare,
@@ -1177,7 +1204,7 @@ pub enum CasteTag {
     /// mode except for the aforementioned aggression, and doesn't prevent the creature from fleeing the battles it started. It also removes the creature's materials from stockpile
     /// settings list, making them be stored there regardless of settings.
     ///
-    /// Does stack with `[LARGE_ROAMING]` and if both are used the creature will spawn as both historical hunters and as wild animals; this requires specifying a [BIOME] in which the
+    /// Does stack with `[LARGE_ROAMING]` and if both are used the creature will spawn as both historical hunters and as wild animals; this requires specifying a `[BIOME]` in which the
     /// creature will live, and subterranean biomes are allowed.
     ///
     /// This tag causes the usual behaviour of werebeasts in worldgen, that is, fleeing towns upon being cursed and conducting raids from a lair. If this tag is absent from a deity
@@ -1240,7 +1267,7 @@ pub enum CasteTag {
     ///
     /// Appears as `NO_SUMMER`
     NoSummer,
-    /// Creature doesn't require an organ with the [THOUGHT] tag to survive or attack; generally used on creatures that don't have brains.
+    /// Creature doesn't require an organ with the `[THOUGHT]` tag to survive or attack; generally used on creatures that don't have brains.
     ///
     /// Appears as `NO_THOUGHT_CENTER_FOR_MOVEMENT`
     NoThoughtCenterForMovement,
@@ -1260,7 +1287,7 @@ pub enum CasteTag {
     ///
     /// Appears as `NOBONES`
     NoBones,
-    /// Creature doesn't need to breathe or have [BREATHE] parts in body, nor can it drown or be strangled. Creatures living in magma must have this tag,
+    /// Creature doesn't need to breathe or have `[BREATHE]` parts in body, nor can it drown or be strangled. Creatures living in magma must have this tag,
     /// otherwise they will drown.
     ///
     /// Appears as `NOBREATHE`
@@ -1325,7 +1352,7 @@ pub enum CasteTag {
     ///
     /// Appears as `NOT_LIVING`
     NotLiving,
-    /// Creature doesn't require a [THOUGHT] body part to survive. Has the added effect of preventing speech, though directly controlling creatures that would otherwise
+    /// Creature doesn't require a `[THOUGHT]` body part to survive. Has the added effect of preventing speech, though directly controlling creatures that would otherwise
     /// be capable of speaking allows them to engage in conversation.
     ///
     /// Appears as `NOTHOUGHT`
@@ -1444,7 +1471,7 @@ pub enum CasteTag {
         /// The pet value
         pet_value: u32,
     },
-    /// Divides the creature's [PETVALUE] by the specified number. Used by honey bees to prevent a single hive from being worth a fortune.
+    /// Divides the creature's `[PETVALUE]` by the specified number. Used by honey bees to prevent a single hive from being worth a fortune.
     ///
     /// Appears as `PETVALUE_DIVISOR:2`
     PetValueDivisor {
@@ -1504,7 +1531,7 @@ pub enum CasteTag {
         /// The body part selector
         selector: Vec<String>,
     },
-    /// Weighted population of caste; Lower is rarer. Not to be confused with [FREQUENCY].
+    /// Weighted population of caste; Lower is rarer. Not to be confused with `[FREQUENCY]`.
     ///
     /// Appears as `POP_RATIO:100`
     PopulationRatio {
@@ -1632,7 +1659,7 @@ pub enum CasteTag {
     ReturnsVerminKillsToOwner,
     /// Creature will occasionally root around in the grass, looking for insects. Used for flavor in Adventurer Mode, spawns vermin edible for this creature in Fortress Mode. Creatures missing the specified body part will be unable to perform this action. The action produces a message (visible in adventure mode) in the form:
     ///
-    /// [creature] [verb text] the [description of creature's location]
+    /// `[creature] [verb text] the [description of creature's location]`
     ///
     /// In adventure mode, the "rooting around" ability will be included in the "natural abilities" menu, represented by its second person verb text.
     ///
@@ -1654,8 +1681,8 @@ pub enum CasteTag {
     /// Causes the specified tissue layer(s) of the indicated body part(s) to secrete the designated material. A size 100 ('covering') contaminant is created over the affected body part(s) in its specified material state (and at the temperature appropriate to this state) when the trigger condition is met, as long as one of the secretory tissue layers is still intact. Valid triggers are:
     ///
     /// * `CONTINUOUS`: Secretion occurs once every 40 ticks in fortress mode, and every tick in adventurer mode.
-    /// * `EXERTION`: Secretion occurs continuously (at the rate described above) whilst the creature is at minimum Tired following physical exertion. Note that this cannot occur if the creature has [NOEXERT].
-    /// * `EXTREME_EMOTION`:  Secretion occurs continuously (as above) whilst the creature is distressed. Cannot occur in creatures with [NOEMOTION].
+    /// * `EXERTION`: Secretion occurs continuously (at the rate described above) whilst the creature is at minimum Tired following physical exertion. Note that this cannot occur if the creature has `[NOEXERT]`.
+    /// * `EXTREME_EMOTION`:  Secretion occurs continuously (as above) whilst the creature is distressed. Cannot occur in creatures with `[NOEMOTION]`.
     ///
     /// Arguments:
     ///
@@ -1680,7 +1707,7 @@ pub enum CasteTag {
         /// The trigger to use (`CONTINUOUS`, `EXERTION`, `EXTREME_EMOTION`)
         trigger: String,
     },
-    /// Essentially the same as [MEGABEAST], but more of them are created during worldgen. See the semi-megabeast page for details.
+    /// Essentially the same as `[MEGABEAST]`, but more of them are created during worldgen. See the semi-megabeast page for details.
     ///
     /// Appears as `SEMIMEGABEAST`
     SemiMegabeast,
@@ -1834,7 +1861,7 @@ pub enum CasteTag {
         speech_file: String,
     },
     /// Shorthand for `[CAN_LEARN]` + `[SKILL_LEARN_RATES:50]`. Used by a number of 'primitive' creatures (like ogres, giants and troglodytes) in the vanilla game.
-    /// Applicable to player races. Prevents a player from recruiting nobility, even basic ones. Subterranean creatures with this token combined with [EVIL] will become
+    /// Applicable to player races. Prevents a player from recruiting nobility, even basic ones. Subterranean creatures with this token combined with `[EVIL]` will become
     /// servants of goblins in their civilizations, in the style of trolls.
     ///
     /// Appears as `SLOW_LEARNER`
@@ -1919,15 +1946,15 @@ pub enum CasteTag {
     SpouseConverter,
     /// If the creature rules over a site, it will cause the local landscape to be corrupted into evil surroundings associated with the creature's spheres.
     /// The creature must have at least one of the following spheres for this to take effect: BLIGHT, DEATH, DISEASE, DEFORMITY, NIGHTMARES. The first three kill vegetation,
-    /// while the others sometimes do. The last two get evil plants and evil animals sometimes. NIGHTMARES gets bogeymen. [4] Used by demons in the vanilla game.
+    /// while the others sometimes do. The last two get evil plants and evil animals sometimes. NIGHTMARES gets bogeymen. Used by demons in the vanilla game.
     ///
     /// Appears as `SPREAD_EVIL_SPHERES_IF_RULER`
     SpreadEvilSpheresIfRuler,
-    /// Caste does not require [GRASP] body parts to climb -- it can climb with [STANCE] parts instead.
+    /// Caste does not require `[GRASP]` body parts to climb -- it can climb with `[STANCE]` parts instead.
     ///
     /// Appears as `STANCE_CLIMBER`
     StanceClimber,
-    /// Acts as [GRAZER] but set to 20000*G*(max size)^(-3/4), where G defaults to 100 but can be set in `d_init`, and the whole thing is trapped between 150 and 3 million.
+    /// Acts as `[GRAZER]` but set to 20000*G*(max size)^(-3/4), where G defaults to 100 but can be set in `d_init`, and the whole thing is trapped between 150 and 3 million.
     /// Used for all grazers in the default creature raws.
     ///
     /// Appears as `STANDARD_GRAZER`
@@ -2082,7 +2109,7 @@ pub enum CasteTag {
     ///
     /// Appears as `UNIQUE_DEMON`
     UniqueDemon,
-    /// Like `[AT_PEACE_WITH_WILDLIFE]`, but also makes the creature more valued in artwork by civilisations with the PLANT sphere. [5] Used by grimelings in the vanilla game.
+    /// Like `[AT_PEACE_WITH_WILDLIFE]`, but also makes the creature more valued in artwork by civilisations with the "plant" sphere. Used by grimelings in the vanilla game.
     ///
     /// Appears as `VEGETATION`
     Vegetation,

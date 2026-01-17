@@ -1,7 +1,7 @@
 //! Contains the Position struct and implementation (for government positions)
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
-use crate::{color::Color, name::Name, tags::PositionTag};
+use crate::{Color, Name, tags::PositionTag};
 
 /// Represents a position in the government of an entity
 #[derive(

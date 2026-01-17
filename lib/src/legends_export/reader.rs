@@ -1,15 +1,16 @@
 use std::io::Read;
 use std::path::Path;
 
-use quick_xml::{events::Event, Reader};
+use quick_xml::{Reader, events::Event};
 use tracing::{error, info};
 
 use crate::{
+    ParserError,
     legends_export::{ExportedCreature, ExportedEntity},
-    metadata::{ObjectType, ParserOptions},
+    metadata::ParserOptions,
+    tags::ObjectType,
     traits::RawObject,
     utilities::try_get_file,
-    ParserError,
 };
 
 use super::util::legends_metadata;

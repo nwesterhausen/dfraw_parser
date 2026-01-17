@@ -2,7 +2,10 @@ use std::path::{Path, PathBuf};
 
 use strum::IntoEnumIterator;
 
-use crate::metadata::{LocationHelper, ObjectType, RawModuleLocation};
+use crate::{
+    metadata::{LocationHelper, RawModuleLocation},
+    tags::ObjectType,
+};
 
 /// # Parsing Options
 ///

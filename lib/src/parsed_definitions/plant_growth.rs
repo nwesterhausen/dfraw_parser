@@ -4,7 +4,7 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{error, warn};
 
 use crate::{
-    name::Name,
+    Name,
     raw_definitions::{PLANT_GROWTH_TOKENS, PLANT_PART_TOKENS},
     tags::{PlantGrowthTag, PlantGrowthTypeTag, PlantPartTag},
     traits::Searchable,

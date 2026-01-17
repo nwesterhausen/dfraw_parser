@@ -1,5 +1,5 @@
 use crate::Creature;
-use crate::raw_definitions::tokens::creature::CREATURE_TOKENS;
+use crate::raw_definitions::tokens::CREATURE_TOKENS;
 use crate::tags::CreatureTag;
 use crate::traits::RawObjectToken;
 use std::collections::HashMap;

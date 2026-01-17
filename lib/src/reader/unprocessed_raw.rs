@@ -1,11 +1,9 @@
 use tracing::{debug, trace};
 
 use crate::{
-    ParserError,
-    creature::Creature,
-    creature_variation::CreatureVariation,
-    metadata::{ObjectType, RawMetadata},
-    tags::ModificationTag,
+    Creature, CreatureVariation, ParserError,
+    metadata::RawMetadata,
+    tags::{ModificationTag, ObjectType},
     traits::RawObject,
     utilities::singularly_apply_creature_variation,
 };

@@ -51,7 +51,7 @@ pub trait TokenParser: Debug {
     }
 
     /// Helper: Parses a vector of values.
-    /// Usage: [BODY:HEAD:TORSO] -> parse_vector(..., |p| Self::Body(p))
+    /// Usage: `[BODY:HEAD:TORSO]` -> `parse_vector(..., |p| Self::Body(p))`
     fn parse_vector<T, F, S>(&self, values: &[&str], builder: F) -> Option<S>
     where
         T: FromStr,
@@ -68,7 +68,7 @@ pub trait TokenParser: Debug {
     }
 
     /// Helper: Parses a key (String) and a value.
-    /// Usage: [SKILL_LEARN_RATE:SWORD:100] -> parse_key_value(..., |k, v| Self::SkillLearnRate{"Sword", 100})
+    /// Usage: `[SKILL_LEARN_RATE:SWORD:100]` -> `parse_key_value(..., |k, v| Self::SkillLearnRate{"Sword", 100})`
     fn parse_key_value<T, F, S>(&self, values: &[&str], builder: F) -> Option<S>
     where
         T: FromStr,
@@ -110,7 +110,7 @@ pub trait TokenParser: Debug {
     }
 
     /// Helper: Parses exactly one value.
-    /// Usage: [BABY:1] -> parse_single(..., |v| Self::Baby{age: v})
+    /// Usage: `[BABY:1]` -> `parse_single(..., |v| Self::Baby{age: v})`
     fn parse_single<T, F, S>(&self, values: &[&str], builder: F) -> Option<S>
     where
         T: FromStr + Default,
@@ -122,7 +122,7 @@ pub trait TokenParser: Debug {
     }
 
     /// Helper: Verifies a tag has no arguments (Flags).
-    /// Usage: [FLIER] -> parse_flag(..., Self::Flier)
+    /// Usage: `[FLIER]` -> `parse_flag(..., Self::Flier)`
     fn parse_flag<S>(&self, values: &[&str], instance: S) -> Option<S> {
         if !values.is_empty() {
             tracing::warn!(
@@ -134,7 +134,7 @@ pub trait TokenParser: Debug {
 
     /// Helper: Parses exactly N values into an array.
     /// Supports numbers and non-copy structs like Strings
-    /// Usage: [COLOR:0:0:1] -> parse_array(..., |[r,g,b]| ...)
+    /// Usage: `[COLOR:0:0:1]` -> `parse_array(..., |[r,g,b]| ...)`
     fn parse_array<T, const N: usize, F, S>(&self, values: &[&str], builder: F) -> Option<S>
     where
         T: FromStr + Default + Debug,
@@ -209,7 +209,7 @@ pub trait TokenParser: Debug {
     }
 
     /// Helper: Parses a list of values where the LAST value is distinct (the "Tail").
-    /// Usage: [BLOOD:MAT:SUBMAT:STATE] -> Body=[MAT, SUBMAT], Tail=STATE
+    /// Usage: `[BLOOD:MAT:SUBMAT:STATE]` -> `Body=[MAT, SUBMAT], Tail=STATE`
     fn parse_vector_with_tail<T, U, F, S>(&self, values: &[&str], builder: F) -> Option<S>
     where
         T: std::str::FromStr + Default, // Type for the Body elements (e.g. String)

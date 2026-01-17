@@ -3,7 +3,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::{dimensions::Dimensions, raw_definitions::CONDITION_TOKENS, tags::ConditionTag};
+use crate::{Dimensions, raw_definitions::CONDITION_TOKENS, tags::ConditionTag};
 
 /// A struct representing a `SpriteLayer` object.
 #[allow(clippy::module_name_repetitions)]

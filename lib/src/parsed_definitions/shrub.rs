@@ -4,9 +4,8 @@ use dfraw_parser_proc_macros::IsEmpty;
 use tracing::{error, warn};
 
 use crate::{
-    color::Color,
+    Color, SeedMaterial,
     raw_definitions::SHRUB_TOKENS,
-    seed_material::SeedMaterial,
     tags::{SeasonTag, ShrubTag},
 };
 

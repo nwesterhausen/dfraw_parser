@@ -1,7 +1,7 @@
-use crate::raw_definitions::tokens::creature_effect::CREATURE_EFFECT_TOKENS;
+use crate::raw_definitions::tokens::CREATURE_EFFECT_TOKENS;
 use crate::tags::CreatureEffectTag;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
 impl CreatureEffectTag {

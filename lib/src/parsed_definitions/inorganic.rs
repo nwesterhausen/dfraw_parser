@@ -2,10 +2,10 @@
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 use crate::{
-    material::Material,
-    metadata::{ObjectType, RawMetadata},
+    Material,
+    metadata::RawMetadata,
     raw_definitions::{ENVIRONMENT_CLASS_TOKENS, INCLUSION_TYPE_TOKENS, INORGANIC_TOKENS},
-    tags::{EnvironmentClassTag, InclusionTypeTag, InorganicTag},
+    tags::{EnvironmentClassTag, InclusionTypeTag, InorganicTag, ObjectType},
     traits::{RawObject, Searchable},
     utilities::{build_object_id_from_pieces, clean_search_vec},
 };

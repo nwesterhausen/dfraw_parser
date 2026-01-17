@@ -4,11 +4,10 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
-    color::Color,
-    metadata::{ObjectType, RawMetadata},
-    position::Position,
+    Color, Position,
+    metadata::RawMetadata,
     raw_definitions::{ENTITY_TOKENS, POSITION_TOKENS},
-    tags::EntityTag,
+    tags::{EntityTag, ObjectType},
     traits::{RawObject, Searchable},
     utilities::{build_object_id_from_pieces, clean_search_vec},
 };

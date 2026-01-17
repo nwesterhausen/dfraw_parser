@@ -3,7 +3,7 @@
 use lazy_regex::regex;
 
 use crate::{
-    creature::Creature,
+    Creature,
     regex::VARIATION_ARGUMENT_RE,
     utilities::{
         apply_new_tag, argument_as_string, convert_tag, remove_tag, replace_args_in_string,

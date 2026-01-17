@@ -124,7 +124,7 @@ pub enum CreatureTag {
     },
     /// Adding this token to a creature prevents it from appearing in generated worlds (unless it's marked as always present for a particular
     /// civilization). For example, adding it to dogs will lead to worlds being generated without dogs in them. Also removes the creature from the
-    /// object testing arena's spawn list. If combined with [Fanciful], artistic depictions of the creature will occur regardless. Used by centaurs,
+    /// object testing arena's spawn list. If combined with [`CreatureTag::Fanciful`], artistic depictions of the creature will occur regardless. Used by centaurs,
     /// chimeras and griffons in the vanilla game.
     ///
     /// Appears as `DOES_NOT_EXIST`
@@ -144,7 +144,7 @@ pub enum CreatureTag {
     /// Determines the chances of a creature appearing within its environment, with higher values resulting in more frequent appearance. Also affects the chance of a
     /// creature being brought in a caravan for trading. The game effectively considers all creatures that can possibly appear and uses the FREQUENCY value as a weight
     ///
-    /// For example, if there are three creatures with frequencies 10/25/50, the creature with [FREQUENCY:50] will appear approximately 58.8% of the time.
+    /// For example, if there are three creatures with frequencies 10/25/50, the creature with `[FREQUENCY:50]` will appear approximately 58.8% of the time.
     ///
     /// Defaults to 50 if not specified. Not to be confused with `[PopulationRatio]`.
     ///
@@ -245,7 +245,7 @@ pub enum CreatureTag {
         /// The item tokens that are harvested (some arbitrary list of items)
         item_tokens: Vec<String>,
     },
-    /// This is the core requisite tag allowing the creature to spawn as a wild animal in the appropriate biomes. Requires specifying a [Biome] in which the creature will spawn.
+    /// This is the core requisite tag allowing the creature to spawn as a wild animal in the appropriate biomes. Requires specifying a [`crate::tags::BiomeTag`] in which the creature will spawn.
     /// Does not require specifying a frequency, population number, or cluster number.
     ///
     /// This tag stacks with `[CasteToken::Megabeast]`, `[CasteToken::SemiMegabeast]`, or `[CasteToken::NightCreatureHunter]`; if used with one of these tags, the creature will spawn
@@ -333,7 +333,7 @@ pub enum CreatureTag {
         /// The tissue to remove
         tissue: String,
     },
-    /// The creature will only show up in "savage" biomes. Has no effect on cavern creatures. Cannot be combined with [GOOD] or [EVIL].
+    /// The creature will only show up in "savage" biomes. Has no effect on cavern creatures. Cannot be combined with `[GOOD]` or `[EVIL]`.
     ///
     /// Appears as `SAVAGE`
     Savage,
@@ -394,7 +394,7 @@ pub enum CreatureTag {
         /// The historical figure ID
         hfid: u32,
     },
-    /// Sets what religious spheres the creature is aligned to, for purposes of being worshipped via the [POWER] token. Also affects the layout of hidden fun stuff,
+    /// Sets what religious spheres the creature is aligned to, for purposes of being worshipped via the `[POWER]` token. Also affects the layout of hidden fun stuff,
     /// and the creature's name.
     ///
     /// Appears as `SPHERE:SomeSphere`
@@ -422,13 +422,13 @@ pub enum CreatureTag {
         /// The maximum number of vermin in the swarm
         max: u32,
     },
-    /// Creature will occur in every region with the correct biome. Does not apply to [EVIL]/[GOOD] tags.
+    /// Creature will occur in every region with the correct biome. Does not apply to `[EVIL]`/`[GOOD]` tags.
     ///
     /// Appears as `UBIQUITOUS`
     Ubiquitous,
     /// Depth that the creature appears underground. Numbers can be from 0 to 5. 0 is actually 'above ground' and can be used if the creature is to appear both above and below ground.
     /// Values from 1-3 are the respective cavern levels, 4 is the magma sea and 5 is the HFS. A single argument may be used instead of min and max. Demons use only 5:5;
-    /// user-defined creatures with both this depth and [FLIER] will take part in the initial wave from the HFS alongside generated demons, but without [FLIER] they will only spawn from
+    /// user-defined creatures with both this depth and `[FLIER]` will take part in the initial wave from the HFS alongside generated demons, but without `[FLIER]` they will only spawn from
     /// the map edges. Civilizations that can use underground plants or animals will only export (via the embark screen or caravans) things that are available at depth 1.
     ///
     /// Arguments:
@@ -518,7 +518,7 @@ pub enum CreatureTag {
         template: String,
     },
     /// Changes the language of the creature into unintelligible 'kobold-speak', which creatures of other species will be unable to understand. If a civilized creature has this and is not
-    /// part of a [SKULKING] civ, it will tend to start wars with all nearby civilizations and will be unable to make peace treaties due to 'inability to communicate'.
+    /// part of a `[SKULKING]` civ, it will tend to start wars with all nearby civilizations and will be unable to make peace treaties due to 'inability to communicate'.
     ///
     /// Appears as `UTTERNANCES`
     Utterances,

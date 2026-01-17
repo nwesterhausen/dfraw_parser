@@ -4,13 +4,9 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
-    body_size::BodySize,
-    gait::Gait,
-    milkable::Milkable,
-    name::Name,
+    BodySize, Gait, Milkable, Name, Tile,
     raw_definitions::CASTE_TOKENS,
     tags::CasteTag,
-    tile::Tile,
     traits::{IsEmpty, Searchable, TagOperations},
 };
 

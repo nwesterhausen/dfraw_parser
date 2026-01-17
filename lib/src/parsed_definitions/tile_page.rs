@@ -6,10 +6,10 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
-    dimensions::Dimensions,
-    metadata::{ObjectType, RawMetadata},
+    Dimensions,
+    metadata::RawMetadata,
     raw_definitions::TILE_PAGE_TOKENS,
-    tags::TilePageTag,
+    tags::{ObjectType, TilePageTag},
     traits::{RawObject, Searchable},
     utilities::{build_object_id_from_pieces, clean_search_vec},
 };

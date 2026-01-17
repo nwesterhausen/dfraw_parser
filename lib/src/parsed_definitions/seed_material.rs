@@ -3,7 +3,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::{color::Color, name::Name};
+use crate::{Color, Name};
 
 /// A struct representing a seed material
 #[allow(clippy::module_name_repetitions)]

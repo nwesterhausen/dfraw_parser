@@ -6,18 +6,14 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{debug, warn};
 
 use crate::{
-    material::Material,
-    metadata::{ObjectType, RawMetadata},
-    name::Name,
-    plant_growth::PlantGrowth,
+    Material, Name, PlantGrowth, Shrub, Tree,
+    metadata::RawMetadata,
     raw_definitions::{
         BIOME_TOKENS, MATERIAL_PROPERTY_TOKENS, MATERIAL_USAGE_TOKENS, PLANT_GROWTH_TOKENS,
         PLANT_GROWTH_TYPE_TOKENS, PLANT_TOKENS, SHRUB_TOKENS, TREE_TOKENS,
     },
-    shrub::Shrub,
-    tags::{BiomeTag, PlantGrowthTag, PlantGrowthTypeTag, PlantTag},
+    tags::{BiomeTag, ObjectType, PlantGrowthTag, PlantGrowthTypeTag, PlantTag},
     traits::{RawObject, Searchable},
-    tree::Tree,
     utilities::{build_object_id_from_pieces, clean_search_vec, parse_min_max_range},
 };
 

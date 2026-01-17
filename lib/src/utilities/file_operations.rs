@@ -19,18 +19,11 @@ use tracing::{debug, error, info, trace, warn};
 use walkdir::WalkDir;
 
 use crate::{
-    ParserError,
-    creature::Creature,
-    creature_variation::CreatureVariation,
-    entity::Entity,
-    graphic::Graphic,
-    inorganic::Inorganic,
-    material_template::MaterialTemplate,
-    metadata::{ObjectType, ParserOptions, RawMetadata, RawModuleLocation},
-    plant::Plant,
+    Creature, CreatureVariation, Entity, Graphic, Inorganic, MaterialTemplate, ParserError, Plant,
+    SelectCreature, TilePage,
+    metadata::{ParserOptions, RawMetadata, RawModuleLocation},
     regex::VARIATION_ARGUMENT_RE,
-    select_creature::SelectCreature,
-    tile_page::TilePage,
+    tags::ObjectType,
     traits::{CreatureVariationRequirements, IsEmpty, RawObject},
 };
 

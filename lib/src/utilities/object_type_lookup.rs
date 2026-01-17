@@ -1,8 +1,9 @@
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-use crate::metadata::{ObjectType, OBJECT_TOKEN_MAP};
+use crate::raw_definitions::OBJECT_TOKEN_MAP;
+use crate::tags::ObjectType;
 
 impl ObjectType {
     /// Retrieves the original string token key for this tag (e.g., "PET_VALUE").

@@ -1,5 +1,7 @@
 use dfraw_parser::{
-    Graphic, InfoFile, TilePage, metadata::ObjectType, tags::ConditionTag, traits::RawObject,
+    Graphic, InfoFile, TilePage,
+    tags::{ConditionTag, ObjectType},
+    traits::RawObject,
 };
 use rusqlite::{Result, Transaction, params};
 use tracing::error;

@@ -4,11 +4,12 @@ use tracing::{error, trace};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
-use crate::constants::DF_ENCODING;
-use crate::metadata::{ObjectType, OBJECT_TOKEN_MAP};
-use crate::regex::RAW_TOKEN_RE;
-use crate::utilities::try_get_file;
 use crate::ParserError;
+use crate::constants::DF_ENCODING;
+use crate::raw_definitions::OBJECT_TOKEN_MAP;
+use crate::regex::RAW_TOKEN_RE;
+use crate::tags::ObjectType;
+use crate::utilities::try_get_file;
 
 /// It reads a file, line by line, and checks the first line for the filename, reads lines until it encounters the
 /// \[OBJECT:(type)] tag in the file.
@@ -77,8 +78,7 @@ pub fn read_raw_file_type<P: AsRef<Path>>(input_path: &P) -> Result<ObjectType, 
 
             trace!(
                 "read_raw_file_type: Key: {} Value: {}",
-                captured_key,
-                captured_value
+                captured_key, captured_value
             );
 
             // Match the front part of the tag (right now we only want the \[OBJECT\] key)
@@ -86,8 +86,7 @@ pub fn read_raw_file_type<P: AsRef<Path>>(input_path: &P) -> Result<ObjectType, 
             if captured_key == "OBJECT" {
                 trace!(
                     "read_raw_file_type: {} is a {} raw file",
-                    raw_filename,
-                    captured_value
+                    raw_filename, captured_value
                 );
                 return Ok(OBJECT_TOKEN_MAP
                     .get(captured_value)

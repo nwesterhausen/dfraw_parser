@@ -1,7 +1,7 @@
-use crate::raw_definitions::tokens::creature_variation::CREATURE_VARIATION_TOKENS;
+use crate::raw_definitions::tokens::CREATURE_VARIATION_TOKENS;
 use crate::tags::CreatureVariationTag;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
 /// Provides a reverse lookup from `CreatureVariationTag` enum variants back to

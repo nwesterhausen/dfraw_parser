@@ -8,13 +8,10 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{debug, trace, warn};
 
 use crate::{
-    caste::Caste,
-    metadata::{ObjectType, RawMetadata},
-    name::Name,
+    Caste, Name, SelectCreature, Tile,
+    metadata::RawMetadata,
     raw_definitions::{BIOME_TOKENS, CASTE_TOKENS, CREATURE_TOKENS},
-    select_creature::SelectCreature,
-    tags::{BiomeTag, CasteTag, CreatureTag},
-    tile::Tile,
+    tags::{BiomeTag, CasteTag, CreatureTag, ObjectType},
     traits::{
         Cleanable, CreatureVariationRequirements, RawObject, RawObjectToken, Searchable,
         TagOperations,

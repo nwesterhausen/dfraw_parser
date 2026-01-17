@@ -1,9 +1,9 @@
 // dfraw_parser\lib\src\utilities\condition_tag_lookup.rs
 
-use crate::raw_definitions::tokens::condition::CONDITION_TOKENS;
+use crate::raw_definitions::tokens::CONDITION_TOKENS;
 use crate::tags::ConditionTag;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
 impl ConditionTag {

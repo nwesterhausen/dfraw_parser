@@ -3,9 +3,9 @@ use std::path::Path;
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use serde::{Deserialize, Serialize};
 
-use crate::InfoFile;
+use crate::{InfoFile, tags::ObjectType};
 
-use super::{ObjectType, RawModuleLocation};
+use super::RawModuleLocation;
 
 /// The `RawMetadata` struct represents metadata about a raw module in Rust, including its name,
 /// version, file path, identifier, object type, module location, and visibility status.

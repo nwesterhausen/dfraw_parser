@@ -1,7 +1,7 @@
-use crate::raw_definitions::tokens::entity::ENTITY_TOKENS;
+use crate::raw_definitions::tokens::ENTITY_TOKENS;
 use crate::tags::EntityTag;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
 /// Utility impl to provide a reverse lookup from `EntityTag` enum variants back to

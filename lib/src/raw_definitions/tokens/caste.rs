@@ -1,8 +1,9 @@
 //! String token to parsed tag map for caste tokens.
 
 use crate::{
-    custom_types::TileCharacter, metadata::ObjectType,
-    parsed_definitions::custom_types::HabitCount, tags::CasteTag,
+    custom_types::TileCharacter,
+    parsed_definitions::custom_types::HabitCount,
+    tags::{CasteTag, ObjectType},
 };
 
 /// A map of caste tokens to their respective strings.

@@ -1,9 +1,9 @@
 //! Tests for verifying that the various search functions work.
 
 use chrono::TimeDelta;
-use dfraw_parser::metadata::{ObjectType, RawModuleLocation};
+use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType};
 use dfraw_parser_sqlite_lib::SearchQuery;
-use test_util::get_test_client;
+use dfraw_parser_test_util::get_test_client;
 
 use crate::common::setup_tracing;
 

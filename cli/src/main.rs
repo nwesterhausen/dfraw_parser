@@ -8,8 +8,9 @@
 //! dfraw-json-parser [OPTIONS] <dwarf-fortress-path>
 //! ```
 use dfraw_json_parser::{
-    metadata::{ObjectType, ParserOptions, RawModuleLocation},
+    metadata::{ParserOptions, RawModuleLocation},
     parse,
+    tags::ObjectType,
 };
 
 use std::path::{Path, PathBuf};
