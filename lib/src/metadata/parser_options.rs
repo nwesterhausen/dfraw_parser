@@ -25,7 +25,8 @@ use crate::{
 ///
 /// ```rust
 /// use std::path::PathBuf;
-/// use dfraw_parser::metadata::{ParserOptions, ObjectType, RawModuleLocation};
+/// use dfraw_parser::metadata::{ParserOptions, RawModuleLocation};
+/// use dfraw_parser::tags::ObjectType;
 /// use dfraw_parser::traits::RawObject;
 ///
 /// let mut options = ParserOptions::new();
@@ -238,7 +239,8 @@ impl ParserOptions {
     /// This is a convenience function that is equivalent to:
     ///
     /// ```rust
-    /// use dfraw_parser::metadata::{ParserOptions, ObjectType};
+    /// use dfraw_parser::metadata::ParserOptions;
+    /// use dfraw_parser::tags::ObjectType;
     ///
     /// let mut options = ParserOptions::new();
     /// options.add_object_type_to_parse(ObjectType::Graphics);
