@@ -9,8 +9,6 @@ use tracing::error;
 
 use crate::{db::util::remove_dup_strings, search_helpers::extract_names_and_descriptions};
 
-use super::super::rusqlite_extensions::OptionalResultExtension;
-
 /// Inserts a batch of raws using prepared statements for efficiency.
 ///
 /// # Errors
@@ -29,45 +27,51 @@ pub fn process_raw_insertions(
     let mut pending_search_batch = Vec::new();
     let mut pending_sprites_batch = Vec::new();
     let mut pending_flags_batch = Vec::new();
-
-    // Check if a raw exists already
-    let mut check_raw_stmt = tx.prepare_cached(
-        "SELECT id FROM raw_definitions WHERE module_id = ?1 AND identifier = ?2 LIMIT 1",
-    )?;
+    let mut pending_names_batch = Vec::new();
 
     // Insert new raw data
-    let mut insert_raw_stmt = tx.prepare_cached(
-        "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
-         VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))",
+    // Choose the statement based on the overwrite preference
+    let mut upsert_stmt = if overwrite_raws {
+        // UPSERT: Insert or update and always return the ID
+        tx.prepare_cached(
+            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
+                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))
+                 ON CONFLICT(module_id, identifier) DO UPDATE SET
+                    data_blob = excluded.data_blob
+                 RETURNING id",
+        )?
+    } else {
+        // INSERT OR IGNORE: Only insert if new; RETURNING id will be empty on conflict
+        tx.prepare_cached(
+            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
+                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))
+                 ON CONFLICT(module_id, identifier) DO NOTHING
+                 RETURNING id",
+        )?
+    };
+
+    // Clear out existing names/flags entries for this module
+    let mut delete_existing_flag_relations_stmt = tx.prepare_cached(
+        "DELETE FROM common_raw_flags
+        WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1);",
+    )?;
+    let mut delete_existing_name_relations_stmt = tx.prepare_cached(
+        "DELETE FROM raw_names
+        WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1);",
     )?;
 
     // Search by name
     let mut insert_name_stmt =
         tx.prepare_cached("INSERT INTO raw_names (raw_id, name) VALUES (?1, ?2)")?;
-
-    // Search descriptions/details about raw
-    let mut insert_search_stmt = tx.prepare_cached(
-        "INSERT INTO raw_search_index (raw_id, names, description) VALUES (?1, ?2, ?3)",
-    )?;
-
-    // Clear search names (used when overwriting raws) - virutal table doesn't support delete cascade
-    let mut clear_names_stmt = tx.prepare_cached("DELETE FROM raw_names WHERE raw_id = ?1")?;
-
-    // Clear search descriptions (used when overwriting raws) - virutal table doesn't support delete cascade
-    let mut delete_search_stmt =
-        tx.prepare_cached("DELETE FROM raw_search_index WHERE raw_id = ?1")?;
-
-    // Update raw_defintion (used when overwriting raws)
-    let mut update_raw_stmt =
-        tx.prepare_cached("UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2")?;
-
-    // Insert common flags (flags without values) into searchable table
+    // Search by flag
     let mut insert_flag_stmt =
         tx.prepare_cached("INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)")?;
 
-    // Clear common flags (if we overwrite, then reset stored flags)
-    let mut clear_flags_stmt =
-        tx.prepare_cached("DELETE FROM common_raw_flags WHERE raw_id = ?1")?;
+    // Search descriptions/details about raw
+    let mut upsert_search_stmt = tx.prepare_cached(
+        "INSERT OR REPLACE INTO raw_search_index (raw_id, names, description)
+        VALUES (?1, ?2, ?3);",
+    )?;
 
     // Special case for graphics for ease of retrieval.
     let mut insert_tile_page_stmt = tx.prepare_cached(
@@ -95,13 +99,25 @@ pub fn process_raw_insertions(
     let mut total_search_index_time = chrono::TimeDelta::zero();
     let mut total_graphic_time = chrono::TimeDelta::zero();
 
-    for raw in raws {
-        let existing_raw_id: Option<i64> = check_raw_stmt
-            .query_row(params![module_db_id, raw.get_identifier()], |row| {
-                row.get(0)
-            })
-            .optional()?;
+    // Clear out existing names/flags if overwrite is true
+    if overwrite_raws {
+        delete_existing_flag_relations_stmt
+            .execute(params![module_db_id])
+            .inspect_err(|e| {
+                tracing::error!(
+                    "Failed clearing existing flag relations for module:{module_db_id}: {e}",
+                );
+            })?;
+        delete_existing_name_relations_stmt
+            .execute(params![module_db_id])
+            .inspect_err(|e| {
+                tracing::error!(
+                    "Failed clearing existing flag relations for module:{module_db_id}: {e}",
+                );
+            })?;
+    }
 
+    for raw in raws {
         // Trace serialization
         let serialize_start = Utc::now();
 
@@ -134,88 +150,49 @@ pub fn process_raw_insertions(
         // Trace the main definition insert
         let db_start = Utc::now();
 
-        let mut exists_already = false;
-        let raw_db_id = if let Some(id) = existing_raw_id {
-            if overwrite_raws {
-                update_raw_stmt
-                    .execute(params![json_payload, id])
-                    .inspect_err(|e| {
-                        tracing::error!(
-                            "Failed updating {} ({}): {e}",
-                            raw.get_identifier(),
-                            raw.get_type().to_string().to_uppercase().replace(' ', "_")
-                        );
-                    })?;
-                clear_flags_stmt.execute(params![id]).inspect_err(|e| {
-                    tracing::error!(
-                        "Failed clearing flags for {} ({}): {e}",
-                        raw.get_identifier(),
-                        raw.get_type().to_string().to_uppercase().replace(' ', "_")
-                    );
-                })?;
-                clear_names_stmt.execute(params![id]).inspect_err(|e| {
-                    tracing::error!(
-                        "Failed clearing names for {} ({}): {e}",
-                        raw.get_identifier(),
-                        raw.get_type().to_string().to_uppercase().replace(' ', "_")
-                    );
-                })?;
-                delete_search_stmt.execute(params![id]).inspect_err(|e| {
-                    tracing::error!(
-                        "Failed removing search index for {} ({}): {e}",
-                        raw.get_identifier(),
-                        raw.get_type().to_string().to_uppercase().replace(' ', "_")
-                    );
-                })?;
-            } else {
-                // Skip if exists and not overwriting
-                tracing::debug!("Avoiding overwrite of {} (id:{id})", raw.get_identifier());
+        let raw_db_id: i64 = match upsert_stmt.query_row(
+            params![
+                raw.get_type().to_string().to_uppercase().replace(' ', "_"),
+                raw.get_identifier(),
+                module_db_id,
+                json_payload // Bound as a BLOB
+            ],
+            |row| row.get(0),
+        ) {
+            Ok(id) => id,
+            Err(rusqlite::Error::QueryReturnedNoRows) => {
+                // This happens when overwrite_raws is false and the raw already exists
+                continue;
             }
-            exists_already = true;
-            id
-        } else {
-            insert_raw_stmt
-                .execute(params![
-                    raw.get_type().to_string().to_uppercase().replace(' ', "_"),
-                    raw.get_identifier(),
-                    module_db_id,
-                    json_payload
-                ])
-                .inspect_err(|e| {
-                    tracing::error!(
-                        "Failed inserting {} ({}): {e}",
-                        raw.get_identifier(),
-                        raw.get_type().to_string().to_uppercase().replace(' ', "_")
-                    );
-                })?;
-            tx.last_insert_rowid()
+            Err(e) => return Err(e),
         };
 
         let insert_duration = Utc::now().signed_duration_since(db_start);
         total_db_time += insert_duration;
 
         // Only run flag and search updates if we are overwriting or new definition
-        if !exists_already || overwrite_raws {
-            for flag in raw.get_searchable_tokens() {
-                pending_flags_batch.push(PendingFlag {
-                    raw_id: raw_db_id,
-                    token_name: flag.to_string(),
-                });
-            }
-
-            let (search_names, search_descriptions) = extract_names_and_descriptions(raw);
-
-            // Populate Names Table (for Exact/Partial ID lookup)
-            for name in &search_names {
-                insert_name_stmt.execute(params![raw_db_id, name])?;
-            }
-
-            pending_search_batch.push(PendingSearch {
+        for flag in raw.get_searchable_tokens() {
+            pending_flags_batch.push(PendingFlag {
                 raw_id: raw_db_id,
-                names: remove_dup_strings(search_names, true).join(" "),
-                description: search_descriptions.join(" "),
+                token_name: flag.to_string(),
             });
         }
+
+        let (search_names, search_descriptions) = extract_names_and_descriptions(raw);
+
+        // Populate Names Table (for Exact/Partial ID lookup)
+        for name in &search_names {
+            pending_names_batch.push(PendingName {
+                raw_id: raw_db_id,
+                name: name.to_string(),
+            });
+        }
+
+        pending_search_batch.push(PendingSearch {
+            raw_id: raw_db_id,
+            names: remove_dup_strings(search_names, true).join(" "),
+            description: search_descriptions.join(" "),
+        });
 
         // Handle extra graphic data
         // Portraits and other sprites are defined in two separate files, so we have to allow insertion of new
@@ -368,24 +345,28 @@ pub fn process_raw_insertions(
 
     // Insert pending search batches
     let search_start = Utc::now();
-    for sb in pending_search_batch {
+    for s in pending_search_batch {
         // Populate FTS5 Index (for high-speed text search)
-        insert_search_stmt
-            .execute(params![sb.raw_id, sb.names, sb.description,])
+        upsert_search_stmt
+            .execute(params![s.raw_id, s.names, s.description,])
             .inspect_err(|e| {
-                tracing::error!(
-                    "Failed inserting search index for raw_id:{}: {e}",
-                    sb.raw_id,
-                );
+                tracing::error!("Failed inserting search index for raw_id:{}: {e}", s.raw_id,);
             })?;
     }
-
-    // Insert pending flag batch
-    for fb in pending_flags_batch {
-        insert_flag_stmt
-            .execute(params![fb.raw_id, fb.token_name])
+    // Insert pending name batch
+    for n in pending_names_batch {
+        insert_name_stmt
+            .execute(params![n.raw_id, n.name])
             .inspect_err(|e| {
-                tracing::error!("Failed inserting fags for raw_id:{}: {e}", fb.raw_id,);
+                tracing::error!("Failed inserting names for raw_id:{}: {e}", n.raw_id,);
+            })?;
+    }
+    // Insert pending flag batch
+    for f in pending_flags_batch {
+        insert_flag_stmt
+            .execute(params![f.raw_id, f.token_name])
+            .inspect_err(|e| {
+                tracing::error!("Failed inserting flags for raw_id:{}: {e}", f.raw_id,);
             })?;
     }
     let search_duration = Utc::now().signed_duration_since(search_start);
@@ -462,6 +443,11 @@ struct PendingSearch {
 struct PendingFlag {
     raw_id: i64,
     token_name: String,
+}
+
+struct PendingName {
+    raw_id: i64,
+    name: String,
 }
 
 struct PendingSprite {
