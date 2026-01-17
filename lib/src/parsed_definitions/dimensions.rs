@@ -18,9 +18,9 @@ use tracing::{error, warn};
 )]
 pub struct Dimensions {
     /// The x coordinate
-    pub x: u32,
+    pub x: i64,
     /// The y coordinate
-    pub y: u32,
+    pub y: i64,
 }
 
 #[allow(dead_code)] // Until we add graphics parsing
@@ -53,8 +53,8 @@ impl Dimensions {
     ///
     /// * `Dimensions` - The new Dimensions object with the given x and y values.
     #[must_use]
-    pub const fn from_xy(x: u32, y: u32) -> Self {
-        Self { x, y }
+    pub fn from_xy(x: u32, y: u32) -> Self {
+        (x, y).into()
     }
     /// Function to create a new Dimensions object from a token.
     ///
@@ -91,14 +91,14 @@ impl Dimensions {
     ///
     /// If it fails to parse a token, returns `0` for that value.
     pub fn from_two_tokens(dim_x: &&str, dim_y: &&str) -> Self {
-        let x: u32 = match dim_x.parse() {
+        let x: i64 = match dim_x.parse() {
             Ok(n) => n,
             Err(e) => {
                 warn!("Failed to parse dim_x: {e}");
                 0
             }
         };
-        let y: u32 = match dim_y.parse() {
+        let y: i64 = match dim_y.parse() {
             Ok(n) => n,
             Err(e) => {
                 warn!("Failed to parse dim_y: {e}");
@@ -143,5 +143,35 @@ impl Dimensions {
     #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.is_default()
+    }
+}
+
+#[allow(clippy::from_over_into)]
+impl Into<(i64, i64)> for Dimensions {
+    fn into(self) -> (i64, i64) {
+        (self.x, self.y)
+    }
+}
+
+impl<T, U> From<(T, U)> for Dimensions
+where
+    T: TryInto<i64>,
+    U: TryInto<i64>,
+    T::Error: std::fmt::Display,
+    U::Error: std::fmt::Display,
+{
+    fn from(value: (T, U)) -> Self {
+        Self {
+            x: value
+                .0
+                .try_into()
+                .inspect_err(|e| tracing::error!("from::x {e}"))
+                .unwrap_or(0),
+            y: value
+                .1
+                .try_into()
+                .inspect_err(|e| tracing::error!("from::y {e}"))
+                .unwrap_or(0),
+        }
     }
 }
