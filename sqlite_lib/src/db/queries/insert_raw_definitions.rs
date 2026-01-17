@@ -1,3 +1,4 @@
+#[cfg(debug_assertions)]
 use chrono::Utc;
 use dfraw_parser::{
     Graphic, InfoFile, TilePage,
@@ -94,9 +95,13 @@ pub fn process_raw_insertions(
         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
     )?;
 
+    #[cfg(debug_assertions)]
     let mut total_serialization_time = chrono::TimeDelta::zero();
+    #[cfg(debug_assertions)]
     let mut total_db_time = chrono::TimeDelta::zero();
+    #[cfg(debug_assertions)]
     let mut total_search_index_time = chrono::TimeDelta::zero();
+    #[cfg(debug_assertions)]
     let mut total_graphic_time = chrono::TimeDelta::zero();
 
     // Clear out existing names/flags if overwrite is true
@@ -119,6 +124,7 @@ pub fn process_raw_insertions(
 
     for raw in raws {
         // Trace serialization
+        #[cfg(debug_assertions)]
         let serialize_start = Utc::now();
 
         // Handle Serialization with retry/exit logic
@@ -144,10 +150,13 @@ pub fn process_raw_insertions(
             }
         };
 
-        let serialize_duration = Utc::now().signed_duration_since(serialize_start);
-        total_serialization_time += serialize_duration;
-
+        #[cfg(debug_assertions)]
+        {
+            let serialize_duration = Utc::now().signed_duration_since(serialize_start);
+            total_serialization_time += serialize_duration;
+        }
         // Trace the main definition insert
+        #[cfg(debug_assertions)]
         let db_start = Utc::now();
 
         let raw_db_id: i64 = match upsert_stmt.query_row(
@@ -167,8 +176,11 @@ pub fn process_raw_insertions(
             Err(e) => return Err(e),
         };
 
-        let insert_duration = Utc::now().signed_duration_since(db_start);
-        total_db_time += insert_duration;
+        #[cfg(debug_assertions)]
+        {
+            let insert_duration = Utc::now().signed_duration_since(db_start);
+            total_db_time += insert_duration;
+        }
 
         // Only run flag and search updates if we are overwriting or new definition
         for flag in raw.get_searchable_tokens() {
@@ -200,6 +212,7 @@ pub fn process_raw_insertions(
         match raw.get_type() {
             ObjectType::TilePage => {
                 if let Some(tp) = raw.as_any().downcast_ref::<TilePage>() {
+                    #[cfg(debug_assertions)]
                     let graphic_start = Utc::now();
                     let tile_dimensions = tp.get_tile_dimensions();
                     let page_dimensions = tp.get_page_dimensions();
@@ -220,8 +233,11 @@ pub fn process_raw_insertions(
                                 raw.get_type().to_string().to_uppercase().replace(' ', "_")
                             );
                         })?;
-                    let graphic_duration = Utc::now().signed_duration_since(graphic_start);
-                    total_graphic_time += graphic_duration;
+                    #[cfg(debug_assertions)]
+                    {
+                        let graphic_duration = Utc::now().signed_duration_since(graphic_start);
+                        total_graphic_time += graphic_duration;
+                    }
                 }
             }
             ObjectType::Graphics => {
@@ -293,6 +309,7 @@ pub fn process_raw_insertions(
 
         // Check if we have >= 5000 pending graphics and insert them
         if pending_sprites_batch.len() >= 5000 {
+            #[cfg(debug_assertions)]
             let graphic_start = Utc::now();
             for s in pending_sprites_batch {
                 let (x1, y1) = s.offset;
@@ -336,14 +353,18 @@ pub fn process_raw_insertions(
                         })?;
                 }
             }
-            let graphic_duration = Utc::now().signed_duration_since(graphic_start);
-            total_graphic_time += graphic_duration;
+            #[cfg(debug_assertions)]
+            {
+                let graphic_duration = Utc::now().signed_duration_since(graphic_start);
+                total_graphic_time += graphic_duration;
+            }
             // reset batch
             pending_sprites_batch = Vec::new();
         }
     }
 
     // Insert pending search batches
+    #[cfg(debug_assertions)]
     let search_start = Utc::now();
     for s in pending_search_batch {
         // Populate FTS5 Index (for high-speed text search)
@@ -369,10 +390,14 @@ pub fn process_raw_insertions(
                 tracing::error!("Failed inserting flags for raw_id:{}: {e}", f.raw_id,);
             })?;
     }
-    let search_duration = Utc::now().signed_duration_since(search_start);
-    total_search_index_time += search_duration;
+    #[cfg(debug_assertions)]
+    {
+        let search_duration = Utc::now().signed_duration_since(search_start);
+        total_search_index_time += search_duration;
+    }
 
     // Insert remaining graphics
+    #[cfg(debug_assertions)]
     let graphic_start = Utc::now();
     for s in pending_sprites_batch {
         let (x1, y1) = s.offset;
@@ -416,21 +441,24 @@ pub fn process_raw_insertions(
                 })?;
         }
     }
-    let graphic_duration = Utc::now().signed_duration_since(graphic_start);
-    total_graphic_time += graphic_duration;
+    #[cfg(debug_assertions)]
+    {
+        let graphic_duration = Utc::now().signed_duration_since(graphic_start);
+        total_graphic_time += graphic_duration;
 
-    tracing::info!(
-        "Module {} Summary: Serialize: {}μs, Core DB: {}μs, Search/FTS5: {}μs, Graphics (all): {}μs",
-        info.get_identifier(),
-        total_serialization_time
-            .num_microseconds()
-            .unwrap_or_default(),
-        total_db_time.num_microseconds().unwrap_or_default(),
-        total_search_index_time
-            .num_microseconds()
-            .unwrap_or_default(),
-        total_graphic_time.num_microseconds().unwrap_or_default(),
-    );
+        tracing::info!(
+            "Module {} Summary: Serialize: {}μs, Core DB: {}μs, Search/FTS5: {}μs, Graphics (all): {}μs",
+            info.get_identifier(),
+            total_serialization_time
+                .num_microseconds()
+                .unwrap_or_default(),
+            total_db_time.num_microseconds().unwrap_or_default(),
+            total_search_index_time
+                .num_microseconds()
+                .unwrap_or_default(),
+            total_graphic_time.num_microseconds().unwrap_or_default(),
+        );
+    }
     Ok(())
 }
 
