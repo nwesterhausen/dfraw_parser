@@ -111,3 +111,12 @@ impl TypedMetadata for PreferredSearchLimit {
         AppMetadataKey::PreferredSearchLimit
     }
 }
+
+/// marker struct for the stored app settings (as JSON string)
+pub struct StoredSettings;
+impl TypedMetadata for StoredSettings {
+    type Value = String;
+    fn key() -> AppMetadataKey {
+        AppMetadataKey::StoredSettings
+    }
+}

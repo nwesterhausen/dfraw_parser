@@ -25,6 +25,8 @@ pub enum AppMetadataKey {
     PreferredSearchLimit,
     /// The ISO-8601 (RFC 3339) timestamp of the last successful raw parsing operation
     LastRawsParsingOperation,
+    /// JSON blob with app settings
+    StoredSettings,
 }
 
 impl AppMetadataKey {
@@ -43,6 +45,7 @@ impl AppMetadataKey {
             Self::PreferredSearchLimit => "preferred_search_limit",
             Self::PreviousInsertionDuration => "previous_insertion_duration",
             Self::LastRawsParsingOperation => "last_raws_parse",
+            Self::StoredSettings => "stored_settings",
         }
     }
 
@@ -75,6 +78,7 @@ impl AppMetadataKey {
             Self::LastRawsParsingOperation => {
                 "The ISO-8601 (RFC 3339) timestamp of the last successful raw parsing operation"
             }
+            Self::StoredSettings => "A JSON blob of stored settings used by a consuming app.",
         }
     }
 }

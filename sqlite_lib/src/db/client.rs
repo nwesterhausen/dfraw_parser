@@ -11,7 +11,8 @@ use crate::db::client_options::ClientOptions;
 use crate::db::metadata_markers::{
     FavoriteRaws, LastRawsInsertion, LastRawsParsingOperation, PreferredSearchLimit,
     PreviousDwarfFortressGamePath, PreviousDwarfFortressUserPath, PreviousInsertionDuration,
-    PreviousParseDuration, PreviousParserOptions, RecentSearchTerms, UseSteamAutodetect,
+    PreviousParseDuration, PreviousParserOptions, RecentSearchTerms, StoredSettings,
+    UseSteamAutodetect,
 };
 use crate::db::migrate::{apply_migrations, migrate_down};
 use crate::db::migrations::LATEST_SCHEMA_VERSION;
@@ -114,6 +115,25 @@ impl DbClient {
         )?;
 
         queries::set_typed_metadata::<PreviousParserOptions>(&self.conn, options)
+    }
+
+    /// Get the stored settings
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn get_stored_settings(&self) -> Result<String> {
+        (queries::get_typed_metadata::<StoredSettings>(&self.conn)?)
+            .map_or_else(|| Ok(String::new()), Ok)
+    }
+
+    /// Set the stored settings
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn set_stored_settings(&self, settings_json: &String) -> Result<()> {
+        queries::set_typed_metadata::<StoredSettings>(&self.conn, settings_json)
     }
 
     /// Get the last used parser options
