@@ -1,7 +1,7 @@
 //! Tests for verifying that the various search functions work.
 
 use chrono::TimeDelta;
-use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType};
+use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType, traits::IsEmpty};
 use dfraw_parser_sqlite_lib::SearchQuery;
 use dfraw_parser_test_util::get_test_client;
 
@@ -386,7 +386,7 @@ fn verify_previous_insertion_date() {
         .get_last_insertion_date()
         .expect("Failed to get last insertion duration");
     assert!(!date.is_empty());
-    tracing::info!("Last insertion date {date}");
+    tracing::info!("Last insertion date {date:?}");
 }
 
 #[test]
@@ -399,7 +399,7 @@ fn verify_previous_parse_date() {
         .get_last_parse_operation_date()
         .expect("Failed to get last insertion duration");
     assert!(!date.is_empty());
-    tracing::info!("Last parse operation date {date}");
+    tracing::info!("Last parse operation date {date:?}");
 }
 
 #[test]
