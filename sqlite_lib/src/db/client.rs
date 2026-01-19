@@ -403,9 +403,8 @@ impl DbClient {
     ///
     /// - database error
     /// - serialization error
-    pub fn get_last_insertion_date(&self) -> Result<String> {
-        (queries::get_typed_metadata::<LastRawsInsertion>(&self.conn)?)
-            .map_or_else(|| Ok(String::new()), Ok)
+    pub fn get_last_insertion_date(&self) -> Result<Option<String>> {
+        queries::get_typed_metadata::<LastRawsInsertion>(&self.conn)
     }
 
     /// Set the date of the last insertion. Expects a `DateTime` in UTC timezone.
@@ -437,9 +436,8 @@ impl DbClient {
     ///
     /// - database error
     /// - serialization error
-    pub fn get_last_parse_operation_date(&self) -> Result<String> {
-        (queries::get_typed_metadata::<LastRawsParsingOperation>(&self.conn)?)
-            .map_or_else(|| Ok(String::new()), Ok)
+    pub fn get_last_parse_operation_date(&self) -> Result<Option<String>> {
+        queries::get_typed_metadata::<LastRawsParsingOperation>(&self.conn)
     }
 
     /// Retrieves a raw object by its database ID.
