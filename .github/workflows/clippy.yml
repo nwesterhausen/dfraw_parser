@@ -85,7 +85,7 @@ jobs:
           toolchain: stable
 
       - name: Install bun
-        uses: oven-sh/setup-bun@b7a1c7ccf290d58743029c4f6903da283811b979 #v1
+        uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 #v1
       - name: Generate Type Bindings
         run: |
           cargo build
@@ -111,7 +111,7 @@ jobs:
       #       core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
       - name: Vanilla Raws Cache
         id: vanilla-raws-cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
         with:
           key: vanilla-raws-${{ vars.DF_VERSION }}
           path: /home/runner/vanilla-raws
