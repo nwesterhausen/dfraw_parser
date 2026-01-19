@@ -2,7 +2,7 @@ use std::path::Path;
 
 use chrono::{TimeDelta, prelude::*};
 use dfraw_parser::ParseResult;
-use dfraw_parser::metadata::ParserOptions;
+use dfraw_parser::metadata::{ParserOptions, RawModuleLocation};
 use dfraw_parser::traits::RawObject;
 use rusqlite::{Connection, Result};
 use tracing::{debug, info, warn};
@@ -376,6 +376,15 @@ impl DbClient {
             .map_or_else(|| Ok(DEFAULT_SEARCH_LIMIT), Ok)
     }
 
+    /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_insertion_date(&self, insertion_date: &str) -> Result<()> {
+        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &insertion_date.to_string())
+    }
     /// Set the date of the last insertion. Expects a `DateTime` in UTC timezone.
     ///
     /// # Errors
@@ -387,14 +396,15 @@ impl DbClient {
         queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
     }
 
-    /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
+    /// Set the date of the last insertion as `Utc::now()`.
     ///
     /// # Errors
     ///
     /// - database error
     /// - serialization error
-    pub fn set_last_insertion_date(&self, insertion_date: &str) -> Result<()> {
-        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &insertion_date.to_string())
+    pub fn set_last_insertion_as_utc_now(&self) -> Result<()> {
+        let str_date = Utc::now().to_rfc3339();
+        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
     }
 
     /// Get the date of the last insertion.
@@ -407,7 +417,7 @@ impl DbClient {
         queries::get_typed_metadata::<LastRawsInsertion>(&self.conn)
     }
 
-    /// Set the date of the last insertion. Expects a `DateTime` in UTC timezone.
+    /// Set the date of the last parse operation. Expects a `DateTime` in UTC timezone.
     ///
     /// # Errors
     ///
@@ -417,17 +427,26 @@ impl DbClient {
         let str_date = utc_date.to_rfc3339();
         queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &str_date)
     }
-    /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
+
+    /// Set the date of the last parse operation as `Utc::now()`.
     ///
     /// # Errors
     ///
     /// - database error
     /// - serialization error
-    pub fn set_last_parse_operation_date(&self, insertion_date: &str) -> Result<()> {
-        queries::set_typed_metadata::<LastRawsParsingOperation>(
-            &self.conn,
-            &insertion_date.to_string(),
-        )
+    pub fn set_last_parse_operation_as_utc_now(&self) -> Result<()> {
+        let str_date = Utc::now().to_rfc3339();
+        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &str_date)
+    }
+
+    /// Set the date of the last parse operation. Expects RFC 3339 (ISO 8601) formatted string.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_parse_operation_date(&self, parse_date: &str) -> Result<()> {
+        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &parse_date.to_string())
     }
 
     /// Get the date of the last insertion.
@@ -635,5 +654,33 @@ impl DbClient {
     /// - no sprite graphic with given `id`
     pub fn get_sprite_graphic_by_id(&self, id: i64) -> Result<SpriteGraphicData> {
         queries::get_sprite_graphic_by_id(&self.conn, id)
+    }
+
+    /// Try to get a module id by specific identifiers
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn try_get_module_id_by_identifiers(
+        &self,
+        identifier: &str,
+        numeric_version: i64,
+        location: RawModuleLocation,
+    ) -> Result<Option<i64>> {
+        queries::try_get_module_id_by_identifiers(&self.conn, identifier, numeric_version, location)
+    }
+
+    /// Returns true if the module exists, searching by specific identifiers.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn exists_module_by_identifiers(
+        &self,
+        identifier: &str,
+        numeric_version: i64,
+        location: RawModuleLocation,
+    ) -> Result<bool> {
+        queries::exists_module_by_identifiers(&self.conn, identifier, numeric_version, location)
     }
 }

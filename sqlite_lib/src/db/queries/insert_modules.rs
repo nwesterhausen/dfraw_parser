@@ -1,8 +1,11 @@
-use dfraw_parser::{InfoFile, traits::RawObject};
+use dfraw_parser::{ModuleInfo, traits::RawObject};
 use rusqlite::{Connection, Result, Transaction, params};
 use tracing::{debug, info};
 
-use crate::{ClientOptions, db::queries::process_raw_insertions};
+use crate::{
+    ClientOptions,
+    db::queries::{self, process_raw_insertions},
+};
 
 use super::super::rusqlite_extensions::OptionalResultExtension;
 
@@ -10,29 +13,26 @@ use super::super::rusqlite_extensions::OptionalResultExtension;
 pub fn insert_module_data(
     conn: &mut Connection,
     options: &ClientOptions,
-    info: &InfoFile,
+    info: &ModuleInfo,
     raws: &[Box<dyn RawObject>],
 ) -> Result<()> {
     let overwrite_raws = options.overwrite_raws;
 
-    let tx = conn.transaction()?;
-
     // 1. Check for existing module considering identifier, version, and location_id
-    let existing_module_id: Option<i64> = tx.query_row(
-        "SELECT id FROM modules WHERE identifier = ?1 AND version = ?2 AND module_location_id = ?3 LIMIT 1",
-        params![
-            info.get_identifier(),
-            i64::from(info.get_numeric_version()),
-            info.get_location() as i32
-        ],
-        |row| row.get(0),
-    ).optional()?;
+    let existing_module_id: Option<i64> = queries::try_get_module_id_by_identifiers(
+        conn,
+        &info.get_identifier(),
+        i64::from(info.get_numeric_version()),
+        info.get_location(),
+    )?;
     debug!(
         "existing_module_id searched '{}' '{}' '{}' => {existing_module_id:?}",
         info.get_identifier(),
         i64::from(info.get_numeric_version()),
         info.get_location() as i32
     );
+
+    let tx = conn.transaction()?;
 
     let module_db_id = if let Some(id) = existing_module_id {
         if !overwrite_raws {
@@ -65,7 +65,7 @@ pub fn insert_module_data(
 /// # Error
 ///
 /// - on database error
-pub fn insert_module_record(tx: &Transaction, info: &InfoFile) -> Result<i64> {
+pub fn insert_module_record(tx: &Transaction, info: &ModuleInfo) -> Result<i64> {
     tx.execute(
         "INSERT INTO modules (
             name, identifier, version, display_version,
@@ -100,7 +100,7 @@ pub fn insert_module_record(tx: &Transaction, info: &InfoFile) -> Result<i64> {
 pub fn insert_module_dependencies(
     tx: &Transaction,
     module_db_id: i64,
-    info: &InfoFile,
+    info: &ModuleInfo,
 ) -> Result<()> {
     let mut dep_stmt = tx.prepare_cached(
         "INSERT INTO module_dependencies (module_id, target_identifier, restriction_type_id)

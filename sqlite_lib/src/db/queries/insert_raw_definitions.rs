@@ -1,7 +1,7 @@
 #[cfg(debug_assertions)]
 use chrono::Utc;
 use dfraw_parser::{
-    Graphic, InfoFile, TilePage,
+    Graphic, ModuleInfo, TilePage,
     tags::{ConditionTag, ObjectType},
     traits::RawObject,
 };
@@ -19,7 +19,7 @@ use crate::{db::util::remove_dup_strings, search_helpers::extract_names_and_desc
 pub fn process_raw_insertions(
     tx: &Transaction,
     module_db_id: i64,
-    info: &InfoFile,
+    info: &ModuleInfo,
     raws: &[Box<dyn RawObject>],
     overwrite_raws: bool,
 ) -> Result<()> {

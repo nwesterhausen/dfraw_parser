@@ -41,7 +41,8 @@ pub fn try_get_raw_id(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<Opt
          WHERE r.identifier = ?1
            AND m.identifier = ?2
            AND m.version = ?3
-           AND m.module_location_id = ?4",
+           AND m.module_location_id = ?4
+         LIMIT 1",
         params![
             raw.get_identifier(),
             meta.get_module_name(),
