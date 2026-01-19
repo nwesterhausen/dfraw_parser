@@ -62,7 +62,7 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser::Entity>()
         .register::<dfraw_parser::Gait>()
         .register::<dfraw_parser::Graphic>()
-        .register::<dfraw_parser::InfoFile>()
+        .register::<dfraw_parser::ModuleInfo>()
         .register::<dfraw_parser::Inorganic>()
         .register::<dfraw_parser::Material>()
         .register::<dfraw_parser::MaterialMechanics>()

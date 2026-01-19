@@ -4,7 +4,7 @@ use tracing::{debug, error, info};
 use walkdir::DirEntry;
 
 use crate::{
-    InfoFile, ParserError,
+    ModuleInfo, ParserError,
     metadata::{ParserOptions, RawModuleLocation},
     utilities::subdirectories,
 };
@@ -24,7 +24,7 @@ use crate::{
 ///
 /// * `ParserError::Io` - If the `info.txt` file cannot be read, doesn't exist, or is an invalid `info.txt` file
 ///
-pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>, ParserError> {
+pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<ModuleInfo>, ParserError> {
     let mut results = Vec::new();
 
     if !options.locations_to_parse.is_empty() {
@@ -97,7 +97,7 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
     if !options.module_info_files_to_parse.is_empty() {
         // Parse all module info files that are specified.
         for module_info_file_path in options.module_info_files_to_parse.as_slice() {
-            results.push(InfoFile::parse(
+            results.push(ModuleInfo::parse(
                 module_info_file_path,
                 options.include_warnings_for_info_file_format,
             )?);
@@ -123,10 +123,10 @@ pub fn parse_module_info_files(options: &ParserOptions) -> Result<Vec<InfoFile>,
 pub fn parse_module_info_file_in_module<P: AsRef<Path>>(
     module_path: &P,
     warn_on_format_issue: bool,
-) -> Result<InfoFile, ParserError> {
+) -> Result<ModuleInfo, ParserError> {
     let module_path: PathBuf = module_path.as_ref().to_path_buf();
     let module_info_file_path = module_path.join("info.txt");
-    InfoFile::parse(&module_info_file_path, warn_on_format_issue)
+    ModuleInfo::parse(&module_info_file_path, warn_on_format_issue)
 }
 
 /// The function `parse_module_info_files_at_location` takes a location path as input, retrieves a list
@@ -147,7 +147,7 @@ pub fn parse_module_info_file_in_module<P: AsRef<Path>>(
 pub fn parse_module_info_files_at_location<P: AsRef<Path>>(
     location_path: &P,
     warn_on_format_issue: bool,
-) -> Result<Vec<InfoFile>, ParserError> {
+) -> Result<Vec<ModuleInfo>, ParserError> {
     let location_path: PathBuf = location_path.as_ref().to_path_buf();
 
     // Get a list of all subdirectories in the location
@@ -170,5 +170,5 @@ pub fn parse_module_info_files_at_location<P: AsRef<Path>>(
                 }
             }
         })
-        .collect::<Vec<InfoFile>>())
+        .collect::<Vec<ModuleInfo>>())
 }

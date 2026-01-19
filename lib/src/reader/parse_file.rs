@@ -1,5 +1,5 @@
 use crate::{
-    CreatureVariation, Entity, Graphic, InfoFile, Inorganic, MaterialTemplate, ParserError, Plant,
+    CreatureVariation, Entity, Graphic, ModuleInfo, Inorganic, MaterialTemplate, ParserError, Plant,
     TilePage,
     constants::DF_ENCODING,
     metadata::{ParserOptions, RawMetadata, RawModuleLocation},
@@ -60,7 +60,7 @@ pub fn parse_raw_file<P: AsRef<Path>>(
     raw_file_path: &P,
     options: &ParserOptions,
 ) -> Result<FileParseResult, ParserError> {
-    let mod_info_file = match InfoFile::from_raw_file_path(
+    let mod_info_file = match ModuleInfo::from_raw_file_path(
         raw_file_path,
         options.include_warnings_for_info_file_format,
     ) {
@@ -68,7 +68,7 @@ pub fn parse_raw_file<P: AsRef<Path>>(
         Err(e) => {
             warn!("parse_raw_file: Using an empty InfoFile: {e}");
             debug!("{e:?}");
-            InfoFile::new(
+            ModuleInfo::new(
                 raw_file_path
                     .as_ref()
                     .file_name()
@@ -105,7 +105,7 @@ pub fn parse_raw_file<P: AsRef<Path>>(
 #[allow(dead_code)]
 pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     raw_file_path: &P,
-    mod_info_file: &InfoFile,
+    mod_info_file: &ModuleInfo,
     options: &ParserOptions,
 ) -> Result<FileParseResult, ParserError> {
     let mut created_raws: Vec<Box<dyn RawObject>> = Vec::new();

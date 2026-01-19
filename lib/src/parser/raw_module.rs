@@ -5,7 +5,7 @@ use tracing::{debug, info};
 use walkdir::WalkDir;
 
 use crate::{
-    InfoFile, ParserError,
+    ModuleInfo, ParserError,
     metadata::ParserOptions,
     reader::{FileParseResult, UnprocessedRaw, parse_raw_file},
     tags::ObjectType,
@@ -34,7 +34,7 @@ pub fn parse_module<P: AsRef<Path>>(
 ) -> Result<FileParseResult, ParserError> {
     // Get information from the module info file
     let module_info_file_path = module_path.as_ref().join("info.txt");
-    let module_info_file = match InfoFile::parse(
+    let module_info_file = match ModuleInfo::parse(
         &module_info_file_path,
         options.include_warnings_for_info_file_format,
     ) {

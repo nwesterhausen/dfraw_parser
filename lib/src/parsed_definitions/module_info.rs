@@ -34,7 +34,7 @@ use super::steam_data::SteamData;
     Cleanable,
 )]
 #[serde(rename_all = "camelCase")]
-pub struct InfoFile {
+pub struct ModuleInfo {
     identifier: String,
     object_id: String,
     location: RawModuleLocation,
@@ -59,7 +59,7 @@ pub struct InfoFile {
     steam_data: Option<SteamData>,
 }
 
-impl InfoFile {
+impl ModuleInfo {
     /// Creates a new `InfoFile` with the passed identifier, location, and parent directory
     ///
     /// # Arguments

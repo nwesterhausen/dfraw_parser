@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::{
-    InfoFile,
+    ModuleInfo,
     metadata::{ParserOptions, RawMetadata, RawModuleLocation},
     tags::ObjectType,
 };
@@ -17,7 +17,7 @@ pub fn legends_metadata(
     #[allow(clippy::unwrap_used)]
     let parent_dir = filepath.parent().unwrap().to_str().unwrap();
     let mut module_info_file =
-        InfoFile::new(file_name, RawModuleLocation::LegendsExport, parent_dir);
+        ModuleInfo::new(file_name, RawModuleLocation::LegendsExport, parent_dir);
     module_info_file.set_module_name("Legends Export");
     RawMetadata::new(
         &module_info_file,

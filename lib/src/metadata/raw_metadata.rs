@@ -3,7 +3,7 @@ use std::path::Path;
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use serde::{Deserialize, Serialize};
 
-use crate::{InfoFile, tags::ObjectType};
+use crate::{ModuleInfo, tags::ObjectType};
 
 use super::RawModuleLocation;
 
@@ -73,7 +73,7 @@ impl Metadata {
     /// A new `RawMetadata` instance.
     #[must_use]
     pub fn new<P: AsRef<Path>>(
-        module_info: &InfoFile,
+        module_info: &ModuleInfo,
         object_type: &ObjectType,
         raw_identifier: &str,
         raw_file_path: &P,
