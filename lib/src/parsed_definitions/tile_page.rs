@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
+use uuid::Uuid;
 
 use crate::{
     Dimensions,
@@ -11,7 +12,7 @@ use crate::{
     raw_definitions::TILE_PAGE_TOKENS,
     tags::{ObjectType, TilePageTag},
     traits::{RawObject, Searchable},
-    utilities::{build_object_id_from_pieces, clean_search_vec},
+    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
 
 /// A struct representing a `TilePage` object.
@@ -33,7 +34,7 @@ pub struct TilePage {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
-    object_id: String,
+    object_id: Uuid,
 
     file: PathBuf,
     tile_dim: Dimensions,
@@ -84,7 +85,11 @@ impl TilePage {
         Self {
             identifier: String::from(identifier),
             metadata: Some(metadata.clone()),
-            object_id: build_object_id_from_pieces(metadata, identifier, &ObjectType::TilePage),
+            object_id: generate_object_id_using_raw_metadata(
+                identifier,
+                ObjectType::TilePage,
+                metadata,
+            ),
             ..Self::default()
         }
     }
@@ -109,8 +114,8 @@ impl RawObject for TilePage {
     fn get_name(&self) -> &str {
         &self.identifier
     }
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::TilePage
+    fn get_type(&self) -> ObjectType {
+        ObjectType::TilePage
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {
@@ -141,8 +146,8 @@ impl RawObject for TilePage {
     fn get_searchable_tokens(&self) -> Vec<&str> {
         Vec::new()
     }
-    fn get_object_id(&self) -> &str {
-        &self.object_id
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
 }
 

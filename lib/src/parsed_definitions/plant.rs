@@ -4,6 +4,7 @@ use std::collections::HashSet;
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{debug, warn};
+use uuid::Uuid;
 
 use crate::{
     Material, Name, PlantGrowth, Shrub, Tree,
@@ -14,7 +15,7 @@ use crate::{
     },
     tags::{BiomeTag, ObjectType, PlantGrowthTag, PlantGrowthTypeTag, PlantTag},
     traits::{RawObject, Searchable},
-    utilities::{build_object_id_from_pieces, clean_search_vec, parse_min_max_range},
+    utilities::{clean_search_vec, generate_object_id_using_raw_metadata, parse_min_max_range},
 };
 
 /// A struct representing a plant
@@ -37,7 +38,7 @@ pub struct Plant {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
-    object_id: String,
+    object_id: Uuid,
 
     // Basic Tokens
     name: Name,
@@ -105,7 +106,11 @@ impl Plant {
             identifier: String::from(identifier),
             metadata: Some(metadata.clone()),
             frequency: Some(50),
-            object_id: build_object_id_from_pieces(metadata, identifier, &ObjectType::Plant),
+            object_id: generate_object_id_using_raw_metadata(
+                identifier,
+                ObjectType::Plant,
+                metadata,
+            ),
             ..Self::default()
         }
     }
@@ -253,8 +258,8 @@ impl RawObject for Plant {
         self.name.get_singular()
     }
 
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::Plant
+    fn get_type(&self) -> ObjectType {
+        ObjectType::Plant
     }
     #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
     fn parse_tag(&mut self, key: &str, value: &str) {
@@ -421,8 +426,8 @@ impl RawObject for Plant {
         }
     }
 
-    fn get_object_id(&self) -> &str {
-        &self.object_id
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
 }
 

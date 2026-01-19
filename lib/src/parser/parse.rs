@@ -153,7 +153,7 @@ pub fn parse(options: &ParserOptions) -> Result<ParseResult, ParserError> {
         .raws
         .iter()
         .filter_map(|raw| {
-            if raw.get_type() == &ObjectType::CreatureVariation {
+            if raw.get_type() == ObjectType::CreatureVariation {
                 if let Some(cv) = raw
                     .as_ref()
                     .as_any()

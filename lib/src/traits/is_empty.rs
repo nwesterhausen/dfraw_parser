@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 /// Helper to check if a type is effectively "default", "empty", or "zeroed".
 ///
 /// This is used by the `Cleanable` macro to determine if an `Option<T>` can be
@@ -129,5 +131,12 @@ impl<T: IsEmpty> IsEmpty for Option<T> {
     #[inline]
     fn is_empty(&self) -> bool {
         self.as_ref().is_none_or(IsEmpty::is_empty)
+    }
+}
+
+impl IsEmpty for Uuid {
+    #[inline]
+    fn is_empty(&self) -> bool {
+        Uuid::is_nil(self)
     }
 }

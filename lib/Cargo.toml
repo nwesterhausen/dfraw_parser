@@ -47,9 +47,10 @@ walkdir = { workspace = true }
 # For serializing and deserializing
 serde= { workspace = true, features = ["derive"] }
 # For type binding generation
-specta= { workspace = true, features = ["derive"] }
+specta= { workspace = true, features = ["derive","uuid"] }
 # For creating static hashmaps
 phf= { workspace = true, features = ["macros"] }
+uuid = { version = "1.19.0", features = ["v5", "serde"] }
 
 # Windows: Registry access
 [target.'cfg(windows)'.dependencies]

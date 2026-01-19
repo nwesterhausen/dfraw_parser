@@ -46,9 +46,9 @@ impl UnprocessedRaw {
     /// A new unprocessed raw object
     #[must_use]
     #[allow(dead_code)]
-    pub fn new(raw_type: &ObjectType, metadata: &RawMetadata, identifier: &str) -> Self {
+    pub fn new(raw_type: ObjectType, metadata: &RawMetadata, identifier: &str) -> Self {
         Self {
-            raw_type: raw_type.clone(),
+            raw_type,
             metadata: metadata.clone(),
             identifier: identifier.to_string(),
             ..Default::default()
@@ -63,7 +63,7 @@ impl UnprocessedRaw {
     #[must_use]
     #[allow(dead_code)]
     pub fn raw_type(&self) -> ObjectType {
-        self.raw_type.clone()
+        self.raw_type
     }
 
     /// Check if there is nothing to parse
@@ -234,7 +234,7 @@ impl UnprocessedRaw {
                     let mut source_creature_options = all_raws
                         .iter()
                         .filter_map(|raw| {
-                            if raw.get_type() == &ObjectType::Creature
+                            if raw.get_type() == ObjectType::Creature
                                 && raw.get_identifier().to_lowercase() == identifier.to_lowercase()
                             {
                                 Some(
@@ -257,8 +257,8 @@ impl UnprocessedRaw {
                         );
                         source_creature_options.sort_by(|a, b| {
                             a.get_metadata()
-                                .get_module_numerical_version()
-                                .cmp(b.get_metadata().get_module_numerical_version())
+                                .get_module_version()
+                                .cmp(b.get_metadata().get_module_version())
                         });
                     }
 

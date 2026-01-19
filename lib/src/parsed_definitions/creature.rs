@@ -6,6 +6,7 @@ use std::collections::HashSet;
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::{debug, trace, warn};
+use uuid::Uuid;
 
 use crate::{
     Caste, Name, SelectCreature, Tile,
@@ -16,7 +17,7 @@ use crate::{
         Cleanable, CreatureVariationRequirements, RawObject, RawObjectToken, Searchable,
         TagOperations,
     },
-    utilities::{build_object_id_from_pieces, clean_search_vec},
+    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
 
 /// The `Creature` struct represents a creature in a Dwarf Fortress, with the properties
@@ -129,10 +130,10 @@ pub struct Creature {
     /// These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     apply_creature_variation: Option<Vec<String>>,
-    /// A generated field that is used to uniquely identify this object. It is generated from the `metadata`, `identifier`, and `ObjectType`.
+    /// A generated id that is used to uniquely identify this object. It is generated from the `metadata`, `identifier`, and `ObjectType`.
     ///
     /// This field is always serialized.
-    object_id: String,
+    object_id: Uuid,
     /// Various `SELECT_CREATUR` modifications.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     select_creature_variation: Option<Vec<SelectCreature>>,
@@ -181,7 +182,11 @@ impl Creature {
             castes: vec![Caste::new("ALL")],
             population_number: Some([1, 1]),
             cluster_number: Some([1, 1]),
-            object_id: build_object_id_from_pieces(metadata, identifier, &ObjectType::Creature),
+            object_id: generate_object_id_using_raw_metadata(
+                identifier,
+                ObjectType::Creature,
+                metadata,
+            ),
             ..Self::default()
         }
     }
@@ -323,7 +328,7 @@ impl Creature {
     /// # Returns
     ///
     /// Returns a vector of `object_id`s.
-    pub fn get_child_object_ids(&self) -> Vec<&str> {
+    pub fn get_child_object_ids(&self) -> Vec<Uuid> {
         self.select_creature_variation
             .as_ref()
             .map_or_else(Vec::new, |select_creature_variation| {
@@ -746,8 +751,8 @@ impl RawObject for Creature {
     fn get_identifier(&self) -> &str {
         &self.identifier
     }
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::Creature
+    fn get_type(&self) -> ObjectType {
+        ObjectType::Creature
     }
     #[allow(clippy::too_many_lines)]
     fn parse_tag(&mut self, key: &str, value: &str) {
@@ -860,8 +865,8 @@ impl RawObject for Creature {
             _ => {}
         }
     }
-    fn get_object_id(&self) -> &str {
-        self.object_id.as_str()
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
     fn get_name(&self) -> &str {
         self.name.get_singular()

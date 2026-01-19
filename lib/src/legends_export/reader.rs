@@ -171,13 +171,13 @@ pub fn parse_legends_export<P: AsRef<Path>>(
         buf.clear();
     }
 
-    let legend_metadata = legends_metadata(input_path.as_ref(), &ObjectType::Creature, options);
+    let legend_metadata = legends_metadata(input_path.as_ref(), ObjectType::Creature, options);
 
     for creature in creatures {
         results.push(Box::new(creature.into_creature(&legend_metadata)));
     }
 
-    let legend_metadata = legends_metadata(input_path.as_ref(), &ObjectType::Entity, options);
+    let legend_metadata = legends_metadata(input_path.as_ref(), ObjectType::Entity, options);
 
     for entity in entities {
         results.push(Box::new(entity.into_entity(&legend_metadata)));

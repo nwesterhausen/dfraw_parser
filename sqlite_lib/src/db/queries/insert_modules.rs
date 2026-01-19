@@ -83,7 +83,7 @@ pub fn insert_module_record(tx: &Transaction, info: &ModuleInfo) -> Result<i64> 
             info.get_author(),
             info.get_description(),
             info.get_parent_directory(),
-            i64::from(i32::from(info.get_location())),
+            i64::from(u32::from(info.get_location())),
             info.get_steam_data()
                 .as_ref()
                 .map(|s| s.get_file_id().cast_signed())

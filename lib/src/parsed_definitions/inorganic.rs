@@ -1,5 +1,6 @@
 //! Parsed Inorganic object definition.
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+use uuid::Uuid;
 
 use crate::{
     Material,
@@ -7,7 +8,7 @@ use crate::{
     raw_definitions::{ENVIRONMENT_CLASS_TOKENS, INCLUSION_TYPE_TOKENS, INORGANIC_TOKENS},
     tags::{EnvironmentClassTag, InclusionTypeTag, InorganicTag, ObjectType},
     traits::{RawObject, Searchable},
-    utilities::{build_object_id_from_pieces, clean_search_vec},
+    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
 
 /// The raw representation of an inorganic object.
@@ -28,7 +29,7 @@ pub struct Inorganic {
     identifier: String,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
-    object_id: String,
+    object_id: Uuid,
     material: Material,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -85,7 +86,11 @@ impl Inorganic {
         Self {
             identifier: String::from(identifier),
             metadata: Some(metadata.clone()),
-            object_id: build_object_id_from_pieces(metadata, identifier, &ObjectType::Inorganic),
+            object_id: generate_object_id_using_raw_metadata(
+                identifier,
+                ObjectType::Inorganic,
+                metadata,
+            ),
             ..Self::default()
         }
     }
@@ -156,8 +161,8 @@ impl RawObject for Inorganic {
             std::clone::Clone::clone,
         )
     }
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::Inorganic
+    fn get_type(&self) -> ObjectType {
+        ObjectType::Inorganic
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {
@@ -234,8 +239,8 @@ impl RawObject for Inorganic {
         self.material.parse_tag(key, value);
     }
 
-    fn get_object_id(&self) -> &str {
-        &self.object_id
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
 }
 

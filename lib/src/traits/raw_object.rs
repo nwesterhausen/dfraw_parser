@@ -3,6 +3,8 @@
 
 use std::any::Any;
 
+use uuid::Uuid;
+
 use crate::{metadata::RawMetadata, tags::ObjectType, traits::Cleanable};
 
 use super::searchable::Searchable;
@@ -18,7 +20,7 @@ pub trait RawObject: RawObjectToAny + Send + Sync + Searchable + Cleanable {
     /// Get the identifier of the raw.
     fn get_identifier(&self) -> &str;
     /// Get the type of the raw.
-    fn get_type(&self) -> &ObjectType;
+    fn get_type(&self) -> ObjectType;
     /// Parse a new tag from the raw file into this raw object.
     ///
     /// Arguments:
@@ -28,7 +30,7 @@ pub trait RawObject: RawObjectToAny + Send + Sync + Searchable + Cleanable {
     /// The `value` might be empty, if there is no value after the colon.
     fn parse_tag(&mut self, key: &str, value: &str);
     /// Get the object ID of the raw.
-    fn get_object_id(&self) -> &str;
+    fn get_object_id(&self) -> Uuid;
     /// Get the name of the raw (if it has one).
     /// If no name is found, the identifier is returned instead.
     /// This is used for searching.

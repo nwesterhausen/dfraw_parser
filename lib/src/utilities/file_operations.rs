@@ -16,6 +16,7 @@ use itertools::Itertools;
 use lazy_regex::regex;
 use slug::slugify;
 use tracing::{debug, error, info, trace, warn};
+use uuid::Uuid;
 use walkdir::WalkDir;
 
 use crate::{
@@ -402,7 +403,7 @@ pub fn validate_options(options: &ParserOptions) -> Result<ParserOptions, Parser
 pub fn get_only_creatures_from_raws(all_raws: &[Box<dyn RawObject>]) -> Vec<Creature> {
     all_raws
         .iter()
-        .filter(|r| r.get_type() == &ObjectType::Creature)
+        .filter(|r| r.get_type() == ObjectType::Creature)
         .map(|r| r.as_any().downcast_ref::<Creature>())
         .map(|r| r.unwrap_or(&Creature::default()).clone())
         .collect::<Vec<Creature>>()
@@ -422,7 +423,7 @@ pub fn get_only_creatures_from_raws(all_raws: &[Box<dyn RawObject>]) -> Vec<Crea
 pub fn get_only_select_creatures_from_raws(all_raws: &[Box<dyn RawObject>]) -> Vec<SelectCreature> {
     all_raws
         .iter()
-        .filter(|r| r.get_type() == &ObjectType::SelectCreature)
+        .filter(|r| r.get_type() == ObjectType::SelectCreature)
         .map(|r| r.as_any().downcast_ref::<SelectCreature>())
         .map(|r| r.unwrap_or(&SelectCreature::default()).clone())
         .collect::<Vec<SelectCreature>>()
@@ -506,7 +507,7 @@ pub fn summarize_raws(raws: &[Box<dyn RawObject>]) -> HashMap<ObjectType, usize>
         std::collections::HashMap::new();
 
     for raw in raws {
-        let count = summary.entry(raw.get_type().clone()).or_insert(0);
+        let count = summary.entry(raw.get_type()).or_insert(0);
         *count += 1;
     }
 
@@ -552,7 +553,7 @@ pub fn build_object_id_from_pieces(
         "{raw_parent_id}-{raw_type}-{raw_id}-{module_name}{module_version}",
         raw_id = slugify(identifier),
         raw_parent_id = slugify(metadata.get_raw_identifier()),
-        module_version = metadata.get_module_numerical_version(),
+        module_version = metadata.get_module_version(),
         module_name = slugify(metadata.get_module_name()),
     )
 }
@@ -623,7 +624,7 @@ pub fn parse_min_max_range(value: &str) -> Result<[u32; 2], ParseIntError> {
 /// RawObject>>`).
 pub fn clone_raw_vector_with_purge(
     all_raws: &[Box<dyn RawObject>],
-    object_ids_to_purge: &[&str],
+    object_ids_to_purge: &[Uuid],
 ) -> Vec<Box<dyn RawObject>> {
     let mut new_raws: Vec<Box<dyn RawObject>> = Vec::new();
 
@@ -790,7 +791,7 @@ pub fn apply_copy_tags_from(all_raws: &mut Vec<Box<dyn RawObject>>) {
     let creatures_with_copy_tags_from: Vec<Creature> = {
         untouched_raws
             .iter()
-            .filter(|r| r.get_type() == &ObjectType::Creature)
+            .filter(|r| r.get_type() == ObjectType::Creature)
             .filter_map(|r| {
                 let creature = r
                     .as_any()
@@ -822,7 +823,7 @@ pub fn apply_copy_tags_from(all_raws: &mut Vec<Box<dyn RawObject>>) {
     let source_creatures: Vec<Creature> = untouched_raws
         .iter()
         .filter_map(|raw| {
-            if raw.get_type() == &ObjectType::Creature
+            if raw.get_type() == ObjectType::Creature
                 && source_creature_identifier_list.contains(&raw.get_identifier().to_lowercase())
             {
                 Some(
@@ -861,7 +862,7 @@ pub fn apply_copy_tags_from(all_raws: &mut Vec<Box<dyn RawObject>>) {
 
     info!("copied tags to {} creatures", new_creatures.len());
 
-    let mut object_ids_to_purge: Vec<&str> = Vec::new();
+    let mut object_ids_to_purge: Vec<Uuid> = Vec::new();
 
     object_ids_to_purge.extend(new_creatures.iter().map(RawObject::get_object_id));
 
@@ -926,7 +927,7 @@ pub fn absorb_select_creature(all_raws: &mut Vec<Box<dyn RawObject>>) {
         all_raws.len()
     );
 
-    let mut object_ids_to_purge: Vec<&str> = Vec::new();
+    let mut object_ids_to_purge: Vec<Uuid> = Vec::new();
     let mut new_creatures: Vec<Creature> = Vec::new();
     let mut target_creature_identifiers: Vec<&str> = Vec::new();
 
@@ -938,7 +939,7 @@ pub fn absorb_select_creature(all_raws: &mut Vec<Box<dyn RawObject>>) {
     }
 
     for raw in &*all_raws {
-        if raw.get_type() == &ObjectType::Creature
+        if raw.get_type() == ObjectType::Creature
             && target_creature_identifiers.contains(&raw.get_identifier())
         {
             let select_creature_vec: Vec<SelectCreature> = all_select_creatures
@@ -1129,14 +1130,14 @@ pub fn argument_as_string(caps: &regex::Captures, args: &[&str]) -> String {
 pub fn apply_creature_variations(all_raws: &mut [Box<dyn RawObject>]) {
     let creature_variations: Vec<CreatureVariation> = all_raws
         .iter()
-        .filter(|r| r.get_type() == &ObjectType::CreatureVariation)
+        .filter(|r| r.get_type() == ObjectType::CreatureVariation)
         .filter_map(|r| r.as_any().downcast_ref::<CreatureVariation>())
         .cloned()
         .collect();
 
     let creatures: Vec<Creature> = all_raws
         .iter()
-        .filter(|r| r.get_type() == &ObjectType::Creature)
+        .filter(|r| r.get_type() == ObjectType::Creature)
         .filter_map(|r| r.as_any().downcast_ref::<Creature>())
         .cloned()
         .collect();

@@ -28,6 +28,7 @@ mod creature_tag_flags;
 mod creature_variation_tag_lookup;
 mod entity_tag_lookup;
 mod file_operations;
+mod object_id;
 mod object_type_lookup;
 mod plant_growth_tag_lookup;
 mod plant_growth_type_tag_flags;
@@ -40,6 +41,7 @@ mod steam_directory_lookup;
 mod user_directory_lookup;
 
 pub use file_operations::*;
+pub use object_id::*;
 pub use searchable::*;
 pub use steam_directory_lookup::find_game_path;
 pub use user_directory_lookup::find_user_data_path;

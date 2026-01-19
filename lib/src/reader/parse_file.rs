@@ -1,6 +1,6 @@
 use crate::{
-    CreatureVariation, Entity, Graphic, ModuleInfo, Inorganic, MaterialTemplate, ParserError, Plant,
-    TilePage,
+    CreatureVariation, Entity, Graphic, Inorganic, MaterialTemplate, ModuleInfo, ParserError,
+    Plant, TilePage,
     constants::DF_ENCODING,
     metadata::{ParserOptions, RawMetadata, RawModuleLocation},
     raw_definitions::{GRAPHIC_TYPE_TOKENS, OBJECT_TOKEN_MAP},
@@ -143,7 +143,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     let object_type = read_raw_file_type(raw_file_path)?;
     let mut raw_metadata = RawMetadata::new(
         mod_info_file,
-        &object_type,
+        object_type,
         raw_filename.as_str(),
         &raw_file_path,
         options.attach_metadata_to_raws,
@@ -192,7 +192,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
             raw_filename = String::from(&line);
             raw_metadata = RawMetadata::new(
                 mod_info_file,
-                &object_type,
+                object_type,
                 raw_filename.as_str(),
                 &raw_file_path,
                 options.attach_metadata_to_raws,
@@ -274,7 +274,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                     }
                     // We haven't started a creature yet, so we need to start one.
                     temp_unprocessed_raw =
-                        UnprocessedRaw::new(&ObjectType::Creature, &raw_metadata, captured_value);
+                        UnprocessedRaw::new(ObjectType::Creature, &raw_metadata, captured_value);
                     current_modification = ModificationTag::MainRawBody { raws: Vec::new() };
                     last_parsed_type = ObjectType::Creature;
                 }

@@ -2,13 +2,14 @@
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
+use uuid::Uuid;
 
 use crate::{
     metadata::RawMetadata,
     raw_definitions::CREATURE_VARIATION_TOKENS,
     tags::{CreatureVariationRuleTag, CreatureVariationTag, ObjectType},
     traits::{RawObject, Searchable},
-    utilities::build_object_id_from_pieces,
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// A creature variation.
@@ -31,7 +32,7 @@ pub struct CreatureVariation {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
-    object_id: String,
+    object_id: Uuid,
 
     /// Creature variations are basically just a set of simple tag actions which are applied to
     /// the creature which is being modified. The tags are applied in order EXCEPT for the convert
@@ -62,10 +63,10 @@ impl CreatureVariation {
         Self {
             metadata: Some(metadata.clone()),
             identifier: identifier.to_string(),
-            object_id: build_object_id_from_pieces(
-                metadata,
+            object_id: generate_object_id_using_raw_metadata(
                 identifier,
-                &ObjectType::CreatureVariation,
+                ObjectType::CreatureVariation,
+                metadata,
             ),
             rules: Vec::new(),
             argument_count: 0,
@@ -85,7 +86,7 @@ impl CreatureVariation {
                     .with_hidden(true),
             ),
             identifier: String::new(),
-            object_id: String::new(),
+            object_id: Uuid::nil(),
             rules: Vec::new(),
             argument_count: 0,
         }
@@ -140,8 +141,8 @@ impl RawObject for CreatureVariation {
         self.identifier.as_str()
     }
 
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::CreatureVariation
+    fn get_type(&self) -> ObjectType {
+        ObjectType::CreatureVariation
     }
 
     #[allow(clippy::too_many_lines)]
@@ -350,8 +351,8 @@ impl RawObject for CreatureVariation {
         }
     }
 
-    fn get_object_id(&self) -> &str {
-        self.object_id.as_str()
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
 
     fn get_name(&self) -> &str {
@@ -364,7 +365,6 @@ impl Searchable for CreatureVariation {
         let mut vec = Vec::new();
 
         vec.push(self.identifier.clone());
-        vec.push(self.object_id.clone());
 
         // Add the tags from the rules
         vec.extend(

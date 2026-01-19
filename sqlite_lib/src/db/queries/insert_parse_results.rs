@@ -29,7 +29,7 @@ pub fn insert_parse_results(
         let key = (
             String::from(meta.get_module_name()),
             String::from(meta.get_module_version()),
-            i32::from(meta.get_location()),
+            u32::from(meta.get_location()),
         );
         module_map.entry(key).or_insert_with(Vec::new).push(raw);
     }
@@ -39,7 +39,7 @@ pub fn insert_parse_results(
         let key = (
             info.get_name(),
             info.get_version(),
-            i32::from(info.get_location()),
+            u32::from(info.get_location()),
         );
         info!("Inserting raws for {key:?}");
         if let Some(module_raws) = module_map.get(&key) {

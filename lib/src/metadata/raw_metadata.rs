@@ -2,6 +2,7 @@ use std::path::Path;
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::{ModuleInfo, tags::ObjectType};
 
@@ -36,7 +37,7 @@ use super::RawModuleLocation;
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
     // The object_id of the raw module
-    module_object_id: String,
+    module_object_id: Uuid,
     // The name of the raw module the raw is from.
     module_name: String,
     // The version of the raw module the raw is from.
@@ -51,6 +52,8 @@ pub struct Metadata {
     // The location of the owning raw module
     // i.e. installed_mods, mods, or vanilla
     raw_module_location: RawModuleLocation,
+    // The numeric version of the owning raw module
+    module_numeric_version: u32,
     // Optionally hide or unhide from exporting
     // By default will be hidden
     #[serde(skip)]
@@ -74,7 +77,7 @@ impl Metadata {
     #[must_use]
     pub fn new<P: AsRef<Path>>(
         module_info: &ModuleInfo,
-        object_type: &ObjectType,
+        object_type: ObjectType,
         raw_identifier: &str,
         raw_file_path: &P,
         attach_metadata_to_raws: bool,
@@ -84,9 +87,10 @@ impl Metadata {
             module_version: module_info.get_version(),
             raw_file_path: String::from(raw_file_path.as_ref().to_str().unwrap_or_default()),
             raw_identifier: String::from(raw_identifier),
-            object_type: object_type.clone(),
+            object_type,
             raw_module_location: module_info.get_location(),
             module_object_id: module_info.get_object_id(),
+            module_numeric_version: module_info.get_numeric_version(),
             hidden: !attach_metadata_to_raws,
         }
     }
@@ -117,16 +121,7 @@ impl Metadata {
     pub fn get_module_name(&self) -> &str {
         &self.module_name
     }
-    /// Get the (numeric) version of the module the raw is from.
-    ///
-    /// # Returns
-    ///
-    /// * The version of the module as a `&str`
-    #[must_use]
-    pub fn get_module_numerical_version(&self) -> &str {
-        &self.module_version
-    }
-    /// Get the (string) version of the module the raw is from.
+    /// Get the (display) version of the module the raw is from.
     ///
     /// # Returns
     ///
@@ -134,6 +129,15 @@ impl Metadata {
     #[must_use]
     pub fn get_module_version(&self) -> &str {
         &self.module_version
+    }
+    /// Get the (numeric) version of the module the raw is from.
+    ///
+    /// # Returns
+    ///
+    /// * The version of the module as u32
+    #[must_use]
+    pub fn get_module_numerical_version(&self) -> u32 {
+        self.module_numeric_version
     }
     /// Get the full path to the raw file the raw is from.
     ///
@@ -159,8 +163,8 @@ impl Metadata {
     ///
     /// * The `object_id` of the owning raw module as a `&str`
     #[must_use]
-    pub fn get_module_object_id(&self) -> &str {
-        &self.module_object_id
+    pub fn get_module_object_id(&self) -> Uuid {
+        self.module_object_id
     }
 
     /// Set the `object_type` of the metadata at creation.
@@ -242,7 +246,7 @@ impl Metadata {
     ///
     /// * `module_object_id` - The module object ID to set
     #[must_use]
-    pub fn with_module_object_id(mut self, module_object_id: String) -> Self {
+    pub fn with_module_object_id(mut self, module_object_id: Uuid) -> Self {
         self.module_object_id = module_object_id;
         self
     }

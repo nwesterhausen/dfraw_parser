@@ -1,13 +1,14 @@
 //! Material template definition
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+use uuid::Uuid;
 
 use crate::{
     Material,
     metadata::RawMetadata,
     tags::ObjectType,
     traits::{RawObject, Searchable},
-    utilities::{build_object_id_from_pieces, clean_search_vec},
+    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
 
 /// A struct representing a material template
@@ -28,7 +29,7 @@ pub struct MaterialTemplate {
     identifier: String,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
-    object_id: String,
+    object_id: Uuid,
     material: Material,
 }
 
@@ -64,10 +65,10 @@ impl MaterialTemplate {
         Self {
             identifier: String::from(identifier),
             metadata: Some(metadata.clone()),
-            object_id: build_object_id_from_pieces(
-                metadata,
+            object_id: generate_object_id_using_raw_metadata(
                 identifier,
-                &ObjectType::MaterialTemplate,
+                ObjectType::MaterialTemplate,
+                metadata,
             ),
             ..Self::default()
         }
@@ -101,15 +102,15 @@ impl RawObject for MaterialTemplate {
         )
     }
 
-    fn get_object_id(&self) -> &str {
-        &self.object_id
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {
         self.material.parse_tag(key, value);
     }
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::MaterialTemplate
+    fn get_type(&self) -> ObjectType {
+        ObjectType::MaterialTemplate
     }
 }
 

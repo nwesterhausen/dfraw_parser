@@ -2,6 +2,7 @@
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
+use uuid::Uuid;
 
 use crate::{
     CustomGraphicExtension, GraphicPalette, SpriteGraphic, SpriteLayer,
@@ -11,7 +12,7 @@ use crate::{
     },
     tags::{ConditionTag, GraphicTypeTag, ObjectType},
     traits::{RawObject, Searchable},
-    utilities::{build_object_id_from_pieces, clean_search_vec},
+    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
 
 /// A struct representing a Graphic object.
@@ -33,7 +34,7 @@ pub struct Graphic {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
-    object_id: String,
+    object_id: Uuid,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     caste_identifier: Option<String>,
@@ -107,7 +108,11 @@ impl Graphic {
         Self {
             identifier: String::from(identifier),
             metadata: Some(metadata.clone()),
-            object_id: build_object_id_from_pieces(metadata, identifier, &ObjectType::Graphics),
+            object_id: generate_object_id_using_raw_metadata(
+                identifier,
+                ObjectType::Graphics,
+                metadata,
+            ),
             kind: graphic_type,
             ..Self::default()
         }
@@ -374,8 +379,8 @@ impl RawObject for Graphic {
     fn get_name(&self) -> &str {
         &self.identifier
     }
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::Graphics
+    fn get_type(&self) -> ObjectType {
+        ObjectType::Graphics
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {
@@ -388,8 +393,8 @@ impl RawObject for Graphic {
         );
     }
 
-    fn get_object_id(&self) -> &str {
-        &self.object_id
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
 }
 

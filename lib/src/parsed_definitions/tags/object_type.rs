@@ -8,6 +8,7 @@ use crate::traits::IsEmpty;
 #[derive(
     Debug,
     Clone,
+    Copy,
     PartialEq,
     Eq,
     Serialize,
@@ -105,6 +106,8 @@ pub enum ObjectType {
     SelectCreature = 41,
     /// A creature caste
     CreatureCaste = 42,
+    /// A module's info.txt file
+    ModuleInfo = 43,
 }
 
 impl Display for ObjectType {
@@ -153,6 +156,7 @@ impl Display for ObjectType {
             Self::Unknown => write!(f, "Unknown"),
             Self::SelectCreature => write!(f, "Select Creature"),
             Self::CreatureCaste => write!(f, "Creature Caste"),
+            Self::ModuleInfo => write!(f, "Module Info"),
         }
     }
 }
@@ -160,5 +164,17 @@ impl Display for ObjectType {
 impl IsEmpty for ObjectType {
     fn is_empty(&self) -> bool {
         self == &ObjectType::Unknown
+    }
+}
+
+impl From<ObjectType> for u32 {
+    fn from(value: ObjectType) -> Self {
+        value as u32
+    }
+}
+
+impl From<&ObjectType> for u32 {
+    fn from(value: &ObjectType) -> Self {
+        u32::from(*value)
     }
 }

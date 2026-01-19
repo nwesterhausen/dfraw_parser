@@ -837,7 +837,7 @@ impl TagOperations for CasteTag {
                 })?;
 
                 Some(CasteTag::SpecificFood {
-                    food_type: food_type.clone(),
+                    food_type: *food_type,
                     identifier,
                 })
             }

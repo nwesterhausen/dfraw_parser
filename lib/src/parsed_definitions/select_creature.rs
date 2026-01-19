@@ -1,11 +1,12 @@
 //! Parsed `SelectCreature` definition
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+use uuid::Uuid;
 
 use crate::{
     metadata::RawMetadata,
     tags::ObjectType,
     traits::{RawObject, Searchable},
-    utilities::{build_object_id_from_pieces, clean_search_vec},
+    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
 
 /// A struct representing a creature selection
@@ -26,7 +27,7 @@ pub struct SelectCreature {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
-    object_id: String,
+    object_id: Uuid,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Vec<String>,
@@ -47,10 +48,10 @@ impl SelectCreature {
         Self {
             identifier: String::from(identifier),
             metadata: Some(metadata.clone()),
-            object_id: build_object_id_from_pieces(
-                metadata,
+            object_id: generate_object_id_using_raw_metadata(
                 identifier,
-                &ObjectType::SelectCreature,
+                ObjectType::SelectCreature,
+                metadata,
             ),
             ..Self::default()
         }
@@ -98,16 +99,16 @@ impl RawObject for SelectCreature {
     fn get_name(&self) -> &str {
         &self.identifier
     }
-    fn get_type(&self) -> &ObjectType {
-        &ObjectType::SelectCreature
+    fn get_type(&self) -> ObjectType {
+        ObjectType::SelectCreature
     }
 
     fn parse_tag(&mut self, key: &str, value: &str) {
         self.tags.push(format!("{key}:{value}"));
     }
 
-    fn get_object_id(&self) -> &str {
-        self.object_id.as_str()
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
 }
 

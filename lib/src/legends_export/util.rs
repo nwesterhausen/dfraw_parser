@@ -8,7 +8,7 @@ use crate::{
 
 pub fn legends_metadata(
     filepath: &Path,
-    object_type: &ObjectType,
+    object_type: ObjectType,
     options: &ParserOptions,
 ) -> RawMetadata {
     // Create a module info file

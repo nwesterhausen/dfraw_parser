@@ -7,15 +7,16 @@ use std::{
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use encoding_rs_io::DecodeReaderBytesBuilder;
-use slug::slugify;
 use tracing::{debug, error, trace, warn};
+use uuid::Uuid;
 
 use crate::{
     ParserError,
     constants::DF_ENCODING,
     metadata::RawModuleLocation,
     regex::{NON_DIGIT_RE, RAW_TOKEN_RE},
-    utilities::{get_parent_dir_name, try_get_file},
+    tags::ObjectType,
+    utilities::{generate_object_id, get_parent_dir_name, try_get_file},
 };
 
 use super::steam_data::SteamData;
@@ -36,7 +37,7 @@ use super::steam_data::SteamData;
 #[serde(rename_all = "camelCase")]
 pub struct ModuleInfo {
     identifier: String,
-    object_id: String,
+    object_id: Uuid,
     location: RawModuleLocation,
     parent_directory: String,
     numeric_version: u32,
@@ -72,14 +73,23 @@ impl ModuleInfo {
     ///
     /// * The `InfoFile`
     #[must_use]
-    pub fn new(id: &str, location: RawModuleLocation, parent_directory: &str) -> Self {
+    pub fn new(identifier: &str, location: RawModuleLocation, parent_directory: &str) -> Self {
         Self {
-            identifier: String::from(id),
+            identifier: String::from(identifier),
             location,
             parent_directory: String::from(parent_directory),
-            object_id: format!("{}-{}-{}", location, "MODULE", slugify(id)),
+            object_id: generate_object_id(location, ObjectType::ModuleInfo, identifier, 0),
             ..Default::default()
         }
+    }
+    /// Forces the unique `object_id` to be recalculated
+    pub fn recalculate_object_id(&mut self) {
+        self.object_id = generate_object_id(
+            self.location,
+            ObjectType::ModuleInfo,
+            &self.identifier,
+            self.numeric_version,
+        );
     }
     /// Creates a new empty `InfoFile`
     ///
@@ -218,7 +228,10 @@ impl ModuleInfo {
                         info_file_data = Self::new(captured_value, location, &parent_dir);
                     }
                     "NUMERIC_VERSION" => match captured_value.parse() {
-                        Ok(n) => info_file_data.numeric_version = n,
+                        Ok(n) => {
+                            info_file_data.numeric_version = n;
+                            info_file_data.recalculate_object_id();
+                        }
                         Err(_e) => {
                             if warn_on_format_issue {
                                 warn!(
@@ -231,7 +244,10 @@ impl ModuleInfo {
                             let digits_only =
                                 NON_DIGIT_RE.replace_all(captured_value, "").to_string();
                             match digits_only.parse() {
-                                Ok(n) => info_file_data.numeric_version = n,
+                                Ok(n) => {
+                                    info_file_data.numeric_version = n;
+                                    info_file_data.recalculate_object_id();
+                                }
                                 Err(_e) => {
                                     error!(
                                         "ModuleInfoFile::parse: Unable to parse any numbers from '{}' for NUMERIC_VERSION",
@@ -483,8 +499,8 @@ impl ModuleInfo {
     }
     /// Returns the module's object id
     #[must_use]
-    pub fn get_object_id(&self) -> String {
-        String::from(&self.object_id)
+    pub fn get_object_id(&self) -> Uuid {
+        self.object_id
     }
     /// Returns the `SteamData` for the info file if it exists.
     #[must_use]
@@ -513,9 +529,9 @@ impl ModuleInfo {
     ///
     /// ```rust
     /// use std::path::Path;
-    /// use dfraw_parser::{InfoFile, metadata::RawModuleLocation};
+    /// use dfraw_parser::{ModuleInfo, metadata::RawModuleLocation};
     ///
-    /// let mut info_file = InfoFile::new("vanilla_creatures", RawModuleLocation::Vanilla, "vanilla_creatures");
+    /// let mut info_file = ModuleInfo::new("vanilla_creatures", RawModuleLocation::Vanilla, "vanilla_creatures");
     ///
     /// assert_eq!(info_file.get_parent_directory(), "vanilla_creatures");
     /// ```
@@ -533,9 +549,9 @@ impl ModuleInfo {
     ///
     /// ```rust
     /// use std::path::Path;
-    /// use dfraw_parser::{InfoFile, metadata::RawModuleLocation};
+    /// use dfraw_parser::{ModuleInfo, metadata::RawModuleLocation};
     ///
-    /// let mut info_file = InfoFile::new("vanilla_creatures", RawModuleLocation::Vanilla, "vanilla_creatures");
+    /// let mut info_file = ModuleInfo::new("vanilla_creatures", RawModuleLocation::Vanilla, "vanilla_creatures");
     ///
     /// info_file.set_module_name("vanilla_creatures_2");
     /// assert_eq!(info_file.get_name(), "vanilla_creatures_2");
