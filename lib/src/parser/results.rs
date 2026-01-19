@@ -1,4 +1,4 @@
-use crate::{InfoFile, traits::RawObjectfo};
+use crate::{ModuleInfo, traits::RawObject};
 
 /// A parsing result that contains the parsed raws and info files.
 #[derive(serde::Serialize, serde::Deserialize)]
