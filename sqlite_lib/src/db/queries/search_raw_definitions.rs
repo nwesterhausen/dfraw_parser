@@ -1,9 +1,13 @@
 use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType};
+use itertools::Itertools as _;
 use rusqlite::{Connection, Result};
 use std::fmt::Write as _;
 use tracing::info;
 
-use crate::{ResultWithId, SearchQuery, SearchResults};
+use crate::{
+    ResultWithId, SearchQuery, SearchResults,
+    db::{metadata_markers::FavoriteRaws, queries},
+};
 
 /// Uses the provided `SearchQuery` to return the JSON of all matching raws defined in the database.
 ///
@@ -46,6 +50,13 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
 
     // A default condition that's always true to simplify adding an unknown amount of other conditions
     sql.push_str(" WHERE 1=1 ");
+
+    if query.favorites_only {
+        let favorite_raw_list =
+            (queries::get_typed_metadata::<FavoriteRaws>(conn)?).unwrap_or_else(Vec::new);
+
+        add_favorite_raw_restriction(query, &mut conditions, &favorite_raw_list);
+    }
 
     // Identifier Filter
     add_identifier_filter(query, &mut conditions, &mut params_vec);
@@ -142,6 +153,19 @@ fn add_identifier_filter(
         conditions.push(format!("r.identifier LIKE ?{}", params_vec.len() + 1));
         params_vec.push(Box::new(format!("%{ident}%")));
     }
+}
+
+/// Internal function to add a restriction for the raws to be part of the favorites to be returned.
+fn add_favorite_raw_restriction(
+    query: &SearchQuery,
+    conditions: &mut Vec<String>,
+    favorites: &[i64],
+) {
+    if !query.favorites_only || favorites.is_empty() {
+        return;
+    }
+
+    conditions.push(format!("r.id IN ({})", favorites.iter().format(",")));
 }
 
 /// Internal function to add the `RawModuleLocation` filter into `params_vec` and `conditions`

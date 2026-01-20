@@ -12,6 +12,7 @@ dfraw_parser = { workspace = true }
 specta = {workspace = true}
 chrono = {workspace = true, features = ["serde"]}
 uuid = { version = "1.19.0", features = ["v5", "serde"] }
+itertools.workspace = true
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }

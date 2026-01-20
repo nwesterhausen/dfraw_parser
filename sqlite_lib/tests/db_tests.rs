@@ -35,6 +35,45 @@ fn has_zero_results_for_only_workshopmods_location() {
 }
 
 #[test]
+fn has_results_only_for_favorites() {
+    const FAVORITE_RAW_ID: i64 = 1206;
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .add_favorite_raw(FAVORITE_RAW_ID)
+            .expect("Failed to add id:1206 as favorite.");
+    }
+
+    // get all raws within only 'Vanilla' location
+    let query = SearchQuery {
+        favorites_only: true,
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query the generated database")
+    };
+
+    assert!(
+        search_results.results.len() == 1,
+        "Should have had results, but had none."
+    );
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| r.id == FAVORITE_RAW_ID),
+        "Should have matched our favorite, but did not."
+    );
+}
+
+#[test]
 fn has_results_for_only_vanilla_location() {
     setup_tracing();
     let client_mutex = get_test_client();

@@ -33,6 +33,10 @@ pub struct SearchQuery {
     ///
     /// Default: `1`
     pub page: u32,
+    /// Limit results to only include favorited raws
+    ///
+    /// Default: false
+    pub favorites_only: bool,
 }
 
 impl SearchQuery {
@@ -86,6 +90,7 @@ impl Default for SearchQuery {
             numeric_filters: Vec::new(),
             limit: DEFAULT_SEARCH_LIMIT,
             page: 1,
+            favorites_only: false,
         }
     }
 }
