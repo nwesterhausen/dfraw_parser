@@ -9980,7 +9980,11 @@ identifier: string;
 /**
  * The metadata for this raw (includes the `ObjectType`, `RawModuleLocation` and other module info)
  */
-metadata: Metadata }
+metadata: Metadata; 
+/**
+ * A deterministed uuid for the object
+ */
+objectId: string }
 
 /**
  * A carrier struct for passing the database id along with the object we retrieved.
