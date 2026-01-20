@@ -560,3 +560,13 @@ impl ModuleInfo {
         self.name = String::from(arg);
     }
 }
+
+impl std::fmt::Display for ModuleInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} {} ({}) in {}",
+            self.name, self.displayed_version, self.numeric_version, self.location
+        )
+    }
+}

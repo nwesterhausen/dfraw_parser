@@ -112,6 +112,12 @@ impl RawObject for MaterialTemplate {
     fn get_type(&self) -> ObjectType {
         ObjectType::MaterialTemplate
     }
+    fn get_module_object_id(&self) -> Uuid {
+        match &self.metadata {
+            Some(meta) => meta.get_module_object_id(),
+            None => Uuid::nil(),
+        }
+    }
 }
 
 impl Searchable for MaterialTemplate {

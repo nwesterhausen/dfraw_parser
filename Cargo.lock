@@ -375,6 +375,7 @@ dependencies = [
  "specta",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]

@@ -149,14 +149,10 @@ pub fn delete_raw_definition(conn: &Connection, id: i64) -> Result<()> {
 #[allow(clippy::borrowed_box)]
 pub fn get_module_id_from_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
     let meta = raw.get_metadata();
-    let module_location_id = get_id_for_module_location(conn, meta.get_location())?;
+
     conn.query_row(
-        "SELECT id FROM modules WHERE identifier = ?1 AND version = ?2 AND module_location_id = ?3 LIMIT 1",
-        params![
-            meta.get_module_name(),
-            meta.get_module_version(),
-            module_location_id
-        ],
+        "SELECT id FROM modules WHERE object_id = ?1 LIMIT 1",
+        params![meta.get_module_object_id().as_bytes()],
         |row| row.get(0),
     )
 }
@@ -175,13 +171,14 @@ pub fn create_raw_definition_with_module(
     let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
 
     conn.execute(
-        "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
-         VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))",
+        "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob, object_id)
+         VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4), ?5)",
         params![
             raw.get_type().to_string().to_uppercase().replace(' ', "_"),
             raw.get_identifier(),
             module_id,
-            json_payload
+            json_payload,
+            raw.get_object_id().as_bytes()
         ],
     )?;
 

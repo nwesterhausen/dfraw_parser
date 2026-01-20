@@ -396,6 +396,12 @@ impl RawObject for Graphic {
     fn get_object_id(&self) -> Uuid {
         self.object_id
     }
+    fn get_module_object_id(&self) -> Uuid {
+        match &self.metadata {
+            Some(meta) => meta.get_module_object_id(),
+            None => Uuid::nil(),
+        }
+    }
 }
 
 impl Searchable for Graphic {

@@ -1,11 +1,12 @@
 use std::path::Path;
 
 use chrono::{TimeDelta, prelude::*};
-use dfraw_parser::ParseResult;
 use dfraw_parser::metadata::{ParserOptions, RawModuleLocation};
 use dfraw_parser::traits::RawObject;
+use dfraw_parser::{ModuleInfo, ParseResult};
 use rusqlite::{Connection, Result};
 use tracing::{debug, info, warn};
+use uuid::Uuid;
 
 use crate::db::client_options::ClientOptions;
 use crate::db::metadata_markers::{
@@ -16,7 +17,7 @@ use crate::db::metadata_markers::{
 };
 use crate::db::migrate::{apply_migrations, migrate_down};
 use crate::db::migrations::LATEST_SCHEMA_VERSION;
-use crate::db::queries::{self};
+use crate::db::queries::{self, insert_module_and_data};
 use crate::db::search_query::{DEFAULT_SEARCH_LIMIT, SearchQuery};
 use crate::db::util::get_current_schema_version;
 use crate::{SearchResults, SpriteGraphicData, TilePageData};
@@ -80,9 +81,19 @@ impl DbClient {
     ///
     /// - Database errors
     /// - Issues working with downcasting raws to obtain data to insert
-    pub fn insert_parse_results(&mut self, parse_results: ParseResult) -> Result<()> {
+    pub fn insert_parse_results(&mut self, parse_results: &ParseResult) -> Result<()> {
         let start = Utc::now();
-        queries::insert_parse_results(&mut self.conn, &self.options, parse_results)?;
+
+        for module in &parse_results.modules {
+            info!("Inserting raws for {module}");
+            insert_module_and_data(
+                &mut self.conn,
+                self.options.overwrite_raws,
+                module,
+                &parse_results.get_raws_for_module(module),
+            )?;
+        }
+
         let end = Utc::now();
         let insertion_duration = end - start;
         self.set_last_insertion_utc_datetime(&end)?;
@@ -682,5 +693,52 @@ impl DbClient {
         location: RawModuleLocation,
     ) -> Result<bool> {
         queries::exists_module_by_identifiers(&self.conn, identifier, numeric_version, location)
+    }
+
+    /// Try get module by its `object_id`
+    ///
+    /// # Errors
+    ///
+    /// - database errors
+    pub fn try_get_module_id_by_object_id(&self, object_id: Uuid) -> Result<Option<i64>> {
+        queries::try_get_module_id_by_object_id(&self.conn, object_id)
+    }
+
+    /// Check if a module exists by its `object_id`
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn exists_module_by_object_id(&self, object_id: Uuid) -> Result<bool> {
+        queries::exists_module_by_object_id(&self.conn, object_id)
+    }
+
+    /// Try to get the db id for a module (uses its `object_id`)
+    ///
+    /// # Errors
+    ///
+    /// - database errors
+    pub fn try_get_module_id(&self, module: &ModuleInfo) -> Result<Option<i64>> {
+        queries::try_get_module_id(&self.conn, module)
+    }
+
+    /// Check if a module exists (uses its `object_id`)
+    ///
+    /// # Errors
+    ///
+    /// - datbase errors
+    pub fn exists_module(&self, module: &ModuleInfo) -> Result<bool> {
+        queries::exists_module(&self.conn, module)
+    }
+
+    /// Insert a module with its supporting data, returning its id in the database.
+    ///
+    /// This inserts the module along with its dependency chain and steam tag data.
+    ///
+    /// # Errors
+    ///
+    /// - database errors
+    pub fn insert_module(&mut self, module: &ModuleInfo) -> Result<i64> {
+        queries::insert_module(&mut self.conn, self.options.overwrite_raws, module)
     }
 }

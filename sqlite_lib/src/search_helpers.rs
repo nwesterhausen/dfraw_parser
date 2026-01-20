@@ -5,7 +5,7 @@ use dfraw_parser::{Creature, Plant, tags::ObjectType, traits::RawObject};
 /// Given a raw object (via `&Box<dyn RawObject>`) will extract names and descriptions to use in
 /// the search indices.
 #[allow(clippy::borrowed_box)]
-pub fn extract_names_and_descriptions(raw: &Box<dyn RawObject>) -> (Vec<&str>, Vec<&str>) {
+pub fn extract_names_and_descriptions(raw: &dyn RawObject) -> (Vec<&str>, Vec<&str>) {
     // Metadata extraction for search index
     let mut search_names = Vec::<&str>::new();
     let mut search_descriptions = Vec::<&str>::new();

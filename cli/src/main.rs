@@ -329,7 +329,7 @@ fn write_output_file<P: AsRef<Path>>(
                 ))))
             })?;
         } else if skip_raws {
-            serde_json::to_writer_pretty(file, &parse_results.info_files).map_err(|e| {
+            serde_json::to_writer_pretty(file, &parse_results.modules).map_err(|e| {
                 lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
                     "Failed to write output file: {e:?}"
                 ))))
@@ -348,7 +348,7 @@ fn write_output_file<P: AsRef<Path>>(
             ))))
         })?;
     } else if skip_raws {
-        serde_json::to_writer(file, &parse_results.info_files).map_err(|e| {
+        serde_json::to_writer(file, &parse_results.modules).map_err(|e| {
             lexopt::Error::Custom(Box::new(std::io::Error::other(format!(
                 "Failed to write output file: {e:?}"
             ))))
@@ -370,14 +370,14 @@ fn write_output_file<P: AsRef<Path>>(
     } else if skip_raws {
         tracing::info!(
             "Wrote {} parsed 'info.txt' files to {}",
-            parse_results.info_files.len(),
+            parse_results.modules.len(),
             output_path.as_ref().display(),
         );
     } else {
         tracing::info!(
             "Wrote {} parsed raws and {} parsed 'info.txt' files to {}",
             parse_results.raws.len(),
-            parse_results.info_files.len(),
+            parse_results.modules.len(),
             output_path.as_ref().display(),
         );
     }

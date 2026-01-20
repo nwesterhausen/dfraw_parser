@@ -890,6 +890,12 @@ impl RawObject for Creature {
 
         tokens.into_iter().collect()
     }
+    fn get_module_object_id(&self) -> Uuid {
+        match &self.metadata {
+            Some(meta) => meta.get_module_object_id(),
+            None => Uuid::nil(),
+        }
+    }
 }
 
 #[typetag::serde]

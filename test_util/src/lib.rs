@@ -50,7 +50,7 @@ pub fn get_test_client() -> Arc<Mutex<DbClient>> {
         let parse_results = parse(&parser_options).map_err(|e| format!("Parse Error: {e}"))?;
         let end = Utc::now();
         let duration = end - start;
-        let num_info_files = parse_results.info_files.len();
+        let num_info_files = parse_results.modules.len();
 
         client
             .set_last_parse_duration(&duration)
@@ -63,7 +63,7 @@ pub fn get_test_client() -> Arc<Mutex<DbClient>> {
             .map_err(|e| format!("DB Metadata Set last parse options Error: {e}"))?;
 
         client
-            .insert_parse_results(parse_results)
+            .insert_parse_results(&parse_results)
             .map_err(|e| format!("DB Insert Error: {e}"))?;
 
         println!("Sucessfully inserted {num_info_files} modules.");

@@ -358,6 +358,12 @@ impl RawObject for CreatureVariation {
     fn get_name(&self) -> &str {
         self.identifier.as_str()
     }
+    fn get_module_object_id(&self) -> Uuid {
+        match &self.metadata {
+            Some(meta) => meta.get_module_object_id(),
+            None => Uuid::nil(),
+        }
+    }
 }
 
 impl Searchable for CreatureVariation {

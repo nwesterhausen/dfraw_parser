@@ -20,7 +20,7 @@ pub fn process_raw_insertions(
     tx: &Transaction,
     module_db_id: i64,
     info: &ModuleInfo,
-    raws: &[Box<dyn RawObject>],
+    raws: &[&dyn RawObject],
     overwrite_raws: bool,
 ) -> Result<()> {
     let mut error_count = 0;
@@ -35,17 +35,18 @@ pub fn process_raw_insertions(
     let mut upsert_stmt = if overwrite_raws {
         // UPSERT: Insert or update and always return the ID
         tx.prepare_cached(
-            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
-                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))
+            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob, object_id)
+                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4), ?5)
                  ON CONFLICT(module_id, identifier) DO UPDATE SET
-                    data_blob = excluded.data_blob
+                    data_blob = excluded.data_blob,
+                    object_id = excluded.object_id
                  RETURNING id",
         )?
     } else {
         // INSERT OR IGNORE: Only insert if new; RETURNING id will be empty on conflict
         tx.prepare_cached(
-            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob)
-                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4))
+            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob, object_id)
+                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4), ?5)
                  ON CONFLICT(module_id, identifier) DO NOTHING
                  RETURNING id",
         )?
@@ -164,7 +165,8 @@ pub fn process_raw_insertions(
                 raw.get_type().to_string().to_uppercase().replace(' ', "_"),
                 raw.get_identifier(),
                 module_db_id,
-                json_payload // Bound as a BLOB
+                json_payload,                   // Bound as a BLOB
+                raw.get_object_id().as_bytes()  // Bound as BLOB (UUID bytes)
             ],
             |row| row.get(0),
         ) {
@@ -190,7 +192,7 @@ pub fn process_raw_insertions(
             });
         }
 
-        let (search_names, search_descriptions) = extract_names_and_descriptions(raw);
+        let (search_names, search_descriptions) = extract_names_and_descriptions(*raw);
 
         // Populate Names Table (for Exact/Partial ID lookup)
         for name in &search_names {

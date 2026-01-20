@@ -111,13 +111,9 @@ impl RawObject for TilePage {
     fn get_identifier(&self) -> &str {
         &self.identifier
     }
-    fn get_name(&self) -> &str {
-        &self.identifier
-    }
     fn get_type(&self) -> ObjectType {
         ObjectType::TilePage
     }
-
     fn parse_tag(&mut self, key: &str, value: &str) {
         match TILE_PAGE_TOKENS.get(key).unwrap_or(&TilePageTag::Unknown) {
             TilePageTag::File => {
@@ -143,11 +139,21 @@ impl RawObject for TilePage {
             }
         }
     }
+
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
+    }
+    fn get_name(&self) -> &str {
+        &self.identifier
+    }
     fn get_searchable_tokens(&self) -> Vec<&str> {
         Vec::new()
     }
-    fn get_object_id(&self) -> Uuid {
-        self.object_id
+    fn get_module_object_id(&self) -> Uuid {
+        match &self.metadata {
+            Some(meta) => meta.get_module_object_id(),
+            None => Uuid::nil(),
+        }
     }
 }
 

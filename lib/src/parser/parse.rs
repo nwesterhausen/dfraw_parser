@@ -42,7 +42,7 @@ pub fn parse(options: &ParserOptions) -> Result<ParseResult, ParserError> {
 
     let mut results = ParseResult {
         raws: Vec::new(),
-        info_files: Vec::new(),
+        modules: Vec::new(),
     };
     let mut unprocessed_raws: Vec<UnprocessedRaw> = Vec::new();
 
@@ -259,7 +259,7 @@ pub fn parse(options: &ParserOptions) -> Result<ParseResult, ParserError> {
     info!("Resolved {resolved_complex_creatures} complex creatures");
 
     // Parse the info modules
-    results.info_files = parse_module_info_files(&options)?;
+    results.modules = parse_module_info_files(&options)?;
 
     // Print a summary of what we parsed (sum by ObjectType)
     if options.log_summary {
