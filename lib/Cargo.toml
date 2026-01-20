@@ -24,15 +24,14 @@ directories = { workspace = true }
 encoding_rs = { workspace = true }
 # Used to be able to force reading the raw files as Latin1 (has a BuffReader we use).
 encoding_rs_io = { workspace = true }
-itertools = { workspace = true }
+# Used for working with iterators
+itertools.workspace = true
 # Generates static/reusabled regex for parsing the raw text files.
 lazy-regex = { workspace = true }
 # Used for making a shared static ref to the Latin1 encoding.
 once_cell = { workspace = true }
 # Quick-xml is used to parse legends export files.
 quick-xml = { workspace = true }
-# We slugify the names of the raw files to make them easier to work with.
-slug = { workspace = true }
 # Create iterators from enums
 strum = { workspace = true }
 strum_macros = { workspace = true }
