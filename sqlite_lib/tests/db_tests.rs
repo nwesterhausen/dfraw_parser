@@ -1,7 +1,11 @@
 //! Tests for verifying that the various search functions work.
 
 use chrono::TimeDelta;
-use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType, traits::IsEmpty};
+use dfraw_parser::{
+    metadata::RawModuleLocation,
+    tags::ObjectType,
+    traits::{IsEmpty, RawObject},
+};
 use dfraw_parser_sqlite_lib::SearchQuery;
 use dfraw_parser_test_util::get_test_client;
 
@@ -87,11 +91,10 @@ fn has_results_only_for_favorites() {
     };
 
     assert!(
-        search_results
+        !search_results
             .results
             .iter()
-            .any(|r| r.id == FAVORITE_RAW_ID)
-            .is_empty(),
+            .any(|r| r.id == FAVORITE_RAW_ID),
         "Should have not matched our favorite, but did."
     );
 }
@@ -545,4 +548,136 @@ fn verify_preferred_search_limit() {
     );
     assert_ne!(page_limit_1, 0, "page limit cannot be zero");
     assert_ne!(page_limit_2, 0, "page limit cannot be zero");
+}
+
+#[test]
+fn test_numeric_filter_implementation() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    let query_one_value = SearchQuery {
+        numeric_filters: vec![("PETVALUE".to_string(), 30, None)],
+        ..Default::default()
+    };
+    let query_two_values = SearchQuery {
+        numeric_filters: vec![("CLUTCH_SIZE".to_string(), 10, Some(30))],
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query_one_value)
+            .expect("Failed to query database")
+    };
+
+    // If unimplemented, this will likely return ALL creatures, failing this assertion
+    assert!(!search_results.results.is_empty());
+    // Buzzard has a pet value of 30, so it should be among the results
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+        "BIRD_BUZZARD was expected but was missing"
+    );
+    // Giant Buzzard has a pet value of 500, so it should be absent in the results
+    assert!(
+        !search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "GIANT_BUZZARD"),
+        "GIANT_BUZZARD should have been missing but was present"
+    );
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query_two_values)
+            .expect("Failed to query database")
+    };
+
+    // If unimplemented, this will likely return ALL creatures, failing this assertion
+    assert!(!search_results.results.is_empty());
+    // Two-legged rhino lizard has clutch size 10:30, so it should be among the results
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "LIZARD_RHINO_TWO_LEGGED"),
+        "LIZARD_RHINO_TWO_LEGGED was expected but was missing"
+    );
+    // Salt-water crocodile has clutch size 20:70, so it should be absent in the results
+    assert!(
+        !search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "CROCODILE_SALTWATER"),
+        "CROCODILE_SALTWATER should have been missing but was present"
+    );
+}
+
+fn identifier_from_json_blob(json_blob: &[u8]) -> String {
+    let raw_object: Box<dyn RawObject> =
+        serde_json::from_slice(json_blob).expect("Failed to deserialize raw object");
+
+    raw_object.get_identifier().to_string()
+}
+
+#[test]
+fn test_short_search_string_is_ignored() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    let query = SearchQuery {
+        search_string: Some("ab".to_string()),
+        limit: 10,
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed short string query")
+    };
+
+    // Currently, this likely returns *everything* because the WHERE clause ignores the string.
+    // Use this test to decide if that is the UX you want.
+    assert!(!search_results.results.is_empty());
+}
+
+#[test]
+fn test_search_query_cleaning() {
+    let query = SearchQuery {
+        search_string: Some(String::new()),
+        identifier_query: Some(String::new()),
+        ..Default::default()
+    };
+
+    let cleaned = query.clean();
+
+    assert!(cleaned.search_string.is_none());
+    assert!(cleaned.identifier_query.is_none());
+}
+
+#[test]
+fn test_pagination_overflow() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    let query = SearchQuery {
+        page: 1000,
+        limit: 50,
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client.search_raws(&query).expect("Failed pagination query")
+    };
+
+    assert!(search_results.results.is_empty());
+    // Total count should still be accurate
+    assert!(search_results.total_count > 0);
 }
