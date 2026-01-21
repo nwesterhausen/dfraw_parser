@@ -1,11 +1,11 @@
-use std::ffi::OsStr;
 use std::path::Path;
+use std::{collections::HashMap, ffi::OsStr};
 
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use walkdir::WalkDir;
 
 use crate::{
-    ModuleInfo, ParserError,
+    Graphic, ModuleInfo, ParserError,
     metadata::ParserOptions,
     reader::{FileParseResult, UnprocessedRaw, parse_raw_file},
     tags::ObjectType,
@@ -157,6 +157,48 @@ pub fn parse_module<P: AsRef<Path>>(
             }
         }
     }
+
+    // Consolidate the graphics, since our representation of a single graphic raw could be spread across multiple files
+    // in a single module.
+    let mut graphics_map: HashMap<String, Graphic> = HashMap::new();
+    let mut other_raws: Vec<Box<dyn RawObject>> = Vec::new();
+
+    for raw in results {
+        if raw.get_type() == ObjectType::Graphics {
+            // Perform the downcast
+            if let Some(graphic_ref) = raw.as_any().downcast_ref::<Graphic>() {
+                // Clone for ownership in our map (or used for absorption)
+                let graphic = graphic_ref.clone();
+                // Get the "target" identifier
+                let id = graphic.get_identifier().to_string();
+
+                if let Some(existing) = graphics_map.get_mut(&id) {
+                    // Already have this target in our map, so merge this graphic into it
+                    existing.merge(graphic);
+                } else {
+                    // Add an entry to the map for future merges as needed
+                    graphics_map.insert(id, graphic);
+                }
+            } else {
+                error!(
+                    "Failed downcast in module graphics consolidation: {} {}",
+                    raw.get_identifier(),
+                    raw.get_object_id()
+                );
+                // Put into other raws for combination later
+                other_raws.push(raw);
+            }
+        } else {
+            other_raws.push(raw);
+        }
+    }
+
+    // Combine our merged graphics back together with the other raws
+    for graphic in graphics_map.into_values() {
+        other_raws.push(Box::new(graphic));
+    }
+
+    results = other_raws;
 
     Ok(FileParseResult {
         parsed_raws: results,

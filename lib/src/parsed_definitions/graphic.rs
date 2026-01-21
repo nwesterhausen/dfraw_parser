@@ -60,6 +60,59 @@ pub struct Graphic {
 }
 
 impl Graphic {
+    /// Merge another Graphic object into this one.
+    ///
+    /// This transfers all sprites/layers/etc from `other` to `self`
+    pub fn merge(&mut self, other: Graphic) {
+        // Merge Sprites
+        if let Some(other_sprites) = other.sprites {
+            if let Some(my_sprites) = self.sprites.as_mut() {
+                my_sprites.extend(other_sprites);
+            } else {
+                self.sprites = Some(other_sprites);
+            }
+        }
+
+        // Merge Layers
+        if let Some(other_layers) = other.layers {
+            if let Some(my_layers) = self.layers.as_mut() {
+                my_layers.extend(other_layers);
+            } else {
+                self.layers = Some(other_layers);
+            }
+        }
+
+        // Merge Growths
+        if let Some(other_growths) = other.growths {
+            if let Some(my_growths) = self.growths.as_mut() {
+                my_growths.extend(other_growths);
+            } else {
+                self.growths = Some(other_growths);
+            }
+        }
+
+        // Merge Custom Extensions
+        if let Some(other_extensions) = other.custom_extensions {
+            if let Some(my_extensions) = self.custom_extensions.as_mut() {
+                my_extensions.extend(other_extensions);
+            } else {
+                self.custom_extensions = Some(other_extensions);
+            }
+        }
+
+        // Merge Tags
+        if let Some(other_tags) = other.tags {
+            if let Some(my_tags) = self.tags.as_mut() {
+                my_tags.extend(other_tags);
+            } else {
+                self.tags = Some(other_tags);
+            }
+        }
+
+        // Merge Palettes
+        self.palletes.extend(other.palletes);
+    }
+
     /// Get the sprites defined in this graphic
     #[must_use]
     pub fn get_sprites(&self) -> Vec<SpriteGraphic> {
