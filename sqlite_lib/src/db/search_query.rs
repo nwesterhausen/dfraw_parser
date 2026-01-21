@@ -77,7 +77,7 @@ impl SearchQuery {
     }
 }
 
-pub const DEFAULT_SEARCH_LIMIT: u32 = 50;
+pub const DEFAULT_SEARCH_LIMIT: u32 = 18;
 
 impl Default for SearchQuery {
     fn default() -> Self {

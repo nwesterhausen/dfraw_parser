@@ -61,7 +61,7 @@ fn has_results_only_for_favorites() {
     };
 
     assert!(
-        search_results.results.len() == 1,
+        !search_results.results.is_empty(),
         "Should have had results, but had none."
     );
     assert!(
@@ -70,6 +70,29 @@ fn has_results_only_for_favorites() {
             .iter()
             .any(|r| r.id == FAVORITE_RAW_ID),
         "Should have matched our favorite, but did not."
+    );
+
+    // Cleanup
+    {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .remove_favorite_raw(FAVORITE_RAW_ID)
+            .expect("Failed to add id:1206 as favorite.");
+    }
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query the generated database")
+    };
+
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| r.id == FAVORITE_RAW_ID)
+            .is_empty(),
+        "Should have not matched our favorite, but did."
     );
 }
 

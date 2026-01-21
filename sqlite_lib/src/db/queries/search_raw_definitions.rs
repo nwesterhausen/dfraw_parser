@@ -161,7 +161,14 @@ fn add_favorite_raw_restriction(
     conditions: &mut Vec<String>,
     favorites: &[i64],
 ) {
-    if !query.favorites_only || favorites.is_empty() {
+    if !query.favorites_only {
+        return;
+    }
+
+    // If we *are* supposed to query for only favorites, but there are none, return nothing
+    // (with 1=0 as a restriction on the query, no results will be returned)
+    if favorites.is_empty() {
+        conditions.push(String::from("1=0"));
         return;
     }
 
