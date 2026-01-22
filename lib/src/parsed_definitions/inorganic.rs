@@ -141,9 +141,6 @@ impl Inorganic {
 
 #[typetag::serde]
 impl RawObject for Inorganic {
-    fn get_searchable_tokens(&self) -> Vec<&str> {
-        Vec::new()
-    }
     fn get_identifier(&self) -> &str {
         &self.identifier
     }

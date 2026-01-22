@@ -146,9 +146,6 @@ impl RawObject for TilePage {
     fn get_name(&self) -> &str {
         &self.identifier
     }
-    fn get_searchable_tokens(&self) -> Vec<&str> {
-        Vec::new()
-    }
     fn get_module_object_id(&self) -> Uuid {
         match &self.metadata {
             Some(meta) => meta.get_module_object_id(),

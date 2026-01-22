@@ -21,6 +21,7 @@
 mod cleanable;
 mod creature_variation_requirements;
 mod is_empty;
+mod numeric_tokens;
 mod raw_object;
 mod raw_object_token;
 mod searchable;
@@ -30,6 +31,7 @@ mod token_parser;
 pub use cleanable::Cleanable;
 pub use creature_variation_requirements::CreatureVariationRequirements;
 pub use is_empty::IsEmpty;
+pub use numeric_tokens::NumericTokenTransform;
 pub use raw_object::RawObject;
 pub use raw_object_token::RawObjectToken;
 pub use searchable::Searchable;

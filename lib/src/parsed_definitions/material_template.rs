@@ -77,9 +77,6 @@ impl MaterialTemplate {
 
 #[typetag::serde]
 impl RawObject for MaterialTemplate {
-    fn get_searchable_tokens(&self) -> Vec<&str> {
-        Vec::new()
-    }
     fn get_identifier(&self) -> &str {
         &self.identifier
     }

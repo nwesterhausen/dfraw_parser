@@ -5,7 +5,11 @@ use std::any::Any;
 
 use uuid::Uuid;
 
-use crate::{metadata::RawMetadata, tags::ObjectType, traits::Cleanable};
+use crate::{
+    metadata::{NumericToken, RawMetadata},
+    tags::ObjectType,
+    traits::Cleanable,
+};
 
 use super::searchable::Searchable;
 
@@ -36,7 +40,15 @@ pub trait RawObject: RawObjectToAny + Send + Sync + Searchable + Cleanable {
     /// This is used for searching.
     fn get_name(&self) -> &str;
     /// Function to return "flag" tokens (as strings) for things like `[FLIER]` or `[INTELLIGENT]`, etc
-    fn get_searchable_tokens(&self) -> Vec<&str>;
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        Vec::new()
+    }
+    /// Function to return "numeric flag" tokens for things like `[PET_VALUE:50]` or `[CLUTCH_SIZE:2:6]`.
+    ///
+    /// Returns a vector of [`NumericToken`].
+    fn get_numeric_flags(&self) -> Vec<NumericToken> {
+        Vec::new()
+    }
     /// Function to "clean" the raw. This is used to remove any empty list or strings,
     /// and to remove any default values. By "removing" it means setting the value to None.
     ///

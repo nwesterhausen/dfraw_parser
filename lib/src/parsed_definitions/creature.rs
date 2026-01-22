@@ -10,12 +10,12 @@ use uuid::Uuid;
 
 use crate::{
     Caste, Name, SelectCreature, Tile,
-    metadata::RawMetadata,
+    metadata::{NumericToken, RawMetadata},
     raw_definitions::{BIOME_TOKENS, CASTE_TOKENS, CREATURE_TOKENS},
     tags::{BiomeTag, CasteTag, CreatureTag, ObjectType},
     traits::{
-        Cleanable, CreatureVariationRequirements, RawObject, RawObjectToken, Searchable,
-        TagOperations,
+        Cleanable, CreatureVariationRequirements, NumericTokenTransform as _, RawObject,
+        RawObjectToken, Searchable, TagOperations,
     },
     utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
@@ -889,6 +889,25 @@ impl RawObject for Creature {
         }
 
         tokens.into_iter().collect()
+    }
+    fn get_numeric_flags(&self) -> Vec<NumericToken> {
+        let mut tokens = Vec::new();
+
+        // 1. Collect from Creature Tags
+        if let Some(tags) = &self.tags {
+            for tag in tags {
+                tokens.extend(tag.as_numeric_tokens());
+            }
+        }
+
+        // 2. Collect from Caste Tags
+        for caste in &self.castes {
+            for tag in caste.get_tags() {
+                tokens.extend(tag.as_numeric_tokens());
+            }
+        }
+
+        tokens
     }
     fn get_module_object_id(&self) -> Uuid {
         match &self.metadata {

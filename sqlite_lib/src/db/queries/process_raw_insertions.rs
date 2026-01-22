@@ -28,6 +28,7 @@ pub fn process_raw_insertions(
     let mut pending_search_batch = Vec::new();
     let mut pending_sprites_batch = Vec::new();
     let mut pending_flags_batch = Vec::new();
+    let mut pending_numeric_flags_batch = Vec::new();
     let mut pending_names_batch = Vec::new();
 
     // Insert new raw data
@@ -96,6 +97,17 @@ pub fn process_raw_insertions(
         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
     )?;
 
+    //  Numeric flags
+    let mut insert_numeric_flag_stmt = tx.prepare_cached(
+            "INSERT INTO common_raw_flags_with_numeric_value (raw_id, token_name, value) VALUES (?1, ?2, ?3)"
+        )?;
+
+    // Delete numeric flags
+    let mut delete_existing_numeric_flag_relations_stmt = tx.prepare_cached(
+        "DELETE FROM common_raw_flags_with_numeric_value
+            WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1);",
+    )?;
+
     #[cfg(debug_assertions)]
     let mut total_serialization_time = chrono::TimeDelta::zero();
     #[cfg(debug_assertions)]
@@ -108,6 +120,13 @@ pub fn process_raw_insertions(
     // Clear out existing names/flags if overwrite is true
     if overwrite_raws {
         delete_existing_flag_relations_stmt
+            .execute(params![module_db_id])
+            .inspect_err(|e| {
+                tracing::error!(
+                    "Failed clearing existing flag relations for module:{module_db_id}: {e}",
+                );
+            })?;
+        delete_existing_numeric_flag_relations_stmt
             .execute(params![module_db_id])
             .inspect_err(|e| {
                 tracing::error!(
@@ -189,6 +208,14 @@ pub fn process_raw_insertions(
             pending_flags_batch.push(PendingFlag {
                 raw_id: raw_db_id,
                 token_name: flag.to_string(),
+            });
+        }
+
+        for token_obj in raw.get_numeric_flags() {
+            pending_numeric_flags_batch.push(PendingNumericFlag {
+                raw_id: raw_db_id,
+                token_name: token_obj.key,
+                value: token_obj.value,
             });
         }
 
@@ -389,7 +416,24 @@ pub fn process_raw_insertions(
         insert_flag_stmt
             .execute(params![f.raw_id, f.token_name])
             .inspect_err(|e| {
-                tracing::error!("Failed inserting flags for raw_id:{}: {e}", f.raw_id,);
+                tracing::error!(
+                    "Failed inserting flag:{} for raw_id:{}: {e}",
+                    f.token_name,
+                    f.raw_id,
+                );
+            })?;
+    }
+    // Insert pending value flag batch
+    for f in pending_numeric_flags_batch {
+        insert_numeric_flag_stmt
+            .execute(params![f.raw_id, f.token_name, f.value])
+            .inspect_err(|e| {
+                tracing::error!(
+                    "Failed inserting numeric flag:{}={} for raw_id:{}: {e}",
+                    f.token_name,
+                    f.value,
+                    f.raw_id,
+                );
             })?;
     }
     #[cfg(debug_assertions)]
@@ -473,6 +517,12 @@ struct PendingSearch {
 struct PendingFlag {
     raw_id: i64,
     token_name: String,
+}
+
+struct PendingNumericFlag {
+    raw_id: i64,
+    token_name: String,
+    value: i64,
 }
 
 struct PendingName {
