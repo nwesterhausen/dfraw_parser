@@ -1,6 +1,8 @@
 use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType};
 use serde::{Deserialize, Serialize};
 
+use crate::NumericFilter;
+
 /// A query for searching raw objects in the database.
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
@@ -24,7 +26,7 @@ pub struct SearchQuery {
     /// (e.g. `LITTER_SIZE`, `POP_RATIO`, `CLUSTER_NUMBER`)
     ///
     /// The value provided will be used for (minimum/exact value, maximum value)
-    pub numeric_filters: Vec<(String, i32, Option<i32>)>,
+    pub numeric_filters: Vec<NumericFilter>,
     /// Limit the number of raws returned to this amount per page
     ///
     /// Default: `50`

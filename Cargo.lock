@@ -380,6 +380,7 @@ dependencies = [
  "dfraw_parser",
  "dfraw_parser_sqlite_lib",
  "reqwest",
+ "serde_json",
  "zip",
 ]
 

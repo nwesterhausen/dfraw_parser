@@ -1,13 +1,9 @@
 //! Tests for verifying that the various search functions work.
 
 use chrono::TimeDelta;
-use dfraw_parser::{
-    metadata::RawModuleLocation,
-    tags::ObjectType,
-    traits::{IsEmpty, RawObject},
-};
-use dfraw_parser_sqlite_lib::SearchQuery;
-use dfraw_parser_test_util::get_test_client;
+use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType, traits::IsEmpty};
+use dfraw_parser_sqlite_lib::{NumericConstraint, NumericFilter, SearchQuery};
+use dfraw_parser_test_util::{get_test_client, json_helpers::identifier_from_json_blob};
 
 use crate::common::setup_tracing;
 
@@ -551,49 +547,195 @@ fn verify_preferred_search_limit() {
 }
 
 #[test]
-fn test_numeric_filter_implementation() {
+fn filter_numeric_min() {
     setup_tracing();
     let client_mutex = get_test_client();
 
-    let query_one_value = SearchQuery {
-        numeric_filters: vec![("PETVALUE".to_string(), 30, None)],
-        ..Default::default()
-    };
-    let query_two_values = SearchQuery {
-        numeric_filters: vec![("CLUTCH_SIZE".to_string(), 10, Some(30))],
+    // Constraint: PETVALUE >= 500
+    // Should find: JABBERER (1500)
+    // Should NOT find: BIRD_BUZZARD (30)
+    let query = SearchQuery {
+        limit: 500,
+        numeric_filters: vec![NumericFilter {
+            key: "PETVALUE".into(), // Note: Uses "PETVALUE" (with underscore)
+            constraint: NumericConstraint::Min(500),
+        }],
         ..Default::default()
     };
 
     let search_results = {
         let client = client_mutex.lock().expect("Failed to lock DbClient");
         client
-            .search_raws(&query_one_value)
+            .search_raws(&query)
             .expect("Failed to query database")
     };
 
-    // If unimplemented, this will likely return ALL creatures, failing this assertion
     assert!(!search_results.results.is_empty());
-    // Buzzard has a pet value of 30, so it should be among the results
+
+    // Check for presence of high-value creature
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "JABBERER"),
+        "Expected JABBERER (Value 1500) to be found with Min(500)"
+    );
+
+    // Check for absence of low-value creature
+    assert!(
+        !search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+        "Expected BIRD_BUZZARD (Value 30) to be excluded with Min(500)"
+    );
+}
+
+#[test]
+fn filter_numeric_max() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    // Constraint: PETVALUE <= 100
+    // Should find: BIRD_BUZZARD (30)
+    // Should NOT find: SHARK_BASKING (1000)
+    let query = SearchQuery {
+        limit: 500,
+        numeric_filters: vec![NumericFilter {
+            key: "PETVALUE".into(),
+            constraint: NumericConstraint::Max(100),
+        }],
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query database")
+    };
+
+    assert!(!search_results.results.is_empty());
+
     assert!(
         search_results
             .results
             .iter()
             .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
-        "BIRD_BUZZARD was expected but was missing"
+        "Expected BIRD_BUZZARD (Value 30) to be found with Max(100)"
     );
-    // Giant Buzzard has a pet value of 500, so it should be absent in the results
+
+    assert!(
+        !search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "SHARK_BASKING"),
+        "Expected SHARK_BASKING (Value 1000) to be excluded with Max(100)"
+    );
+}
+
+#[test]
+fn filter_numeric_exact() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    // Constraint: PETVALUE == 30
+    let query = SearchQuery {
+        numeric_filters: vec![NumericFilter {
+            key: "PETVALUE".into(),
+            constraint: NumericConstraint::Exact(30),
+        }],
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query)
+            .expect("Failed to query database")
+    };
+
+    assert!(!search_results.results.is_empty());
+
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+        "Expected BIRD_BUZZARD to be found with Exact(30)"
+    );
+
     assert!(
         !search_results
             .results
             .iter()
             .any(|r| identifier_from_json_blob(&r.data) == "GIANT_BUZZARD"),
-        "GIANT_BUZZARD should have been missing but was present"
+        "Expected GIANT_BUZZARD to be excluded with Exact(30)"
     );
+}
+
+#[test]
+fn filter_numeric_range() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    // Constraint: PETVALUE between 20 and 40
+    let query = SearchQuery {
+        numeric_filters: vec![NumericFilter {
+            key: "PETVALUE".into(),
+            constraint: NumericConstraint::Range(20, 40),
+        }],
+        ..Default::default()
+    };
 
     let search_results = {
         let client = client_mutex.lock().expect("Failed to lock DbClient");
         client
-            .search_raws(&query_two_values)
+            .search_raws(&query)
+            .expect("Failed to query database")
+    };
+
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+        "Expected BIRD_BUZZARD (30) inside Range(20, 40)"
+    );
+
+    assert!(
+        !search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "GIANT_BUZZARD"),
+        "Expected GIANT_BUZZARD (500) outside Range(20, 40)"
+    );
+}
+
+#[test]
+fn filter_numeric_multiple() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    let query_two_constraints = SearchQuery {
+        limit: 500,
+        numeric_filters: vec![
+            NumericFilter {
+                key: "CLUTCH_SIZE_MIN".into(),
+                constraint: NumericConstraint::Min(10),
+            },
+            NumericFilter {
+                key: "CLUTCH_SIZE_MAX".into(),
+                constraint: NumericConstraint::Max(30),
+            },
+        ],
+        ..Default::default()
+    };
+
+    let search_results = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .search_raws(&query_two_constraints)
             .expect("Failed to query database")
     };
 
@@ -615,13 +757,6 @@ fn test_numeric_filter_implementation() {
             .any(|r| identifier_from_json_blob(&r.data) == "CROCODILE_SALTWATER"),
         "CROCODILE_SALTWATER should have been missing but was present"
     );
-}
-
-fn identifier_from_json_blob(json_blob: &[u8]) -> String {
-    let raw_object: Box<dyn RawObject> =
-        serde_json::from_slice(json_blob).expect("Failed to deserialize raw object");
-
-    raw_object.get_identifier().to_string()
 }
 
 #[test]

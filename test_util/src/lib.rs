@@ -9,6 +9,8 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex, OnceLock};
 use zip::ZipArchive;
 
+pub mod json_helpers;
+
 const VANILLA_RAW_URL: &str = "https://build-deps.ci.nwest.one/dwarffortress/vanilla_latest.zip";
 const TEST_DATA_DIR: &str = "test-data";
 const TEST_INNER_DIR: &str = "data/vanilla";

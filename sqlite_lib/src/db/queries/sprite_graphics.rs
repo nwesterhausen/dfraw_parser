@@ -1,6 +1,6 @@
 use rusqlite::{Connection, Result, params};
 
-use crate::SpriteGraphicData;
+use crate::models::SpriteGraphicData;
 
 const GET_SPRITE_GRAPHIC_BY_ID: &str = r"
 SELECT

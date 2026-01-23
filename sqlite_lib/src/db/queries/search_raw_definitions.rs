@@ -43,6 +43,10 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
         params_vec.push(Box::new(flag.clone()));
     }
 
+    // Numeric Token Joins
+
+    add_numeric_filter(query, &mut sql, &mut conditions, &mut params_vec);
+
     // Module Join (if module info needed)
     if !query.locations.is_empty() {
         sql.push_str("JOIN modules m ON r.module_id = m.id ");
@@ -248,5 +252,22 @@ fn add_type_filter(
     for t in &query.raw_types {
         // Object types stored in database by "key", i.e. all caps: CREATURE, PLANT, etc
         params_vec.push(Box::new(ObjectType::get_key(t)));
+    }
+}
+
+fn add_numeric_filter(
+    query: &SearchQuery,
+    sql: &mut String,
+    conditions: &mut Vec<String>,
+    params_vec: &mut Vec<Box<dyn rusqlite::ToSql + 'static>>,
+) {
+    for (i, filter) in query.numeric_filters.iter().enumerate() {
+        let alias = format!("nf{i}");
+        let _ = write!(
+            sql,
+            "JOIN common_raw_flags_with_numeric_value {alias} on r.id = {alias}.raw_id "
+        );
+
+        filter.add_sql_to_params(&alias, conditions, params_vec);
     }
 }

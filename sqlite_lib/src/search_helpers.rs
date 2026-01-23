@@ -1,4 +1,5 @@
 //! Helpers used in regards to compiling data used for filling search indices
+use std::collections::HashSet;
 
 use dfraw_parser::{Creature, Plant, tags::ObjectType, traits::RawObject};
 
@@ -27,4 +28,45 @@ pub fn extract_names_and_descriptions(raw: &dyn RawObject) -> (Vec<&str>, Vec<&s
     }
 
     (search_names, search_descriptions)
+}
+
+/// Removes duplicate strings or substrings in a `Vec<&str>`
+///
+/// This is used when condensing the names and descriptions to remove duplicates
+/// to more efficiently store them for lookup.
+///
+/// * `strv` the [`Vec<&str>`] to clean
+/// * `remove_singular_when_plural` whether to remove the singular version if the
+///   list contains a plural version.
+///
+/// Returns a cleaned vector of `&str`
+pub fn remove_dup_strings(strv: Vec<&str>, remove_singular_when_plural: bool) -> Vec<&str> {
+    let mut deduped = HashSet::new();
+    for str in strv {
+        str.split_whitespace().for_each(|s| {
+            if !s.eq("STP") {
+                deduped.insert(s);
+            }
+        });
+    }
+
+    if !remove_singular_when_plural {
+        return deduped.into_iter().collect();
+    }
+
+    deduped
+        .iter()
+        .copied()
+        .filter(|&word| {
+            // Check if it's a singular word (doesn't end in 's')
+            if word.ends_with('s') {
+                // Always keep words that already end in 's'
+                true
+            } else {
+                let plural = format!("{word}s");
+                // Only keep it if the plural doesn't exist in our set
+                !deduped.contains(plural.as_str())
+            }
+        })
+        .collect()
 }

@@ -90,10 +90,12 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser::metadata::RawMetadata>()
         .register::<dfraw_parser::metadata::TagComplexity>()
         .register::<dfraw_parser::metadata::RawObject>()
-        .register::<dfraw_parser_sqlite_lib::TilePageData>()
-        .register::<dfraw_parser_sqlite_lib::SpriteGraphicData>()
+        .register::<dfraw_parser_sqlite_lib::models::TilePageData>()
+        .register::<dfraw_parser_sqlite_lib::models::SpriteGraphicData>()
         .register::<dfraw_parser_sqlite_lib::ClientOptions>()
         .register::<dfraw_parser_sqlite_lib::SearchQuery>()
+        .register::<dfraw_parser_sqlite_lib::NumericFilter>()
+        .register::<dfraw_parser_sqlite_lib::NumericConstraint>()
         .register::<dfraw_parser_sqlite_lib::ResultWithId>()
         .register::<dfraw_parser_sqlite_lib::SearchResults>();
 

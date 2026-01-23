@@ -18,9 +18,10 @@ use crate::db::metadata_markers::{
 use crate::db::migrate::{apply_migrations, migrate_down};
 use crate::db::migrations::LATEST_SCHEMA_VERSION;
 use crate::db::queries::{self, insert_module_and_data};
-use crate::db::search_query::{DEFAULT_SEARCH_LIMIT, SearchQuery};
 use crate::db::util::get_current_schema_version;
-use crate::{SearchResults, SpriteGraphicData, TilePageData};
+use crate::models::{SpriteGraphicData, TilePageData};
+use crate::search_query::DEFAULT_SEARCH_LIMIT;
+use crate::{SearchQuery, SearchResults};
 
 /// A client for interacting with a database to contain details about parsed raws.
 #[derive(Debug)]

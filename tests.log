@@ -1,0 +1,128 @@
+2026-01-23T23:17:01.248517Z  INFO dfraw_parser_sqlite_lib::db::client: Database connection opened.
+2026-01-23T23:17:01.248615Z  WARN dfraw_parser_sqlite_lib::db::client: Asked to reset database, will empty database.
+2026-01-23T23:17:01.248635Z  WARN dfraw_parser_sqlite_lib::db::migrate: Performing database downgrade 6 >> 5
+2026-01-23T23:17:01.394289Z  WARN dfraw_parser_sqlite_lib::db::migrate: Performing database downgrade 5 >> 4
+2026-01-23T23:17:01.396393Z  WARN dfraw_parser_sqlite_lib::db::migrate: Performing database downgrade 4 >> 3
+2026-01-23T23:17:01.398085Z  WARN dfraw_parser_sqlite_lib::db::migrate: Performing database downgrade 3 >> 2
+2026-01-23T23:17:01.400542Z  WARN dfraw_parser_sqlite_lib::db::migrate: Performing database downgrade 2 >> 1
+2026-01-23T23:17:01.403069Z  WARN dfraw_parser_sqlite_lib::db::migrate: Performing database downgrade 1 >> 0
+2026-01-23T23:17:01.413615Z  INFO dfraw_parser_sqlite_lib::db::client: Current database schema: v0, Target database schema: v5
+2026-01-23T23:17:01.413643Z  INFO dfraw_parser_sqlite_lib::db::migrate: Migrating database schema v00 >> v05
+2026-01-23T23:17:01.413652Z  INFO dfraw_parser_sqlite_lib::db::migrate: Applying databse schema v01
+2026-01-23T23:17:01.415520Z  INFO dfraw_parser_sqlite_lib::db::migrate: Applying databse schema v02
+2026-01-23T23:17:01.416875Z  INFO dfraw_parser_sqlite_lib::db::migrate: Applying databse schema v03
+2026-01-23T23:17:01.418230Z  INFO dfraw_parser_sqlite_lib::db::migrate: Applying databse schema v04
+2026-01-23T23:17:01.419583Z  INFO dfraw_parser_sqlite_lib::db::migrate: Applying databse schema v05
+2026-01-23T23:17:01.420848Z  INFO dfraw_parser_sqlite_lib::db::migrate: Applying databse schema v06
+2026-01-23T23:17:01.424815Z  WARN dfraw_parser::utilities::steam_directory_lookup: OS not supported for Steam discovery.
+2026-01-23T23:17:01.424906Z  INFO dfraw_parser::metadata::location_helper: Updating df_directory to "/Volumes/LaCie/Repos/dfraw_parser/test-data"
+2026-01-23T23:17:01.424976Z  WARN validate_options: dfraw_parser::utilities::steam_directory_lookup: OS not supported for Steam discovery. options=ParserOptions { attach_metadata_to_raws: false, skip_apply_copy_tags_from: false, skip_apply_creature_variations: false, object_types_to_parse: [Creature, Inorganic, Plant, Item, ItemAmmo, ItemArmor, ItemFood, ItemGloves, ItemHelm, ItemInstrument, ItemPants, ItemShield, ItemShoes, ItemSiegeAmmo, ItemTool, ItemToy, ItemTrapComponent, ItemWeapon, Building, BuildingWorkshop, BuildingFurnace, Reaction, Graphics, MaterialTemplate, BodyDetailPlan, Body, Entity, Language, Translation, TissueTemplate, CreatureVariation, TextSet, TilePage, DescriptorColor, DescriptorPattern, DescriptorShape, Palette, Music, Sound, Interaction, Unknown, SelectCreature, CreatureCaste, ModuleInfo], locations_to_parse: [Vanilla], locations: LocationHelper { df_directory: Some("/Volumes/LaCie/Repos/dfraw_parser/test-data"), user_data_directory: Some("/Volumes/LaCie/Repos/dfraw_parser/test-data/user") }, legends_exports_to_parse: [], raw_files_to_parse: [], raw_modules_to_parse: [], module_info_files_to_parse: [], log_summary: false, include_warnings_for_info_file_format: false }
+2026-01-23T23:17:01.425010Z  INFO dfraw_parser::parser::parse: LocationHelper { df_directory: Some("/Volumes/LaCie/Repos/dfraw_parser/test-data"), user_data_directory: Some("/Volumes/LaCie/Repos/dfraw_parser/test-data/user") }
+2026-01-23T23:17:01.425019Z  INFO dfraw_parser::parser::parse: Dispatching parse for vanilla raws
+2026-01-23T23:17:01.425510Z  INFO dfraw_parser::parser::raw_location: Found 25 raw modules in Vanilla
+2026-01-23T23:17:01.426460Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_creatures_graphics v53.10
+2026-01-23T23:17:01.454793Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("BABY:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="DWARF"
+2026-01-23T23:17:01.455558Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("CHILD:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="DWARF"
+2026-01-23T23:17:01.565749Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("BABY:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="KOBOLD"
+2026-01-23T23:17:01.566137Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("CHILD:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="KOBOLD"
+2026-01-23T23:17:01.811425Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("BABY:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="GOBLIN"
+2026-01-23T23:17:01.811843Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("CHILD:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="GOBLIN"
+2026-01-23T23:17:01.919439Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("BABY:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="HUMAN"
+2026-01-23T23:17:01.920132Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("CHILD:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="HUMAN"
+2026-01-23T23:17:02.062332Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("BABY:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="ELF"
+2026-01-23T23:17:02.062988Z  WARN parse_layer_condition_token: dfraw_parser::parsed_definitions::graphic: Failed to parse, No SpriteLayer defined yet: ("CHILD:PORTRAIT", []) key="LG_CONDITION_BP" value="BY_TOKEN:UB" self.identifier="ELF"
+2026-01-23T23:17:02.297848Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_languages v50.01
+2026-01-23T23:17:02.298874Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_interactions_graphics v51.01
+2026-01-23T23:17:02.299330Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_items_graphics v53.06
+2026-01-23T23:17:02.315641Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_creatures v53.01
+2026-01-23T23:17:02.648298Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_buildings_graphics v53.06
+2026-01-23T23:17:02.714354Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_music v53.06
+2026-01-23T23:17:02.714702Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_descriptors_graphics v53.06
+2026-01-23T23:17:02.715779Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_materials v53.08
+2026-01-23T23:17:02.757288Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_interface v53.02
+2026-01-23T23:17:02.854049Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_buildings v50.01
+2026-01-23T23:17:02.854284Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_world_map v50.01
+2026-01-23T23:17:02.903532Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_items v53.01
+2026-01-23T23:17:02.905080Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_environment v53.01
+2026-01-23T23:17:02.958110Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_entities v53.01
+2026-01-23T23:17:02.971480Z  INFO dfraw_parser::parser::raw_module: Parsing graphics for vanilla_plants_graphics v51.06
+2026-01-23T23:17:03.037529Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_descriptors v52.03
+2026-01-23T23:17:03.038175Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_interactions v51.01
+2026-01-23T23:17:03.038407Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_reactions v50.01
+2026-01-23T23:17:03.038994Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_bodies v50.01
+2026-01-23T23:17:03.039587Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_text v50.01
+2026-01-23T23:17:03.046343Z  INFO dfraw_parser::parser::raw_module: Parsing objects for vanilla_plants v50.09
+2026-01-23T23:17:03.124788Z  INFO dfraw_parser::parser::parse: Resolving 767 unprocessed creatures using 32 creature variation definitions
+2026-01-23T23:17:03.241335Z  INFO dfraw_parser::parser::parse: Resolved 403 simple creatures
+2026-01-23T23:17:03.467216Z  INFO dfraw_parser::parser::parse: Resolved 364 complex creatures
+2026-01-23T23:17:03.467237Z  INFO dfraw_parser::parser::info_file: Dispatching info.txt parse for vanilla raws
+2026-01-23T23:17:03.467606Z  INFO dfraw_parser::parser::info_file: Found 25 raw modules in "vanilla"
+2026-01-23T23:17:03.476610Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Creatures Graphics 53.10 (5310) in Vanilla
+2026-01-23T23:17:03.477542Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_creatures_graphics
+2026-01-23T23:17:03.701337Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_creatures_graphics Summary: Serialize: 125048μs, Core DB: 31275μs, Search/FTS5: 2839μs, Graphics (all): 53419μs
+2026-01-23T23:17:03.710352Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Languages 50.01 (5001) in Vanilla
+2026-01-23T23:17:03.710941Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_languages
+2026-01-23T23:17:03.711840Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_languages Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 2μs, Graphics (all): 0μs
+2026-01-23T23:17:03.711863Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Procedural Objects 53.09 (5309) in Vanilla
+2026-01-23T23:17:03.712274Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_procedural
+2026-01-23T23:17:03.713188Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_procedural Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 0μs, Graphics (all): 0μs
+2026-01-23T23:17:03.713211Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Interactions Graphics 51.01 (5101) in Vanilla
+2026-01-23T23:17:03.713583Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_interactions_graphics
+2026-01-23T23:17:03.714535Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_interactions_graphics Summary: Serialize: 28μs, Core DB: 133μs, Search/FTS5: 23μs, Graphics (all): 24μs
+2026-01-23T23:17:03.715367Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Items Graphics 53.06 (5306) in Vanilla
+2026-01-23T23:17:03.715750Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_items_graphics
+2026-01-23T23:17:03.743538Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_items_graphics Summary: Serialize: 12328μs, Core DB: 10559μs, Search/FTS5: 1484μs, Graphics (all): 1757μs
+2026-01-23T23:17:03.747233Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Creatures 53.01 (5301) in Vanilla
+2026-01-23T23:17:03.747840Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_creatures
+2026-01-23T23:17:04.185209Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_creatures Summary: Serialize: 247353μs, Core DB: 39966μs, Search/FTS5: 63697μs, Graphics (all): 1μs
+2026-01-23T23:17:04.204459Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Buildings Graphics 53.06 (5306) in Vanilla
+2026-01-23T23:17:04.205080Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_buildings_graphics
+2026-01-23T23:17:04.342545Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_buildings_graphics Summary: Serialize: 63018μs, Core DB: 60309μs, Search/FTS5: 7907μs, Graphics (all): 122μs
+2026-01-23T23:17:04.353634Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Music 53.06 (5306) in Vanilla
+2026-01-23T23:17:04.354227Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_music
+2026-01-23T23:17:04.356932Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_music Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 2μs, Graphics (all): 0μs
+2026-01-23T23:17:04.356958Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Descriptors Graphics 53.06 (5306) in Vanilla
+2026-01-23T23:17:04.357328Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_descriptors_graphics
+2026-01-23T23:17:04.360507Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_descriptors_graphics Summary: Serialize: 203μs, Core DB: 244μs, Search/FTS5: 39μs, Graphics (all): 190μs
+2026-01-23T23:17:04.362283Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Materials 53.08 (5208) in Vanilla
+2026-01-23T23:17:04.362626Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_materials
+2026-01-23T23:17:04.380637Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_materials Summary: Serialize: 9576μs, Core DB: 4977μs, Search/FTS5: 617μs, Graphics (all): 1μs
+2026-01-23T23:17:04.389335Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Interface 53.02 (5302) in Vanilla
+2026-01-23T23:17:04.390002Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_interface
+2026-01-23T23:17:04.503335Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_interface Summary: Serialize: 50523μs, Core DB: 48381μs, Search/FTS5: 6078μs, Graphics (all): 2892μs
+2026-01-23T23:17:04.518477Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Buildings 50.01 (5001) in Vanilla
+2026-01-23T23:17:04.519067Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_buildings
+2026-01-23T23:17:04.521754Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_buildings Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 2μs, Graphics (all): 0μs
+2026-01-23T23:17:04.521777Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla World Map 50.01 (5001) in Vanilla
+2026-01-23T23:17:04.522198Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_world_map
+2026-01-23T23:17:04.615744Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_world_map Summary: Serialize: 41695μs, Core DB: 41958μs, Search/FTS5: 5217μs, Graphics (all): 93μs
+2026-01-23T23:17:04.630748Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Items 53.01 (5301) in Vanilla
+2026-01-23T23:17:04.631305Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_items
+2026-01-23T23:17:04.633909Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_items Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 1μs, Graphics (all): 0μs
+2026-01-23T23:17:04.633931Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Environment 53.01 (5301) in Vanilla
+2026-01-23T23:17:04.634339Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_environment
+2026-01-23T23:17:04.754920Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_environment Summary: Serialize: 52770μs, Core DB: 54822μs, Search/FTS5: 7115μs, Graphics (all): 334μs
+2026-01-23T23:17:04.774722Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Entities 53.01 (5301) in Vanilla
+2026-01-23T23:17:04.775266Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_entities
+2026-01-23T23:17:04.779481Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_entities Summary: Serialize: 1284μs, Core DB: 385μs, Search/FTS5: 40μs, Graphics (all): 1μs
+2026-01-23T23:17:04.780680Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Plants Graphics 51.06 (5106) in Vanilla
+2026-01-23T23:17:04.781075Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_plants_graphics
+2026-01-23T23:17:04.826895Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_plants_graphics Summary: Serialize: 17738μs, Core DB: 17058μs, Search/FTS5: 1868μs, Graphics (all): 5153μs
+2026-01-23T23:17:04.848830Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Descriptors 52.03 (5203) in Vanilla
+2026-01-23T23:17:04.849404Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_descriptors
+2026-01-23T23:17:04.851900Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_descriptors Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 1μs, Graphics (all): 0μs
+2026-01-23T23:17:04.851922Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Interactions 51.01 (5101) in Vanilla
+2026-01-23T23:17:04.852270Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_interactions
+2026-01-23T23:17:04.854569Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_interactions Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 1μs, Graphics (all): 0μs
+2026-01-23T23:17:04.854589Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Reactions 50.01 (5001) in Vanilla
+2026-01-23T23:17:04.854895Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_reactions
+2026-01-23T23:17:04.857187Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_reactions Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 1μs, Graphics (all): 0μs
+2026-01-23T23:17:04.857208Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Bodies 50.01 (5001) in Vanilla
+2026-01-23T23:17:04.857489Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_bodies
+2026-01-23T23:17:04.859842Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_bodies Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 0μs, Graphics (all): 1μs
+2026-01-23T23:17:04.859863Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Text 50.01 (5001) in Vanilla
+2026-01-23T23:17:04.860161Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_text
+2026-01-23T23:17:04.862404Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_text Summary: Serialize: 0μs, Core DB: 0μs, Search/FTS5: 1μs, Graphics (all): 0μs
+2026-01-23T23:17:04.862426Z  INFO dfraw_parser_sqlite_lib::db::client: Inserting raws for Vanilla Plants 50.09 (5009) in Vanilla
+2026-01-23T23:17:04.862704Z  INFO dfraw_parser_sqlite_lib::db::queries::modules: Inserting module dependencies for vanilla_plants
+2026-01-23T23:17:04.892115Z  INFO dfraw_parser_sqlite_lib::db::queries::process_raw_insertions: Module vanilla_plants Summary: Serialize: 14533μs, Core DB: 4782μs, Search/FTS5: 4797μs, Graphics (all): 0μs

@@ -8,7 +8,7 @@ use dfraw_parser::{
 use rusqlite::{Result, Transaction, params};
 use tracing::error;
 
-use crate::{db::util::remove_dup_strings, search_helpers::extract_names_and_descriptions};
+use crate::search_helpers::{extract_names_and_descriptions, remove_dup_strings};
 
 /// Inserts a batch of raws using prepared statements for efficiency.
 ///

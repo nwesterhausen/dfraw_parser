@@ -8890,6 +8890,42 @@ export type ModuleInfo = { identifier: string; objectId: string; location: RawMo
 export type Name = { singular: string; plural: string; adjective: string | null }
 
 /**
+ * A constraint on a query made with a [`NumericFilter`]
+ */
+export type NumericConstraint = 
+/**
+ * Matches values greater than or equal to X (val >= x)
+ * Example: "At least 50 pet value"
+ */
+{ mode: "min"; value: string } | 
+/**
+ * Matches values less than or equal to X (val <= x)
+ * Example: "Difficulty less than 10"
+ */
+{ mode: "max"; value: string } | 
+/**
+ * Matches values exactly equal to X (val == x)
+ */
+{ mode: "exact"; value: string } | 
+/**
+ * Matches values between X and Y inclusive (x <= val <= y)
+ */
+{ mode: "range"; value: [string, string] }
+
+/**
+ * A filter to apply to numeric values associated with a raw.
+ */
+export type NumericFilter = { 
+/**
+ * The database key (e.g. `PET_VALUE`, `CLUTCH_SIZE_MAX`)
+ */
+key: string; 
+/**
+ * The constraint to apply
+ */
+constraint: NumericConstraint }
+
+/**
  * The various types of objects that are within the raw files.
  */
 export type ObjectType = 
@@ -10034,7 +10070,7 @@ requiredFlags: string[];
  * 
  * The value provided will be used for (minimum/exact value, maximum value)
  */
-numericFilters: ([string, number, number | null])[]; 
+numericFilters: NumericFilter[]; 
 /**
  * Limit the number of raws returned to this amount per page
  * 

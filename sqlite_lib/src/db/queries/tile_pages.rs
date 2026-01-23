@@ -1,6 +1,6 @@
 use rusqlite::{Connection, Result, params};
 
-use crate::TilePageData;
+use crate::models::TilePageData;
 
 use super::super::rusqlite_extensions::OptionalResultExtension;
 
