@@ -10,7 +10,7 @@ use crate::{
     Dimensions,
     metadata::RawMetadata,
     raw_definitions::TILE_PAGE_TOKENS,
-    tags::{ObjectType, TilePageTag},
+    tokens::{ObjectType, TilePageToken},
     traits::{RawObject, Searchable},
     utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
@@ -115,8 +115,8 @@ impl RawObject for TilePage {
         ObjectType::TilePage
     }
     fn parse_tag(&mut self, key: &str, value: &str) {
-        match TILE_PAGE_TOKENS.get(key).unwrap_or(&TilePageTag::Unknown) {
-            TilePageTag::File => {
+        match TILE_PAGE_TOKENS.get(key).unwrap_or(&TilePageToken::Unknown) {
+            TilePageToken::File => {
                 let relative_path: PathBuf = value.split('/').collect();
                 let mut raw_path = PathBuf::new();
                 if let Some(metadata) = &self.metadata {
@@ -124,13 +124,13 @@ impl RawObject for TilePage {
                 }
                 self.file = raw_path.parent().unwrap_or(&raw_path).join(relative_path);
             }
-            TilePageTag::TileDim => {
+            TilePageToken::TileDim => {
                 self.tile_dim = Dimensions::from_token(value);
             }
-            TilePageTag::PageDim => {
+            TilePageToken::PageDim => {
                 self.page_dim = Dimensions::from_token(value);
             }
-            TilePageTag::Unknown => {
+            TilePageToken::Unknown => {
                 warn!(
                     "Failed to parse {} as TilePageTag for {}",
                     key,

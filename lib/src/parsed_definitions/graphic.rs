@@ -10,7 +10,7 @@ use crate::{
     raw_definitions::{
         CONDITION_TOKENS, CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS,
     },
-    tags::{ConditionTag, GraphicTypeTag, ObjectType},
+    tokens::{ConditionToken, GraphicTypeToken, ObjectType},
     traits::{RawObject, Searchable},
     utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
@@ -39,7 +39,7 @@ pub struct Graphic {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     caste_identifier: Option<String>,
     #[cleanable(ignore)]
-    kind: GraphicTypeTag,
+    kind: GraphicTypeToken,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     sprites: Option<Vec<SpriteGraphic>>,
@@ -157,7 +157,7 @@ impl Graphic {
     ///
     /// * `Graphic` - The new Graphic.
     #[must_use]
-    pub fn new(identifier: &str, metadata: &RawMetadata, graphic_type: GraphicTypeTag) -> Self {
+    pub fn new(identifier: &str, metadata: &RawMetadata, graphic_type: GraphicTypeToken) -> Self {
         Self {
             identifier: String::from(identifier),
             metadata: Some(metadata.clone()),
@@ -199,13 +199,13 @@ impl Graphic {
         if let Some(condition_tag) = CONDITION_TOKENS.get(key) {
             let last_pallete = self.palletes.last_mut();
             match condition_tag {
-                ConditionTag::LayerSetPalette => self.palletes.push(GraphicPalette::new(value)),
-                ConditionTag::LayerSetPaletteDefault => {
+                ConditionToken::LayerSetPalette => self.palletes.push(GraphicPalette::new(value)),
+                ConditionToken::LayerSetPaletteDefault => {
                     if let Some(palette) = last_pallete {
                         palette.set_default_row(value.parse().unwrap_or_default());
                     }
                 }
-                ConditionTag::LayerSetPaletteFile => {
+                ConditionToken::LayerSetPaletteFile => {
                     if let Some(palette) = last_pallete {
                         palette.set_file(value);
                     }
@@ -245,7 +245,12 @@ impl Graphic {
     /// * `value` - The value of the token.
     /// * `graphic_type` - The type of graphic.
     #[allow(clippy::too_many_lines)]
-    pub fn parse_sprite_from_tag(&mut self, key: &str, value: &str, graphic_type: GraphicTypeTag) {
+    pub fn parse_sprite_from_tag(
+        &mut self,
+        key: &str,
+        value: &str,
+        graphic_type: GraphicTypeToken,
+    ) {
         // Check if key is related to setting palette information
         if key == "LS_PALETTE" || key == "LS_PALETTE_FILE" || key == "LS_PALETTE_DEFAULT" {
             self.parse_layer_palette_info(key, value);
@@ -341,7 +346,7 @@ impl Graphic {
         // Check if the key is plant graphic template, which for now we accept only on growths
         if let Some(_plant_graphic_template) = PLANT_GRAPHIC_TEMPLATE_TOKENS.get(key) {
             if let Some(sprite_graphic) =
-                SpriteGraphic::from_token(key, value, GraphicTypeTag::Template)
+                SpriteGraphic::from_token(key, value, GraphicTypeToken::Template)
             {
                 if let Some(growths) = self.growths.as_mut()
                     && let Some(growth) = growths.last_mut()
@@ -383,7 +388,7 @@ impl Graphic {
     ///
     /// * `GraphicType` - The type of the Graphic.
     #[must_use]
-    pub const fn get_graphic_type(&self) -> GraphicTypeTag {
+    pub const fn get_graphic_type(&self) -> GraphicTypeToken {
         self.kind
     }
     /// Get the tile page IDs for the Graphic.

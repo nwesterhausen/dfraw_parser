@@ -1,75 +1,75 @@
 use crate::{
     metadata::NumericToken,
-    tags::CasteTag,
+    tokens::CasteToken,
     traits::{NumericTokenTransform, RawObjectToken},
 };
 
-impl NumericTokenTransform for CasteTag {
+impl NumericTokenTransform for CasteToken {
     fn as_numeric_tokens(&self) -> Vec<NumericToken> {
         let mut tokens = Vec::new();
         let prefix = self.get_key().unwrap_or_default();
         match self {
             // Single Value Tags
-            CasteTag::Child { age } | CasteTag::Baby { age } => {
+            CasteToken::Child { age } | CasteToken::Baby { age } => {
                 tokens.push(NumericToken::new(String::from(prefix), *age));
             }
-            CasteTag::BeachFrequency { frequency } => {
+            CasteToken::BeachFrequency { frequency } => {
                 tokens.push(NumericToken::new(String::from(prefix), *frequency));
             }
-            CasteTag::Difficulty { difficulty } => {
+            CasteToken::Difficulty { difficulty } => {
                 tokens.push(NumericToken::new(String::from(prefix), *difficulty));
             }
-            CasteTag::EggSize { size } => {
+            CasteToken::EggSize { size } => {
                 tokens.push(NumericToken::new(String::from(prefix), *size));
             }
-            CasteTag::FixedTemp { temperature } => {
+            CasteToken::FixedTemp { temperature } => {
                 tokens.push(NumericToken::new(String::from(prefix), *temperature));
             }
-            CasteTag::GrassTrample { trample } => {
+            CasteToken::GrassTrample { trample } => {
                 tokens.push(NumericToken::new(String::from(prefix), *trample));
             }
-            CasteTag::GravitateBodySize { target } => {
+            CasteToken::GravitateBodySize { target } => {
                 tokens.push(NumericToken::new(String::from(prefix), *target));
             }
-            CasteTag::Grazer { grazer } => {
+            CasteToken::Grazer { grazer } => {
                 tokens.push(NumericToken::new(String::from(prefix), *grazer));
             }
-            CasteTag::Homeotherm { temperature } => {
+            CasteToken::Homeotherm { temperature } => {
                 tokens.push(NumericToken::new(String::from(prefix), *temperature));
             }
-            CasteTag::ItemCorpseQuality { quality } => {
+            CasteToken::ItemCorpseQuality { quality } => {
                 tokens.push(NumericToken::new(String::from(prefix), *quality));
             }
-            CasteTag::LowLightVision { vision } => {
+            CasteToken::LowLightVision { vision } => {
                 tokens.push(NumericToken::new(String::from(prefix), *vision));
             }
-            CasteTag::PenetratePower { penetrate_power } => {
+            CasteToken::PenetratePower { penetrate_power } => {
                 tokens.push(NumericToken::new(String::from(prefix), *penetrate_power));
             }
-            CasteTag::PetValue { pet_value } => {
+            CasteToken::PetValue { pet_value } => {
                 tokens.push(NumericToken::new(String::from(prefix), *pet_value));
             }
-            CasteTag::PopulationRatio { pop_ratio } => {
+            CasteToken::PopulationRatio { pop_ratio } => {
                 tokens.push(NumericToken::new(String::from(prefix), *pop_ratio));
             }
-            CasteTag::ProneToRage { rage_chance } => {
+            CasteToken::ProneToRage { rage_chance } => {
                 tokens.push(NumericToken::new(String::from(prefix), *rage_chance));
             }
-            CasteTag::TradeCapacity { capacity } => {
+            CasteToken::TradeCapacity { capacity } => {
                 tokens.push(NumericToken::new(String::from(prefix), *capacity));
             }
-            CasteTag::ViewRange { view_range } => {
+            CasteToken::ViewRange { view_range } => {
                 tokens.push(NumericToken::new(String::from(prefix), *view_range));
             }
 
             // Combo-key simple value
-            CasteTag::NaturalSkill { skill, level } => {
+            CasteToken::NaturalSkill { skill, level } => {
                 tokens.push(NumericToken::new(format!("{prefix}_{skill}"), *level));
             }
-            CasteTag::SkillLearnRate { skill, rate } => {
+            CasteToken::SkillLearnRate { skill, rate } => {
                 tokens.push(NumericToken::new(format!("{prefix}_{skill}"), *rate));
             }
-            CasteTag::SyndromeDilutionFactor {
+            CasteToken::SyndromeDilutionFactor {
                 syndrome,
                 percentage,
             } => {
@@ -80,19 +80,19 @@ impl NumericTokenTransform for CasteTag {
             }
 
             // Range Tags (Min/Max)
-            CasteTag::ClutchSize { min, max } => {
+            CasteToken::ClutchSize { min, max } => {
                 tokens.push(NumericToken::new(format!("{prefix}_MIN"), *min));
                 tokens.push(NumericToken::new(format!("{prefix}_MAX"), *max));
             }
-            CasteTag::LitterSize { min, max } => {
+            CasteToken::LitterSize { min, max } => {
                 tokens.push(NumericToken::new(format!("{prefix}_MIN"), *min));
                 tokens.push(NumericToken::new(format!("{prefix}_MAX"), *max));
             }
-            CasteTag::MaxAge { min, max } => {
+            CasteToken::MaxAge { min, max } => {
                 tokens.push(NumericToken::new(format!("{prefix}_MIN"), *min));
                 tokens.push(NumericToken::new(format!("{prefix}_MAX"), *max));
             }
-            CasteTag::VisionArc {
+            CasteToken::VisionArc {
                 binocular,
                 non_binocular,
             } => {
@@ -104,7 +104,7 @@ impl NumericTokenTransform for CasteTag {
             }
 
             // Complex Tags
-            CasteTag::AttackTrigger {
+            CasteToken::AttackTrigger {
                 population,
                 exported_wealth,
                 created_wealth,
@@ -122,7 +122,7 @@ impl NumericTokenTransform for CasteTag {
                     *created_wealth,
                 ));
             }
-            CasteTag::BodySize { year, days, size } => {
+            CasteToken::BodySize { year, days, size } => {
                 tokens.push(NumericToken::new(format!("{prefix}_YEAR"), *year));
                 tokens.push(NumericToken::new(format!("{prefix}_DAY"), *days));
                 tokens.push(NumericToken::new(format!("{prefix}_SIZE"), *size));

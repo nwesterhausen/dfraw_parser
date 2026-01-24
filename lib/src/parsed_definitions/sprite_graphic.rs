@@ -7,7 +7,7 @@ use tracing::warn;
 use crate::{
     Dimensions,
     raw_definitions::{CONDITION_TOKENS, GRAPHIC_TYPE_TOKENS},
-    tags::{ColorModificationTag, ConditionTag, GraphicTypeTag},
+    tokens::{ColorModificationToken, ConditionToken, GraphicTypeToken},
 };
 
 /// A struct representing a sprite graphic.
@@ -25,19 +25,19 @@ use crate::{
 )]
 #[serde(rename_all = "camelCase")]
 pub struct SpriteGraphic {
-    primary_condition: ConditionTag,
+    primary_condition: ConditionToken,
     tile_page_id: String,
     offset: Dimensions,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[is_empty(only_if_none)]
-    color: Option<ColorModificationTag>,
+    color: Option<ColorModificationToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     large_image: Option<bool>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     offset2: Option<Dimensions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[is_empty(only_if_none)]
-    secondary_condition: Option<ConditionTag>,
+    secondary_condition: Option<ConditionToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     color_pallet_swap: Option<u32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -56,14 +56,14 @@ impl SpriteGraphic {
         self.offset2
     }
     #[must_use]
-    pub fn get_primary_condition(&self) -> ConditionTag {
+    pub fn get_primary_condition(&self) -> ConditionToken {
         self.primary_condition
     }
     #[must_use]
-    pub fn get_secondary_condition(&self) -> ConditionTag {
+    pub fn get_secondary_condition(&self) -> ConditionToken {
         match self.secondary_condition {
             Some(condition) => condition,
-            None => ConditionTag::None,
+            None => ConditionToken::None,
         }
     }
     #[must_use]
@@ -94,7 +94,7 @@ impl SpriteGraphic {
     ///
     /// An option containing the sprite graphic.
     #[must_use]
-    pub fn from_token(key: &str, value: &str, graphic_type: GraphicTypeTag) -> Option<Self> {
+    pub fn from_token(key: &str, value: &str, graphic_type: GraphicTypeToken) -> Option<Self> {
         // Recombine token for parsing
         let token = format!("{key}:{value}");
         let specific_graphic_type = GRAPHIC_TYPE_TOKENS
@@ -103,41 +103,41 @@ impl SpriteGraphic {
             .unwrap_or(graphic_type);
 
         match specific_graphic_type {
-            GraphicTypeTag::Creature
-            | GraphicTypeTag::CreatureCaste
-            | GraphicTypeTag::StatueCreature
-            | GraphicTypeTag::StatueCreatureCaste
-            | GraphicTypeTag::StatuesSurfaceGiant => {
+            GraphicTypeToken::Creature
+            | GraphicTypeToken::CreatureCaste
+            | GraphicTypeToken::StatueCreature
+            | GraphicTypeToken::StatueCreatureCaste
+            | GraphicTypeToken::StatuesSurfaceGiant => {
                 // parse creature
                 Self::parse_creature_sprite_from_token(&token)
             }
-            GraphicTypeTag::Plant => {
+            GraphicTypeToken::Plant => {
                 // parse plant
                 Self::parse_plant_from_token(&token)
             }
-            GraphicTypeTag::ToolWood
-            | GraphicTypeTag::ToolGlass
-            | GraphicTypeTag::ToolMetal
-            | GraphicTypeTag::ToolStone
-            | GraphicTypeTag::ToolWoodVariant
-            | GraphicTypeTag::ToolGlassVariant
-            | GraphicTypeTag::ToolMetalVariant
-            | GraphicTypeTag::ToolStoneVariant
-            | GraphicTypeTag::ToolDamage => Self::parse_tile_with_color_pallet_from_value(value),
-            GraphicTypeTag::ToolShape
-            | GraphicTypeTag::ShapeLargeGem
-            | GraphicTypeTag::ShapeSmallGem => {
+            GraphicTypeToken::ToolWood
+            | GraphicTypeToken::ToolGlass
+            | GraphicTypeToken::ToolMetal
+            | GraphicTypeToken::ToolStone
+            | GraphicTypeToken::ToolWoodVariant
+            | GraphicTypeToken::ToolGlassVariant
+            | GraphicTypeToken::ToolMetalVariant
+            | GraphicTypeToken::ToolStoneVariant
+            | GraphicTypeToken::ToolDamage => Self::parse_tile_with_color_pallet_from_value(value),
+            GraphicTypeToken::ToolShape
+            | GraphicTypeToken::ShapeLargeGem
+            | GraphicTypeToken::ShapeSmallGem => {
                 Self::parse_tile_with_extra_descriptor_from_value(value)
             }
-            GraphicTypeTag::Template
-            | GraphicTypeTag::CustomWorkshop
-            | GraphicTypeTag::AddTool
-            | GraphicTypeTag::Ammo
-            | GraphicTypeTag::SiegeAmmo
-            | GraphicTypeTag::Weapon => {
+            GraphicTypeToken::Template
+            | GraphicTypeToken::CustomWorkshop
+            | GraphicTypeToken::AddTool
+            | GraphicTypeToken::Ammo
+            | GraphicTypeToken::SiegeAmmo
+            | GraphicTypeToken::Weapon => {
                 // parse template ""
                 Some(Self {
-                    primary_condition: ConditionTag::CopyOfTemplate,
+                    primary_condition: ConditionToken::CopyOfTemplate,
                     tile_page_id: format!("{key}:{value}"),
                     ..Self::default()
                 })
@@ -162,7 +162,7 @@ impl SpriteGraphic {
         let mut split = token.split(':');
 
         let sprite_condition = match split.next() {
-            Some(v) => *CONDITION_TOKENS.get(v).unwrap_or(&ConditionTag::None),
+            Some(v) => *CONDITION_TOKENS.get(v).unwrap_or(&ConditionToken::None),
             _ => {
                 return None;
             }
@@ -491,7 +491,7 @@ impl SpriteGraphic {
     /// ```
     #[tracing::instrument]
     fn parse_creature_sprite_from_keyed_token(
-        key_condition: &ConditionTag,
+        key_condition: &ConditionToken,
         token: &str,
     ) -> Option<Self> {
         let primary_condition = *key_condition;
@@ -501,7 +501,7 @@ impl SpriteGraphic {
         match num_args {
             // List Icon or Creature without color
             3 => {
-                if key_condition == &ConditionTag::ListIcon {
+                if key_condition == &ConditionToken::ListIcon {
                     return Some(Self {
                         primary_condition,
                         // pos 1 (idx 0)
@@ -540,7 +540,7 @@ impl SpriteGraphic {
                     ),
                     // pos 4 (idx 3)
                     // always is AS_IS (as of df53.08)
-                    color: Some(ColorModificationTag::AsIs),
+                    color: Some(ColorModificationToken::AsIs),
                     ..Default::default()
                 })
             }
@@ -549,7 +549,7 @@ impl SpriteGraphic {
                 // If the final token is not `u32` then we have a secondary condition.
                 if tokens.get(4).unwrap_or(&"!").parse::<u32>().is_err() {
                     // pos 5 (idx 4) (only sometimes present)
-                    let secondary_condition: Option<ConditionTag> =
+                    let secondary_condition: Option<ConditionToken> =
                         CONDITION_TOKENS.get(tokens.get(4).unwrap_or(&"")).copied();
                     return Some(Self {
                         primary_condition,
@@ -562,7 +562,7 @@ impl SpriteGraphic {
                         ),
                         // pos 4 (idx 3)
                         // always is AS_IS (as of df53.08)
-                        color: Some(ColorModificationTag::AsIs),
+                        color: Some(ColorModificationToken::AsIs),
                         // pos 5 (idx 4) (only sometimes present)
                         secondary_condition,
                         ..Default::default()
@@ -582,7 +582,7 @@ impl SpriteGraphic {
                     ),
                     // pos 4 (idx 3)
                     // always is AS_IS (as of df53.08)
-                    color: Some(ColorModificationTag::AsIs),
+                    color: Some(ColorModificationToken::AsIs),
                     ..Default::default()
                 })
             }
@@ -610,7 +610,7 @@ impl SpriteGraphic {
             // Only large creature (and lrg + 2nd cond)
             7 | 8 => {
                 // pos 8 (idx 7) (only sometimes present)
-                let secondary_condition: Option<ConditionTag> = if num_args == 8 {
+                let secondary_condition: Option<ConditionToken> = if num_args == 8 {
                     CONDITION_TOKENS.get(tokens.get(7).unwrap_or(&"")).copied()
                 } else {
                     None
@@ -635,7 +635,7 @@ impl SpriteGraphic {
                     )),
                     // pos 7 (idx 6)
                     // always is AS_IS (as of df53.08)
-                    color: Some(ColorModificationTag::AsIs),
+                    color: Some(ColorModificationToken::AsIs),
                     secondary_condition,
                     ..Default::default()
                 })

@@ -4,7 +4,7 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{ModuleInfo, tags::ObjectType};
+use crate::{ModuleInfo, tokens::ObjectType};
 
 use super::RawModuleLocation;
 

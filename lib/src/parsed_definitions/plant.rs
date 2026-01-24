@@ -13,7 +13,7 @@ use crate::{
         BIOME_TOKENS, MATERIAL_PROPERTY_TOKENS, MATERIAL_USAGE_TOKENS, PLANT_GROWTH_TOKENS,
         PLANT_GROWTH_TYPE_TOKENS, PLANT_TOKENS, SHRUB_TOKENS, TREE_TOKENS,
     },
-    tags::{BiomeTag, ObjectType, PlantGrowthTag, PlantGrowthTypeTag, PlantTag},
+    tokens::{BiomeToken, ObjectType, PlantGrowthToken, PlantGrowthTypeToken, PlantToken},
     traits::{RawObject, Searchable},
     utilities::{clean_search_vec, generate_object_id_using_raw_metadata, parse_min_max_range},
 };
@@ -45,7 +45,7 @@ pub struct Plant {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pref_strings: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<PlantTag>>,
+    tags: Option<Vec<PlantToken>>,
 
     // Environment Tokens
     /// Default [0, 0] (aboveground)
@@ -56,7 +56,7 @@ pub struct Plant {
     frequency: Option<u32>,
     /// List of biomes this plant can grow in
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    biomes: Option<Vec<BiomeTag>>,
+    biomes: Option<Vec<BiomeToken>>,
 
     /// Growth Tokens define the growths of the plant (leaves, fruit, etc.)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -120,7 +120,7 @@ impl Plant {
     ///
     /// A vector of biomes the plant can grow in
     #[must_use]
-    pub fn get_biomes(&self) -> Vec<BiomeTag> {
+    pub fn get_biomes(&self) -> Vec<BiomeToken> {
         self.biomes
             .as_ref()
             .map_or_else(Vec::new, std::clone::Clone::clone)
@@ -157,7 +157,7 @@ impl Plant {
     /// # Arguments
     ///
     /// * `tag` - The tag to add to the plant
-    pub fn add_tag(&mut self, tag: PlantTag) {
+    pub fn add_tag(&mut self, tag: PlantToken) {
         if self.tags.is_none() {
             self.tags = Some(Vec::new());
         }
@@ -181,7 +181,7 @@ impl Plant {
     ///
     /// Whether the plant has the tag
     #[must_use]
-    pub fn has_tag(&self, tag: &PlantTag) -> bool {
+    pub fn has_tag(&self, tag: &PlantToken) -> bool {
         if let Some(tags) = &self.tags {
             for t in tags {
                 if std::mem::discriminant(t) == std::mem::discriminant(tag) {
@@ -202,7 +202,7 @@ impl Plant {
     ///
     /// Whether the plant can grow in the biome
     #[must_use]
-    pub fn has_biome(&self, biome: &BiomeTag) -> bool {
+    pub fn has_biome(&self, biome: &BiomeToken) -> bool {
         if let Some(biomes) = &self.biomes {
             for b in biomes {
                 if b == biome {
@@ -219,17 +219,17 @@ impl RawObject for Plant {
     fn get_searchable_tokens(&self) -> Vec<&str> {
         let mut tokens = HashSet::new();
 
-        for token in PlantTag::FLAG_TOKENS {
+        for token in PlantToken::FLAG_TOKENS {
             if self.has_tag(token) {
-                tokens.insert(PlantTag::get_key(token).unwrap_or_default());
+                tokens.insert(PlantToken::get_key(token).unwrap_or_default());
             }
         }
 
         if let Some(growths) = &self.growths {
             for growth in growths {
-                if PlantGrowthTypeTag::FLAG_TOKENS.contains(&growth.get_growth_type()) {
+                if PlantGrowthTypeToken::FLAG_TOKENS.contains(&growth.get_growth_type()) {
                     tokens.insert(
-                        PlantGrowthTypeTag::get_key(growth.get_growth_type()).unwrap_or_default(),
+                        PlantGrowthTypeToken::get_key(growth.get_growth_type()).unwrap_or_default(),
                     );
                 }
             }
@@ -296,12 +296,12 @@ impl RawObject for Plant {
             }
             let token = PLANT_GROWTH_TOKENS
                 .get(key)
-                .unwrap_or(&PlantGrowthTag::Unknown);
-            if token == &PlantGrowthTag::Growth {
+                .unwrap_or(&PlantGrowthToken::Unknown);
+            if token == &PlantGrowthToken::Growth {
                 // If we are defining a new growth, we need to create a new PlantGrowth
                 let growth_type = *PLANT_GROWTH_TYPE_TOKENS
                     .get(value)
-                    .unwrap_or(&PlantGrowthTypeTag::None);
+                    .unwrap_or(&PlantGrowthTypeToken::None);
                 let growth = PlantGrowth::new(growth_type);
                 if let Some(growths) = self.growths.as_mut() {
                     growths.push(growth);
@@ -347,19 +347,19 @@ impl RawObject for Plant {
         };
 
         match tag {
-            PlantTag::NameSingular => {
+            PlantToken::NameSingular => {
                 self.name.update_singular(value);
             }
-            PlantTag::NamePlural => {
+            PlantToken::NamePlural => {
                 self.name.update_plural(value);
             }
-            PlantTag::NameAdjective => {
+            PlantToken::NameAdjective => {
                 self.name.update_adjective(value);
             }
-            PlantTag::AllNames => {
+            PlantToken::AllNames => {
                 self.name = Name::from_value(value);
             }
-            PlantTag::PrefString => {
+            PlantToken::PrefString => {
                 if self.pref_strings.is_none() {
                     self.pref_strings = Some(Vec::new());
                 }
@@ -367,7 +367,7 @@ impl RawObject for Plant {
                     pref_strings.push(String::from(value));
                 }
             }
-            PlantTag::Biome => {
+            PlantToken::Biome => {
                 let Some(biome) = BIOME_TOKENS.get(value) else {
                     warn!(
                         "PlantParsing: called `Option::unwrap()` on a `None` value for presumed biome: {}",
@@ -382,13 +382,13 @@ impl RawObject for Plant {
                     biomes.push(*biome);
                 }
             }
-            PlantTag::UndergroundDepth => {
+            PlantToken::UndergroundDepth => {
                 self.underground_depth = Some(parse_min_max_range(value).unwrap_or([0, 0]));
             }
-            PlantTag::Frequency => {
+            PlantToken::Frequency => {
                 self.frequency = Some(value.parse::<u32>().unwrap_or(50));
             }
-            PlantTag::UseMaterialTemplate => {
+            PlantToken::UseMaterialTemplate => {
                 if self.materials.is_none() {
                     self.materials = Some(Vec::new());
                 }
@@ -396,7 +396,7 @@ impl RawObject for Plant {
                     materials.push(Material::use_material_template_from_value(value));
                 }
             }
-            PlantTag::UseMaterial => {
+            PlantToken::UseMaterial => {
                 if self.materials.is_none() {
                     self.materials = Some(Vec::new());
                 }
@@ -404,7 +404,7 @@ impl RawObject for Plant {
                     materials.push(Material::use_material_from_value(value));
                 }
             }
-            PlantTag::BasicMaterial => {
+            PlantToken::BasicMaterial => {
                 if self.materials.is_none() {
                     self.materials = Some(Vec::new());
                 }
@@ -412,7 +412,7 @@ impl RawObject for Plant {
                     materials.push(Material::basic_material_from_value(value));
                 }
             }
-            PlantTag::Material => {
+            PlantToken::Material => {
                 if self.materials.is_none() {
                     self.materials = Some(Vec::new());
                 }

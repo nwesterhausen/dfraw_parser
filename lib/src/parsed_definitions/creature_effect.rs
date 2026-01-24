@@ -1,6 +1,6 @@
 //! A module containing the `CreatureEffect` struct and its implementations.
 
-use crate::tags::CreatureEffectPropertyTag;
+use crate::tokens::CreatureEffectPropertyToken;
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 /// A creature effect.
@@ -28,7 +28,7 @@ pub struct CreatureEffect {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     affected_body_parts_by_token: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<CreatureEffectPropertyTag>>,
+    tags: Option<Vec<CreatureEffectPropertyToken>>,
 
     start: u32,
     peak: u32,

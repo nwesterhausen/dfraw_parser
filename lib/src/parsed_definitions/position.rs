@@ -1,7 +1,7 @@
 //! Contains the Position struct and implementation (for government positions)
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
-use crate::{Color, Name, tags::PositionTag};
+use crate::{Color, Name, tokens::PositionToken};
 
 /// Represents a position in the government of an entity
 #[derive(
@@ -93,7 +93,7 @@ pub struct Position {
     succession: Option<String>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Vec<PositionTag>,
+    tags: Vec<PositionToken>,
 }
 
 impl Position {
@@ -115,9 +115,9 @@ impl Position {
     ///
     /// * `key` - The tag to parse
     /// * `value` - The value to parse
-    pub fn parse_tag(&mut self, key: &PositionTag, value: &str) {
+    pub fn parse_tag(&mut self, key: &PositionToken, value: &str) {
         match key {
-            PositionTag::AllowedClass => {
+            PositionToken::AllowedClass => {
                 if self.allowed_classes.is_none() {
                     self.allowed_classes = Some(Vec::new());
                 }
@@ -125,7 +125,7 @@ impl Position {
                     allowed_classes.push(value.to_string());
                 }
             }
-            PositionTag::AllowedCreature => {
+            PositionToken::AllowedCreature => {
                 if self.allowed_creatures.is_none() {
                     self.allowed_creatures = Some(Vec::new());
                 }
@@ -133,26 +133,26 @@ impl Position {
                     allowed_creatures.push(value.to_string());
                 }
             }
-            PositionTag::AppointedBy => self.appointed_by = Some(value.to_string()),
-            PositionTag::Color => self.color = Some(Color::from_value(value)),
-            PositionTag::Commander => self.commander = Some(value.to_string()),
-            PositionTag::DemandMax => self.demand_max = Some(value.parse().unwrap_or_default()),
-            PositionTag::ExecutionSkill => self.execution_skill = Some(value.to_string()),
-            PositionTag::Gender => self.gender = Some(value.to_string()),
-            PositionTag::LandHolder => self.land_holder = Some(value.parse().unwrap_or_default()),
-            PositionTag::LandName => self.land_name = Some(value.to_string()),
-            PositionTag::MandateMax => self.mandate_max = Some(value.parse().unwrap_or_default()),
-            PositionTag::Name => self.name = Some(Name::from_value(value)),
-            PositionTag::Spouse => self.spouse = Some(Name::from_value(value)),
-            PositionTag::NameFemale => self.name_female = Some(Name::from_value(value)),
-            PositionTag::SpouseFemale => {
+            PositionToken::AppointedBy => self.appointed_by = Some(value.to_string()),
+            PositionToken::Color => self.color = Some(Color::from_value(value)),
+            PositionToken::Commander => self.commander = Some(value.to_string()),
+            PositionToken::DemandMax => self.demand_max = Some(value.parse().unwrap_or_default()),
+            PositionToken::ExecutionSkill => self.execution_skill = Some(value.to_string()),
+            PositionToken::Gender => self.gender = Some(value.to_string()),
+            PositionToken::LandHolder => self.land_holder = Some(value.parse().unwrap_or_default()),
+            PositionToken::LandName => self.land_name = Some(value.to_string()),
+            PositionToken::MandateMax => self.mandate_max = Some(value.parse().unwrap_or_default()),
+            PositionToken::Name => self.name = Some(Name::from_value(value)),
+            PositionToken::Spouse => self.spouse = Some(Name::from_value(value)),
+            PositionToken::NameFemale => self.name_female = Some(Name::from_value(value)),
+            PositionToken::SpouseFemale => {
                 self.spouse_female = Some(Name::from_value(value));
             }
-            PositionTag::NameMale => self.name_male = Some(Name::from_value(value)),
-            PositionTag::SpouseMale => self.spouse_male = Some(Name::from_value(value)),
-            PositionTag::Number => self.number = Some(value.parse().unwrap_or_default()),
-            PositionTag::Precedence => self.precedence = Some(value.parse().unwrap_or_default()),
-            PositionTag::RejectedClass => {
+            PositionToken::NameMale => self.name_male = Some(Name::from_value(value)),
+            PositionToken::SpouseMale => self.spouse_male = Some(Name::from_value(value)),
+            PositionToken::Number => self.number = Some(value.parse().unwrap_or_default()),
+            PositionToken::Precedence => self.precedence = Some(value.parse().unwrap_or_default()),
+            PositionToken::RejectedClass => {
                 if self.rejected_classes.is_none() {
                     self.rejected_classes = Some(Vec::new());
                 }
@@ -160,7 +160,7 @@ impl Position {
                     rejected_classes.push(value.to_string());
                 }
             }
-            PositionTag::RejectedCreature => {
+            PositionToken::RejectedCreature => {
                 if self.rejected_creatures.is_none() {
                     self.rejected_creatures = Some(Vec::new());
                 }
@@ -168,35 +168,35 @@ impl Position {
                     rejected_creatures.push(value.to_string());
                 }
             }
-            PositionTag::ReplacedBy => self.replaced_by = Some(value.to_string()),
-            PositionTag::RequiredBedroom => {
+            PositionToken::ReplacedBy => self.replaced_by = Some(value.to_string()),
+            PositionToken::RequiredBedroom => {
                 self.required_bedroom = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiredBoxes => {
+            PositionToken::RequiredBoxes => {
                 self.required_boxes = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiredCabinets => {
+            PositionToken::RequiredCabinets => {
                 self.required_cabinets = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiredDining => {
+            PositionToken::RequiredDining => {
                 self.required_dining = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiredOffice => {
+            PositionToken::RequiredOffice => {
                 self.required_office = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiredRacks => {
+            PositionToken::RequiredRacks => {
                 self.required_racks = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiredStands => {
+            PositionToken::RequiredStands => {
                 self.required_stands = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiredTomb => {
+            PositionToken::RequiredTomb => {
                 self.required_tomb = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::RequiresPopulation => {
+            PositionToken::RequiresPopulation => {
                 self.requires_population = Some(value.parse().unwrap_or_default());
             }
-            PositionTag::Responsibility => {
+            PositionToken::Responsibility => {
                 if self.responsibilities.is_none() {
                     self.responsibilities = Some(Vec::new());
                 }
@@ -204,8 +204,8 @@ impl Position {
                     responsibilities.push(value.to_string());
                 }
             }
-            PositionTag::Squad => self.squad = Some(value.to_string()),
-            PositionTag::Succession => self.succession = Some(value.to_string()),
+            PositionToken::Squad => self.squad = Some(value.to_string()),
+            PositionToken::Succession => self.succession = Some(value.to_string()),
             _ => self.tags.push(*key),
         }
     }

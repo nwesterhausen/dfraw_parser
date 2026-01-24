@@ -6,7 +6,7 @@ use tracing::{error, warn};
 use crate::{
     Color, SeedMaterial,
     raw_definitions::SHRUB_TOKENS,
-    tags::{SeasonTag, ShrubTag},
+    tokens::{SeasonToken, ShrubToken},
 };
 
 /// A shrub in the raws.
@@ -29,7 +29,7 @@ pub struct Shrub {
     /// of their season tokens.
     /// Default: empty (plant will not grow in farm plots)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    growing_season: Option<Vec<SeasonTag>>,
+    growing_season: Option<Vec<SeasonToken>>,
     /// How long the plant takes to grow to harvest in a farm plot. Unit hundreds of ticks.
     /// There are 1008 GROWDUR units in a season. Defaults to 300.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -147,43 +147,43 @@ impl Shrub {
         };
 
         match tag {
-            ShrubTag::Spring => {
+            ShrubToken::Spring => {
                 if self.growing_season.is_none() {
                     self.growing_season = Some(Vec::new());
                 }
 
                 if let Some(growing_season) = self.growing_season.as_mut() {
-                    growing_season.push(SeasonTag::Spring);
+                    growing_season.push(SeasonToken::Spring);
                 }
             }
-            ShrubTag::Summer => {
+            ShrubToken::Summer => {
                 if self.growing_season.is_none() {
                     self.growing_season = Some(Vec::new());
                 }
 
                 if let Some(growing_season) = self.growing_season.as_mut() {
-                    growing_season.push(SeasonTag::Summer);
+                    growing_season.push(SeasonToken::Summer);
                 }
             }
-            ShrubTag::Autumn => {
+            ShrubToken::Autumn => {
                 if self.growing_season.is_none() {
                     self.growing_season = Some(Vec::new());
                 }
 
                 if let Some(growing_season) = self.growing_season.as_mut() {
-                    growing_season.push(SeasonTag::Autumn);
+                    growing_season.push(SeasonToken::Autumn);
                 }
             }
-            ShrubTag::Winter => {
+            ShrubToken::Winter => {
                 if self.growing_season.is_none() {
                     self.growing_season = Some(Vec::new());
                 }
 
                 if let Some(growing_season) = self.growing_season.as_mut() {
-                    growing_season.push(SeasonTag::Winter);
+                    growing_season.push(SeasonToken::Winter);
                 }
             }
-            ShrubTag::GrowDuration => {
+            ShrubToken::GrowDuration => {
                 self.grow_duration = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -192,7 +192,7 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::Value => {
+            ShrubToken::Value => {
                 self.value = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -201,7 +201,7 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::PickedTile => {
+            ShrubToken::PickedTile => {
                 self.picked_tile = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -210,7 +210,7 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::DeadPickedTile => {
+            ShrubToken::DeadPickedTile => {
                 self.dead_picked_tile = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -219,7 +219,7 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::ShrubTile => {
+            ShrubToken::ShrubTile => {
                 self.shrub_tile = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -228,7 +228,7 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::DeadShrubTile => {
+            ShrubToken::DeadShrubTile => {
                 self.dead_shrub_tile = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -237,7 +237,7 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::ClusterSize => {
+            ShrubToken::ClusterSize => {
                 self.cluster_size = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -246,19 +246,19 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::PickedColor => {
+            ShrubToken::PickedColor => {
                 self.picked_color = Some(Color::from_value(value));
             }
-            ShrubTag::DeadPickedColor => {
+            ShrubToken::DeadPickedColor => {
                 self.dead_picked_color = Some(Color::from_value(value));
             }
-            ShrubTag::ShrubColor => {
+            ShrubToken::ShrubColor => {
                 self.shrub_color = Some(Color::from_value(value));
             }
-            ShrubTag::DeadShrubColor => {
+            ShrubToken::DeadShrubColor => {
                 self.dead_shrub_color = Some(Color::from_value(value));
             }
-            ShrubTag::ShrubDrownLevel => {
+            ShrubToken::ShrubDrownLevel => {
                 self.shrub_drown_level = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -267,28 +267,28 @@ impl Shrub {
                     }
                 });
             }
-            ShrubTag::Drink => {
+            ShrubToken::Drink => {
                 self.drink = Some(String::from(value));
             }
-            ShrubTag::Mill => {
+            ShrubToken::Mill => {
                 self.mill = Some(String::from(value));
             }
-            ShrubTag::Thread => {
+            ShrubToken::Thread => {
                 self.thread = Some(String::from(value));
             }
-            ShrubTag::Seed => {
+            ShrubToken::Seed => {
                 self.seed = Some(SeedMaterial::from_value(value));
             }
-            ShrubTag::ExtractStillVial => {
+            ShrubToken::ExtractStillVial => {
                 self.extract_still_vial = Some(String::from(value));
             }
-            ShrubTag::ExtractVial => {
+            ShrubToken::ExtractVial => {
                 self.extract_vial = Some(String::from(value));
             }
-            ShrubTag::ExtractBarrel => {
+            ShrubToken::ExtractBarrel => {
                 self.extract_barrel = Some(String::from(value));
             }
-            ShrubTag::Unknown => {
+            ShrubToken::Unknown => {
                 warn!("Unknown shrub token: {}", key);
             }
         }

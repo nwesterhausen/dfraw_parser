@@ -23,7 +23,7 @@ use crate::{
     SelectCreature, TilePage,
     metadata::{ParserOptions, RawModuleLocation},
     regex::VARIATION_ARGUMENT_RE,
-    tags::ObjectType,
+    tokens::ObjectType,
     traits::{CreatureVariationRequirements, IsEmpty, RawObject},
 };
 

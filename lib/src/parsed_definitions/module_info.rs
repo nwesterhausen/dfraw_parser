@@ -15,7 +15,7 @@ use crate::{
     constants::DF_ENCODING,
     metadata::RawModuleLocation,
     regex::{NON_DIGIT_RE, RAW_TOKEN_RE},
-    tags::ObjectType,
+    tokens::ObjectType,
     utilities::{generate_object_id, get_parent_dir_name, try_get_file},
 };
 

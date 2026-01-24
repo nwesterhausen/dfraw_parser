@@ -1,7 +1,7 @@
 //! Helpers used in regards to compiling data used for filling search indices
 use std::collections::HashSet;
 
-use dfraw_parser::{Creature, Plant, tags::ObjectType, traits::RawObject};
+use dfraw_parser::{Creature, Plant, tokens::ObjectType, traits::RawObject};
 
 /// Given a raw object (via `&Box<dyn RawObject>`) will extract names and descriptions to use in
 /// the search indices.

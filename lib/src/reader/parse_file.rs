@@ -6,7 +6,7 @@ use crate::{
     raw_definitions::{GRAPHIC_TYPE_TOKENS, OBJECT_TOKEN_MAP},
     reader::{PARSABLE_OBJECT_TYPES, unprocessed_raw::UnprocessedRaw},
     regex::RAW_TOKEN_RE,
-    tags::{GraphicTypeTag, ModificationTag, ObjectType},
+    tokens::{GraphicTypeToken, ModificationToken, ObjectType},
     traits::{IsEmpty, RawObject},
     utilities::try_get_file,
 };
@@ -135,9 +135,9 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
     let mut temp_unprocessed_raw = UnprocessedRaw::default();
 
     let mut last_parsed_type = ObjectType::Unknown;
-    let mut last_graphic_type = GraphicTypeTag::Unknown;
+    let mut last_graphic_type = GraphicTypeToken::Unknown;
     let mut temp_tile_page = TilePage::empty();
-    let mut current_modification = ModificationTag::MainRawBody { raws: Vec::new() };
+    let mut current_modification = ModificationToken::MainRawBody { raws: Vec::new() };
 
     // Metadata
     let object_type = read_raw_file_type(raw_file_path)?;
@@ -275,7 +275,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                     // We haven't started a creature yet, so we need to start one.
                     temp_unprocessed_raw =
                         UnprocessedRaw::new(ObjectType::Creature, &raw_metadata, captured_value);
-                    current_modification = ModificationTag::MainRawBody { raws: Vec::new() };
+                    current_modification = ModificationToken::MainRawBody { raws: Vec::new() };
                     last_parsed_type = ObjectType::Creature;
                 }
                 "CREATURE_VARIATION" => {
@@ -361,7 +361,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                     last_parsed_type = ObjectType::Graphics;
                     last_graphic_type = *GRAPHIC_TYPE_TOKENS
                         .get(captured_key)
-                        .unwrap_or(&GraphicTypeTag::Unknown);
+                        .unwrap_or(&GraphicTypeToken::Unknown);
 
                     temp_graphic =
                         Graphic::new(captured_value, &raw_metadata.clone(), last_graphic_type);
@@ -394,21 +394,21 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                     // Push the current modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(current_modification.clone());
                     // Update the current modification to be an AddToEnding
-                    current_modification = ModificationTag::AddToEnding { raws: Vec::new() };
+                    current_modification = ModificationToken::AddToEnding { raws: Vec::new() };
                 }
                 "GO_TO_START" => {
                     trace!("began tracking AddToBeginning modification");
                     // Push the current modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(current_modification.clone());
                     // Update the current modification to be an AddToBeginning
-                    current_modification = ModificationTag::AddToBeginning { raws: Vec::new() };
+                    current_modification = ModificationToken::AddToBeginning { raws: Vec::new() };
                 }
                 "GO_TO_TAG" => {
                     trace!("began tracking AddBeforeTag:{captured_value} modification");
                     // Push the current modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(current_modification.clone());
                     // Update the current modification to be an AddBeforeTag
-                    current_modification = ModificationTag::AddBeforeTag {
+                    current_modification = ModificationToken::AddBeforeTag {
                         tag: captured_value.to_string(),
                         raws: Vec::new(),
                     };
@@ -416,7 +416,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                 "COPY_TAGS_FROM" => {
                     trace!("began tracking CopyTagsFrom:{captured_value} modification");
                     // Push the CopyTagsFrom modification to the unprocessed raw
-                    temp_unprocessed_raw.add_modification(ModificationTag::CopyTagsFrom {
+                    temp_unprocessed_raw.add_modification(ModificationToken::CopyTagsFrom {
                         identifier: captured_value.to_string(),
                     });
                 }
@@ -424,7 +424,7 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                     trace!("began tracking ApplyCreatureVariation:{captured_value} modification");
                     // Push the ApplyCreatureVariation modification to the unprocessed raw
                     temp_unprocessed_raw.add_modification(
-                        ModificationTag::ApplyCreatureVariation {
+                        ModificationToken::ApplyCreatureVariation {
                             identifier: captured_value.to_string(),
                         },
                     );
@@ -461,11 +461,11 @@ pub fn parse_raw_file_with_info<P: AsRef<Path>>(
                             }
                             ObjectType::Graphics => {
                                 // We have a graphic, so we can add a tag to it.
-                                if temp_graphic.get_graphic_type() == GraphicTypeTag::Tile {
+                                if temp_graphic.get_graphic_type() == GraphicTypeToken::Tile {
                                     // Update graphic type (every line should have a graphic type tag)
                                     last_graphic_type = *GRAPHIC_TYPE_TOKENS
                                         .get(captured_key)
-                                        .unwrap_or(&GraphicTypeTag::Unknown);
+                                        .unwrap_or(&GraphicTypeToken::Unknown);
                                 }
 
                                 temp_graphic.parse_sprite_from_tag(

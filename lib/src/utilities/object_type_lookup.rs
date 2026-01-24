@@ -3,7 +3,7 @@ use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
 use crate::raw_definitions::OBJECT_TOKEN_MAP;
-use crate::tags::ObjectType;
+use crate::tokens::ObjectType;
 
 impl ObjectType {
     /// Retrieves the original string token key for this tag (e.g., "PET_VALUE").

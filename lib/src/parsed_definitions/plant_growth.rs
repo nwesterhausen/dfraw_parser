@@ -6,7 +6,7 @@ use tracing::{error, warn};
 use crate::{
     Name,
     raw_definitions::{PLANT_GROWTH_TOKENS, PLANT_PART_TOKENS},
-    tags::{PlantGrowthTag, PlantGrowthTypeTag, PlantPartTag},
+    tokens::{PlantGrowthToken, PlantGrowthTypeToken, PlantPartToken},
     traits::Searchable,
     utilities::clean_search_vec,
 };
@@ -28,7 +28,7 @@ use crate::{
 pub struct PlantGrowth {
     /// Plant growths are not given an identifier, since they are just supporting
     /// data for the plant definition. They are defined instead by the type of growth.
-    growth_type: PlantGrowthTypeTag,
+    growth_type: PlantGrowthTypeToken,
     /// The name of the growth. This is actually defined with `GROWTH_NAME` key in the raws.
     pub name: Name,
     /// The item grown by this growth. This is actually defined with `GROWTH_ITEM` key in the raws.
@@ -38,7 +38,7 @@ pub struct PlantGrowth {
     /// Specifies on which part of the plant this growth grows. This is defined with `GROWTH_HOST_TILE` key.
     /// This can be unused, like in the case of crops where the plant is the growth (I think?).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    host_tiles: Option<Vec<PlantPartTag>>,
+    host_tiles: Option<Vec<PlantPartToken>>,
     /// Controls the height on the trunk above which the growth begins to appear.
     /// The first value is the percent of the trunk height where the growth begins appearing:
     /// 0 will cause it along the entire trunk (above the first tile), 100 will cause it to appear
@@ -61,7 +61,7 @@ pub struct PlantGrowth {
     timing: Option<[u32; 2]>,
     /// Where we gather some of the growth's tags.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<PlantGrowthTag>>,
+    tags: Option<Vec<PlantGrowthToken>>,
 }
 
 impl PlantGrowth {
@@ -75,18 +75,18 @@ impl PlantGrowth {
     ///
     /// A new plant growth
     #[must_use]
-    pub fn new(growth_type: PlantGrowthTypeTag) -> Self {
+    pub fn new(growth_type: PlantGrowthTypeToken) -> Self {
         Self {
             growth_type,
             ..Self::default()
         }
     }
     /// Returns the type of growth this is
-    pub fn get_growth_type(&self) -> &PlantGrowthTypeTag {
+    pub fn get_growth_type(&self) -> &PlantGrowthTypeToken {
         &self.growth_type
     }
     /// Returns true if tag exists on this plant growth
-    pub fn has_tag(&self, tag: &PlantGrowthTag) -> bool {
+    pub fn has_tag(&self, tag: &PlantGrowthToken) -> bool {
         if let Some(tags) = &self.tags {
             for t in tags {
                 if std::mem::discriminant(t) == std::mem::discriminant(tag) {
@@ -124,13 +124,13 @@ impl PlantGrowth {
         }
 
         match tag {
-            PlantGrowthTag::GrowthName => {
+            PlantGrowthToken::GrowthName => {
                 self.name = Name::from_value(value);
             }
-            PlantGrowthTag::GrowthItem => {
+            PlantGrowthToken::GrowthItem => {
                 self.item = value.to_string();
             }
-            PlantGrowthTag::GrowthHostTile => {
+            PlantGrowthToken::GrowthHostTile => {
                 if self.host_tiles.is_none() {
                     self.host_tiles = Some(Vec::new());
                 }
@@ -145,7 +145,7 @@ impl PlantGrowth {
                     host_tiles.push(*part);
                 }
             }
-            PlantGrowthTag::GrowthTrunkHeightPercent => {
+            PlantGrowthToken::GrowthTrunkHeightPercent => {
                 let split: Vec<&str> = value.split(':').collect::<Vec<&str>>();
                 if split.len() != 2 {
                     warn!(
@@ -170,10 +170,10 @@ impl PlantGrowth {
                 };
                 self.trunk_height_percentage = Some([percentage, dir]);
             }
-            PlantGrowthTag::GrowthDensity => {
+            PlantGrowthToken::GrowthDensity => {
                 self.density = Some(value.parse().unwrap_or_default());
             }
-            PlantGrowthTag::GrowthTiming => {
+            PlantGrowthToken::GrowthTiming => {
                 let split: Vec<&str> = value.split(':').collect::<Vec<&str>>();
                 if split.len() != 2 {
                     warn!(
@@ -198,7 +198,7 @@ impl PlantGrowth {
                 };
                 self.timing = Some([start, end]);
             }
-            PlantGrowthTag::GrowthPrint => {
+            PlantGrowthToken::GrowthPrint => {
                 self.print = Some(value.to_string());
             }
             _ => {

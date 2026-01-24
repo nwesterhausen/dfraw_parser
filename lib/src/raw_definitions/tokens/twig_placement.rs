@@ -1,16 +1,16 @@
 //! String token to parsed tag map for twig placement tokens.
 
-use crate::tags::TwigPlacementTag;
+use crate::tokens::TwigPlacementToken;
 
 /// The mapping of tree tokens to their string representation
-pub static TWIG_PLACEMENT_TOKENS: phf::Map<&'static str, TwigPlacementTag> = phf::phf_map! {
-  "SIDE_BRANCHES" => TwigPlacementTag::SideBranches,
-  "ABOVE_BRANCHES" => TwigPlacementTag::AboveBranches,
-  "BELOW_BRANCHES" => TwigPlacementTag::BelowBranches,
-  "SIDE_HEAVY_BRANCHES" => TwigPlacementTag::SideHeavyBranches,
-  "ABOVE_HEAVY_BRANCHES" => TwigPlacementTag::AboveHeavyBranches,
-  "BELOW_HEAVY_BRANCHES" => TwigPlacementTag::BelowHeavyBranches,
-  "SIDE_TRUNK" => TwigPlacementTag::SideTrunk,
-  "ABOVE_TRUNK" => TwigPlacementTag::AboveTrunk,
-  "BELOW_TRUNK" => TwigPlacementTag::BelowTrunk,
+pub static TWIG_PLACEMENT_TOKENS: phf::Map<&'static str, TwigPlacementToken> = phf::phf_map! {
+  "SIDE_BRANCHES" => TwigPlacementToken::SideBranches,
+  "ABOVE_BRANCHES" => TwigPlacementToken::AboveBranches,
+  "BELOW_BRANCHES" => TwigPlacementToken::BelowBranches,
+  "SIDE_HEAVY_BRANCHES" => TwigPlacementToken::SideHeavyBranches,
+  "ABOVE_HEAVY_BRANCHES" => TwigPlacementToken::AboveHeavyBranches,
+  "BELOW_HEAVY_BRANCHES" => TwigPlacementToken::BelowHeavyBranches,
+  "SIDE_TRUNK" => TwigPlacementToken::SideTrunk,
+  "ABOVE_TRUNK" => TwigPlacementToken::AboveTrunk,
+  "BELOW_TRUNK" => TwigPlacementToken::BelowTrunk,
 };

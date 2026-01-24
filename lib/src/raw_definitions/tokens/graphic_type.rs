@@ -1,234 +1,234 @@
 //! String token to parsed tag map for graphic type tokens.
 
-use crate::tags::GraphicTypeTag;
+use crate::tokens::GraphicTypeToken;
 
 /// Map of graphic type tags to their string representation.
-pub static GRAPHIC_TYPE_TOKENS: phf::Map<&'static str, GraphicTypeTag> = phf::phf_map! {
-  "CREATURE_GRAPHICS" => GraphicTypeTag::Creature,
-  "CREATURE_CASTE_GRAPHICS" => GraphicTypeTag::CreatureCaste,
-  "TILE_GRAPHICS" => GraphicTypeTag::Tile,
-  "PLANT_GRAPHICS" => GraphicTypeTag::Plant,
+pub static GRAPHIC_TYPE_TOKENS: phf::Map<&'static str, GraphicTypeToken> = phf::phf_map! {
+  "CREATURE_GRAPHICS" => GraphicTypeToken::Creature,
+  "CREATURE_CASTE_GRAPHICS" => GraphicTypeToken::CreatureCaste,
+  "TILE_GRAPHICS" => GraphicTypeToken::Tile,
+  "PLANT_GRAPHICS" => GraphicTypeToken::Plant,
 
   // "Conditions" which need to point to plant graphics
-  "SHRUB" => GraphicTypeTag::Plant,
-  "SHRUB_DEAD" => GraphicTypeTag::Plant,
-  "PICKED" => GraphicTypeTag::Plant,
-  "SEED" => GraphicTypeTag::Plant,
-  "SAPLING" => GraphicTypeTag::Plant,
-  "CROP" => GraphicTypeTag::Plant,
-  "CROP_SPROUT" => GraphicTypeTag::Plant,
-  "CROP_L" => GraphicTypeTag::Plant,
-  "CROP_M" => GraphicTypeTag::Plant,
-  "CROP_R" => GraphicTypeTag::Plant,
+  "SHRUB" => GraphicTypeToken::Plant,
+  "SHRUB_DEAD" => GraphicTypeToken::Plant,
+  "PICKED" => GraphicTypeToken::Plant,
+  "SEED" => GraphicTypeToken::Plant,
+  "SAPLING" => GraphicTypeToken::Plant,
+  "CROP" => GraphicTypeToken::Plant,
+  "CROP_SPROUT" => GraphicTypeToken::Plant,
+  "CROP_L" => GraphicTypeToken::Plant,
+  "CROP_M" => GraphicTypeToken::Plant,
+  "CROP_R" => GraphicTypeToken::Plant,
 
   // Interface graphics
   // [CUSTOM_WORKSHOP_GRAPHICS:SCREW_PRESS]
-  "CUSTOM_WORKSHOP_GRAPHICS" => GraphicTypeTag::CustomWorkshop,
+  "CUSTOM_WORKSHOP_GRAPHICS" => GraphicTypeToken::CustomWorkshop,
   // [LIST_ICON:BUILDING_ICONS_TWEAKED:1:12]
-  "LIST_ICON" => GraphicTypeTag::ListIcon,
+  "LIST_ICON" => GraphicTypeToken::ListIcon,
 
   // Plant Graphics
   // [SOIL_BACKGROUND]
-  "SOIL_BACKGROUND" => GraphicTypeTag::SoilBackground,
+  "SOIL_BACKGROUND" => GraphicTypeToken::SoilBackground,
   // [GRASS_1:GRASS:0:0]
-  "GRASS_1" => GraphicTypeTag::Grass1,
+  "GRASS_1" => GraphicTypeToken::Grass1,
   // [GRASS_2:GRASS:1:0]
-  "GRASS_2" => GraphicTypeTag::Grass2,
+  "GRASS_2" => GraphicTypeToken::Grass2,
   // [GRASS_3:GRASS:2:0]
-  "GRASS_3" => GraphicTypeTag::Grass3,
+  "GRASS_3" => GraphicTypeToken::Grass3,
   // [GRASS_4:GRASS:3:0]
-  "GRASS_4" => GraphicTypeTag::Grass4,
+  "GRASS_4" => GraphicTypeToken::Grass4,
 
   // All other graphic types from the vanilla raws
   // [ADD_TOOL_GRAPHICS:ITEM_TOOL_LARGE_POT]
-  "ADD_TOOL_GRAPHICS" => GraphicTypeTag::AddTool,
+  "ADD_TOOL_GRAPHICS" => GraphicTypeToken::AddTool,
   // [AMMO_GRAPHICS:ITEM_AMMO_BOLTS]
-  "AMMO_GRAPHICS" => GraphicTypeTag::Ammo,
+  "AMMO_GRAPHICS" => GraphicTypeToken::Ammo,
   // [AMMO_GRAPHICS_STRAIGHT_DEFAULT:ITEM_AMMO:1:0]
-  "AMMO_GRAPHICS_STRAIGHT_DEFAULT" => GraphicTypeTag::AmmoStraightDefault,
+  "AMMO_GRAPHICS_STRAIGHT_DEFAULT" => GraphicTypeToken::AmmoStraightDefault,
   // [AMMO_GRAPHICS_STRAIGHT_WOOD:ITEM_AMMO:0:0]
-  "AMMO_GRAPHICS_STRAIGHT_WOOD" => GraphicTypeTag::AmmoStraightWood,
+  "AMMO_GRAPHICS_STRAIGHT_WOOD" => GraphicTypeToken::AmmoStraightWood,
   // [AMMO_GRAPHICS_DIAGONAL_DEFAULT:ITEM_AMMO:1:1]
-  "AMMO_GRAPHICS_DIAGONAL_DEFAULT" => GraphicTypeTag::AmmoDiagonalDefault,
+  "AMMO_GRAPHICS_DIAGONAL_DEFAULT" => GraphicTypeToken::AmmoDiagonalDefault,
   // [AMMO_GRAPHICS_DIAGONAL_WOOD:ITEM_AMMO:0:1]
-  "AMMO_GRAPHICS_DIAGONAL_WOOD" => GraphicTypeTag::AmmoDiagonalWood,
+  "AMMO_GRAPHICS_DIAGONAL_WOOD" => GraphicTypeToken::AmmoDiagonalWood,
   // [ARMOR_GRAPHICS:ITEMS3:1:15:ITEM_ARMOR_BREASTPLATE]
-  "ARMOR_GRAPHICS" => GraphicTypeTag::Armor,
-  "FOOD_GRAPHICS" => GraphicTypeTag::Food,
+  "ARMOR_GRAPHICS" => GraphicTypeToken::Armor,
+  "FOOD_GRAPHICS" => GraphicTypeToken::Food,
   // [GLOVES_GRAPHICS:ITEMS3:1:21:ITEM_GLOVES_GAUNTLETS]
-  "GLOVES_GRAPHICS" => GraphicTypeTag::Gloves,
+  "GLOVES_GRAPHICS" => GraphicTypeToken::Gloves,
   // [HELM_GRAPHICS:ITEMS3:2:15:ITEM_HELM_HELM]
-  "HELM_GRAPHICS" => GraphicTypeTag::Helm,
+  "HELM_GRAPHICS" => GraphicTypeToken::Helm,
   // [PANTS_GRAPHICS:ITEMS3:0:17:ITEM_PANTS_PANTS]
-  "PANTS_GRAPHICS" => GraphicTypeTag::Pants,
+  "PANTS_GRAPHICS" => GraphicTypeToken::Pants,
   // [ROUGH_GEM_GRAPHICS:BOULDERS:0:8:GLASS_GREEN]
-  "ROUGH_GEM_GRAPHICS" => GraphicTypeTag::RoughGem,
+  "ROUGH_GEM_GRAPHICS" => GraphicTypeToken::RoughGem,
   // [SHAPE_GRAPHICS_LARGE_GEM:BAGUETTE_CUT_GEM:GEMS:1:0]
-  "SHAPE_GRAPHICS_LARGE_GEM" => GraphicTypeTag::ShapeLargeGem,
+  "SHAPE_GRAPHICS_LARGE_GEM" => GraphicTypeToken::ShapeLargeGem,
   // [SHAPE_GRAPHICS_SMALL_GEM:BAGUETTE_CUT_GEM:SMALLGEMS:0:0]
-  "SHAPE_GRAPHICS_SMALL_GEM" => GraphicTypeTag::ShapeSmallGem,
+  "SHAPE_GRAPHICS_SMALL_GEM" => GraphicTypeToken::ShapeSmallGem,
   // [SHIELD_GRAPHICS:ITEMS3:3:16:ITEM_SHIELD_SHIELD]
-  "SHIELD_GRAPHICS" => GraphicTypeTag::Shield,
+  "SHIELD_GRAPHICS" => GraphicTypeToken::Shield,
   // [SHIELD_GRAPHICS_WOODEN:ITEMS3:3:14:ITEM_SHIELD_SHIELD]
-  "SHIELD_GRAPHICS_WOODEN" => GraphicTypeTag::ShieldWooden,
+  "SHIELD_GRAPHICS_WOODEN" => GraphicTypeToken::ShieldWooden,
   // [SHOES_GRAPHICS:ITEMS3:3:18:ITEM_SHOES_SHOES]
-  "SHOES_GRAPHICS" => GraphicTypeTag::Shoes,
+  "SHOES_GRAPHICS" => GraphicTypeToken::Shoes,
   // [SHOES_GRAPHICS_METAL:ITEMS3:3:22:ITEM_SHOES_BOOTS]
-  "SHOES_GRAPHICS_METAL" => GraphicTypeTag::ShoesMetal,
+  "SHOES_GRAPHICS_METAL" => GraphicTypeToken::ShoesMetal,
   // [SIEGEAMMO_GRAPHICS:ITEM_SIEGEAMMO_BALLISTA]
-  "SIEGEAMMO_GRAPHICS" => GraphicTypeTag::SiegeAmmo,
+  "SIEGEAMMO_GRAPHICS" => GraphicTypeToken::SiegeAmmo,
   // [SIEGEAMMO_GRAPHICS_STRAIGHT_DEFAULT:BALLISTA_ARROW:1:0]
-  "SIEGEAMMO_GRAPHICS_STRAIGHT_DEFAULT" => GraphicTypeTag::SiegeAmmoStraightDefault,
+  "SIEGEAMMO_GRAPHICS_STRAIGHT_DEFAULT" => GraphicTypeToken::SiegeAmmoStraightDefault,
   // [SIEGEAMMO_GRAPHICS_STRAIGHT_WOOD:BALLISTA_ARROW:0:0]
-  "SIEGEAMMO_GRAPHICS_STRAIGHT_WOOD" => GraphicTypeTag::SiegeAmmoStraightWood,
+  "SIEGEAMMO_GRAPHICS_STRAIGHT_WOOD" => GraphicTypeToken::SiegeAmmoStraightWood,
   // [SIEGEAMMO_GRAPHICS_DIAGONAL_DEFAULT:BALLISTA_ARROW:1:1]
-  "SIEGEAMMO_GRAPHICS_DIAGONAL_DEFAULT" => GraphicTypeTag::SiegeAmmoDiagonalDefault,
+  "SIEGEAMMO_GRAPHICS_DIAGONAL_DEFAULT" => GraphicTypeToken::SiegeAmmoDiagonalDefault,
   // [SIEGEAMMO_GRAPHICS_DIAGONAL_WOOD:BALLISTA_ARROW:0:1]
-  "SIEGEAMMO_GRAPHICS_DIAGONAL_WOOD" => GraphicTypeTag::SiegeAmmoDiagonalWood,
+  "SIEGEAMMO_GRAPHICS_DIAGONAL_WOOD" => GraphicTypeToken::SiegeAmmoDiagonalWood,
   // [TOOL_GRAPHICS:TOOLS:0:0:ITEM_TOOL_CAULDRON]
-  "TOOL_GRAPHICS" => GraphicTypeTag::Tool,
+  "TOOL_GRAPHICS" => GraphicTypeToken::Tool,
   // [TOOL_GRAPHICS_WOOD:1:TOOLS:0:11]
-  "TOOL_GRAPHICS_WOOD" => GraphicTypeTag::ToolWood,
+  "TOOL_GRAPHICS_WOOD" => GraphicTypeToken::ToolWood,
   // [TOOL_GRAPHICS_STONE:1:TOOLS:1:11]
-  "TOOL_GRAPHICS_STONE" => GraphicTypeTag::ToolStone,
+  "TOOL_GRAPHICS_STONE" => GraphicTypeToken::ToolStone,
   // [TOOL_GRAPHICS_METAL:1:TOOLS:2:11]
-  "TOOL_GRAPHICS_METAL" => GraphicTypeTag::ToolMetal,
+  "TOOL_GRAPHICS_METAL" => GraphicTypeToken::ToolMetal,
   // [TOOL_GRAPHICS_HIVE_BLD:CONTAINERS:0:5]
-  "TOOL_GRAPHICS_HIVE_BLD" => GraphicTypeTag::ToolHiveBuilding,
+  "TOOL_GRAPHICS_HIVE_BLD" => GraphicTypeToken::ToolHiveBuilding,
   // [TOOL_GRAPHICS_GLASS:1:ITEM_BOOKCASE:0:3]
-  "TOOL_GRAPHICS_GLASS" => GraphicTypeTag::ToolGlass,
+  "TOOL_GRAPHICS_GLASS" => GraphicTypeToken::ToolGlass,
   // [TOOL_GRAPHICS_SHAPE:PLATONIC_CUBE:TOOLS:1:29]
-  "TOOL_GRAPHICS_SHAPE" => GraphicTypeTag::ToolShape,
+  "TOOL_GRAPHICS_SHAPE" => GraphicTypeToken::ToolShape,
   // [TOOL_GRAPHICS_GLASS_VARIANT:3:ITEM_BOOKCASE:9:3]
-  "TOOL_GRAPHICS_GLASS_VARIANT" => GraphicTypeTag::ToolGlassVariant,
+  "TOOL_GRAPHICS_GLASS_VARIANT" => GraphicTypeToken::ToolGlassVariant,
   // [TOOL_GRAPHICS_METAL_VARIANT:3:ITEM_BOOKCASE:9:2]
-  "TOOL_GRAPHICS_METAL_VARIANT" => GraphicTypeTag::ToolMetalVariant,
+  "TOOL_GRAPHICS_METAL_VARIANT" => GraphicTypeToken::ToolMetalVariant,
   // [TOOL_GRAPHICS_STONE_VARIANT:3:ITEM_BOOKCASE:9:1]
-  "TOOL_GRAPHICS_STONE_VARIANT" => GraphicTypeTag::ToolStoneVariant,
+  "TOOL_GRAPHICS_STONE_VARIANT" => GraphicTypeToken::ToolStoneVariant,
   // [TOOL_GRAPHICS_WOOD_VARIANT:3:ITEM_BOOKCASE:9:0]
-  "TOOL_GRAPHICS_WOOD_VARIANT" => GraphicTypeTag::ToolWoodVariant,
+  "TOOL_GRAPHICS_WOOD_VARIANT" => GraphicTypeToken::ToolWoodVariant,
   // [TOOL_GRAPHICS_MUD:ITEM_BOOKCASE:12:3]
-  "TOOL_GRAPHICS_MUD" => GraphicTypeTag::ToolMud,
+  "TOOL_GRAPHICS_MUD" => GraphicTypeToken::ToolMud,
   // [TOOL_GRAPHICS_WATER:ITEM_BOOKCASE:12:2]
-  "TOOL_GRAPHICS_WATER" => GraphicTypeTag::ToolWater,
+  "TOOL_GRAPHICS_WATER" => GraphicTypeToken::ToolWater,
   // [TOOL_GRAPHICS_VOMIT:ITEM_BOOKCASE:12:1]
-  "TOOL_GRAPHICS_VOMIT" => GraphicTypeTag::ToolVomit,
+  "TOOL_GRAPHICS_VOMIT" => GraphicTypeToken::ToolVomit,
   // [TOOL_GRAPHICS_BLOOD:ITEM_BOOKCASE:12:0]
-  "TOOL_GRAPHICS_BLOOD" => GraphicTypeTag::ToolBlood,
+  "TOOL_GRAPHICS_BLOOD" => GraphicTypeToken::ToolBlood,
   // [TOOL_GRAPHICS_DAMAGE:3:ITEM_BOOKCASE:11:0]
-  "TOOL_GRAPHICS_DAMAGE" => GraphicTypeTag::ToolDamage,
+  "TOOL_GRAPHICS_DAMAGE" => GraphicTypeToken::ToolDamage,
   // [TOOL_GRAPHICS_BANDS:ITEM_BOOKCASE:11:3]
-  "TOOL_GRAPHICS_BANDS" => GraphicTypeTag::ToolBands,
+  "TOOL_GRAPHICS_BANDS" => GraphicTypeToken::ToolBands,
   // [TOOL_GRAPHICS_ENGRAVING:ITEM_BOOKCASE:10:3]
-  "TOOL_GRAPHICS_ENGRAVING" => GraphicTypeTag::ToolEngraving,
+  "TOOL_GRAPHICS_ENGRAVING" => GraphicTypeToken::ToolEngraving,
   // [TOOL_GRAPHICS_STUDS:ITEM_BOOKCASE:10:2]
-  "TOOL_GRAPHICS_STUDS" => GraphicTypeTag::ToolStuds,
+  "TOOL_GRAPHICS_STUDS" => GraphicTypeToken::ToolStuds,
   // [TOOL_GRAPHICS_RINGS:ITEM_BOOKCASE:10:1]
-  "TOOL_GRAPHICS_RINGS" => GraphicTypeTag::ToolRings,
+  "TOOL_GRAPHICS_RINGS" => GraphicTypeToken::ToolRings,
   // [TOOL_GRAPHICS_SPIKES:ITEM_BOOKCASE:10:0]
-  "TOOL_GRAPHICS_SPIKES" => GraphicTypeTag::ToolSpikes,
+  "TOOL_GRAPHICS_SPIKES" => GraphicTypeToken::ToolSpikes,
   // [TOY_GRAPHICS:ITEM_TOY:0:4:ITEM_TOY_MINIFORGE:WOOD]
-  "TOY_GRAPHICS" => GraphicTypeTag::Toy,
+  "TOY_GRAPHICS" => GraphicTypeToken::Toy,
   // [TRAPCOMP_GRAPHICS:ITEM_TRAPCOMP:0:0:ITEM_TRAPCOMP_GIANTAXEBLADE]
-  "TRAPCOMP_GRAPHICS" => GraphicTypeTag::TrapComponent,
+  "TRAPCOMP_GRAPHICS" => GraphicTypeToken::TrapComponent,
   // [TRAPCOMP_GRAPHICS_WEAPON_TRAP:TRAPS_WEAPON:3:1]
-  "TRAPCOMP_GRAPHICS_WEAPON_TRAP" => GraphicTypeTag::TrapComponentWeaponTrap,
+  "TRAPCOMP_GRAPHICS_WEAPON_TRAP" => GraphicTypeToken::TrapComponentWeaponTrap,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_1T:UPRIGHT_WEAPONS:0:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_1T" => GraphicTypeTag::TrapComponentUpright1T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_1T" => GraphicTypeToken::TrapComponentUpright1T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_2T:UPRIGHT_WEAPONS:1:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_2T" => GraphicTypeTag::TrapComponentUpright2T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_2T" => GraphicTypeToken::TrapComponentUpright2T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_3T:UPRIGHT_WEAPONS:2:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_3T" => GraphicTypeTag::TrapComponentUpright3T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_3T" => GraphicTypeToken::TrapComponentUpright3T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_4T:UPRIGHT_WEAPONS:3:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_4T" => GraphicTypeTag::TrapComponentUpright4T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_4T" => GraphicTypeToken::TrapComponentUpright4T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_5T:UPRIGHT_WEAPONS:4:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_5T" => GraphicTypeTag::TrapComponentUpright5T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_5T" => GraphicTypeToken::TrapComponentUpright5T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_6T:UPRIGHT_WEAPONS:5:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_6T" => GraphicTypeTag::TrapComponentUpright6T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_6T" => GraphicTypeToken::TrapComponentUpright6T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_7T:UPRIGHT_WEAPONS:6:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_7T" => GraphicTypeTag::TrapComponentUpright7T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_7T" => GraphicTypeToken::TrapComponentUpright7T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_8T:UPRIGHT_WEAPONS:7:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_8T" => GraphicTypeTag::TrapComponentUpright8T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_8T" => GraphicTypeToken::TrapComponentUpright8T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_9T:UPRIGHT_WEAPONS:8:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_9T" => GraphicTypeTag::TrapComponentUpright9T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_9T" => GraphicTypeToken::TrapComponentUpright9T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_10T:UPRIGHT_WEAPONS:9:1]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_10T" => GraphicTypeTag::TrapComponentUpright10T,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_10T" => GraphicTypeToken::TrapComponentUpright10T,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_1B:UPRIGHT_WEAPONS:0:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_1B" => GraphicTypeTag::TrapComponentUpright1B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_1B" => GraphicTypeToken::TrapComponentUpright1B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_2B:UPRIGHT_WEAPONS:1:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_2B" => GraphicTypeTag::TrapComponentUpright2B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_2B" => GraphicTypeToken::TrapComponentUpright2B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_3B:UPRIGHT_WEAPONS:2:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_3B" => GraphicTypeTag::TrapComponentUpright3B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_3B" => GraphicTypeToken::TrapComponentUpright3B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_4B:UPRIGHT_WEAPONS:3:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_4B" => GraphicTypeTag::TrapComponentUpright4B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_4B" => GraphicTypeToken::TrapComponentUpright4B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_5B:UPRIGHT_WEAPONS:4:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_5B" => GraphicTypeTag::TrapComponentUpright5B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_5B" => GraphicTypeToken::TrapComponentUpright5B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_6B:UPRIGHT_WEAPONS:5:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_6B" => GraphicTypeTag::TrapComponentUpright6B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_6B" => GraphicTypeToken::TrapComponentUpright6B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_7B:UPRIGHT_WEAPONS:6:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_7B" => GraphicTypeTag::TrapComponentUpright7B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_7B" => GraphicTypeToken::TrapComponentUpright7B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_8B:UPRIGHT_WEAPONS:7:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_8B" => GraphicTypeTag::TrapComponentUpright8B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_8B" => GraphicTypeToken::TrapComponentUpright8B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_9B:UPRIGHT_WEAPONS:8:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_9B" => GraphicTypeTag::TrapComponentUpright9B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_9B" => GraphicTypeToken::TrapComponentUpright9B,
   // [TRAPCOMP_GRAPHICS_UPRIGHT_10B:UPRIGHT_WEAPONS:9:2]
-  "TRAPCOMP_GRAPHICS_UPRIGHT_10B" => GraphicTypeTag::TrapComponentUpright10B,
+  "TRAPCOMP_GRAPHICS_UPRIGHT_10B" => GraphicTypeToken::TrapComponentUpright10B,
   // [WEAPON_GRAPHICS:ITEM_WEAPON_WHIP]
-  "WEAPON_GRAPHICS" => GraphicTypeTag::Weapon,
+  "WEAPON_GRAPHICS" => GraphicTypeToken::Weapon,
   // [WEAPON_GRAPHICS_DEFAULT:WEAPONS:0:0]
-  "WEAPON_GRAPHICS_DEFAULT" => GraphicTypeTag::WeaponDefault,
+  "WEAPON_GRAPHICS_DEFAULT" => GraphicTypeToken::WeaponDefault,
   // [WEAPON_GRAPHICS_WOOD:WEAPONS:2:0]
-  "WEAPON_GRAPHICS_WOOD" => GraphicTypeTag::WeaponWood,
+  "WEAPON_GRAPHICS_WOOD" => GraphicTypeToken::WeaponWood,
   // [WEAPON_GRAPHICS_WOOD_GROWN:WEAPONS:1:0]
-  "WEAPON_GRAPHICS_WOOD_GROWN" => GraphicTypeTag::WeaponWoodGrown,
+  "WEAPON_GRAPHICS_WOOD_GROWN" => GraphicTypeToken::WeaponWoodGrown,
   // [WEAPON_GRAPHICS_MATERIAL:WEAPONS:0:0]
-  "WEAPON_GRAPHICS_MATERIAL" => GraphicTypeTag::WeaponMaterial,
+  "WEAPON_GRAPHICS_MATERIAL" => GraphicTypeToken::WeaponMaterial,
   // [WEAPON_GRAPHICS_WEAPON_TRAP:TRAPS_WEAPON:7:3]
-  "WEAPON_GRAPHICS_WEAPON_TRAP" => GraphicTypeTag::WeaponTrap,
+  "WEAPON_GRAPHICS_WEAPON_TRAP" => GraphicTypeToken::WeaponTrap,
   // [WEAPON_GRAPHICS_UPRIGHT_1T:UPRIGHT_WEAPONS:0:3]
-  "WEAPON_GRAPHICS_UPRIGHT_1T" => GraphicTypeTag::WeaponUpright1T,
+  "WEAPON_GRAPHICS_UPRIGHT_1T" => GraphicTypeToken::WeaponUpright1T,
   // [WEAPON_GRAPHICS_UPRIGHT_2T:UPRIGHT_WEAPONS:1:3]
-  "WEAPON_GRAPHICS_UPRIGHT_2T" => GraphicTypeTag::WeaponUpright2T,
+  "WEAPON_GRAPHICS_UPRIGHT_2T" => GraphicTypeToken::WeaponUpright2T,
   // [WEAPON_GRAPHICS_UPRIGHT_3T:UPRIGHT_WEAPONS:2:3]
-  "WEAPON_GRAPHICS_UPRIGHT_3T" => GraphicTypeTag::WeaponUpright3T,
+  "WEAPON_GRAPHICS_UPRIGHT_3T" => GraphicTypeToken::WeaponUpright3T,
   // [WEAPON_GRAPHICS_UPRIGHT_4T:UPRIGHT_WEAPONS:3:3]
-  "WEAPON_GRAPHICS_UPRIGHT_4T" => GraphicTypeTag::WeaponUpright4T,
+  "WEAPON_GRAPHICS_UPRIGHT_4T" => GraphicTypeToken::WeaponUpright4T,
   // [WEAPON_GRAPHICS_UPRIGHT_5T:UPRIGHT_WEAPONS:4:3]
-  "WEAPON_GRAPHICS_UPRIGHT_5T" => GraphicTypeTag::WeaponUpright5T,
+  "WEAPON_GRAPHICS_UPRIGHT_5T" => GraphicTypeToken::WeaponUpright5T,
   // [WEAPON_GRAPHICS_UPRIGHT_6T:UPRIGHT_WEAPONS:5:3]
-  "WEAPON_GRAPHICS_UPRIGHT_6T" => GraphicTypeTag::WeaponUpright6T,
+  "WEAPON_GRAPHICS_UPRIGHT_6T" => GraphicTypeToken::WeaponUpright6T,
   // [WEAPON_GRAPHICS_UPRIGHT_7T:UPRIGHT_WEAPONS:6:3]
-  "WEAPON_GRAPHICS_UPRIGHT_7T" => GraphicTypeTag::WeaponUpright7T,
+  "WEAPON_GRAPHICS_UPRIGHT_7T" => GraphicTypeToken::WeaponUpright7T,
   // [WEAPON_GRAPHICS_UPRIGHT_8T:UPRIGHT_WEAPONS:7:3]
-  "WEAPON_GRAPHICS_UPRIGHT_8T" => GraphicTypeTag::WeaponUpright8T,
+  "WEAPON_GRAPHICS_UPRIGHT_8T" => GraphicTypeToken::WeaponUpright8T,
   // [WEAPON_GRAPHICS_UPRIGHT_9T:UPRIGHT_WEAPONS:8:3]
-  "WEAPON_GRAPHICS_UPRIGHT_9T" => GraphicTypeTag::WeaponUpright9T,
+  "WEAPON_GRAPHICS_UPRIGHT_9T" => GraphicTypeToken::WeaponUpright9T,
   // [WEAPON_GRAPHICS_UPRIGHT_10T:UPRIGHT_WEAPONS:9:3]
-  "WEAPON_GRAPHICS_UPRIGHT_10T" => GraphicTypeTag::WeaponUpright10T,
+  "WEAPON_GRAPHICS_UPRIGHT_10T" => GraphicTypeToken::WeaponUpright10T,
   // [WEAPON_GRAPHICS_UPRIGHT_1B:UPRIGHT_WEAPONS:0:4]
-  "WEAPON_GRAPHICS_UPRIGHT_1B" => GraphicTypeTag::WeaponUpright1B,
+  "WEAPON_GRAPHICS_UPRIGHT_1B" => GraphicTypeToken::WeaponUpright1B,
   // [WEAPON_GRAPHICS_UPRIGHT_2B:UPRIGHT_WEAPONS:1:4]
-  "WEAPON_GRAPHICS_UPRIGHT_2B" => GraphicTypeTag::WeaponUpright2B,
+  "WEAPON_GRAPHICS_UPRIGHT_2B" => GraphicTypeToken::WeaponUpright2B,
   // [WEAPON_GRAPHICS_UPRIGHT_3B:UPRIGHT_WEAPONS:2:4]
-  "WEAPON_GRAPHICS_UPRIGHT_3B" => GraphicTypeTag::WeaponUpright3B,
+  "WEAPON_GRAPHICS_UPRIGHT_3B" => GraphicTypeToken::WeaponUpright3B,
   // [WEAPON_GRAPHICS_UPRIGHT_4B:UPRIGHT_WEAPONS:3:4]
-  "WEAPON_GRAPHICS_UPRIGHT_4B" => GraphicTypeTag::WeaponUpright4B,
+  "WEAPON_GRAPHICS_UPRIGHT_4B" => GraphicTypeToken::WeaponUpright4B,
   // [WEAPON_GRAPHICS_UPRIGHT_5B:UPRIGHT_WEAPONS:4:4]
-  "WEAPON_GRAPHICS_UPRIGHT_5B" => GraphicTypeTag::WeaponUpright5B,
+  "WEAPON_GRAPHICS_UPRIGHT_5B" => GraphicTypeToken::WeaponUpright5B,
   // [WEAPON_GRAPHICS_UPRIGHT_6B:UPRIGHT_WEAPONS:5:4]
-  "WEAPON_GRAPHICS_UPRIGHT_6B" => GraphicTypeTag::WeaponUpright6B,
+  "WEAPON_GRAPHICS_UPRIGHT_6B" => GraphicTypeToken::WeaponUpright6B,
   // [WEAPON_GRAPHICS_UPRIGHT_7B:UPRIGHT_WEAPONS:6:4]
-  "WEAPON_GRAPHICS_UPRIGHT_7B" => GraphicTypeTag::WeaponUpright7B,
+  "WEAPON_GRAPHICS_UPRIGHT_7B" => GraphicTypeToken::WeaponUpright7B,
   // [WEAPON_GRAPHICS_UPRIGHT_8B:UPRIGHT_WEAPONS:7:4]
-  "WEAPON_GRAPHICS_UPRIGHT_8B" => GraphicTypeTag::WeaponUpright8B,
+  "WEAPON_GRAPHICS_UPRIGHT_8B" => GraphicTypeToken::WeaponUpright8B,
   // [WEAPON_GRAPHICS_UPRIGHT_9B:UPRIGHT_WEAPONS:8:4]
-  "WEAPON_GRAPHICS_UPRIGHT_9B" => GraphicTypeTag::WeaponUpright9B,
+  "WEAPON_GRAPHICS_UPRIGHT_9B" => GraphicTypeToken::WeaponUpright9B,
   // [WEAPON_GRAPHICS_UPRIGHT_10B:UPRIGHT_WEAPONS:9:4]
-  "WEAPON_GRAPHICS_UPRIGHT_10B" => GraphicTypeTag::WeaponUpright10B,
+  "WEAPON_GRAPHICS_UPRIGHT_10B" => GraphicTypeToken::WeaponUpright10B,
 
   // Creature Graphics
-  "STATUE_CREATURE_GRAPHICS" => GraphicTypeTag::StatueCreature,
-  "STATUE_CREATURE_CASTE_GRAPHICS" => GraphicTypeTag::StatueCreatureCaste,
-  "STATUES_SURFACE_GIANT" => GraphicTypeTag::StatuesSurfaceGiant,
+  "STATUE_CREATURE_GRAPHICS" => GraphicTypeToken::StatueCreature,
+  "STATUE_CREATURE_CASTE_GRAPHICS" => GraphicTypeToken::StatueCreatureCaste,
+  "STATUES_SURFACE_GIANT" => GraphicTypeToken::StatuesSurfaceGiant,
 
 };

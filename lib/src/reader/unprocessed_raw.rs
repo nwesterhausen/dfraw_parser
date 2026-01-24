@@ -3,7 +3,7 @@ use tracing::{debug, trace};
 use crate::{
     Creature, CreatureVariation, ParserError,
     metadata::RawMetadata,
-    tags::{ModificationTag, ObjectType},
+    tokens::{ModificationToken, ObjectType},
     traits::RawObject,
     utilities::singularly_apply_creature_variation,
 };
@@ -26,7 +26,7 @@ pub struct UnprocessedRaw {
     ///
     /// So when the raws are parsed from this into the actual object, we can apply these modifications
     /// in order to get the final object.
-    modifications: Vec<ModificationTag>,
+    modifications: Vec<ModificationToken>,
     /// Metadata to be passed on to the final object
     metadata: RawMetadata,
     /// Identifier of the object
@@ -104,11 +104,11 @@ impl UnprocessedRaw {
         self.modifications.iter().all(|m| {
             matches!(
                 m,
-                ModificationTag::MainRawBody { .. }
-                    | ModificationTag::AddToBeginning { .. }
-                    | ModificationTag::AddToEnding { .. }
-                    | ModificationTag::AddBeforeTag { .. }
-                    | ModificationTag::ApplyCreatureVariation { .. }
+                ModificationToken::MainRawBody { .. }
+                    | ModificationToken::AddToBeginning { .. }
+                    | ModificationToken::AddToEnding { .. }
+                    | ModificationToken::AddBeforeTag { .. }
+                    | ModificationToken::ApplyCreatureVariation { .. }
             )
         })
     }
@@ -130,23 +130,23 @@ impl UnprocessedRaw {
     /// The modifications to apply to the object
     #[must_use]
     #[allow(dead_code)]
-    pub fn modifications(&self) -> &[ModificationTag] {
+    pub fn modifications(&self) -> &[ModificationToken] {
         &self.modifications
     }
 
     /// Adds a modification to the object
     #[allow(clippy::collapsible_match)]
     #[allow(dead_code)]
-    pub fn add_modification(&mut self, modification: ModificationTag) {
+    pub fn add_modification(&mut self, modification: ModificationToken) {
         // We want to "squish" the modifications together if possible
         // So we want to compare the type of the last modification to the type of the new modification
         // If they are the same, we want to combine them, unless we can't
         // (like with `COPY_TAGS_FROM` and `APPLY_CREATURE_VARIATION`)
         match modification.clone() {
-            ModificationTag::AddBeforeTag { tag, raws } => {
+            ModificationToken::AddBeforeTag { tag, raws } => {
                 // Check if last modification is also an `AddBeforeTag`
                 if let Some(last_modification) = self.modifications.last_mut()
-                    && let ModificationTag::AddBeforeTag {
+                    && let ModificationToken::AddBeforeTag {
                         tag: last_tag,
                         raws: last_raws,
                     } = last_modification
@@ -159,30 +159,30 @@ impl UnprocessedRaw {
                     }
                 }
             }
-            ModificationTag::AddToBeginning { raws } => {
+            ModificationToken::AddToBeginning { raws } => {
                 // Check if last modification is also an `AddToBeginning`
                 if let Some(last_modification) = self.modifications.last_mut()
-                    && let ModificationTag::AddToBeginning { raws: last_raws } = last_modification
+                    && let ModificationToken::AddToBeginning { raws: last_raws } = last_modification
                 {
                     // They are the same, so we can combine them
                     last_raws.extend(raws);
                     return;
                 }
             }
-            ModificationTag::AddToEnding { raws } => {
+            ModificationToken::AddToEnding { raws } => {
                 // Check if last modification is also an `AddToEnding`
                 if let Some(last_modification) = self.modifications.last_mut()
-                    && let ModificationTag::AddToEnding { raws: last_raws } = last_modification
+                    && let ModificationToken::AddToEnding { raws: last_raws } = last_modification
                 {
                     // They are the same, so we can combine them
                     last_raws.extend(raws);
                     return;
                 }
             }
-            ModificationTag::MainRawBody { raws } => {
+            ModificationToken::MainRawBody { raws } => {
                 // Check if last modification is also an `MainRawBody`
                 if let Some(last_modification) = self.modifications.last_mut()
-                    && let ModificationTag::MainRawBody { raws: last_raws } = last_modification
+                    && let ModificationToken::MainRawBody { raws: last_raws } = last_modification
                 {
                     // They are the same, so we can combine them
                     last_raws.extend(raws);
@@ -229,7 +229,7 @@ impl UnprocessedRaw {
 
         for modification in &self.modifications {
             match modification {
-                ModificationTag::CopyTagsFrom { identifier } => {
+                ModificationToken::CopyTagsFrom { identifier } => {
                     // Get the creature we are copying from. If we find more than one, we just use the newest one. (But we log a warning)
                     let mut source_creature_options = all_raws
                         .iter()
@@ -272,7 +272,7 @@ impl UnprocessedRaw {
                         );
                     }
                 }
-                ModificationTag::ApplyCreatureVariation { identifier } => {
+                ModificationToken::ApplyCreatureVariation { identifier } => {
                     if let Some(updated_creature) = singularly_apply_creature_variation(
                         &creature,
                         identifier,
@@ -281,7 +281,7 @@ impl UnprocessedRaw {
                         creature = updated_creature;
                     }
                 }
-                ModificationTag::MainRawBody { raws } => {
+                ModificationToken::MainRawBody { raws } => {
                     for raw_string in raws {
                         // Split the raw into the key and value (rest of the string)
                         let mut split = raw_string.split(':');
@@ -309,7 +309,7 @@ impl UnprocessedRaw {
         // Grab the base raws first
         let mut collapsed_raws: Vec<String> = Vec::new();
         for modification in &self.modifications {
-            if let ModificationTag::MainRawBody { raws } = modification {
+            if let ModificationToken::MainRawBody { raws } = modification {
                 collapsed_raws.extend(raws.clone());
                 trace!("collapsed {} base raws", raws.len());
             }
@@ -317,12 +317,12 @@ impl UnprocessedRaw {
 
         // Now we can remove all the `MainRawBody` modifications
         self.modifications
-            .retain(|m| !matches!(m, ModificationTag::MainRawBody { .. }));
+            .retain(|m| !matches!(m, ModificationToken::MainRawBody { .. }));
 
         // Next process the `AddToEnding` modifications
         let mut add_to_ending: Vec<String> = Vec::new();
         for modification in &self.modifications {
-            if let ModificationTag::AddToEnding { raws } = modification {
+            if let ModificationToken::AddToEnding { raws } = modification {
                 add_to_ending.extend(raws.clone());
                 trace!("collapsed {} add to ending raws", raws.len());
             }
@@ -330,12 +330,12 @@ impl UnprocessedRaw {
 
         // Now we can remove all the `AddToEnding` modifications
         self.modifications
-            .retain(|m| !matches!(m, ModificationTag::AddToEnding { .. }));
+            .retain(|m| !matches!(m, ModificationToken::AddToEnding { .. }));
 
         // Next process the `AddToBeginning` modifications
         let mut add_to_beginning: Vec<String> = Vec::new();
         for modification in &self.modifications {
-            if let ModificationTag::AddToBeginning { raws } = modification {
+            if let ModificationToken::AddToBeginning { raws } = modification {
                 add_to_beginning.extend(raws.clone());
                 trace!("collapsed {} add to beginning raws", raws.len());
             }
@@ -343,7 +343,7 @@ impl UnprocessedRaw {
 
         // Now we can remove all the `AddToBeginning` modifications
         self.modifications
-            .retain(|m| !matches!(m, ModificationTag::AddToBeginning { .. }));
+            .retain(|m| !matches!(m, ModificationToken::AddToBeginning { .. }));
 
         // Combine the raws into [add_to_beginning, raws, add_to_ending] (order matters)
         debug!(
@@ -360,7 +360,7 @@ impl UnprocessedRaw {
         // Finally process the `AddBeforeTag` modifications
         // These have to get inserted before the tag, so we need to find where to insert first
         for modification in &self.modifications {
-            if let ModificationTag::AddBeforeTag { tag, raws } = modification {
+            if let ModificationToken::AddBeforeTag { tag, raws } = modification {
                 // Find the index of the tag
                 let index = collapsed_raws.iter().position(|r| r.starts_with(tag));
 
@@ -384,7 +384,7 @@ impl UnprocessedRaw {
         }
 
         // Add the collapsed raws back as a `MainRawBody` modification
-        self.modifications.push(ModificationTag::MainRawBody {
+        self.modifications.push(ModificationToken::MainRawBody {
             raws: collapsed_raws,
         });
     }

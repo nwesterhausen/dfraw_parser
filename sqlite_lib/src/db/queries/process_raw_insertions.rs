@@ -2,7 +2,7 @@
 use chrono::Utc;
 use dfraw_parser::{
     Graphic, ModuleInfo, TilePage,
-    tags::{ConditionTag, ObjectType},
+    tokens::{ConditionToken, ObjectType},
     traits::RawObject,
 };
 use rusqlite::{Result, Transaction, params};
@@ -280,10 +280,10 @@ pub fn process_raw_insertions(
                                 tile_page_id: s.get_tile_page_id().to_string(),
                                 offset: s_offset.into(),
                                 offset2: Some(s_offset_2.into()),
-                                primary_cond: ConditionTag::get_key(&s.get_primary_condition())
+                                primary_cond: ConditionToken::get_key(&s.get_primary_condition())
                                     .unwrap_or_default()
                                     .to_string(),
-                                secondary_cond: ConditionTag::get_key(&s.get_secondary_condition())
+                                secondary_cond: ConditionToken::get_key(&s.get_secondary_condition())
                                     .map(String::from),
                                 target_id: g.get_identifier().to_string(),
                             });
@@ -293,10 +293,10 @@ pub fn process_raw_insertions(
                                 tile_page_id: s.get_tile_page_id().to_string(),
                                 offset: s_offset.into(),
                                 offset2: None,
-                                primary_cond: ConditionTag::get_key(&s.get_primary_condition())
+                                primary_cond: ConditionToken::get_key(&s.get_primary_condition())
                                     .unwrap_or_default()
                                     .to_string(),
-                                secondary_cond: ConditionTag::get_key(&s.get_secondary_condition())
+                                secondary_cond: ConditionToken::get_key(&s.get_secondary_condition())
                                     .map(String::from),
                                 target_id: g.get_identifier().to_string(),
                             });

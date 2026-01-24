@@ -2,7 +2,7 @@
 
 use tracing::warn;
 
-use crate::tags::{GaitModifierTag, GaitTypeTag};
+use crate::tokens::{GaitModifierToken, GaitTypeToken};
 
 /// A struct describing how a creature moves.
 ///
@@ -34,7 +34,7 @@ use crate::tags::{GaitModifierTag, GaitTypeTag};
 #[serde(rename_all = "camelCase")]
 pub struct Gait {
     /// The movement medium (e.g., [`GaitTypeTag::Walk`], [`GaitTypeTag::Swim`]).
-    gait_type: GaitTypeTag,
+    gait_type: GaitTypeToken,
     /// The descriptive name of the movement (e.g., "Sprint", "Jog").
     name: String,
     /// The maximum speed achievable, where lower values are faster.
@@ -48,7 +48,7 @@ pub struct Gait {
     /// The fatigue or energy cost associated with this movement.
     energy_use: u32,
     /// Optional modifiers affecting speed based on attributes or stealth.
-    modifiers: Vec<GaitModifierTag>,
+    modifiers: Vec<GaitModifierToken>,
 }
 
 impl Gait {
@@ -73,13 +73,13 @@ impl Gait {
 
         // First part is the gait type
         gait.gait_type = match parts.next() {
-            Some("WALK") => GaitTypeTag::Walk,
-            Some("CLIMB") => GaitTypeTag::Climb,
-            Some("SWIM") => GaitTypeTag::Swim,
-            Some("CRAWL") => GaitTypeTag::Crawl,
-            Some("FLY") => GaitTypeTag::Fly,
-            Some(other) => GaitTypeTag::Other(other.to_string()),
-            None => GaitTypeTag::Unknown,
+            Some("WALK") => GaitTypeToken::Walk,
+            Some("CLIMB") => GaitTypeToken::Climb,
+            Some("SWIM") => GaitTypeToken::Swim,
+            Some("CRAWL") => GaitTypeToken::Crawl,
+            Some("FLY") => GaitTypeToken::Fly,
+            Some(other) => GaitTypeToken::Other(other.to_string()),
+            None => GaitTypeToken::Unknown,
         };
 
         // Next will be gait name
@@ -93,9 +93,9 @@ impl Gait {
         // turning max and start speed.
         if let Some(raw_value) = parts.next() {
             if raw_value == "NO_BUILD_UP" {
-                gait.modifiers.push(GaitModifierTag::NoBuildUp);
+                gait.modifiers.push(GaitModifierToken::NoBuildUp);
             } else if let Ok(value) = raw_value.parse() {
-                gait.modifiers.push(GaitModifierTag::BuildUp {
+                gait.modifiers.push(GaitModifierToken::BuildUp {
                     time: value,
                     turning_max: 0,
                     start_speed: 0,
@@ -110,13 +110,13 @@ impl Gait {
                 && let Ok(value) = raw_value.parse::<u32>()
             {
                 // Modify the build up modifier to include the turning max
-                if let Some(GaitModifierTag::BuildUp {
+                if let Some(GaitModifierToken::BuildUp {
                     time,
                     turning_max: _,
                     start_speed,
                 }) = gait.modifiers.pop()
                 {
-                    gait.modifiers.push(GaitModifierTag::BuildUp {
+                    gait.modifiers.push(GaitModifierToken::BuildUp {
                         time,
                         turning_max: value,
                         start_speed,
@@ -129,13 +129,13 @@ impl Gait {
                 && let Ok(value) = raw_value.parse::<u32>()
             {
                 // Modify the build up modifier to include the start speed
-                if let Some(GaitModifierTag::BuildUp {
+                if let Some(GaitModifierToken::BuildUp {
                     time,
                     turning_max,
                     start_speed: _,
                 }) = gait.modifiers.pop()
                 {
-                    gait.modifiers.push(GaitModifierTag::BuildUp {
+                    gait.modifiers.push(GaitModifierToken::BuildUp {
                         time,
                         turning_max,
                         start_speed: value,
@@ -149,14 +149,14 @@ impl Gait {
 
         // Now we have modifiers. These are optional, so we'll just loop until we run out of parts.
         parts.clone().enumerate().for_each(|(idx, s)| match s {
-            "LAYERS_SLOW" => gait.modifiers.push(GaitModifierTag::LayersSlow),
-            "STRENGTH" => gait.modifiers.push(GaitModifierTag::Strength),
-            "AGILITY" => gait.modifiers.push(GaitModifierTag::Agility),
+            "LAYERS_SLOW" => gait.modifiers.push(GaitModifierToken::LayersSlow),
+            "STRENGTH" => gait.modifiers.push(GaitModifierToken::Strength),
+            "AGILITY" => gait.modifiers.push(GaitModifierToken::Agility),
             "STEALTH_SLOWS" => {
                 if let Some(raw_value) = parts.nth(idx + 1) {
                     if let Ok(value) = raw_value.parse() {
                         gait.modifiers
-                            .push(GaitModifierTag::StealthSlows { percentage: value });
+                            .push(GaitModifierToken::StealthSlows { percentage: value });
                     }
                 } else {
                     warn!("STEALTH_SLOWS modifier is missing a value in {value}");
@@ -173,14 +173,14 @@ impl Gait {
     /// A gait is considered empty if its type is [`GaitTypeTag::Unknown`].
     #[must_use]
     pub fn is_empty(&self) -> bool {
-        self.gait_type == GaitTypeTag::Unknown
+        self.gait_type == GaitTypeToken::Unknown
     }
 
     /// Returns the movement medium tag for this gait.
     ///
     /// This indicates if the movement is walking, swimming, flying, etc.
     #[must_use]
-    pub fn get_gait_type(&self) -> &GaitTypeTag {
+    pub fn get_gait_type(&self) -> &GaitTypeToken {
         &self.gait_type
     }
 
@@ -245,7 +245,7 @@ impl Gait {
     ///
     /// These include attribute scaling (Strength, Agility) and stealth penalties.
     #[must_use]
-    pub fn get_modifiers(&self) -> &[GaitModifierTag] {
+    pub fn get_modifiers(&self) -> &[GaitModifierToken] {
         self.modifiers.as_slice()
     }
 }

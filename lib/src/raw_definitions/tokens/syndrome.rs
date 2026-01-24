@@ -1,20 +1,20 @@
 //! String token to parsed tag map for syndrome tokens.
 
-use crate::tags::SyndromeTag;
+use crate::tokens::SyndromeToken;
 
 /// Mapping of syndrome tokens to strings
-pub static SYNDROME_TOKENS: phf::Map<&'static str, SyndromeTag> = phf::phf_map! {
-    "SYN_NAME" => SyndromeTag::Name,
-    "SYN_IDENTIFIER" => SyndromeTag::Identifier,
-    "SYN_INJECTED" => SyndromeTag::Injected,
-    "SYN_CONTACT" => SyndromeTag::Contact,
-    "SYN_INHALED" => SyndromeTag::Inhaled,
-    "SYN_INGESTED" => SyndromeTag::Ingested,
-    "SYN_AFFECTED_CLASS" => SyndromeTag::AffectedClass,
-    "SYN_IMMUNE_CLASS" => SyndromeTag::ImmuneClass,
-    "SYN_AFFECTED_CREATURE" => SyndromeTag::AffectedCreature,
-    "SYN_IMMUNE_CREATURE" => SyndromeTag::ImmuneCreature,
-    "SYN_CONCENTRATION_ADDED" => SyndromeTag::ConcentrationAdded,
-    "SYN_NO_HOSPITAL" => SyndromeTag::NoHospital,
-    "SYN_CLASS" => SyndromeTag::Class,
+pub static SYNDROME_TOKENS: phf::Map<&'static str, SyndromeToken> = phf::phf_map! {
+    "SYN_NAME" => SyndromeToken::Name,
+    "SYN_IDENTIFIER" => SyndromeToken::Identifier,
+    "SYN_INJECTED" => SyndromeToken::Injected,
+    "SYN_CONTACT" => SyndromeToken::Contact,
+    "SYN_INHALED" => SyndromeToken::Inhaled,
+    "SYN_INGESTED" => SyndromeToken::Ingested,
+    "SYN_AFFECTED_CLASS" => SyndromeToken::AffectedClass,
+    "SYN_IMMUNE_CLASS" => SyndromeToken::ImmuneClass,
+    "SYN_AFFECTED_CREATURE" => SyndromeToken::AffectedCreature,
+    "SYN_IMMUNE_CREATURE" => SyndromeToken::ImmuneCreature,
+    "SYN_CONCENTRATION_ADDED" => SyndromeToken::ConcentrationAdded,
+    "SYN_NO_HOSPITAL" => SyndromeToken::NoHospital,
+    "SYN_CLASS" => SyndromeToken::Class,
 };

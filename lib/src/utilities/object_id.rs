@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::{
     constants::DFRAW_PARSER_NAMESPACE,
     metadata::{RawMetadata, RawModuleLocation},
-    tags::ObjectType,
+    tokens::ObjectType,
 };
 
 /// Generate a UUID to use as an `object_id` for a given raw object or info file.

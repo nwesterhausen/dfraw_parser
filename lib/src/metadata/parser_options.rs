@@ -4,7 +4,7 @@ use strum::IntoEnumIterator;
 
 use crate::{
     metadata::{LocationHelper, RawModuleLocation},
-    tags::ObjectType,
+    tokens::ObjectType,
 };
 
 /// # Parsing Options
@@ -26,7 +26,7 @@ use crate::{
 /// ```rust
 /// use std::path::PathBuf;
 /// use dfraw_parser::metadata::{ParserOptions, RawModuleLocation};
-/// use dfraw_parser::tags::ObjectType;
+/// use dfraw_parser::tokens::ObjectType;
 /// use dfraw_parser::traits::RawObject;
 ///
 /// let mut options = ParserOptions::new();
@@ -240,7 +240,7 @@ impl ParserOptions {
     ///
     /// ```rust
     /// use dfraw_parser::metadata::ParserOptions;
-    /// use dfraw_parser::tags::ObjectType;
+    /// use dfraw_parser::tokens::ObjectType;
     ///
     /// let mut options = ParserOptions::new();
     /// options.add_object_type_to_parse(ObjectType::Graphics);

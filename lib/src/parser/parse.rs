@@ -7,7 +7,7 @@ use crate::{
     metadata::{ParserOptions, RawModuleLocation},
     parser::{parse_location, parse_module},
     reader::{UnprocessedRaw, parse_raw_file},
-    tags::ObjectType,
+    tokens::ObjectType,
     traits::RawObject,
     utilities::{clone_raw_object_box, log_summary, summarize_raws, validate_options},
 };

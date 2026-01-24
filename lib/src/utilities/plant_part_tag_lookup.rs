@@ -1,15 +1,15 @@
 use crate::raw_definitions::PLANT_PART_TOKENS;
-use crate::tags::PlantPartTag;
+use crate::tokens::PlantPartToken;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-impl PlantPartTag {
+impl PlantPartToken {
     /// Retrieves the original string token key for this tag (e.g., "MOUNTAIN").
     /// Uses a cached reverse-lookup map for O(1) performance.
     pub fn get_key(&self) -> Option<&'static str> {
         // Lazily-initialized static reverse map: Discriminant<PlantPartTag> -> &'static str
-        static REVERSE_MAP: OnceLock<HashMap<Discriminant<PlantPartTag>, &'static str>> =
+        static REVERSE_MAP: OnceLock<HashMap<Discriminant<PlantPartToken>, &'static str>> =
             OnceLock::new();
 
         let map = REVERSE_MAP.get_or_init(|| {

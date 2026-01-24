@@ -1,4 +1,4 @@
-use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType};
+use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType};
 use serde::{Deserialize, Serialize};
 
 use crate::NumericFilter;

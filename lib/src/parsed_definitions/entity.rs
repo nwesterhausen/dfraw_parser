@@ -8,7 +8,7 @@ use crate::{
     Color, Position,
     metadata::RawMetadata,
     raw_definitions::{ENTITY_TOKENS, POSITION_TOKENS},
-    tags::{EntityTag, ObjectType},
+    tokens::{EntityToken, ObjectType},
     traits::{RawObject, Searchable},
     utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
@@ -32,7 +32,7 @@ pub struct Entity {
     identifier: String,
     object_id: Uuid,
 
-    tags: Vec<EntityTag>,
+    tags: Vec<EntityToken>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     creature: Option<String>,
@@ -272,48 +272,48 @@ impl RawObject for Entity {
         };
 
         match tag {
-            EntityTag::ActiveSeason => {
+            EntityToken::ActiveSeason => {
                 self.active_season = Some(value.to_string());
             }
-            EntityTag::Banditry => {
+            EntityToken::Banditry => {
                 self.banditry = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::Creature => {
+            EntityToken::Creature => {
                 self.creature = Some(value.to_string());
             }
-            EntityTag::ProgressTriggerPopulation => {
+            EntityToken::ProgressTriggerPopulation => {
                 self.progress_trigger_population = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::ProgressTriggerProduction => {
+            EntityToken::ProgressTriggerProduction => {
                 self.progress_trigger_production = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::ProgressTriggerTrade => {
+            EntityToken::ProgressTriggerTrade => {
                 self.progress_trigger_trade = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::ProgressTriggerPopulationSiege => {
+            EntityToken::ProgressTriggerPopulationSiege => {
                 self.progress_trigger_population_siege = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::ProgressTriggerProductionSiege => {
+            EntityToken::ProgressTriggerProductionSiege => {
                 self.progress_trigger_production_siege = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::ProgressTriggerTradeSiege => {
+            EntityToken::ProgressTriggerTradeSiege => {
                 self.progress_trigger_trade_siege = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::Scholar => {
+            EntityToken::Scholar => {
                 if let Some(scholars) = &mut self.scholars {
                     scholars.push(value.to_string());
                 } else {
                     self.scholars = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Ammo => {
+            EntityToken::Ammo => {
                 if let Some(ammo) = &mut self.ammo {
                     ammo.push(value.to_string());
                 } else {
                     self.ammo = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Armor => {
+            EntityToken::Armor => {
                 let mut split = value.split(':');
                 let armor = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -324,14 +324,14 @@ impl RawObject for Entity {
                     self.armors = Some(vec![(armor, chance)]);
                 }
             }
-            EntityTag::Digger => {
+            EntityToken::Digger => {
                 if let Some(diggers) = &mut self.diggers {
                     diggers.push(value.to_string());
                 } else {
                     self.diggers = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Gloves => {
+            EntityToken::Gloves => {
                 let mut split = value.split(':');
                 let armor = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -342,7 +342,7 @@ impl RawObject for Entity {
                     self.gloves = Some(vec![(armor, chance)]);
                 }
             }
-            EntityTag::Helm => {
+            EntityToken::Helm => {
                 let mut split = value.split(':');
                 let armor = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -353,14 +353,14 @@ impl RawObject for Entity {
                     self.helms = Some(vec![(armor, chance)]);
                 }
             }
-            EntityTag::Instrument => {
+            EntityToken::Instrument => {
                 if let Some(instrument) = &mut self.instrument {
                     instrument.push(value.to_string());
                 } else {
                     self.instrument = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Pants => {
+            EntityToken::Pants => {
                 let mut split = value.split(':');
                 let armor = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -371,14 +371,14 @@ impl RawObject for Entity {
                     self.pants = Some(vec![(armor, chance)]);
                 }
             }
-            EntityTag::Shield => {
+            EntityToken::Shield => {
                 if let Some(shields) = &mut self.shields {
                     shields.push(value.to_string());
                 } else {
                     self.shields = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Shoes => {
+            EntityToken::Shoes => {
                 let mut split = value.split(':');
                 let armor = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -389,56 +389,56 @@ impl RawObject for Entity {
                     self.shoes = Some(vec![(armor, chance)]);
                 }
             }
-            EntityTag::SiegeAmmo => {
+            EntityToken::SiegeAmmo => {
                 if let Some(siege_ammo) = &mut self.siege_ammo {
                     siege_ammo.push(value.to_string());
                 } else {
                     self.siege_ammo = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Tool => {
+            EntityToken::Tool => {
                 if let Some(tool) = &mut self.tool {
                     tool.push(value.to_string());
                 } else {
                     self.tool = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Toy => {
+            EntityToken::Toy => {
                 if let Some(toys) = &mut self.toys {
                     toys.push(value.to_string());
                 } else {
                     self.toys = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::TrapComponent => {
+            EntityToken::TrapComponent => {
                 if let Some(trap_components) = &mut self.trap_components {
                     trap_components.push(value.to_string());
                 } else {
                     self.trap_components = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Weapon => {
+            EntityToken::Weapon => {
                 if let Some(weapons) = &mut self.weapons {
                     weapons.push(value.to_string());
                 } else {
                     self.weapons = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::GemShape => {
+            EntityToken::GemShape => {
                 if let Some(gem_shape) = &mut self.gem_shape {
                     gem_shape.push(value.to_string());
                 } else {
                     self.gem_shape = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::StoneShape => {
+            EntityToken::StoneShape => {
                 if let Some(stone_shape) = &mut self.stone_shape {
                     stone_shape.push(value.to_string());
                 } else {
                     self.stone_shape = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::BiomeSupport => {
+            EntityToken::BiomeSupport => {
                 let mut split = value.split(':');
                 let biome = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -449,63 +449,63 @@ impl RawObject for Entity {
                     self.biome_support = Some(vec![(biome, chance)]);
                 }
             }
-            EntityTag::SettlementBiome => {
+            EntityToken::SettlementBiome => {
                 if let Some(settlement_biome) = &mut self.settlement_biome {
                     settlement_biome.push(value.to_string());
                 } else {
                     self.settlement_biome = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::StartBiome => {
+            EntityToken::StartBiome => {
                 if let Some(start_biome) = &mut self.start_biome {
                     start_biome.push(value.to_string());
                 } else {
                     self.start_biome = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::LikesSite => {
+            EntityToken::LikesSite => {
                 if let Some(likes_sites) = &mut self.likes_sites {
                     likes_sites.push(value.to_string());
                 } else {
                     self.likes_sites = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::ToleratesSite => {
+            EntityToken::ToleratesSite => {
                 if let Some(tolerates_sites) = &mut self.tolerates_sites {
                     tolerates_sites.push(value.to_string());
                 } else {
                     self.tolerates_sites = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::WorldConstruction => {
+            EntityToken::WorldConstruction => {
                 if let Some(world_constructions) = &mut self.world_constructions {
                     world_constructions.push(value.to_string());
                 } else {
                     self.world_constructions = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::PermittedBuilding => {
+            EntityToken::PermittedBuilding => {
                 if let Some(permitted_buildings) = &mut self.permitted_buildings {
                     permitted_buildings.push(value.to_string());
                 } else {
                     self.permitted_buildings = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::PermittedJob => {
+            EntityToken::PermittedJob => {
                 if let Some(permitted_jobs) = &mut self.permitted_jobs {
                     permitted_jobs.push(value.to_string());
                 } else {
                     self.permitted_jobs = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::PermittedReaction => {
+            EntityToken::PermittedReaction => {
                 if let Some(permitted_reactions) = &mut self.permitted_reactions {
                     permitted_reactions.push(value.to_string());
                 } else {
                     self.permitted_reactions = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Currency => {
+            EntityToken::Currency => {
                 let mut split = value.split(':');
                 let currency = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -516,7 +516,7 @@ impl RawObject for Entity {
                     self.currency = Some(vec![(currency, chance)]);
                 }
             }
-            EntityTag::ArtFacetModifier => {
+            EntityToken::ArtFacetModifier => {
                 let mut split = value.split(':');
                 let facet = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -527,7 +527,7 @@ impl RawObject for Entity {
                     self.art_facet_modifier = Some(vec![(facet, chance)]);
                 }
             }
-            EntityTag::ArtImageElementModifier => {
+            EntityToken::ArtImageElementModifier => {
                 let mut split = value.split(':');
                 let element = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -538,7 +538,7 @@ impl RawObject for Entity {
                     self.art_image_element_modifier = Some(vec![(element, chance)]);
                 }
             }
-            EntityTag::ItemImprovementModifier => {
+            EntityToken::ItemImprovementModifier => {
                 let mut split = value.split(':');
                 let improvement = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -549,7 +549,7 @@ impl RawObject for Entity {
                     self.item_improvement_modifier = Some(vec![(improvement, chance)]);
                 }
             }
-            EntityTag::SelectSymbol => {
+            EntityToken::SelectSymbol => {
                 let mut split = value.split(':');
                 let symbol = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().to_string();
@@ -560,7 +560,7 @@ impl RawObject for Entity {
                     self.select_symbols = Some(vec![(symbol, chance)]);
                 }
             }
-            EntityTag::SubselectSymbol => {
+            EntityToken::SubselectSymbol => {
                 let mut split = value.split(':');
                 let symbol = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().to_string();
@@ -571,7 +571,7 @@ impl RawObject for Entity {
                     self.subselect_symbols = Some(vec![(symbol, chance)]);
                 }
             }
-            EntityTag::CullSymbol => {
+            EntityToken::CullSymbol => {
                 let mut split = value.split(':');
                 let symbol = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().to_string();
@@ -582,27 +582,27 @@ impl RawObject for Entity {
                     self.cull_symbols = Some(vec![(symbol, chance)]);
                 }
             }
-            EntityTag::FriendlyColor => {
+            EntityToken::FriendlyColor => {
                 self.friendly_color = Some(Color::from_value(value));
             }
-            EntityTag::Religion => {
+            EntityToken::Religion => {
                 self.religion = Some(value.to_string());
             }
-            EntityTag::ReligionSphere => {
+            EntityToken::ReligionSphere => {
                 if let Some(religion_spheres) = &mut self.religion_spheres {
                     religion_spheres.push(value.to_string());
                 } else {
                     self.religion_spheres = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::SphereAlignment => {
+            EntityToken::SphereAlignment => {
                 if let Some(sphere_alignments) = &mut self.sphere_alignments {
                     sphere_alignments.push(value.to_string());
                 } else {
                     self.sphere_alignments = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Position => {
+            EntityToken::Position => {
                 let position = Position::new(value.to_string());
                 if let Some(positions) = &mut self.positions {
                     positions.push(position);
@@ -610,24 +610,24 @@ impl RawObject for Entity {
                     self.positions = Some(vec![position]);
                 }
             }
-            EntityTag::LandHolderTrigger => {
+            EntityToken::LandHolderTrigger => {
                 self.land_holder_trigger = Some(value.to_string());
             }
-            EntityTag::SiteVariablePositions => {
+            EntityToken::SiteVariablePositions => {
                 if let Some(site_variable_positions) = &mut self.site_variable_positions {
                     site_variable_positions.push(value.to_string());
                 } else {
                     self.site_variable_positions = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::VariablePositions => {
+            EntityToken::VariablePositions => {
                 if let Some(variable_positions) = &mut self.variable_positions {
                     variable_positions.push(value.to_string());
                 } else {
                     self.variable_positions = Some(vec![value.to_string()]);
                 }
             }
-            EntityTag::Ethic => {
+            EntityToken::Ethic => {
                 let mut split = value.split(':');
                 let ethic = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().to_string();
@@ -638,7 +638,7 @@ impl RawObject for Entity {
                     self.ethics = Some(vec![(ethic, chance)]);
                 }
             }
-            EntityTag::Value => {
+            EntityToken::Value => {
                 let mut split = value.split(':');
                 let value = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -649,7 +649,7 @@ impl RawObject for Entity {
                     self.values = Some(vec![(value, chance)]);
                 }
             }
-            EntityTag::VariableValue => {
+            EntityToken::VariableValue => {
                 let mut split = value.split(':');
                 let value = split.next().unwrap_or_default().to_string();
                 let chance = split.next().unwrap_or_default().parse().unwrap_or_default();
@@ -661,22 +661,22 @@ impl RawObject for Entity {
                     self.variable_values = Some(vec![(value, chance, max)]);
                 }
             }
-            EntityTag::ExclusiveStartBiome => {
+            EntityToken::ExclusiveStartBiome => {
                 self.exclusive_start_biome = Some(value.to_string());
             }
-            EntityTag::MaxPopNumber => {
+            EntityToken::MaxPopNumber => {
                 self.max_pop_number = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::MaxSitePopNumber => {
+            EntityToken::MaxSitePopNumber => {
                 self.max_site_pop_number = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::MaxStartingCivNumber => {
+            EntityToken::MaxStartingCivNumber => {
                 self.max_starting_civ_number = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::SourceHfid => {
+            EntityToken::SourceHfid => {
                 self.source_hfid = Some(value.parse().unwrap_or_default());
             }
-            EntityTag::Translation => {
+            EntityToken::Translation => {
                 self.translation = Some(value.to_string());
             }
 

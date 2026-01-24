@@ -1,11 +1,11 @@
-use crate::tags::PlantTag;
+use crate::tokens::PlantToken;
 
-impl PlantTag {
-    pub const FLAG_TOKENS: [&PlantTag; 5] = [
-        &PlantTag::Dry,
-        &PlantTag::Evil,
-        &PlantTag::Good,
-        &PlantTag::Savage,
-        &PlantTag::Wet,
+impl PlantToken {
+    pub const FLAG_TOKENS: [&PlantToken; 5] = [
+        &PlantToken::Dry,
+        &PlantToken::Evil,
+        &PlantToken::Good,
+        &PlantToken::Savage,
+        &PlantToken::Wet,
     ];
 }

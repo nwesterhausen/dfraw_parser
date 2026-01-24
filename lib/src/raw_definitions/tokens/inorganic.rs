@@ -1,29 +1,29 @@
 //! String token to parsed tag map for inorganic tokens.
 
-use crate::tags::InorganicTag;
+use crate::tokens::InorganicToken;
 
 /// Map of inorganic tokens to their string representation.
-pub static INORGANIC_TOKENS: phf::Map<&'static str, InorganicTag> = phf::phf_map! {
-  "WAFERS" => InorganicTag::Wafers,
-  "DEEP_SPECIAL" => InorganicTag::DeepSpecial,
-  "METAL_ORE" => InorganicTag::MetalOre,
-  "THREAD_METAL" => InorganicTag::ThreadMetal,
-  "DEEP_SURFACE" => InorganicTag::DeepSurface,
-  "AQUIFER" => InorganicTag::Aquifer,
-  "METAMORPHIC" => InorganicTag::Metamorphic,
-  "SEDIMENTARY" => InorganicTag::Sedimentary,
-  "SOIL" => InorganicTag::Soil,
-  "SOIL_OCEAN" => InorganicTag::SoilOcean,
-  "SOIL_SAND" => InorganicTag::SoilSand,
-  "SEDIMENTARY_OCEAN_SHALLOW" => InorganicTag::SedimentaryOceanShallow,
-  "SEDIMENTARY_OCEAN_DEEP" => InorganicTag::SedimentaryOceanDeep,
-  "IGNEOUS_EXTRUSIVE" => InorganicTag::IgneousExtrusive,
-  "IGNEOUS_INTRUSIVE" => InorganicTag::IgneousIntrusive,
-  "ENVIRONMENT" => InorganicTag::Environment,
-  "ENVIRONMENT_SPEC" => InorganicTag::EnvironmentSpecific,
-  "LAVA" => InorganicTag::Lava,
-  "SPECIAL" => InorganicTag::Special,
-  "GENERATED" => InorganicTag::Generated,
-  "DIVINE" => InorganicTag::Divine,
-  "SPHERE" => InorganicTag::Sphere,
+pub static INORGANIC_TOKENS: phf::Map<&'static str, InorganicToken> = phf::phf_map! {
+  "WAFERS" => InorganicToken::Wafers,
+  "DEEP_SPECIAL" => InorganicToken::DeepSpecial,
+  "METAL_ORE" => InorganicToken::MetalOre,
+  "THREAD_METAL" => InorganicToken::ThreadMetal,
+  "DEEP_SURFACE" => InorganicToken::DeepSurface,
+  "AQUIFER" => InorganicToken::Aquifer,
+  "METAMORPHIC" => InorganicToken::Metamorphic,
+  "SEDIMENTARY" => InorganicToken::Sedimentary,
+  "SOIL" => InorganicToken::Soil,
+  "SOIL_OCEAN" => InorganicToken::SoilOcean,
+  "SOIL_SAND" => InorganicToken::SoilSand,
+  "SEDIMENTARY_OCEAN_SHALLOW" => InorganicToken::SedimentaryOceanShallow,
+  "SEDIMENTARY_OCEAN_DEEP" => InorganicToken::SedimentaryOceanDeep,
+  "IGNEOUS_EXTRUSIVE" => InorganicToken::IgneousExtrusive,
+  "IGNEOUS_INTRUSIVE" => InorganicToken::IgneousIntrusive,
+  "ENVIRONMENT" => InorganicToken::Environment,
+  "ENVIRONMENT_SPEC" => InorganicToken::EnvironmentSpecific,
+  "LAVA" => InorganicToken::Lava,
+  "SPECIAL" => InorganicToken::Special,
+  "GENERATED" => InorganicToken::Generated,
+  "DIVINE" => InorganicToken::Divine,
+  "SPHERE" => InorganicToken::Sphere,
 };

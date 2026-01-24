@@ -3,7 +3,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::{MechanicalProperties, tags::MaterialPropertyTag};
+use crate::{MechanicalProperties, tokens::MaterialPropertyToken};
 
 /// Represents the specific yield, fracture, and elasticity of a material for the various
 /// types of mechanical stress.
@@ -72,9 +72,9 @@ impl MaterialMechanics {
     /// * `key` - The tag to parse.
     /// * `value` - The value to parse.
     #[allow(clippy::too_many_lines, clippy::cognitive_complexity)]
-    pub fn parse_tag(&mut self, key: &MaterialPropertyTag, value: &str) {
+    pub fn parse_tag(&mut self, key: &MaterialPropertyToken, value: &str) {
         match key {
-            MaterialPropertyTag::ImpactYield => {
+            MaterialPropertyToken::ImpactYield => {
                 if self.impact.is_none() {
                     self.impact = Some(MechanicalProperties::new());
                 }
@@ -82,7 +82,7 @@ impl MaterialMechanics {
                     impact.set_yield(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::ImpactFracture => {
+            MaterialPropertyToken::ImpactFracture => {
                 if self.impact.is_none() {
                     self.impact = Some(MechanicalProperties::new());
                 }
@@ -90,7 +90,7 @@ impl MaterialMechanics {
                     impact.set_fracture(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::ImpactElasticity => {
+            MaterialPropertyToken::ImpactElasticity => {
                 if self.impact.is_none() {
                     self.impact = Some(MechanicalProperties::new());
                 }
@@ -98,7 +98,7 @@ impl MaterialMechanics {
                     impact.set_elasticity(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::CompressiveYield => {
+            MaterialPropertyToken::CompressiveYield => {
                 if self.compressive.is_none() {
                     self.compressive = Some(MechanicalProperties::new());
                 }
@@ -106,7 +106,7 @@ impl MaterialMechanics {
                     compressive.set_yield(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::CompressiveFracture => {
+            MaterialPropertyToken::CompressiveFracture => {
                 if self.compressive.is_none() {
                     self.compressive = Some(MechanicalProperties::new());
                 }
@@ -114,7 +114,7 @@ impl MaterialMechanics {
                     compressive.set_fracture(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::CompressiveElasticity => {
+            MaterialPropertyToken::CompressiveElasticity => {
                 if self.compressive.is_none() {
                     self.compressive = Some(MechanicalProperties::new());
                 }
@@ -122,7 +122,7 @@ impl MaterialMechanics {
                     compressive.set_elasticity(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::TensileYield => {
+            MaterialPropertyToken::TensileYield => {
                 if self.tensile.is_none() {
                     self.tensile = Some(MechanicalProperties::new());
                 }
@@ -130,7 +130,7 @@ impl MaterialMechanics {
                     tensile.set_yield(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::TensileFracture => {
+            MaterialPropertyToken::TensileFracture => {
                 if self.tensile.is_none() {
                     self.tensile = Some(MechanicalProperties::new());
                 }
@@ -138,7 +138,7 @@ impl MaterialMechanics {
                     tensile.set_fracture(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::TensileElasticity => {
+            MaterialPropertyToken::TensileElasticity => {
                 if self.tensile.is_none() {
                     self.tensile = Some(MechanicalProperties::new());
                 }
@@ -146,7 +146,7 @@ impl MaterialMechanics {
                     tensile.set_elasticity(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::TorsionYield => {
+            MaterialPropertyToken::TorsionYield => {
                 if self.torsion.is_none() {
                     self.torsion = Some(MechanicalProperties::new());
                 }
@@ -154,7 +154,7 @@ impl MaterialMechanics {
                     torsion.set_yield(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::TorsionFracture => {
+            MaterialPropertyToken::TorsionFracture => {
                 if self.torsion.is_none() {
                     self.torsion = Some(MechanicalProperties::new());
                 }
@@ -162,7 +162,7 @@ impl MaterialMechanics {
                     torsion.set_fracture(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::TorsionElasticity => {
+            MaterialPropertyToken::TorsionElasticity => {
                 if self.torsion.is_none() {
                     self.torsion = Some(MechanicalProperties::new());
                 }
@@ -170,7 +170,7 @@ impl MaterialMechanics {
                     torsion.set_elasticity(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::ShearYield => {
+            MaterialPropertyToken::ShearYield => {
                 if self.shear.is_none() {
                     self.shear = Some(MechanicalProperties::new());
                 }
@@ -178,7 +178,7 @@ impl MaterialMechanics {
                     shear.set_yield(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::ShearFracture => {
+            MaterialPropertyToken::ShearFracture => {
                 if self.shear.is_none() {
                     self.shear = Some(MechanicalProperties::new());
                 }
@@ -186,7 +186,7 @@ impl MaterialMechanics {
                     shear.set_fracture(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::ShearElasticity => {
+            MaterialPropertyToken::ShearElasticity => {
                 if self.shear.is_none() {
                     self.shear = Some(MechanicalProperties::new());
                 }
@@ -194,7 +194,7 @@ impl MaterialMechanics {
                     shear.set_elasticity(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::BendingYield => {
+            MaterialPropertyToken::BendingYield => {
                 if self.bending.is_none() {
                     self.bending = Some(MechanicalProperties::new());
                 }
@@ -202,7 +202,7 @@ impl MaterialMechanics {
                     bending.set_yield(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::BendingFracture => {
+            MaterialPropertyToken::BendingFracture => {
                 if self.bending.is_none() {
                     self.bending = Some(MechanicalProperties::new());
                 }
@@ -210,7 +210,7 @@ impl MaterialMechanics {
                     bending.set_fracture(value.parse::<i32>().unwrap_or(0));
                 }
             }
-            MaterialPropertyTag::BendingElasticity => {
+            MaterialPropertyToken::BendingElasticity => {
                 if self.bending.is_none() {
                     self.bending = Some(MechanicalProperties::new());
                 }
@@ -219,10 +219,10 @@ impl MaterialMechanics {
                 }
             }
 
-            MaterialPropertyTag::MaxEdge => {
+            MaterialPropertyToken::MaxEdge => {
                 self.max_edge = Some(value.parse::<i32>().unwrap_or(0));
             }
-            MaterialPropertyTag::SolidDensity => {
+            MaterialPropertyToken::SolidDensity => {
                 self.solid_density = Some(value.parse::<i32>().unwrap_or(0));
             }
 

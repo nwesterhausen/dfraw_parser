@@ -1,15 +1,15 @@
 use crate::raw_definitions::tokens::CREATURE_EFFECT_TOKENS;
-use crate::tags::CreatureEffectTag;
+use crate::tokens::CreatureEffectToken;
 use std::collections::HashMap;
 use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-impl CreatureEffectTag {
+impl CreatureEffectToken {
     /// Retrieves the original string token key for this tag (e.g., "CE_PAIN").
     /// Uses a cached reverse-lookup map for O(1) performance.
     pub fn get_key(&self) -> Option<&'static str> {
         // Static lazy-initialized reverse map from enum discriminant -> token string
-        static REVERSE_MAP: OnceLock<HashMap<Discriminant<CreatureEffectTag>, &'static str>> =
+        static REVERSE_MAP: OnceLock<HashMap<Discriminant<CreatureEffectToken>, &'static str>> =
             OnceLock::new();
 
         let map = REVERSE_MAP.get_or_init(|| {

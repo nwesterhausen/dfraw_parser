@@ -1,7 +1,7 @@
 //! Tests for verifying that the various search functions work.
 
 use chrono::TimeDelta;
-use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType, traits::IsEmpty};
+use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType, traits::IsEmpty};
 use dfraw_parser_sqlite_lib::{NumericConstraint, NumericFilter, SearchQuery};
 use dfraw_parser_test_util::{get_test_client, json_helpers::identifier_from_json_blob};
 

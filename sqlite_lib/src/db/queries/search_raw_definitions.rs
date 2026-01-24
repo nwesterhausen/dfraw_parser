@@ -1,4 +1,4 @@
-use dfraw_parser::{metadata::RawModuleLocation, tags::ObjectType};
+use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType};
 use itertools::Itertools as _;
 use rusqlite::{Connection, Result};
 use std::fmt::Write as _;

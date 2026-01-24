@@ -3,7 +3,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::tags::GraphicTypeTag;
+use crate::tokens::GraphicTypeToken;
 
 /// A custom graphic extension.
 #[allow(clippy::module_name_repetitions)]
@@ -20,7 +20,7 @@ use crate::tags::GraphicTypeTag;
 )]
 #[serde(rename_all = "camelCase")]
 pub struct CustomGraphicExtension {
-    extension_type: GraphicTypeTag,
+    extension_type: GraphicTypeToken,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tile_page_id: Option<String>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
@@ -41,7 +41,7 @@ impl CustomGraphicExtension {
     ///
     /// A new custom graphic extension.
     #[must_use]
-    pub fn from_value(extension_type: GraphicTypeTag, value: &str) -> Option<Self> {
+    pub fn from_value(extension_type: GraphicTypeToken, value: &str) -> Option<Self> {
         // 2 Options:
         // [CUSTOM_EDGING:          4]
         // [CUSTOM_RAMP:            6]

@@ -1,10 +1,10 @@
 use crate::{
     metadata::NumericToken,
-    tags::CreatureTag,
+    tokens::CreatureToken,
     traits::{NumericTokenTransform, RawObjectToken},
 };
 
-impl NumericTokenTransform for CreatureTag {
+impl NumericTokenTransform for CreatureToken {
     fn as_numeric_tokens(&self) -> Vec<NumericToken> {
         let mut tokens = Vec::new();
         let prefix = self.get_key().unwrap_or_default();
@@ -13,7 +13,7 @@ impl NumericTokenTransform for CreatureTag {
             // CasteTag::Child { age } | CasteTag::Baby { age } => {
             //     tokens.push(NumericToken::new(prefix, *age));
             // }
-            CreatureTag::Frequency { frequency } => {
+            CreatureToken::Frequency { frequency } => {
                 tokens.push(NumericToken::new(prefix, *frequency));
             }
 
@@ -27,9 +27,9 @@ impl NumericTokenTransform for CreatureTag {
             //     tokens.push(NumericToken::new(format!("{prefix}_MIN"), *min));
             //     tokens.push(NumericToken::new(format!("{prefix}_MAX"), *max));
             // }
-            CreatureTag::ClusterNumber { min, max }
-            | CreatureTag::PopulationNumber { min, max }
-            | CreatureTag::UndergroundDepth { min, max } => {
+            CreatureToken::ClusterNumber { min, max }
+            | CreatureToken::PopulationNumber { min, max }
+            | CreatureToken::UndergroundDepth { min, max } => {
                 tokens.push(NumericToken::new(format!("{prefix}_MIN"), *min));
                 tokens.push(NumericToken::new(format!("{prefix}_MAX"), *max));
             }

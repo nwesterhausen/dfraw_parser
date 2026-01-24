@@ -1,4 +1,4 @@
-use dfraw_parser::{Creature, Graphic, TilePage, tags::ObjectType, traits::RawObject};
+use dfraw_parser::{Creature, Graphic, TilePage, tokens::ObjectType, traits::RawObject};
 use rusqlite::{Connection, Result, params};
 
 use crate::db::queries::get_id_for_module_location;

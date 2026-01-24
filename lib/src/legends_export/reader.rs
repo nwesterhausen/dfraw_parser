@@ -8,7 +8,7 @@ use crate::{
     ParserError,
     legends_export::{ExportedCreature, ExportedEntity},
     metadata::ParserOptions,
-    tags::ObjectType,
+    tokens::ObjectType,
     traits::RawObject,
     utilities::try_get_file,
 };

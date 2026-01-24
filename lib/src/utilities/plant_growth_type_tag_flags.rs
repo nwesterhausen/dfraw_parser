@@ -1,17 +1,17 @@
-use crate::tags::PlantGrowthTypeTag;
+use crate::tokens::PlantGrowthTypeToken;
 
-impl PlantGrowthTypeTag {
-    pub const FLAG_TOKENS: [&PlantGrowthTypeTag; 11] = [
-        &PlantGrowthTypeTag::Cone,
-        &PlantGrowthTypeTag::Eggs,
-        &PlantGrowthTypeTag::Feathers,
-        &PlantGrowthTypeTag::Flowers,
-        &PlantGrowthTypeTag::Fruit,
-        &PlantGrowthTypeTag::Leaves,
-        &PlantGrowthTypeTag::Nut,
-        &PlantGrowthTypeTag::Pod,
-        &PlantGrowthTypeTag::SeedCatkins,
-        &PlantGrowthTypeTag::PollenCatkins,
-        &PlantGrowthTypeTag::PollenCone,
+impl PlantGrowthTypeToken {
+    pub const FLAG_TOKENS: [&PlantGrowthTypeToken; 11] = [
+        &PlantGrowthTypeToken::Cone,
+        &PlantGrowthTypeToken::Eggs,
+        &PlantGrowthTypeToken::Feathers,
+        &PlantGrowthTypeToken::Flowers,
+        &PlantGrowthTypeToken::Fruit,
+        &PlantGrowthTypeToken::Leaves,
+        &PlantGrowthTypeToken::Nut,
+        &PlantGrowthTypeToken::Pod,
+        &PlantGrowthTypeToken::SeedCatkins,
+        &PlantGrowthTypeToken::PollenCatkins,
+        &PlantGrowthTypeToken::PollenCone,
     ];
 }

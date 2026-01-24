@@ -3,7 +3,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::{Dimensions, raw_definitions::CONDITION_TOKENS, tags::ConditionTag};
+use crate::{Dimensions, raw_definitions::CONDITION_TOKENS, tokens::ConditionToken};
 
 /// A struct representing a `SpriteLayer` object.
 #[allow(clippy::module_name_repetitions)]
@@ -28,7 +28,7 @@ pub struct SpriteLayer {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     large_image: Option<bool>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    conditions: Option<Vec<(ConditionTag, String)>>,
+    conditions: Option<Vec<(ConditionToken, String)>>,
 }
 
 impl SpriteLayer {

@@ -10,7 +10,7 @@
 use dfraw_json_parser::{
     metadata::{ParserOptions, RawModuleLocation},
     parse,
-    tags::ObjectType,
+    tokens::ObjectType,
 };
 
 use std::path::{Path, PathBuf};

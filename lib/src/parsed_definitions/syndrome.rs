@@ -5,7 +5,7 @@ use tracing::{debug, warn};
 
 use crate::{
     raw_definitions::{CREATURE_EFFECT_TOKENS, SYNDROME_TOKENS},
-    tags::SyndromeTag,
+    tokens::SyndromeToken,
     traits::Searchable,
     utilities::clean_search_vec,
 };
@@ -47,7 +47,7 @@ pub struct Syndrome {
     concentration_added: Option<[u32; 2]>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<SyndromeTag>>,
+    tags: Option<Vec<SyndromeToken>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     conditions: Option<Vec<String>>,
@@ -109,11 +109,11 @@ impl Syndrome {
             return;
         }
 
-        let token = SYNDROME_TOKENS.get(key).unwrap_or(&SyndromeTag::Unknown);
+        let token = SYNDROME_TOKENS.get(key).unwrap_or(&SyndromeToken::Unknown);
         match token {
-            SyndromeTag::Name => self.name = Some(String::from(value)),
-            SyndromeTag::Identifier => self.identifier = Some(String::from(value)),
-            SyndromeTag::AffectedClass => {
+            SyndromeToken::Name => self.name = Some(String::from(value)),
+            SyndromeToken::Identifier => self.identifier = Some(String::from(value)),
+            SyndromeToken::AffectedClass => {
                 if self.affected_classes.is_none() {
                     self.affected_classes = Some(Vec::new());
                 }
@@ -121,7 +121,7 @@ impl Syndrome {
                     affected_classes.push(String::from(value));
                 }
             }
-            SyndromeTag::ImmuneClass => {
+            SyndromeToken::ImmuneClass => {
                 if self.immune_classes.is_none() {
                     self.immune_classes = Some(Vec::new());
                 }
@@ -129,7 +129,7 @@ impl Syndrome {
                     immune_classes.push(String::from(value));
                 }
             }
-            SyndromeTag::AffectedCreature => {
+            SyndromeToken::AffectedCreature => {
                 if self.affected_creatures.is_none() {
                     self.affected_creatures = Some(Vec::new());
                 }
@@ -142,7 +142,7 @@ impl Syndrome {
                     affected_creatures.push((String::from(creature), String::from(caste)));
                 }
             }
-            SyndromeTag::ImmuneCreature => {
+            SyndromeToken::ImmuneCreature => {
                 if self.immune_creatures.is_none() {
                     self.immune_creatures = Some(Vec::new());
                 }
@@ -155,7 +155,7 @@ impl Syndrome {
                     immune_creatures.push((String::from(creature), String::from(caste)));
                 }
             }
-            SyndromeTag::ConcentrationAdded => {
+            SyndromeToken::ConcentrationAdded => {
                 let mut split = value.split(':');
                 let min = split.next().unwrap_or_default().trim();
                 let max = split.next().unwrap_or_default().trim();
@@ -164,42 +164,42 @@ impl Syndrome {
                     max.parse::<u32>().unwrap_or_default(),
                 ]);
             }
-            SyndromeTag::Injected => {
+            SyndromeToken::Injected => {
                 if self.tags.is_none() {
                     self.tags = Some(Vec::new());
                 }
                 if let Some(tags) = self.tags.as_mut() {
-                    tags.push(SyndromeTag::Injected);
+                    tags.push(SyndromeToken::Injected);
                 }
             }
-            SyndromeTag::Contact => {
+            SyndromeToken::Contact => {
                 if self.tags.is_none() {
                     self.tags = Some(Vec::new());
                 }
                 if let Some(tags) = self.tags.as_mut() {
-                    tags.push(SyndromeTag::Contact);
+                    tags.push(SyndromeToken::Contact);
                 }
             }
-            SyndromeTag::Inhaled => {
+            SyndromeToken::Inhaled => {
                 if self.tags.is_none() {
                     self.tags = Some(Vec::new());
                 }
                 if let Some(tags) = self.tags.as_mut() {
-                    tags.push(SyndromeTag::Inhaled);
+                    tags.push(SyndromeToken::Inhaled);
                 }
             }
-            SyndromeTag::Ingested => {
+            SyndromeToken::Ingested => {
                 if self.tags.is_none() {
                     self.tags = Some(Vec::new());
                 }
                 if let Some(tags) = self.tags.as_mut() {
-                    tags.push(SyndromeTag::Ingested);
+                    tags.push(SyndromeToken::Ingested);
                 }
             }
-            SyndromeTag::Unknown => {
+            SyndromeToken::Unknown => {
                 warn!("Unknown syndrome token: {}", key);
             }
-            SyndromeTag::Class => {
+            SyndromeToken::Class => {
                 if self.classes.is_none() {
                     self.classes = Some(Vec::new());
                 }
@@ -207,12 +207,12 @@ impl Syndrome {
                     classes.push(String::from(value));
                 }
             }
-            SyndromeTag::NoHospital => {
+            SyndromeToken::NoHospital => {
                 if self.tags.is_none() {
                     self.tags = Some(Vec::new());
                 }
                 if let Some(tags) = self.tags.as_mut() {
-                    tags.push(SyndromeTag::NoHospital);
+                    tags.push(SyndromeToken::NoHospital);
                 }
             }
         }

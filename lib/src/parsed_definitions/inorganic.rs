@@ -6,7 +6,7 @@ use crate::{
     Material,
     metadata::RawMetadata,
     raw_definitions::{ENVIRONMENT_CLASS_TOKENS, INCLUSION_TYPE_TOKENS, INORGANIC_TOKENS},
-    tags::{EnvironmentClassTag, InclusionTypeTag, InorganicTag, ObjectType},
+    tokens::{EnvironmentClassToken, InclusionTypeToken, InorganicToken, ObjectType},
     traits::{RawObject, Searchable},
     utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };
@@ -38,16 +38,16 @@ pub struct Inorganic {
     thread_metal_chance: Option<Vec<(String, u8)>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    environment_class: Option<EnvironmentClassTag>,
+    environment_class: Option<EnvironmentClassToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    environment_inclusion_type: Option<InclusionTypeTag>,
+    environment_inclusion_type: Option<InclusionTypeToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     environment_inclusion_frequency: Option<u32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     environment_class_specific: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<InorganicTag>>,
+    tags: Option<Vec<InorganicToken>>,
 }
 
 impl Inorganic {
@@ -102,7 +102,7 @@ impl Inorganic {
     /// # Arguments
     ///
     /// * `tag` - The tag to add to the inorganic raw.
-    pub fn add_tag(&mut self, tag: InorganicTag) {
+    pub fn add_tag(&mut self, tag: InorganicToken) {
         if self.tags.is_none() {
             self.tags = Some(Vec::new());
         }
@@ -127,7 +127,7 @@ impl Inorganic {
     ///
     /// Returns true if the inorganic has the specified tag, and false otherwise.
     #[must_use]
-    pub fn has_tag(&self, tag: &InorganicTag) -> bool {
+    pub fn has_tag(&self, tag: &InorganicToken) -> bool {
         if let Some(tags) = &self.tags {
             for t in tags {
                 if std::mem::discriminant(t) == std::mem::discriminant(tag) {
@@ -165,29 +165,31 @@ impl RawObject for Inorganic {
     fn parse_tag(&mut self, key: &str, value: &str) {
         if INORGANIC_TOKENS.contains_key(key) {
             // For the inorganic tokens, we need to check for (and parse) the MetalOre, ThreadMetal, Environment, and EnvironmentSpecific tokens.
-            let token = INORGANIC_TOKENS.get(key).unwrap_or(&InorganicTag::Unknown);
+            let token = INORGANIC_TOKENS
+                .get(key)
+                .unwrap_or(&InorganicToken::Unknown);
 
             match token {
-                InorganicTag::Environment => {
+                InorganicToken::Environment => {
                     // Environment values are like this: "class:type:frequency"
                     let mut split = value.split(':');
                     // Determine class
                     self.environment_class = Some(
                         *ENVIRONMENT_CLASS_TOKENS
                             .get(split.next().unwrap_or(""))
-                            .unwrap_or(&EnvironmentClassTag::None),
+                            .unwrap_or(&EnvironmentClassToken::None),
                     );
                     // Determine type
                     self.environment_inclusion_type = Some(
                         *INCLUSION_TYPE_TOKENS
                             .get(split.next().unwrap_or(""))
-                            .unwrap_or(&InclusionTypeTag::None),
+                            .unwrap_or(&InclusionTypeToken::None),
                     );
                     // Determine frequency
                     self.environment_inclusion_frequency =
                         Some(split.next().unwrap_or("0").parse::<u32>().unwrap_or(0));
                 }
-                InorganicTag::EnvironmentSpecific => {
+                InorganicToken::EnvironmentSpecific => {
                     if self.environment_class_specific.is_none() {
                         self.environment_class_specific = Some(Vec::new());
                     }
@@ -196,7 +198,7 @@ impl RawObject for Inorganic {
                         environment_class_specific.push(String::from(value));
                     }
                 }
-                InorganicTag::MetalOre => {
+                InorganicToken::MetalOre => {
                     if self.metal_ore_chance.is_none() {
                         self.metal_ore_chance = Some(Vec::new());
                     }
@@ -210,7 +212,7 @@ impl RawObject for Inorganic {
                         metal_ore_chance.push((metal, chance));
                     }
                 }
-                InorganicTag::ThreadMetal => {
+                InorganicToken::ThreadMetal => {
                     if self.thread_metal_chance.is_none() {
                         self.thread_metal_chance = Some(Vec::new());
                     }

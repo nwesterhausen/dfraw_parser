@@ -1,21 +1,21 @@
 //! String token to parsed tag map for plant part tokens.
 
-use crate::tags::PlantPartTag;
+use crate::tokens::PlantPartToken;
 
 /// Mapping of plant part tokens to strings
-pub static PLANT_PART_TOKENS: phf::Map<&'static str, PlantPartTag> = phf::phf_map! {
-  "TWIGS" => PlantPartTag::Twigs,
-  "BRANCHES" => PlantPartTag::Branches,
-  "BRANCHES_AND_TWIGS" => PlantPartTag::BranchesAndTwigs,
-  "LIGHT_BRANCHES" => PlantPartTag::Branches,
-  "LIGHT_BRANCHES_AND_TWIGS" => PlantPartTag::BranchesAndTwigs,
-  "ALL_BRANCHES_AND_TWIGS" => PlantPartTag::AllBranchesAndTwigs,
-  "HEAVY_BRANCHES" => PlantPartTag::HeavyBranches,
-  "DIRECTED_BRANCHES" => PlantPartTag::HeavyBranches,
-  "HEAVY_BRANCHES_AND_TRUNK" => PlantPartTag::HeavyBranchesAndTrunk,
-  "DIRECTED_BRANCHES_AND_TRUNK" => PlantPartTag::HeavyBranchesAndTrunk,
-  "TRUNK" => PlantPartTag::Trunk,
-  "ROOTS" => PlantPartTag::Roots,
-  "CAP" => PlantPartTag::Cap,
-  "SAPLING" => PlantPartTag::Sapling,
+pub static PLANT_PART_TOKENS: phf::Map<&'static str, PlantPartToken> = phf::phf_map! {
+  "TWIGS" => PlantPartToken::Twigs,
+  "BRANCHES" => PlantPartToken::Branches,
+  "BRANCHES_AND_TWIGS" => PlantPartToken::BranchesAndTwigs,
+  "LIGHT_BRANCHES" => PlantPartToken::Branches,
+  "LIGHT_BRANCHES_AND_TWIGS" => PlantPartToken::BranchesAndTwigs,
+  "ALL_BRANCHES_AND_TWIGS" => PlantPartToken::AllBranchesAndTwigs,
+  "HEAVY_BRANCHES" => PlantPartToken::HeavyBranches,
+  "DIRECTED_BRANCHES" => PlantPartToken::HeavyBranches,
+  "HEAVY_BRANCHES_AND_TRUNK" => PlantPartToken::HeavyBranchesAndTrunk,
+  "DIRECTED_BRANCHES_AND_TRUNK" => PlantPartToken::HeavyBranchesAndTrunk,
+  "TRUNK" => PlantPartToken::Trunk,
+  "ROOTS" => PlantPartToken::Roots,
+  "CAP" => PlantPartToken::Cap,
+  "SAPLING" => PlantPartToken::Sapling,
 };

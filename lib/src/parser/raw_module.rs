@@ -8,7 +8,7 @@ use crate::{
     Graphic, ModuleInfo, ParserError,
     metadata::ParserOptions,
     reader::{FileParseResult, UnprocessedRaw, parse_raw_file},
-    tags::ObjectType,
+    tokens::ObjectType,
     traits::RawObject,
 };
 

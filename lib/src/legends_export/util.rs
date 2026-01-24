@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::{
     ModuleInfo,
     metadata::{ParserOptions, RawMetadata, RawModuleLocation},
-    tags::ObjectType,
+    tokens::ObjectType,
 };
 
 pub fn legends_metadata(

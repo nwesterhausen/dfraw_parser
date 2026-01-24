@@ -9,7 +9,7 @@ use crate::{
         CREATURE_EFFECT_TOKENS, FUEL_TYPE_TOKENS, MATERIAL_PROPERTY_TOKENS, MATERIAL_TYPE_TOKENS,
         MATERIAL_USAGE_TOKENS, SYNDROME_TOKENS,
     },
-    tags::{FuelTypeTag, MaterialPropertyTag, MaterialTypeTag, MaterialUsageTag},
+    tokens::{FuelTypeToken, MaterialPropertyToken, MaterialTypeToken, MaterialUsageToken},
     traits::Searchable,
     utilities::clean_search_vec,
 };
@@ -31,7 +31,7 @@ use crate::{
 pub struct Material {
     /// The type of the material is also the trigger to start tracking a material
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    material_type: Option<MaterialTypeTag>,
+    material_type: Option<MaterialTypeToken>,
     /// The material might have a name, but its more likely that there is only an identifier to
     /// refer to another creature/plant/reaction, which are listed elsewhere.
     /// If there is no name provided, then it is a special hardcoded case, e.g. magma or green glass.
@@ -39,7 +39,7 @@ pub struct Material {
     name: Option<String>,
     /// For the coal tag, it specifies the type of fuel that can be used. It will never be None.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    fuel_type: Option<FuelTypeTag>,
+    fuel_type: Option<FuelTypeToken>,
     /// Linked creature identifier (and then `material_name` might be "skin", like for "`CREATURE_MAT:DWARF:SKIN`")
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     creature_identifier: Option<String>,
@@ -62,7 +62,7 @@ pub struct Material {
 
     /// Usage tags
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    usage: Option<Vec<MaterialUsageTag>>,
+    usage: Option<Vec<MaterialUsageToken>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[is_empty(value = 1)]
@@ -222,7 +222,7 @@ impl Material {
         // If there are more than one parts, we can use a match and drill down further.
         // Use the phf_table to get the type of the material and then match from there.
         match material_type {
-            MaterialTypeTag::Inorganic | MaterialTypeTag::Stone | MaterialTypeTag::Metal => {
+            MaterialTypeToken::Inorganic | MaterialTypeToken::Stone | MaterialTypeToken::Metal => {
                 let material_name = split.next().unwrap_or_default();
                 Self {
                     material_type: Some(*material_type),
@@ -230,7 +230,7 @@ impl Material {
                     ..Self::new()
                 }
             }
-            MaterialTypeTag::Coal => {
+            MaterialTypeToken::Coal => {
                 let material_key = split.next().unwrap_or_default();
                 let Some(fuel_type) = FUEL_TYPE_TOKENS.get(material_key) else {
                     warn!(
@@ -248,7 +248,7 @@ impl Material {
                     ..Self::new()
                 }
             }
-            MaterialTypeTag::LocalCreatureMaterial | MaterialTypeTag::LocalPlantMaterial => {
+            MaterialTypeToken::LocalCreatureMaterial | MaterialTypeToken::LocalPlantMaterial => {
                 let material_name = split.next().unwrap_or_default();
                 Self {
                     material_type: Some(*material_type),
@@ -257,7 +257,7 @@ impl Material {
                     ..Self::new()
                 }
             }
-            MaterialTypeTag::CreatureMaterial => {
+            MaterialTypeToken::CreatureMaterial => {
                 let creature_identifier = split.next().unwrap_or_default();
                 let material_name = split.next().unwrap_or_default();
                 Self {
@@ -267,7 +267,7 @@ impl Material {
                     ..Self::new()
                 }
             }
-            MaterialTypeTag::PlantMaterial => {
+            MaterialTypeToken::PlantMaterial => {
                 let plant_identifier = split.next().unwrap_or_default();
                 let material_name = split.next().unwrap_or_default();
                 Self {
@@ -277,7 +277,7 @@ impl Material {
                     ..Self::new()
                 }
             }
-            MaterialTypeTag::GetMaterialFromReagent => {
+            MaterialTypeToken::GetMaterialFromReagent => {
                 let reagent_identifier = split.next().unwrap_or_default();
                 let reaction_product_identifier = split.next().unwrap_or_default();
                 Self {
@@ -316,10 +316,10 @@ impl Material {
             };
 
             match tag {
-                MaterialPropertyTag::MaterialValue => {
+                MaterialPropertyToken::MaterialValue => {
                     self.value = Some(value.parse::<u32>().unwrap_or(1));
                 }
-                MaterialPropertyTag::StateNameAdjective => {
+                MaterialPropertyToken::StateNameAdjective => {
                     if self.state_names.is_none() {
                         self.state_names = Some(StateNames::default());
                     }
@@ -334,7 +334,7 @@ impl Material {
                     }
                 }
                 // Names and Adjectives
-                MaterialPropertyTag::StateName => {
+                MaterialPropertyToken::StateName => {
                     if self.state_names.is_none() {
                         self.state_names = Some(StateNames::default());
                     }
@@ -342,7 +342,7 @@ impl Material {
                         state_names.add_from_value(value);
                     }
                 }
-                MaterialPropertyTag::StateAdjective => {
+                MaterialPropertyToken::StateAdjective => {
                     if self.state_adjectives.is_none() {
                         self.state_adjectives = Some(StateNames::default());
                     }
@@ -350,7 +350,7 @@ impl Material {
                         state_adjectives.add_from_value(value);
                     }
                 }
-                MaterialPropertyTag::StateColor => {
+                MaterialPropertyToken::StateColor => {
                     if self.state_colors.is_none() {
                         self.state_colors = Some(StateNames::default());
                     }
@@ -358,9 +358,9 @@ impl Material {
                         state_colors.add_from_value(value);
                     }
                 }
-                MaterialPropertyTag::BasicColor => self.color = Some(Color::from_value(value)),
+                MaterialPropertyToken::BasicColor => self.color = Some(Color::from_value(value)),
                 // Temperatures
-                MaterialPropertyTag::SpecificHeat => {
+                MaterialPropertyToken::SpecificHeat => {
                     if self.temperatures.is_none() {
                         self.temperatures = Some(Temperatures::default());
                     }
@@ -368,7 +368,7 @@ impl Material {
                         temperatures.update_specific_heat(value.parse::<u32>().unwrap_or(0));
                     }
                 }
-                MaterialPropertyTag::IgnitionPoint => {
+                MaterialPropertyToken::IgnitionPoint => {
                     if self.temperatures.is_none() {
                         self.temperatures = Some(Temperatures::default());
                     }
@@ -376,7 +376,7 @@ impl Material {
                         temperatures.update_ignition_point(value.parse::<u32>().unwrap_or(0));
                     }
                 }
-                MaterialPropertyTag::MeltingPoint => {
+                MaterialPropertyToken::MeltingPoint => {
                     if self.temperatures.is_none() {
                         self.temperatures = Some(Temperatures::default());
                     }
@@ -384,7 +384,7 @@ impl Material {
                         temperatures.update_melting_point(value.parse::<u32>().unwrap_or(0));
                     }
                 }
-                MaterialPropertyTag::BoilingPoint => {
+                MaterialPropertyToken::BoilingPoint => {
                     if self.temperatures.is_none() {
                         self.temperatures = Some(Temperatures::default());
                     }
@@ -392,7 +392,7 @@ impl Material {
                         temperatures.update_boiling_point(value.parse::<u32>().unwrap_or(0));
                     }
                 }
-                MaterialPropertyTag::HeatDamagePoint => {
+                MaterialPropertyToken::HeatDamagePoint => {
                     if self.temperatures.is_none() {
                         self.temperatures = Some(Temperatures::default());
                     }
@@ -400,7 +400,7 @@ impl Material {
                         temperatures.update_heat_damage_point(value.parse::<u32>().unwrap_or(0));
                     }
                 }
-                MaterialPropertyTag::ColdDamagePoint => {
+                MaterialPropertyToken::ColdDamagePoint => {
                     if self.temperatures.is_none() {
                         self.temperatures = Some(Temperatures::default());
                     }
@@ -408,7 +408,7 @@ impl Material {
                         temperatures.update_cold_damage_point(value.parse::<u32>().unwrap_or(0));
                     }
                 }
-                MaterialPropertyTag::MaterialFixedTemperature => {
+                MaterialPropertyToken::MaterialFixedTemperature => {
                     if self.temperatures.is_none() {
                         self.temperatures = Some(Temperatures::default());
                     }
@@ -418,7 +418,7 @@ impl Material {
                     }
                 }
                 // Syndrome
-                MaterialPropertyTag::Syndrome => {
+                MaterialPropertyToken::Syndrome => {
                     let syndrome = Syndrome::new();
                     if let Some(syndromes) = self.syndromes.as_mut() {
                         syndromes.push(syndrome);
@@ -427,26 +427,26 @@ impl Material {
                     }
                 }
                 // Material Mechanics..
-                MaterialPropertyTag::ImpactYield
-                | MaterialPropertyTag::ImpactFracture
-                | MaterialPropertyTag::ImpactElasticity
-                | MaterialPropertyTag::CompressiveYield
-                | MaterialPropertyTag::CompressiveFracture
-                | MaterialPropertyTag::CompressiveElasticity
-                | MaterialPropertyTag::TensileYield
-                | MaterialPropertyTag::TensileFracture
-                | MaterialPropertyTag::TensileElasticity
-                | MaterialPropertyTag::TorsionYield
-                | MaterialPropertyTag::TorsionFracture
-                | MaterialPropertyTag::TorsionElasticity
-                | MaterialPropertyTag::ShearYield
-                | MaterialPropertyTag::ShearFracture
-                | MaterialPropertyTag::ShearElasticity
-                | MaterialPropertyTag::BendingYield
-                | MaterialPropertyTag::BendingFracture
-                | MaterialPropertyTag::BendingElasticity
-                | MaterialPropertyTag::MaxEdge
-                | MaterialPropertyTag::SolidDensity => {
+                MaterialPropertyToken::ImpactYield
+                | MaterialPropertyToken::ImpactFracture
+                | MaterialPropertyToken::ImpactElasticity
+                | MaterialPropertyToken::CompressiveYield
+                | MaterialPropertyToken::CompressiveFracture
+                | MaterialPropertyToken::CompressiveElasticity
+                | MaterialPropertyToken::TensileYield
+                | MaterialPropertyToken::TensileFracture
+                | MaterialPropertyToken::TensileElasticity
+                | MaterialPropertyToken::TorsionYield
+                | MaterialPropertyToken::TorsionFracture
+                | MaterialPropertyToken::TorsionElasticity
+                | MaterialPropertyToken::ShearYield
+                | MaterialPropertyToken::ShearFracture
+                | MaterialPropertyToken::ShearElasticity
+                | MaterialPropertyToken::BendingYield
+                | MaterialPropertyToken::BendingFracture
+                | MaterialPropertyToken::BendingElasticity
+                | MaterialPropertyToken::MaxEdge
+                | MaterialPropertyToken::SolidDensity => {
                     if self.mechanical_properties.is_none() {
                         self.mechanical_properties = Some(MaterialMechanics::new());
                     }
@@ -455,25 +455,25 @@ impl Material {
                     }
                 }
                 // Liquid and Gas
-                MaterialPropertyTag::LiquidDensity => {
+                MaterialPropertyToken::LiquidDensity => {
                     self.liquid_density = Some(value.parse::<i32>().unwrap_or(0));
                 }
-                MaterialPropertyTag::MolarMass => {
+                MaterialPropertyToken::MolarMass => {
                     self.molar_mass = Some(value.parse::<i32>().unwrap_or(0));
                 }
                 // Template
-                MaterialPropertyTag::UseMaterialTemplate => {
+                MaterialPropertyToken::UseMaterialTemplate => {
                     self.template_identifier = Some(String::from(value));
                 }
                 // Colors
-                MaterialPropertyTag::BuildColor => {
+                MaterialPropertyToken::BuildColor => {
                     self.build_color = Some(Color::from_value(value));
                 }
-                MaterialPropertyTag::DisplayColor => {
+                MaterialPropertyToken::DisplayColor => {
                     self.display_color = Some(Color::from_value(value));
                 }
 
-                MaterialPropertyTag::Tile => {
+                MaterialPropertyToken::Tile => {
                     if self.tile.is_none() {
                         self.tile = Some(Tile::default());
                     }
@@ -481,7 +481,7 @@ impl Material {
                         tile.set_character(value);
                     }
                 }
-                MaterialPropertyTag::TileColor => {
+                MaterialPropertyToken::TileColor => {
                     if self.tile.is_none() {
                         self.tile = Some(Tile::default());
                     }
@@ -490,11 +490,11 @@ impl Material {
                     }
                 }
 
-                MaterialPropertyTag::MaterialReactionProduct => {
+                MaterialPropertyToken::MaterialReactionProduct => {
                     self.reaction_product_identifier = Some(String::from(value));
                 }
 
-                MaterialPropertyTag::ItemSymbol => {
+                MaterialPropertyToken::ItemSymbol => {
                     self.item_symbol = Some(String::from(value));
                 }
 

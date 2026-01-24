@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::{
     metadata::{NumericToken, RawMetadata},
-    tags::ObjectType,
+    tokens::ObjectType,
     traits::Cleanable,
 };
 

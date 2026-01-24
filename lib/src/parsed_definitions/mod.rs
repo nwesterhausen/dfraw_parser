@@ -1,8 +1,8 @@
 //! These are the parsed results from reading the raw .txt files.
 
 pub mod custom_types;
-mod tag_parsing;
-pub mod tags;
+mod token_parsing;
+pub mod tokens;
 
 mod body_size;
 mod caste;

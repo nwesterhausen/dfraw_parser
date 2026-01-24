@@ -6,7 +6,7 @@ use tracing::{error, warn};
 use crate::{
     Color, Name,
     raw_definitions::TREE_TOKENS,
-    tags::{TreeTag, TwigPlacementTag},
+    tokens::{TreeToken, TwigPlacementToken},
 };
 
 /// A struct representing a tree.
@@ -87,7 +87,7 @@ pub struct Tree {
     twigs_name: Option<Name>,
     /// Where twigs appear, defaults to `[SideBranches, AboveBranches]`
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    twigs_placement: Option<Vec<TwigPlacementTag>>,
+    twigs_placement: Option<Vec<TwigPlacementToken>>,
     /// What this mushroom-cap is called. Only makes sense with `TREE_HAS_MUSHROOM_CAP`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     cap_name: Option<Name>,
@@ -140,7 +140,7 @@ pub struct Tree {
     tree_drown_level: Option<u8>,
     /// Token tags for the tree.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<TreeTag>>,
+    tags: Option<Vec<TreeToken>>,
 }
 
 impl Tree {
@@ -165,8 +165,8 @@ impl Tree {
             sapling_drown_level: Some(4),
             tree_drown_level: Some(7),
             twigs_placement: Some(vec![
-                TwigPlacementTag::SideBranches,
-                TwigPlacementTag::AboveBranches,
+                TwigPlacementToken::SideBranches,
+                TwigPlacementToken::AboveBranches,
             ]),
             ..Default::default()
         }
@@ -188,16 +188,16 @@ impl Tree {
             return;
         };
 
-        if tag == &TreeTag::Tree {
+        if tag == &TreeToken::Tree {
             // Skip because it's the root tag
             return;
         }
 
         match tag {
-            TreeTag::TrunkName => {
+            TreeToken::TrunkName => {
                 self.trunk_name = Some(Name::from_value(value));
             }
-            TreeTag::MaxTrunkHeight => {
+            TreeToken::MaxTrunkHeight => {
                 let height = match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -215,7 +215,7 @@ impl Tree {
                 }
                 self.max_trunk_height = Some(height);
             }
-            TreeTag::MaxTrunkDiameter => {
+            TreeToken::MaxTrunkDiameter => {
                 let diameter = match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -233,7 +233,7 @@ impl Tree {
                 }
                 self.max_trunk_diameter = Some(diameter);
             }
-            TreeTag::TrunkPeriod => {
+            TreeToken::TrunkPeriod => {
                 self.trunk_period = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -242,7 +242,7 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::TrunkWidthPeriod => {
+            TreeToken::TrunkWidthPeriod => {
                 self.trunk_width_period = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -251,10 +251,10 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::BranchName => {
+            TreeToken::BranchName => {
                 self.branch_name = Some(Name::from_value(value));
             }
-            TreeTag::BranchDensity => {
+            TreeToken::BranchDensity => {
                 self.branch_density = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -263,7 +263,7 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::BranchRadius => {
+            TreeToken::BranchRadius => {
                 let radius = match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -277,10 +277,10 @@ impl Tree {
                 }
                 self.branch_radius = Some(radius);
             }
-            TreeTag::HeavyBranchesName => {
+            TreeToken::HeavyBranchesName => {
                 self.heavy_branches_name = Some(Name::from_value(value));
             }
-            TreeTag::HeavyBranchDensity => {
+            TreeToken::HeavyBranchDensity => {
                 self.heavy_branch_density = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -289,7 +289,7 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::HeavyBranchRadius => {
+            TreeToken::HeavyBranchRadius => {
                 let radius = match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -303,7 +303,7 @@ impl Tree {
                 }
                 self.heavy_branch_radius = Some(radius);
             }
-            TreeTag::TrunkBranching => {
+            TreeToken::TrunkBranching => {
                 self.trunk_branching = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -312,10 +312,10 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::RootName => {
+            TreeToken::RootName => {
                 self.root_name = Some(Name::from_value(value));
             }
-            TreeTag::RootDensity => {
+            TreeToken::RootDensity => {
                 self.root_density = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -324,7 +324,7 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::RootRadius => {
+            TreeToken::RootRadius => {
                 self.root_radius = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -333,94 +333,94 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::TwigsName => {
+            TreeToken::TwigsName => {
                 self.twigs_name = Some(Name::from_value(value));
             }
-            TreeTag::TwigsSideBranches => {
+            TreeToken::TwigsSideBranches => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::SideBranches);
+                    twigs_placement.push(TwigPlacementToken::SideBranches);
                 }
             }
-            TreeTag::TwigsAboveBranches => {
+            TreeToken::TwigsAboveBranches => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::AboveBranches);
+                    twigs_placement.push(TwigPlacementToken::AboveBranches);
                 }
             }
-            TreeTag::TwigsBelowBranches => {
+            TreeToken::TwigsBelowBranches => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::BelowBranches);
+                    twigs_placement.push(TwigPlacementToken::BelowBranches);
                 }
             }
-            TreeTag::TwigsSideHeavyBranches => {
+            TreeToken::TwigsSideHeavyBranches => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::SideHeavyBranches);
+                    twigs_placement.push(TwigPlacementToken::SideHeavyBranches);
                 }
             }
-            TreeTag::TwigsAboveHeavyBranches => {
+            TreeToken::TwigsAboveHeavyBranches => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::AboveHeavyBranches);
+                    twigs_placement.push(TwigPlacementToken::AboveHeavyBranches);
                 }
             }
-            TreeTag::TwigsBelowHeavyBranches => {
+            TreeToken::TwigsBelowHeavyBranches => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::BelowHeavyBranches);
+                    twigs_placement.push(TwigPlacementToken::BelowHeavyBranches);
                 }
             }
-            TreeTag::TwigsSideTrunk => {
+            TreeToken::TwigsSideTrunk => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::SideTrunk);
+                    twigs_placement.push(TwigPlacementToken::SideTrunk);
                 }
             }
-            TreeTag::TwigsAboveTrunk => {
+            TreeToken::TwigsAboveTrunk => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::AboveTrunk);
+                    twigs_placement.push(TwigPlacementToken::AboveTrunk);
                 }
             }
-            TreeTag::TwigsBelowTrunk => {
+            TreeToken::TwigsBelowTrunk => {
                 if self.twigs_placement.is_none() {
                     self.twigs_placement = Some(Vec::new());
                 }
 
                 if let Some(twigs_placement) = self.twigs_placement.as_mut() {
-                    twigs_placement.push(TwigPlacementTag::BelowTrunk);
+                    twigs_placement.push(TwigPlacementToken::BelowTrunk);
                 }
             }
-            TreeTag::CapName => {
+            TreeToken::CapName => {
                 self.cap_name = Some(Name::from_value(value));
             }
-            TreeTag::CapPeriod => {
+            TreeToken::CapPeriod => {
                 self.cap_period = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -429,7 +429,7 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::CapRadius => {
+            TreeToken::CapRadius => {
                 self.cap_radius = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -438,31 +438,31 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::TreeTile => {
+            TreeToken::TreeTile => {
                 self.tree_tile = Some(String::from(value));
             }
-            TreeTag::DeadTreeTile => {
+            TreeToken::DeadTreeTile => {
                 self.dead_tree_tile = Some(String::from(value));
             }
-            TreeTag::SaplingTile => {
+            TreeToken::SaplingTile => {
                 self.sapling_tile = Some(String::from(value));
             }
-            TreeTag::DeadSaplingTile => {
+            TreeToken::DeadSaplingTile => {
                 self.dead_sapling_tile = Some(String::from(value));
             }
-            TreeTag::TreeColor => {
+            TreeToken::TreeColor => {
                 self.tree_color = Some(Color::from_value(value));
             }
-            TreeTag::DeadTreeColor => {
+            TreeToken::DeadTreeColor => {
                 self.dead_tree_color = Some(Color::from_value(value));
             }
-            TreeTag::SaplingColor => {
+            TreeToken::SaplingColor => {
                 self.sapling_color = Some(Color::from_value(value));
             }
-            TreeTag::DeadSaplingColor => {
+            TreeToken::DeadSaplingColor => {
                 self.dead_sapling_color = Some(Color::from_value(value));
             }
-            TreeTag::SaplingDrownLevel => {
+            TreeToken::SaplingDrownLevel => {
                 self.sapling_drown_level = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {
@@ -471,7 +471,7 @@ impl Tree {
                     }
                 });
             }
-            TreeTag::TreeDrownLevel => {
+            TreeToken::TreeDrownLevel => {
                 self.tree_drown_level = Some(match value.parse() {
                     Ok(n) => n,
                     Err(e) => {

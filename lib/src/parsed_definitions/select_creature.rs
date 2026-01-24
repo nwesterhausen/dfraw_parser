@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::{
     metadata::RawMetadata,
-    tags::ObjectType,
+    tokens::ObjectType,
     traits::{RawObject, Searchable},
     utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
 };

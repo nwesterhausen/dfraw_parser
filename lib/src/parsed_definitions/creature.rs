@@ -12,7 +12,7 @@ use crate::{
     Caste, Name, SelectCreature, Tile,
     metadata::{NumericToken, RawMetadata},
     raw_definitions::{BIOME_TOKENS, CASTE_TOKENS, CREATURE_TOKENS},
-    tags::{BiomeTag, CasteTag, CreatureTag, ObjectType},
+    tokens::{BiomeToken, CasteToken, CreatureToken, ObjectType},
     traits::{
         Cleanable, CreatureVariationRequirements, NumericTokenTransform as _, RawObject,
         RawObjectToken, Searchable, TagOperations,
@@ -61,10 +61,10 @@ pub struct Creature {
     castes: Vec<Caste>,
     /// Any tags that are not parsed into their own fields are stored in the `tags` field.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<CreatureTag>>,
+    tags: Option<Vec<CreatureToken>>,
     /// The biomes that this creature can be found in
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    biomes: Option<Vec<BiomeTag>>,
+    biomes: Option<Vec<BiomeToken>>,
     /// Pref strings are things that make dwarves (or others?) like or dislike the creature.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pref_strings: Option<Vec<String>>,
@@ -464,7 +464,7 @@ impl Creature {
 
     /// Get a list of tags that belong to this creature.
     #[must_use]
-    pub fn get_tags(&self) -> Vec<CreatureTag> {
+    pub fn get_tags(&self) -> Vec<CreatureToken> {
         if self.tags.is_none() {
             return Vec::new();
         }
@@ -479,7 +479,7 @@ impl Creature {
     }
     /// Get the biomes the creature can be found in.
     #[must_use]
-    pub fn get_biomes(&self) -> Vec<BiomeTag> {
+    pub fn get_biomes(&self) -> Vec<BiomeToken> {
         if self.biomes.is_none() {
             return Vec::new();
         }
@@ -639,7 +639,7 @@ impl Creature {
     /// Add a tag to the creature.
     ///
     /// This handles making sure the tags vector is initialized.
-    pub fn add_tag(&mut self, tag: CreatureTag) {
+    pub fn add_tag(&mut self, tag: CreatureToken) {
         if self.tags.is_none() {
             self.tags = Some(Vec::new());
         }
@@ -656,7 +656,7 @@ impl Creature {
     /// Add a biome to the creature.
     ///
     /// This handles making sure the biomes vector is initialized.
-    pub fn add_biome(&mut self, biome: BiomeTag) {
+    pub fn add_biome(&mut self, biome: BiomeToken) {
         if self.biomes.is_none() {
             self.biomes = Some(Vec::new());
         }
@@ -680,7 +680,7 @@ impl Creature {
     ///
     /// Returns true if the creature has the specified tag, and false otherwise.
     #[must_use]
-    pub fn has_tag(&self, tag: &CreatureTag) -> bool {
+    pub fn has_tag(&self, tag: &CreatureToken) -> bool {
         if let Some(tags) = &self.tags {
             for t in tags {
                 if std::mem::discriminant(t) == std::mem::discriminant(tag) {
@@ -701,7 +701,7 @@ impl Creature {
     ///
     /// Returns true if the creature has the specified biome, and false otherwise.
     #[must_use]
-    pub fn has_biome(&self, biome: &BiomeTag) -> bool {
+    pub fn has_biome(&self, biome: &BiomeToken) -> bool {
         if let Some(biomes) = &self.biomes {
             for b in biomes {
                 if b == biome {
@@ -722,7 +722,7 @@ impl Creature {
     ///
     /// Returns true if any of the castes have the specified tag, and false otherwise.
     #[must_use]
-    pub fn has_caste_tag(&self, tag: &CasteTag) -> bool {
+    pub fn has_caste_tag(&self, tag: &CasteToken) -> bool {
         for caste in &self.castes {
             if caste.has_tag(tag) {
                 return true;
@@ -766,7 +766,7 @@ impl RawObject for Creature {
             return;
         }
 
-        let Some(tag) = CreatureTag::parse(key, value) else {
+        let Some(tag) = CreatureToken::parse(key, value) else {
             warn!("parse_tag: unknown tag {} with value {}", key, value);
             return;
         };
@@ -774,7 +774,7 @@ impl RawObject for Creature {
         self.add_tag(tag.clone());
 
         match tag {
-            CreatureTag::Biome { id } => {
+            CreatureToken::Biome { id } => {
                 if let Some(biome) = BIOME_TOKENS.get(&id) {
                     self.add_biome(*biome);
                 } else {
@@ -784,45 +784,45 @@ impl RawObject for Creature {
                     );
                 }
             }
-            CreatureTag::Name { .. } => {
+            CreatureToken::Name { .. } => {
                 self.name = Name::from_value(value);
             }
-            CreatureTag::GeneralBabyName { .. } => {
+            CreatureToken::GeneralBabyName { .. } => {
                 self.general_baby_name = Some(Name::from_value(value));
             }
-            CreatureTag::GeneralChildName { .. } => {
+            CreatureToken::GeneralChildName { .. } => {
                 self.general_child_name = Some(Name::from_value(value));
             }
-            CreatureTag::PrefString { pref_string } => {
+            CreatureToken::PrefString { pref_string } => {
                 if let Some(pref_strings) = self.pref_strings.as_mut() {
                     pref_strings.push(pref_string);
                 } else {
                     self.pref_strings = Some(vec![pref_string]);
                 }
             }
-            CreatureTag::PopulationNumber { min, max } => {
+            CreatureToken::PopulationNumber { min, max } => {
                 self.population_number = Some([min, max]);
             }
-            CreatureTag::Frequency { frequency } => {
+            CreatureToken::Frequency { frequency } => {
                 self.frequency = Some(frequency);
             }
-            CreatureTag::UndergroundDepth { min, max } => {
+            CreatureToken::UndergroundDepth { min, max } => {
                 self.underground_depth = Some([min, max]);
             }
-            CreatureTag::ClusterNumber { min, max } => {
+            CreatureToken::ClusterNumber { min, max } => {
                 self.cluster_number = Some([min, max]);
             }
-            CreatureTag::CopyTagsFrom { creature } => {
+            CreatureToken::CopyTagsFrom { creature } => {
                 self.copy_tags_from = Some(creature);
             }
-            CreatureTag::ApplyCreatureVariation { .. } => {
+            CreatureToken::ApplyCreatureVariation { .. } => {
                 if let Some(apply_creature_variation) = self.apply_creature_variation.as_mut() {
                     apply_creature_variation.push(String::from(value));
                 } else {
                     self.apply_creature_variation = Some(vec![String::from(value)]);
                 }
             }
-            CreatureTag::CreatureTile { .. } => {
+            CreatureToken::CreatureTile { .. } => {
                 if self.tile.is_none() {
                     self.tile = Some(Tile::default());
                 }
@@ -830,7 +830,7 @@ impl RawObject for Creature {
                     tile.set_character(value);
                 }
             }
-            CreatureTag::AltTile { .. } => {
+            CreatureToken::AltTile { .. } => {
                 if self.tile.is_none() {
                     self.tile = Some(Tile::default());
                 }
@@ -838,7 +838,7 @@ impl RawObject for Creature {
                     tile.set_alt_character(value);
                 }
             }
-            CreatureTag::Color { .. } => {
+            CreatureToken::Color { .. } => {
                 if self.tile.is_none() {
                     self.tile = Some(Tile::default());
                 }
@@ -846,7 +846,7 @@ impl RawObject for Creature {
                     tile.set_color(value);
                 }
             }
-            CreatureTag::GlowColor { .. } => {
+            CreatureToken::GlowColor { .. } => {
                 if self.tile.is_none() {
                     self.tile = Some(Tile::default());
                 }
@@ -854,7 +854,7 @@ impl RawObject for Creature {
                     tile.set_glow_color(value);
                 }
             }
-            CreatureTag::GlowTile { .. } => {
+            CreatureToken::GlowTile { .. } => {
                 if self.tile.is_none() {
                     self.tile = Some(Tile::default());
                 }
@@ -874,16 +874,16 @@ impl RawObject for Creature {
     fn get_searchable_tokens(&self) -> Vec<&str> {
         let mut tokens = HashSet::new();
 
-        for token in CreatureTag::FLAG_TOKENS {
+        for token in CreatureToken::FLAG_TOKENS {
             if self.has_tag(token) {
-                tokens.insert(CreatureTag::get_key(token).unwrap_or_default());
+                tokens.insert(CreatureToken::get_key(token).unwrap_or_default());
             }
         }
 
         for caste in &self.castes {
-            for token in CasteTag::FLAG_TOKENS {
+            for token in CasteToken::FLAG_TOKENS {
                 if caste.has_tag(token) {
-                    tokens.insert(CasteTag::get_key(token).unwrap_or_default());
+                    tokens.insert(CasteToken::get_key(token).unwrap_or_default());
                 }
             }
         }
@@ -946,7 +946,7 @@ impl CreatureVariationRequirements for Creature {
         };
 
         match tag {
-            CreatureTag::Biome { .. } => {
+            CreatureToken::Biome { .. } => {
                 let Some(biome) = BIOME_TOKENS.get(value) else {
                     warn!(
                         "CreatureParsing: called `Option::unwrap()` on a `None` value for presumed biome: {}",
@@ -958,61 +958,61 @@ impl CreatureVariationRequirements for Creature {
                     biomes.retain(|x| x != biome);
                 }
             }
-            CreatureTag::Name { .. } => {
+            CreatureToken::Name { .. } => {
                 self.name = Name::default();
             }
-            CreatureTag::GeneralBabyName { .. } => {
+            CreatureToken::GeneralBabyName { .. } => {
                 self.general_baby_name = None;
             }
-            CreatureTag::GeneralChildName { .. } => {
+            CreatureToken::GeneralChildName { .. } => {
                 self.general_child_name = None;
             }
-            CreatureTag::PrefString { .. } => {
+            CreatureToken::PrefString { .. } => {
                 if let Some(pref_strings) = self.pref_strings.as_mut() {
                     pref_strings.retain(|x| x != value);
                 }
             }
-            CreatureTag::PopulationNumber { .. } => {
+            CreatureToken::PopulationNumber { .. } => {
                 self.population_number = None;
             }
-            CreatureTag::Frequency { .. } => {
+            CreatureToken::Frequency { .. } => {
                 self.frequency = None;
             }
-            CreatureTag::UndergroundDepth { .. } => {
+            CreatureToken::UndergroundDepth { .. } => {
                 self.underground_depth = None;
             }
-            CreatureTag::ClusterNumber { .. } => {
+            CreatureToken::ClusterNumber { .. } => {
                 self.cluster_number = None;
             }
-            CreatureTag::CopyTagsFrom { .. } => {
+            CreatureToken::CopyTagsFrom { .. } => {
                 self.copy_tags_from = None;
             }
-            CreatureTag::ApplyCreatureVariation { .. } => {
+            CreatureToken::ApplyCreatureVariation { .. } => {
                 if let Some(apply_creature_variation) = self.apply_creature_variation.as_mut() {
                     apply_creature_variation.retain(|x| x != value);
                 }
             }
-            CreatureTag::CreatureTile { .. } => {
+            CreatureToken::CreatureTile { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_character("");
                 }
             }
-            CreatureTag::AltTile { .. } => {
+            CreatureToken::AltTile { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_alt_character("");
                 }
             }
-            CreatureTag::Color { .. } => {
+            CreatureToken::Color { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_color("");
                 }
             }
-            CreatureTag::GlowColor { .. } => {
+            CreatureToken::GlowColor { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_glow_color("");
                 }
             }
-            CreatureTag::GlowTile { .. } => {
+            CreatureToken::GlowTile { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_glow_character("");
                 }

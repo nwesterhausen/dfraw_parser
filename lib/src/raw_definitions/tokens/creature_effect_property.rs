@@ -1,35 +1,35 @@
 //! String token to parsed tag map for creature effect property tokens.
 
-use crate::tags::CreatureEffectPropertyTag;
+use crate::tokens::CreatureEffectPropertyToken;
 
 /// A map of creature effect properties to their strings.
-pub static CREATURE_EFFECT_PROPERTY_TOKENS: phf::Map<&'static str, CreatureEffectPropertyTag> = phf::phf_map! {
-    "SEV" => CreatureEffectPropertyTag::Severity,
-    "PROB" => CreatureEffectPropertyTag::Probability,
-    "RESISTABLE" => CreatureEffectPropertyTag::Resistible,
-    "RESISTIBLE" => CreatureEffectPropertyTag::Resistible,
-    "SIZE_DILUTES" => CreatureEffectPropertyTag::SizeDilutes,
-    "SIZE_DELAYS" => CreatureEffectPropertyTag::SizeDelays,
+pub static CREATURE_EFFECT_PROPERTY_TOKENS: phf::Map<&'static str, CreatureEffectPropertyToken> = phf::phf_map! {
+    "SEV" => CreatureEffectPropertyToken::Severity,
+    "PROB" => CreatureEffectPropertyToken::Probability,
+    "RESISTABLE" => CreatureEffectPropertyToken::Resistible,
+    "RESISTIBLE" => CreatureEffectPropertyToken::Resistible,
+    "SIZE_DILUTES" => CreatureEffectPropertyToken::SizeDilutes,
+    "SIZE_DELAYS" => CreatureEffectPropertyToken::SizeDelays,
 
-    "LOCALIZED" => CreatureEffectPropertyTag::Localized,
-    "VASCULAR_ONLY" => CreatureEffectPropertyTag::VascularOnly,
-    "MUSCULAR_ONLY" => CreatureEffectPropertyTag::MuscularOnly,
+    "LOCALIZED" => CreatureEffectPropertyToken::Localized,
+    "VASCULAR_ONLY" => CreatureEffectPropertyToken::VascularOnly,
+    "MUSCULAR_ONLY" => CreatureEffectPropertyToken::MuscularOnly,
 
-    "BP" => CreatureEffectPropertyTag::BodyPart,
-    "BY_CATEGORY" => CreatureEffectPropertyTag::ByCategory,
-    "BY_TYPE" => CreatureEffectPropertyTag::ByType,
-    "BY_TOKEN" => CreatureEffectPropertyTag::ByToken,
+    "BP" => CreatureEffectPropertyToken::BodyPart,
+    "BY_CATEGORY" => CreatureEffectPropertyToken::ByCategory,
+    "BY_TYPE" => CreatureEffectPropertyToken::ByType,
+    "BY_TOKEN" => CreatureEffectPropertyToken::ByToken,
 
-    "START" => CreatureEffectPropertyTag::Start,
-    "PEAK" => CreatureEffectPropertyTag::Peak,
-    "END" => CreatureEffectPropertyTag::End,
+    "START" => CreatureEffectPropertyToken::Start,
+    "PEAK" => CreatureEffectPropertyToken::Peak,
+    "END" => CreatureEffectPropertyToken::End,
 
-    "DWF_STRETCH" => CreatureEffectPropertyTag::DwfStretch,
+    "DWF_STRETCH" => CreatureEffectPropertyToken::DwfStretch,
 
-    "ABRUPT" => CreatureEffectPropertyTag::Abrupt,
-    "ABRUPT_END" => CreatureEffectPropertyTag::AbruptEnd,
-    "ABRUPT_START" => CreatureEffectPropertyTag::AbruptStart,
+    "ABRUPT" => CreatureEffectPropertyToken::Abrupt,
+    "ABRUPT_END" => CreatureEffectPropertyToken::AbruptEnd,
+    "ABRUPT_START" => CreatureEffectPropertyToken::AbruptStart,
 
-    "CAN_BE_HIDDEN" => CreatureEffectPropertyTag::CanBeHidden,
-    "PROBABILITY" => CreatureEffectPropertyTag::Probability,
+    "CAN_BE_HIDDEN" => CreatureEffectPropertyToken::CanBeHidden,
+    "PROBABILITY" => CreatureEffectPropertyToken::Probability,
 };

@@ -1,15 +1,15 @@
 use crate::raw_definitions::PLANT_GROWTH_TYPE_TOKENS;
-use crate::tags::PlantGrowthTypeTag;
+use crate::tokens::PlantGrowthTypeToken;
 use std::collections::HashMap;
-use std::mem::{discriminant, Discriminant};
+use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-impl PlantGrowthTypeTag {
+impl PlantGrowthTypeToken {
     /// Retrieves the original string token key for this tag (e.g., "MOUNTAIN").
     /// Uses a cached reverse-lookup map for O(1) performance.
     pub fn get_key(&self) -> Option<&'static str> {
         // Lazily-initialized static reverse map: Discriminant<PlantTag> -> &'static str
-        static REVERSE_MAP: OnceLock<HashMap<Discriminant<PlantGrowthTypeTag>, &'static str>> =
+        static REVERSE_MAP: OnceLock<HashMap<Discriminant<PlantGrowthTypeToken>, &'static str>> =
             OnceLock::new();
 
         let map = REVERSE_MAP.get_or_init(|| {

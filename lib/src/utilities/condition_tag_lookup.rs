@@ -1,12 +1,12 @@
 // dfraw_parser\lib\src\utilities\condition_tag_lookup.rs
 
 use crate::raw_definitions::tokens::CONDITION_TOKENS;
-use crate::tags::ConditionTag;
+use crate::tokens::ConditionToken;
 use std::collections::HashMap;
 use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-impl ConditionTag {
+impl ConditionToken {
     /// Retrieve the original string token key for this `ConditionTag` variant
     /// (for example, `"ANIMATED"` or `"CORPSE"`).
     ///
@@ -14,7 +14,7 @@ impl ConditionTag {
     /// discriminant to the static token string so repeated lookups are O(1).
     pub fn get_key(&self) -> Option<&'static str> {
         // Lazily initialized static reverse map: Discriminant -> token string
-        static REVERSE_MAP: OnceLock<HashMap<Discriminant<ConditionTag>, &'static str>> =
+        static REVERSE_MAP: OnceLock<HashMap<Discriminant<ConditionToken>, &'static str>> =
             OnceLock::new();
 
         let map = REVERSE_MAP.get_or_init(|| {

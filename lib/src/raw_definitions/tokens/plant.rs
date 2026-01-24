@@ -1,24 +1,24 @@
 //! String token to parsed tag map for plant tokens.
 
-use crate::tags::PlantTag;
+use crate::tokens::PlantToken;
 
 /// Mapping of plant tokens to strings
-pub static PLANT_TOKENS: phf::Map<&'static str, PlantTag> = phf::phf_map! {
-    "NAME" => PlantTag::NameSingular,
-    "NAME_PLURAL" => PlantTag::NamePlural,
-    "ADJ" => PlantTag::NameAdjective,
-    "ALL_NAMES" => PlantTag::AllNames,
-    "PREFSTRING" => PlantTag::PrefString,
-    "MATERIAL" => PlantTag::Material,
-    "USE_MATERIAL" => PlantTag::UseMaterial,
-    "BASIC_MAT" => PlantTag::BasicMaterial,
-    "USE_MATERIAL_TEMPLATE" => PlantTag::UseMaterialTemplate,
-    "UNDERGROUND_DEPTH" => PlantTag::UndergroundDepth,
-    "GOOD" => PlantTag::Good,
-    "EVIL" => PlantTag::Evil,
-    "SAVAGE" => PlantTag::Savage,
-    "FREQUENCY" => PlantTag::Frequency,
-    "WET" => PlantTag::Wet,
-    "DRY" => PlantTag::Dry,
-    "BIOME" => PlantTag::Biome,
+pub static PLANT_TOKENS: phf::Map<&'static str, PlantToken> = phf::phf_map! {
+    "NAME" => PlantToken::NameSingular,
+    "NAME_PLURAL" => PlantToken::NamePlural,
+    "ADJ" => PlantToken::NameAdjective,
+    "ALL_NAMES" => PlantToken::AllNames,
+    "PREFSTRING" => PlantToken::PrefString,
+    "MATERIAL" => PlantToken::Material,
+    "USE_MATERIAL" => PlantToken::UseMaterial,
+    "BASIC_MAT" => PlantToken::BasicMaterial,
+    "USE_MATERIAL_TEMPLATE" => PlantToken::UseMaterialTemplate,
+    "UNDERGROUND_DEPTH" => PlantToken::UndergroundDepth,
+    "GOOD" => PlantToken::Good,
+    "EVIL" => PlantToken::Evil,
+    "SAVAGE" => PlantToken::Savage,
+    "FREQUENCY" => PlantToken::Frequency,
+    "WET" => PlantToken::Wet,
+    "DRY" => PlantToken::Dry,
+    "BIOME" => PlantToken::Biome,
 };

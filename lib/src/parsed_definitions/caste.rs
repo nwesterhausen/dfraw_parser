@@ -6,7 +6,7 @@ use tracing::warn;
 use crate::{
     BodySize, Gait, Milkable, Name, Tile,
     raw_definitions::CASTE_TOKENS,
-    tags::CasteTag,
+    tokens::CasteToken,
     traits::{IsEmpty, Searchable, TagOperations},
 };
 
@@ -34,7 +34,7 @@ pub struct Caste {
     /// A collection of tags assigned to this caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[cleanable(ignore)]
-    tags: Option<Vec<CasteTag>>,
+    tags: Option<Vec<CasteToken>>,
     /// Flavor text shown in-game when examining a creature of this caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     description: Option<String>,
@@ -285,7 +285,7 @@ impl Caste {
     ///
     /// * `&[CasteTag]` - The tags of the creature caste.
     #[must_use]
-    pub fn get_tags(&self) -> &[CasteTag] {
+    pub fn get_tags(&self) -> &[CasteToken] {
         self.tags.as_ref().map_or(&[], |tags| tags.as_slice())
     }
 
@@ -303,7 +303,7 @@ impl Caste {
     ///
     /// This check uses the variant discriminant to match tags regardless of internal data.
     #[must_use]
-    pub fn has_tag(&self, tag: &CasteTag) -> bool {
+    pub fn has_tag(&self, tag: &CasteToken) -> bool {
         if let Some(tags) = &self.tags {
             for t in tags {
                 if std::mem::discriminant(t) == std::mem::discriminant(tag) {
@@ -319,7 +319,7 @@ impl Caste {
     /// Checks for the presence of the `[LAYS_EGGS]` tag via [`CasteTag::LaysEggs`].
     #[must_use]
     pub fn is_egg_layer(&self) -> bool {
-        self.has_tag(&CasteTag::LaysEggs)
+        self.has_tag(&CasteToken::LaysEggs)
     }
 
     /// Returns true if the caste is milkable.
@@ -327,7 +327,7 @@ impl Caste {
     /// Checks for the presence of the `[MILKABLE]` tag via [`CasteTag::Milkable`].
     #[must_use]
     pub fn is_milkable(&self) -> bool {
-        self.has_tag(&CasteTag::Milkable {
+        self.has_tag(&CasteToken::Milkable {
             material: Vec::new(),
             frequency: 0,
         })
@@ -341,7 +341,7 @@ impl Caste {
     /// This method maps raw file tokens directly to internal struct fields.
     #[allow(clippy::too_many_lines)]
     pub fn parse_tag(&mut self, key: &str, value: &str) {
-        let Some(tag) = CasteTag::parse(key, value) else {
+        let Some(tag) = CasteToken::parse(key, value) else {
             warn!(
                 "parse_tag: called `Option::unwrap()` on a `None` value for presumed caste tag: '{}'",
                 key
@@ -356,76 +356,76 @@ impl Caste {
         }
 
         match tag {
-            CasteTag::Description { description } => self.description = Some(description),
-            CasteTag::EggSize { size } => self.egg_size = Some(size),
-            CasteTag::Baby { age } => self.baby = Some(age),
-            CasteTag::Child { age } => self.child = Some(age),
-            CasteTag::Difficulty { difficulty } => self.difficulty = Some(difficulty),
-            CasteTag::Grazer { grazer } => self.grazer = Some(grazer),
-            CasteTag::GrassTrample { trample } => self.grass_trample = Some(trample),
-            CasteTag::LowLightVision { vision } => self.low_light_vision = Some(vision),
-            CasteTag::PopulationRatio { pop_ratio } => self.pop_ratio = Some(pop_ratio),
-            CasteTag::PetValue { pet_value } => self.pet_value = Some(pet_value),
-            CasteTag::ClutchSize { min, max } => self.clutch_size = Some([min, max]),
-            CasteTag::LitterSize { min, max } => self.litter_size = Some([min, max]),
-            CasteTag::MaxAge { min, max } => self.max_age = Some([min, max]),
-            CasteTag::CreatureClass { class } => {
+            CasteToken::Description { description } => self.description = Some(description),
+            CasteToken::EggSize { size } => self.egg_size = Some(size),
+            CasteToken::Baby { age } => self.baby = Some(age),
+            CasteToken::Child { age } => self.child = Some(age),
+            CasteToken::Difficulty { difficulty } => self.difficulty = Some(difficulty),
+            CasteToken::Grazer { grazer } => self.grazer = Some(grazer),
+            CasteToken::GrassTrample { trample } => self.grass_trample = Some(trample),
+            CasteToken::LowLightVision { vision } => self.low_light_vision = Some(vision),
+            CasteToken::PopulationRatio { pop_ratio } => self.pop_ratio = Some(pop_ratio),
+            CasteToken::PetValue { pet_value } => self.pet_value = Some(pet_value),
+            CasteToken::ClutchSize { min, max } => self.clutch_size = Some([min, max]),
+            CasteToken::LitterSize { min, max } => self.litter_size = Some([min, max]),
+            CasteToken::MaxAge { min, max } => self.max_age = Some([min, max]),
+            CasteToken::CreatureClass { class } => {
                 if let Some(creature_classes) = self.creature_class.as_mut() {
                     creature_classes.push(class);
                 } else {
                     self.creature_class = Some(vec![class]);
                 }
             }
-            CasteTag::BodySize { .. } => {
+            CasteToken::BodySize { .. } => {
                 if let Some(body_sizes) = self.body_size.as_mut() {
                     body_sizes.push(BodySize::from_value(value));
                 } else {
                     self.body_size = Some(vec![BodySize::from_value(value)]);
                 }
             }
-            CasteTag::Milkable { .. } => self.milkable = Some(Milkable::from_value(value)),
-            CasteTag::BabyName { .. } => self.baby_name = Some(Name::from_value(value)),
-            CasteTag::Name { .. } => self.caste_name = Some(Name::from_value(value)),
-            CasteTag::ChildName { .. } => self.child_name = Some(Name::from_value(value)),
-            CasteTag::Tile { .. } => {
+            CasteToken::Milkable { .. } => self.milkable = Some(Milkable::from_value(value)),
+            CasteToken::BabyName { .. } => self.baby_name = Some(Name::from_value(value)),
+            CasteToken::Name { .. } => self.caste_name = Some(Name::from_value(value)),
+            CasteToken::ChildName { .. } => self.child_name = Some(Name::from_value(value)),
+            CasteToken::Tile { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_character(value);
                 } else {
                     self.tile = Some(Tile::default().with_character(value));
                 }
             }
-            CasteTag::AltTile { .. } => {
+            CasteToken::AltTile { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_alt_character(value);
                 } else {
                     self.tile = Some(Tile::default().with_alt_character(value));
                 }
             }
-            CasteTag::Color { .. } => {
+            CasteToken::Color { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_color(value);
                 } else {
                     self.tile = Some(Tile::default().with_color(value));
                 }
             }
-            CasteTag::GlowTile { .. } => {
+            CasteToken::GlowTile { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_glow_character(value);
                 } else {
                     self.tile = Some(Tile::default().with_glow_character(value));
                 }
             }
-            CasteTag::GlowColor { .. } => {
+            CasteToken::GlowColor { .. } => {
                 if let Some(tile) = self.tile.as_mut() {
                     tile.set_glow_color(value);
                 } else {
                     self.tile = Some(Tile::default().with_glow_color(value));
                 }
             }
-            CasteTag::ChangeBodySizePercent { .. } => {
+            CasteToken::ChangeBodySizePercent { .. } => {
                 self.change_body_size_percentage = Some(value.parse::<u32>().unwrap_or_default());
             }
-            CasteTag::Gait { .. } => {
+            CasteToken::Gait { .. } => {
                 if let Some(gaits) = self.gaits.as_mut() {
                     gaits.push(Gait::from_value(value));
                 } else {
@@ -595,7 +595,7 @@ impl Caste {
     /// Adds a tag to the internal collection if it is not already present.
     ///
     /// * `tag` - The [`CasteTag`] to add.
-    fn add_tag(&mut self, tag: CasteTag) {
+    fn add_tag(&mut self, tag: CasteToken) {
         if let Some(tags) = self.tags.as_mut() {
             if !tags.contains(&tag) {
                 tags.push(tag);
@@ -650,24 +650,24 @@ impl Searchable for Caste {
         }
         if let Some(tags) = &self.tags {
             // If flier, include flyer information
-            if tags.contains(&CasteTag::Flier) {
+            if tags.contains(&CasteToken::Flier) {
                 vec.push(String::from("flying flies flier"));
             }
             // If playable/civilized, include playable information
-            if tags.contains(&CasteTag::OutsiderControllable) {
+            if tags.contains(&CasteToken::OutsiderControllable) {
                 vec.push(String::from("playable civilized"));
             }
             // If speaks, include language information
             // If learns, include learn
             // If both, include "intelligent"
-            if tags.contains(&CasteTag::Intelligent) || tags.contains(&CasteTag::CanSpeak) {
+            if tags.contains(&CasteToken::Intelligent) || tags.contains(&CasteToken::CanSpeak) {
                 vec.push(String::from("speaks language"));
             }
-            if tags.contains(&CasteTag::Intelligent) || tags.contains(&CasteTag::CanLearn) {
+            if tags.contains(&CasteToken::Intelligent) || tags.contains(&CasteToken::CanLearn) {
                 vec.push(String::from("learns"));
             }
-            if tags.contains(&CasteTag::Intelligent)
-                || (tags.contains(&CasteTag::CanSpeak) && tags.contains(&CasteTag::CanLearn))
+            if tags.contains(&CasteToken::Intelligent)
+                || (tags.contains(&CasteToken::CanSpeak) && tags.contains(&CasteToken::CanLearn))
             {
                 vec.push(String::from("intelligent"));
             }

@@ -243,7 +243,7 @@ pub trait TokenParser: Debug {
 }
 
 // Impls for each tag so we can use it for parsing.
-impl TokenParser for crate::tags::CasteTag {}
-impl TokenParser for crate::tags::CreatureTag {}
-impl TokenParser for crate::tags::PlantTag {}
-impl TokenParser for crate::tags::ConditionTag {}
+impl TokenParser for crate::tokens::CasteToken {}
+impl TokenParser for crate::tokens::CreatureToken {}
+impl TokenParser for crate::tokens::PlantToken {}
+impl TokenParser for crate::tokens::ConditionToken {}

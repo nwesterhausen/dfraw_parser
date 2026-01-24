@@ -1,5 +1,5 @@
 //! String token to parsed tag map for object type tokens.
-use crate::tags::ObjectType;
+use crate::tokens::ObjectType;
 /// A map of the object tokens to their respective object types.
 pub static OBJECT_TOKEN_MAP: phf::Map<&'static str, ObjectType> = phf::phf_map! {
     "CREATURE" => ObjectType::Creature,

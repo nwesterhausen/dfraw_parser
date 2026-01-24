@@ -1,5 +1,5 @@
 use crate::raw_definitions::tokens::CREATURE_VARIATION_TOKENS;
-use crate::tags::CreatureVariationTag;
+use crate::tokens::CreatureVariationToken;
 use std::collections::HashMap;
 use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
@@ -10,13 +10,13 @@ use std::sync::OnceLock;
 /// This mirrors the pattern used by other tag lookup utilities: populate a
 /// lazily-initialized `HashMap` keyed by the enum `Discriminant` and cache it in
 /// a `OnceLock` for fast subsequent lookups.
-impl CreatureVariationTag {
+impl CreatureVariationToken {
     /// Returns the original token string for this variant, if available.
     ///
     /// Example:
     /// - `CreatureVariationTag::NewTag.get_key()` -> `Some("CV_NEW_TAG")`
     pub fn get_key(&self) -> Option<&'static str> {
-        static REVERSE_MAP: OnceLock<HashMap<Discriminant<CreatureVariationTag>, &'static str>> =
+        static REVERSE_MAP: OnceLock<HashMap<Discriminant<CreatureVariationToken>, &'static str>> =
             OnceLock::new();
 
         let map = REVERSE_MAP.get_or_init(|| {
