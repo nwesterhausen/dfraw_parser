@@ -17,3 +17,4 @@ test-data/
 # Ignore any database files
 *.db
 *.db-*
+test*.log
