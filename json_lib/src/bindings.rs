@@ -88,7 +88,6 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser::metadata::ParserOptions>()
         .register::<dfraw_parser::metadata::RawModuleLocation>()
         .register::<dfraw_parser::metadata::RawMetadata>()
-        .register::<dfraw_parser::metadata::TagComplexity>()
         .register::<dfraw_parser::metadata::RawObject>()
         .register::<dfraw_parser_sqlite_lib::models::TilePageData>()
         .register::<dfraw_parser_sqlite_lib::models::SpriteGraphicData>()
