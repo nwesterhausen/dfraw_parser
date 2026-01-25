@@ -6,8 +6,6 @@ use tracing::{debug, warn};
 use crate::{
     raw_definitions::{CREATURE_EFFECT_TOKENS, SYNDROME_TOKENS},
     tokens::SyndromeToken,
-    traits::Searchable,
-    utilities::clean_search_vec,
 };
 
 /// A struct representing a syndrome
@@ -216,67 +214,5 @@ impl Syndrome {
                 }
             }
         }
-    }
-}
-
-impl Searchable for Syndrome {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        // Identifier
-        if let Some(identifier) = &self.identifier {
-            vec.push(identifier.clone());
-        }
-
-        // Name
-        if let Some(name) = &self.name {
-            vec.push(name.clone());
-        }
-
-        // Affected classes
-        if let Some(affected_classes) = &self.affected_classes {
-            for affected_class in affected_classes {
-                vec.push(affected_class.clone());
-            }
-        }
-
-        // Immune classes
-        if let Some(immune_classes) = &self.immune_classes {
-            for immune_class in immune_classes {
-                vec.push(immune_class.clone());
-            }
-        }
-
-        // Affected creatures
-        if let Some(affected_creatures) = &self.affected_creatures {
-            for (creature, caste) in affected_creatures {
-                vec.push(creature.clone());
-                vec.push(caste.clone());
-            }
-        }
-
-        // Immune creatures
-        if let Some(immune_creatures) = &self.immune_creatures {
-            for (creature, caste) in immune_creatures {
-                vec.push(creature.clone());
-                vec.push(caste.clone());
-            }
-        }
-
-        // Classes
-        if let Some(classes) = &self.classes {
-            for class in classes {
-                vec.push(class.clone());
-            }
-        }
-
-        // Conditions
-        if let Some(conditions) = &self.conditions {
-            for condition in conditions {
-                vec.push(condition.clone());
-            }
-        }
-
-        clean_search_vec(vec.as_slice())
     }
 }

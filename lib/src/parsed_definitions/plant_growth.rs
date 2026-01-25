@@ -7,8 +7,6 @@ use crate::{
     Name,
     raw_definitions::{PLANT_GROWTH_TOKENS, PLANT_PART_TOKENS},
     tokens::{PlantGrowthToken, PlantGrowthTypeToken, PlantPartToken},
-    traits::Searchable,
-    utilities::clean_search_vec,
 };
 
 /// A struct representing a plant growth
@@ -211,20 +209,5 @@ impl PlantGrowth {
                 }
             }
         }
-    }
-}
-
-impl Searchable for PlantGrowth {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.extend(self.name.as_vec());
-        vec.push(format!("{:?}", self.growth_type));
-        vec.push(self.item.clone());
-        if let Some(tags) = &self.tags {
-            vec.extend(tags.iter().map(|tag| format!("{tag:?}")));
-        }
-
-        clean_search_vec(vec.as_slice())
     }
 }

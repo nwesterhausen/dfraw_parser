@@ -7,8 +7,8 @@ use crate::{
     metadata::RawMetadata,
     raw_definitions::{ENVIRONMENT_CLASS_TOKENS, INCLUSION_TYPE_TOKENS, INORGANIC_TOKENS},
     tokens::{EnvironmentClassToken, InclusionTypeToken, InorganicToken, ObjectType},
-    traits::{RawObject, Searchable},
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
+    traits::RawObject,
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// The raw representation of an inorganic object.
@@ -246,35 +246,5 @@ impl RawObject for Inorganic {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for Inorganic {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        // Identifier
-        vec.push(self.identifier.clone());
-        // Material (if any)
-        vec.extend(self.material.get_search_vec());
-        // Tags
-        if let Some(tags) = &self.tags {
-            vec.extend(tags.iter().map(std::string::ToString::to_string));
-        }
-        // Environment information
-        if let Some(environment_class) = &self.environment_class {
-            vec.push(environment_class.to_string());
-        }
-        if let Some(environment_inclusion_type) = &self.environment_inclusion_type {
-            vec.push(environment_inclusion_type.to_string());
-        }
-        if let Some(environment_inclusion_frequency) = &self.environment_inclusion_frequency {
-            vec.push(environment_inclusion_frequency.to_string());
-        }
-        if let Some(environment_class_specific) = &self.environment_class_specific {
-            vec.extend(environment_class_specific.iter().cloned());
-        }
-
-        clean_search_vec(vec.as_slice())
     }
 }

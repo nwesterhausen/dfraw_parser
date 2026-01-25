@@ -26,4 +26,3 @@ pub use parser::parse_module_info_files_at_location;
 pub use reader::FileParseResult;
 pub use reader::UnprocessedRaw;
 pub use reader::parse_raw_file;
-pub use utilities::build_search_string;

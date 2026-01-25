@@ -14,8 +14,8 @@ use crate::{
         PLANT_GROWTH_TYPE_TOKENS, PLANT_TOKENS, SHRUB_TOKENS, TREE_TOKENS,
     },
     tokens::{BiomeToken, ObjectType, PlantGrowthToken, PlantGrowthTypeToken, PlantToken},
-    traits::{RawObject, Searchable},
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata, parse_min_max_range},
+    traits::RawObject,
+    utilities::{generate_object_id_using_raw_metadata, parse_min_max_range},
 };
 
 /// A struct representing a plant
@@ -434,31 +434,5 @@ impl RawObject for Plant {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for Plant {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.push(self.get_identifier().to_string());
-        vec.extend(self.name.as_vec());
-        if let Some(pref_strings) = &self.pref_strings {
-            vec.extend(pref_strings.clone());
-        }
-        if let Some(biomes) = &self.biomes {
-            vec.extend(biomes.iter().map(std::string::ToString::to_string));
-        }
-        if let Some(tags) = &self.tags {
-            vec.extend(tags.iter().map(std::string::ToString::to_string));
-        }
-        if let Some(growths) = &self.growths {
-            vec.extend(growths.iter().flat_map(Searchable::get_search_vec));
-        }
-        if let Some(materials) = &self.materials {
-            vec.extend(materials.iter().flat_map(Searchable::get_search_vec));
-        }
-
-        clean_search_vec(vec.as_slice())
     }
 }

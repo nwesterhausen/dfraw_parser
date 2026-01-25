@@ -15,9 +15,9 @@ use crate::{
     tokens::{BiomeToken, CasteToken, CreatureToken, ObjectType},
     traits::{
         Cleanable, CreatureVariationRequirements, NumericTokenTransform as _, RawObject,
-        RawObjectToken, Searchable, TagOperations,
+        RawObjectToken, TagOperations,
     },
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// The `Creature` struct represents a creature in a Dwarf Fortress, with the properties
@@ -1051,45 +1051,5 @@ impl CreatureVariationRequirements for Creature {
     fn add_tag_and_value_for_caste(&mut self, key: &str, value: &str, caste: &str) {
         self.select_caste(caste);
         self.parse_tag(key, value);
-    }
-}
-
-impl Searchable for Creature {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-        // Add caste search strings
-        for caste in &self.castes {
-            vec.extend(caste.get_search_vec());
-        }
-        // Add tags
-        if let Some(tags) = &self.tags {
-            for tag in tags {
-                vec.push(tag.to_string());
-            }
-        }
-        // Add biomes
-        if let Some(biomes) = &self.biomes {
-            for biome in biomes {
-                vec.push(biome.to_string());
-            }
-        }
-        // Add pref strings
-        if let Some(pref_strings) = &self.pref_strings {
-            vec.extend(pref_strings.clone());
-        }
-        // Add name
-        vec.extend(self.name.as_vec());
-        // Add general baby name
-        if let Some(general_baby_name) = &self.general_baby_name {
-            vec.extend(general_baby_name.as_vec());
-        }
-        // Add general child name
-        if let Some(general_child_name) = &self.general_child_name {
-            vec.extend(general_child_name.as_vec());
-        }
-        // Add identifier
-        vec.push(self.identifier.clone());
-
-        clean_search_vec(vec.as_slice())
     }
 }

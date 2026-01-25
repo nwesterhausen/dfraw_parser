@@ -11,8 +11,8 @@ use crate::{
         CONDITION_TOKENS, CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS,
     },
     tokens::{ConditionToken, GraphicTypeToken, ObjectType},
-    traits::{RawObject, Searchable},
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
+    traits::RawObject,
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// A struct representing a Graphic object.
@@ -456,17 +456,5 @@ impl RawObject for Graphic {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for Graphic {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.push(self.get_identifier().to_string());
-        vec.push(format!("{:?}", self.kind));
-        vec.push("graphic".to_string());
-
-        clean_search_vec(vec.as_slice())
     }
 }

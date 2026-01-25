@@ -7,7 +7,7 @@ use crate::{
     BodySize, Gait, Milkable, Name, Tile,
     raw_definitions::CASTE_TOKENS,
     tokens::CasteToken,
-    traits::{IsEmpty, Searchable, TagOperations},
+    traits::{IsEmpty, TagOperations},
 };
 
 /// A struct representing a creature caste.
@@ -603,84 +603,5 @@ impl Caste {
         } else {
             self.tags = Some(vec![tag]);
         }
-    }
-}
-
-impl Searchable for Caste {
-    // Used to help extend things that own this caste
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        // Identifier
-        vec.push(self.identifier.clone());
-        // Name (and child/baby names)
-        if let Some(caste_name) = &self.caste_name {
-            vec.extend(caste_name.as_vec());
-        }
-        if let Some(child_name) = &self.child_name {
-            vec.extend(child_name.as_vec());
-        }
-        if let Some(baby_name) = &self.baby_name {
-            vec.extend(baby_name.as_vec());
-        }
-        // Creature Class
-        if let Some(creature_class) = &self.creature_class {
-            vec.extend(creature_class.clone());
-        }
-        // Description
-        if let Some(description) = &self.description {
-            vec.push(description.clone());
-        }
-        // If egg layer, include egg information
-        if self.is_egg_layer() {
-            vec.push(String::from("eggs"));
-            if let Some([clutch_size_0, clutch_size_1, ..]) = self.clutch_size {
-                vec.push(format!("{clutch_size_0}-{clutch_size_1}"));
-            }
-            if let Some(egg_size) = self.egg_size {
-                vec.push(format!("{egg_size}"));
-            }
-        }
-        // If milkable, include milk information
-        if self.is_milkable() {
-            vec.push(String::from("milk"));
-            if let Some(milkable) = &self.milkable {
-                vec.extend(milkable.as_vec());
-            }
-        }
-        if let Some(tags) = &self.tags {
-            // If flier, include flyer information
-            if tags.contains(&CasteToken::Flier) {
-                vec.push(String::from("flying flies flier"));
-            }
-            // If playable/civilized, include playable information
-            if tags.contains(&CasteToken::OutsiderControllable) {
-                vec.push(String::from("playable civilized"));
-            }
-            // If speaks, include language information
-            // If learns, include learn
-            // If both, include "intelligent"
-            if tags.contains(&CasteToken::Intelligent) || tags.contains(&CasteToken::CanSpeak) {
-                vec.push(String::from("speaks language"));
-            }
-            if tags.contains(&CasteToken::Intelligent) || tags.contains(&CasteToken::CanLearn) {
-                vec.push(String::from("learns"));
-            }
-            if tags.contains(&CasteToken::Intelligent)
-                || (tags.contains(&CasteToken::CanSpeak) && tags.contains(&CasteToken::CanLearn))
-            {
-                vec.push(String::from("intelligent"));
-            }
-        }
-        // Include difficulty if not 0
-        if let Some(difficulty) = self.difficulty {
-            vec.push(format!("{difficulty}"));
-        }
-        // Include pet value if not 0
-        if let Some(pet_value) = self.pet_value {
-            vec.push(format!("{pet_value}"));
-        }
-
-        vec
     }
 }

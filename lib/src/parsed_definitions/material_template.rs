@@ -4,11 +4,8 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use uuid::Uuid;
 
 use crate::{
-    Material,
-    metadata::RawMetadata,
-    tokens::ObjectType,
-    traits::{RawObject, Searchable},
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
+    Material, metadata::RawMetadata, tokens::ObjectType, traits::RawObject,
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// A struct representing a material template
@@ -114,18 +111,5 @@ impl RawObject for MaterialTemplate {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for MaterialTemplate {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.push(self.get_identifier().to_string());
-        vec.push(format!("{:?}", self.get_type()));
-        vec.extend(self.material.get_search_vec());
-        vec.push("template".to_string());
-
-        clean_search_vec(vec.as_slice())
     }
 }

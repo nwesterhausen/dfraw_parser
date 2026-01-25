@@ -3,10 +3,8 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use uuid::Uuid;
 
 use crate::{
-    metadata::RawMetadata,
-    tokens::ObjectType,
-    traits::{RawObject, Searchable},
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
+    metadata::RawMetadata, tokens::ObjectType, traits::RawObject,
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// A struct representing a creature selection
@@ -112,17 +110,5 @@ impl RawObject for SelectCreature {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for SelectCreature {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.push(self.get_identifier().to_string());
-        vec.push(format!("{:?}", self.get_type()));
-        vec.push("selectCreature".to_string());
-
-        clean_search_vec(vec.as_slice())
     }
 }

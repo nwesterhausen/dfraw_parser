@@ -10,8 +10,6 @@ use crate::{
         MATERIAL_USAGE_TOKENS, SYNDROME_TOKENS,
     },
     tokens::{FuelTypeToken, MaterialPropertyToken, MaterialTypeToken, MaterialUsageToken},
-    traits::Searchable,
-    utilities::clean_search_vec,
 };
 
 /// A struct representing a material
@@ -545,49 +543,5 @@ impl Material {
             "Material::parse_tag() was provided a key that was not recognized: {}",
             key
         );
-    }
-}
-
-impl Searchable for Material {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        // Name
-        if let Some(name) = &self.name {
-            vec.push(name.to_string());
-        }
-        // Material Type
-        if let Some(material_type) = &self.material_type {
-            vec.push(material_type.to_string());
-        }
-        // State descriptions
-        if let Some(state_names) = &self.state_names {
-            vec.extend(state_names.as_vec());
-        }
-        if let Some(state_adjectives) = &self.state_adjectives {
-            vec.extend(state_adjectives.as_vec());
-        }
-        if let Some(state_colors) = &self.state_colors {
-            vec.extend(state_colors.as_vec());
-        }
-
-        // Syndromes
-        if let Some(syndromes) = &self.syndromes {
-            vec.extend(syndromes.iter().flat_map(Searchable::get_search_vec));
-        }
-
-        // Reaction Classes (products)
-        if let Some(reaction_product_identifier) = &self.reaction_product_identifier {
-            vec.push(reaction_product_identifier.clone());
-        }
-        // Properties
-        if let Some(properties) = &self.properties {
-            vec.extend(properties.iter().map(std::string::ToString::to_string));
-        }
-        // Usage
-        if let Some(usage) = &self.usage {
-            vec.extend(usage.iter().map(std::string::ToString::to_string));
-        }
-        clean_search_vec(vec.as_slice())
     }
 }

@@ -8,7 +8,7 @@ use crate::{
     metadata::RawMetadata,
     raw_definitions::CREATURE_VARIATION_TOKENS,
     tokens::{CreatureVariationRuleToken, CreatureVariationToken, ObjectType},
-    traits::{RawObject, Searchable},
+    traits::RawObject,
     utilities::generate_object_id_using_raw_metadata,
 };
 
@@ -361,33 +361,5 @@ impl RawObject for CreatureVariation {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for CreatureVariation {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.push(self.identifier.clone());
-
-        // Add the tags from the rules
-        vec.extend(
-            self.rules
-                .iter()
-                .map(|r| match r {
-                    CreatureVariationRuleToken::AddTag { tag, .. }
-                    | CreatureVariationRuleToken::ConditionalAddTag { tag, .. }
-                    | CreatureVariationRuleToken::RemoveTag { tag, .. }
-                    | CreatureVariationRuleToken::ConditionalRemoveTag { tag, .. }
-                    | CreatureVariationRuleToken::NewTag { tag, .. }
-                    | CreatureVariationRuleToken::ConditionalNewTag { tag, .. }
-                    | CreatureVariationRuleToken::ConvertTag { tag, .. }
-                    | CreatureVariationRuleToken::ConditionalConvertTag { tag, .. } => tag.clone(),
-                    CreatureVariationRuleToken::Unknown => String::new(),
-                })
-                .filter(|s| !s.is_empty()),
-        );
-
-        vec
     }
 }

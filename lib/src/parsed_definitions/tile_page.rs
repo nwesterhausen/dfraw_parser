@@ -11,8 +11,8 @@ use crate::{
     metadata::RawMetadata,
     raw_definitions::TILE_PAGE_TOKENS,
     tokens::{ObjectType, TilePageToken},
-    traits::{RawObject, Searchable},
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
+    traits::RawObject,
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// A struct representing a `TilePage` object.
@@ -151,17 +151,5 @@ impl RawObject for TilePage {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for TilePage {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.push(self.get_identifier().to_string());
-        vec.push(format!("{:?}", self.get_type()));
-        vec.push("tilePage".to_string());
-
-        clean_search_vec(vec.as_slice())
     }
 }

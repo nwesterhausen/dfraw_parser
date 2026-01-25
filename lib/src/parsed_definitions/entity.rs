@@ -9,8 +9,8 @@ use crate::{
     metadata::RawMetadata,
     raw_definitions::{ENTITY_TOKENS, POSITION_TOKENS},
     tokens::{EntityToken, ObjectType},
-    traits::{RawObject, Searchable},
-    utilities::{clean_search_vec, generate_object_id_using_raw_metadata},
+    traits::RawObject,
+    utilities::generate_object_id_using_raw_metadata,
 };
 
 /// A struct representing an Entity object.
@@ -690,83 +690,5 @@ impl RawObject for Entity {
             Some(meta) => meta.get_module_object_id(),
             None => Uuid::nil(),
         }
-    }
-}
-
-impl Searchable for Entity {
-    fn get_search_vec(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-
-        vec.push(self.identifier.clone());
-        vec.extend(self.tags.iter().map(|tag| format!("{tag:?}")));
-        if let Some(scholars) = &self.scholars {
-            vec.extend(scholars.iter().cloned());
-        }
-        // vec.extend(self.ammo.iter().cloned());
-        if let Some(ammo) = &self.ammo {
-            vec.extend(ammo.iter().cloned());
-        }
-        // vec.extend(self.armors.iter().map(|(armor, _)| format!("{armor:?}")));
-        if let Some(armors) = &self.armors {
-            vec.extend(armors.iter().map(|(armor, _)| format!("{armor:?}")));
-        }
-        // vec.extend(self.diggers.iter().cloned());
-        if let Some(diggers) = &self.diggers {
-            vec.extend(diggers.iter().cloned());
-        }
-        // vec.extend(self.gloves.iter().map(|(glove, _)| format!("{glove:?}")));
-        if let Some(gloves) = &self.gloves {
-            vec.extend(gloves.iter().map(|(glove, _)| format!("{glove:?}")));
-        }
-        // vec.extend(self.helms.iter().map(|(helm, _)| format!("{helm:?}")));
-        if let Some(helms) = &self.helms {
-            vec.extend(helms.iter().map(|(helm, _)| format!("{helm:?}")));
-        }
-        // vec.extend(self.instrument.iter().cloned());
-        if let Some(instrument) = &self.instrument {
-            vec.extend(instrument.iter().cloned());
-        }
-        // vec.extend(self.pants.iter().map(|(pants, _)| format!("{pants:?}")));
-        if let Some(pants) = &self.pants {
-            vec.extend(pants.iter().map(|(pants, _)| format!("{pants:?}")));
-        }
-        // vec.extend(self.shields.iter().cloned());
-        if let Some(shields) = &self.shields {
-            vec.extend(shields.iter().cloned());
-        }
-        // vec.extend(self.shoes.iter().map(|(shoe, _)| format!("{shoe:?}")));
-        if let Some(shoes) = &self.shoes {
-            vec.extend(shoes.iter().map(|(shoe, _)| format!("{shoe:?}")));
-        }
-        // vec.extend(self.siege_ammo.iter().cloned());
-        if let Some(siege_ammo) = &self.siege_ammo {
-            vec.extend(siege_ammo.iter().cloned());
-        }
-        // vec.extend(self.tool.iter().cloned());
-        if let Some(tool) = &self.tool {
-            vec.extend(tool.iter().cloned());
-        }
-        // vec.extend(self.toys.iter().cloned());
-        if let Some(toys) = &self.toys {
-            vec.extend(toys.iter().cloned());
-        }
-        // vec.extend(self.trap_components.iter().cloned());
-        if let Some(trap_components) = &self.trap_components {
-            vec.extend(trap_components.iter().cloned());
-        }
-        // vec.extend(self.weapons.iter().cloned());
-        if let Some(weapons) = &self.weapons {
-            vec.extend(weapons.iter().cloned());
-        }
-        // vec.extend(self.gem_shape.iter().cloned());
-        if let Some(gem_shape) = &self.gem_shape {
-            vec.extend(gem_shape.iter().cloned());
-        }
-        // vec.extend(self.stone_shape.iter().cloned());
-        if let Some(stone_shape) = &self.stone_shape {
-            vec.extend(stone_shape.iter().cloned());
-        }
-
-        clean_search_vec(vec.as_slice())
     }
 }
