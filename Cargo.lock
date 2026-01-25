@@ -331,7 +331,6 @@ dependencies = [
  "encoding_rs_io",
  "itertools",
  "lazy-regex",
- "once_cell",
  "phf",
  "quick-xml",
  "serde",

@@ -28,8 +28,6 @@ encoding_rs_io = { workspace = true }
 itertools.workspace = true
 # Generates static/reusabled regex for parsing the raw text files.
 lazy-regex = { workspace = true }
-# Used for making a shared static ref to the Latin1 encoding.
-once_cell = { workspace = true }
 # Quick-xml is used to parse legends export files.
 quick-xml = { workspace = true }
 # Create iterators from enums
@@ -49,7 +47,8 @@ serde= { workspace = true, features = ["derive"] }
 specta= { workspace = true, features = ["derive","uuid"] }
 # For creating static hashmaps
 phf= { workspace = true, features = ["macros"] }
-uuid = { version = "1.19.0", features = ["v5", "serde"] }
+# Used for unique IDs
+uuid = { workspace = true, features = ["v5", "serde"] }
 
 # Windows: Registry access
 [target.'cfg(windows)'.dependencies]
