@@ -816,3 +816,229 @@ fn test_pagination_overflow() {
     // Total count should still be accurate
     assert!(search_results.total_count > 0);
 }
+
+#[test]
+fn verify_recent_search_terms() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    // Add a unique set of search terms to overflow the buffer (limit is 10)
+    for i in 0..15 {
+        client_mutex
+            .lock()
+            .expect("Failed to lock DbClient")
+            .add_recent_search_term(Some(format!("unique_term_{i}")))
+            .expect("Failed to add term");
+    }
+
+    let terms = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .get_recent_search_terms()
+            .expect("Failed to get terms")
+    };
+
+    // Verify limit of 10
+    assert_eq!(terms.len(), 10, "Should limit recent search terms to 10");
+
+    // Verify LIFO behavior - "unique_term_14" should be at the top
+    assert_eq!(
+        terms[0], "unique_term_14",
+        "Most recent term should be first"
+    );
+
+    // Verify oldest are dropped - "unique_term_0" should not exist
+    assert!(
+        !terms.contains(&"unique_term_0".to_string()),
+        "Oldest terms should be dropped"
+    );
+
+    // Verify deduplication/promotion
+    // Adding an existing term should move it to the front
+    let existing_term = "unique_term_10";
+    {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .add_recent_search_term(Some(existing_term.to_string()))
+            .expect("Failed to add existing term");
+    }
+    let updated_terms = {
+        let client = client_mutex.lock().expect("Failed to lock DbClient");
+        client
+            .get_recent_search_terms()
+            .expect("Failed to get terms")
+    };
+
+    assert_eq!(
+        updated_terms[0], existing_term,
+        "Re-adding a term should move it to the front"
+    );
+    assert_eq!(
+        updated_terms.iter().filter(|&t| t == existing_term).count(),
+        1,
+        "Term should not be duplicated in the list"
+    );
+}
+
+#[test]
+fn verify_stored_settings() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    let settings_json = r#"{"theme": "dark", "zoom": 100}"#;
+    client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .set_stored_settings(&settings_json.to_string())
+        .expect("Failed to set settings");
+
+    let retrieved = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_stored_settings()
+        .expect("Failed to get settings");
+    assert_eq!(retrieved, settings_json);
+}
+
+#[test]
+fn verify_steam_autodetect_toggle() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    // Test setting to true
+    client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .set_use_steam_autodetect(true)
+        .expect("Failed to set autodetect true");
+
+    let autodetect_setting = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_use_steam_autodetect()
+        .expect("Failure to get setting.");
+    assert!(autodetect_setting, "Should return true");
+
+    // Test setting to false
+    client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .set_use_steam_autodetect(false)
+        .expect("Failed to set autodetect true");
+
+    let autodetect_setting = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_use_steam_autodetect()
+        .expect("Failure to get setting.");
+    assert!(!autodetect_setting, "Should return false");
+}
+
+#[test]
+fn verify_raw_object_retrieval_and_metadata() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    // 1. Search to find a valid ID for a known vanilla creature ("TOAD")
+    let query = SearchQuery {
+        search_string: Some("Toad".to_string()),
+        limit: 1,
+        ..Default::default()
+    };
+    let results = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .search_raws(&query)
+        .expect("Search failed");
+
+    if let Some(first_result) = results.results.first() {
+        let db_id = first_result.id;
+        let identifier = identifier_from_json_blob(&first_result.data);
+
+        // 2. Test get_raw(id)
+        let raw = client_mutex
+            .lock()
+            .expect("Failed to lock DbClient")
+            .get_raw(db_id)
+            .expect("Failed to retrieve raw by ID");
+        assert_eq!(
+            raw.get_identifier(),
+            identifier,
+            "Retrieved raw does not match expected identifier"
+        );
+
+        // 3. Test exists_raw(&raw)
+        let exists = client_mutex
+            .lock()
+            .expect("Failed to lock DbClient")
+            .exists_raw(&raw)
+            .expect("Failed to check raw existence");
+        assert!(exists, "exists_raw should return true for retrieved raw");
+
+        // 4. Test try_get_raw_id(&raw)
+        let retrieved_id = client_mutex
+            .lock()
+            .expect("Failed to lock DbClient")
+            .try_get_raw_id(&raw)
+            .expect("Failed to get raw ID from object")
+            .expect("ID should be found");
+        assert_eq!(retrieved_id, db_id, "Retrieved ID should match search ID");
+
+        // 5. Test get_module_id_from_raw(&raw)
+        let module_id = client_mutex
+            .lock()
+            .expect("Failed to lock DbClient")
+            .get_module_id_from_raw(&raw)
+            .expect("Failed to get module ID from raw");
+        assert!(module_id > 0, "Module ID should be valid (non-zero)");
+    } else {
+        panic!(
+            "Could not find 'Toad' in database to run retrieval tests. Ensure test data is loaded."
+        );
+    }
+}
+
+#[test]
+fn verify_tile_page_lookups() {
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    // Find a tile page using a filtered search
+    let query = SearchQuery {
+        raw_types: vec![ObjectType::TilePage],
+        limit: 1,
+        ..Default::default()
+    };
+    let results = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .search_raws(&query)
+        .expect("Search failed");
+
+    if let Some(res) = results.results.first() {
+        // Test get_tile_page_by_raw_id
+        // We know this ID corresponds to a TilePage because of the search filter
+        let tile_page_data = client_mutex
+            .lock()
+            .expect("Failed to lock DbClient")
+            .get_tile_page_by_raw_id(res.id)
+            .expect("Failed to get tile page data by raw ID");
+
+        // Verify we can also look it up by its identifier
+        let looked_up_by_ident = client_mutex
+            .lock()
+            .expect("Failed to lock DbClient")
+            .get_tile_page_by_identifier(&tile_page_data.identifier)
+            .expect("Failed to lookup tile page by identifier")
+            .expect("Should have found tile page by identifier");
+
+        assert_eq!(
+            tile_page_data.raw_id, looked_up_by_ident.raw_id,
+            "Lookup by ID and Identifier should yield same record"
+        );
+    } else {
+        // If no tile pages are in the test data, we skip this check or warn.
+        // Assuming vanilla data, tile pages should exist.
+        tracing::warn!("No tile pages found in test data, skipping verification.");
+    }
+}

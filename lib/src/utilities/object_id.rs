@@ -43,3 +43,37 @@ pub fn generate_object_id_using_raw_metadata(
         raw_metadata.get_module_numerical_version(),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tokens::ObjectType;
+
+    #[test]
+    fn test_generate_object_id_determinism() {
+        let loc = RawModuleLocation::Vanilla;
+        let obj_type = ObjectType::Creature;
+        let ident = "TOAD";
+        let version = 1;
+
+        let id1 = generate_object_id(loc, obj_type, ident, version);
+        let id2 = generate_object_id(loc, obj_type, ident, version);
+
+        assert_eq!(
+            id1, id2,
+            "UUID generation should be deterministic given the same inputs"
+        );
+    }
+
+    #[test]
+    fn test_generate_object_id_uniqueness() {
+        let loc = RawModuleLocation::Vanilla;
+        let obj_type = ObjectType::Creature;
+        let version = 1;
+
+        let id1 = generate_object_id(loc, obj_type, "TOAD", version);
+        let id2 = generate_object_id(loc, obj_type, "FROG", version);
+
+        assert_ne!(id1, id2, "Different identifiers should yield different IDs");
+    }
+}

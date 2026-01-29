@@ -1198,3 +1198,94 @@ pub fn singularly_apply_creature_variation(
 
     Some(updated_creature)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Creature;
+    use crate::tokens::ObjectType;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_get_parent_dir_name() {
+        let p = PathBuf::from("/path/to/parent/file.txt");
+        assert_eq!(get_parent_dir_name(&p), "parent");
+
+        // Edge case: root or no parent
+        let p_root = PathBuf::from("/");
+        assert_eq!(get_parent_dir_name(&p_root), "!Unavailable!");
+    }
+
+    #[test]
+    fn test_parse_min_max_range() {
+        // Valid case
+        let res = parse_min_max_range("10:20").expect("Should parse valid range");
+        assert_eq!(res, [10, 20]);
+
+        // Error cases based on implementation
+        // The implementation tries to parse empty string for missing parts, which fails u32 parsing
+        assert!(
+            parse_min_max_range("10").is_err(),
+            "Missing max should fail"
+        );
+        assert!(parse_min_max_range("10:").is_err(), "Empty max should fail");
+        assert!(parse_min_max_range(":20").is_err(), "Empty min should fail");
+        assert!(
+            parse_min_max_range("invalid").is_err(),
+            "Non-numeric should fail"
+        );
+    }
+
+    #[test]
+    fn test_replace_args_in_string() {
+        let template = "The creature has !ARG1 legs and !ARG2 eyes.";
+        let args = vec!["4", "2"];
+        let res = replace_args_in_string(template, &args);
+        assert_eq!(res, "The creature has 4 legs and 2 eyes.");
+
+        // Test unused args
+        let res2 = replace_args_in_string("Hello !ARG1", &args);
+        assert_eq!(res2, "Hello 4");
+
+        // Test missing arg
+        // Implementation behavior: If the argument index (3) is larger than the provided args length,
+        // it warns and returns the original token "!ARG3" rather than an empty string.
+        let res3 = replace_args_in_string("Value: !ARG3", &args);
+        assert_eq!(res3, "Value: !ARG3");
+    }
+
+    #[test]
+    fn test_clone_raw_vector_with_limit_and_page() {
+        // Setup dummy raws
+        let c1 = Box::new(Creature::empty());
+        let c2 = Box::new(Creature::empty());
+        let c3 = Box::new(Creature::empty());
+        // Cast to trait objects
+        let raws: Vec<Box<dyn RawObject>> = vec![c1, c2, c3];
+
+        // Page 1 (index 0), limit 2 -> should get items 0, 1
+        let p1 = clone_raw_vector_with_limit_and_page(&raws, 2, 1);
+        assert_eq!(p1.len(), 2);
+
+        // Page 2, limit 2 -> should get item 2
+        let p2 = clone_raw_vector_with_limit_and_page(&raws, 2, 2);
+        assert_eq!(p2.len(), 1);
+
+        // Page 3 -> Empty
+        let p3 = clone_raw_vector_with_limit_and_page(&raws, 2, 3);
+        assert!(p3.is_empty());
+    }
+
+    #[test]
+    fn test_summarize_raws() {
+        let c1 = Box::new(Creature::empty());
+        let p1 = Box::new(Plant::empty());
+        let raws: Vec<Box<dyn RawObject>> = vec![c1, p1];
+
+        let summary = summarize_raws(&raws);
+
+        assert_eq!(summary.get(&ObjectType::Creature), Some(&1));
+        assert_eq!(summary.get(&ObjectType::Plant), Some(&1));
+        assert_eq!(summary.get(&ObjectType::Inorganic), None);
+    }
+}

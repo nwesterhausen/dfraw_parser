@@ -1,5 +1,6 @@
 use dfraw_parser::{Creature, Graphic, TilePage, tokens::ObjectType, traits::RawObject};
 use rusqlite::{Connection, Result, params};
+use uuid::Uuid;
 
 use crate::db::queries::get_id_for_module_location;
 
@@ -32,7 +33,36 @@ pub fn exists_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<bool> {
 /// - database error
 #[allow(clippy::borrowed_box)]
 pub fn try_get_raw_id(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<Option<i64>> {
+    if raw.get_object_id() != Uuid::nil() {
+        return conn
+            .query_row(
+                "SELECT r.id FROM raw_definitions r
+                 WHERE r.object_id = ?1
+                 LIMIT 1",
+                params![raw.get_object_id().as_bytes(),],
+                |row| row.get(0),
+            )
+            .optional();
+    }
+
     let meta = raw.get_metadata();
+
+    // Check if we were given "empty" metadata or populated. Search by module object_id if it exists
+    if meta.get_module_object_id() != Uuid::nil() {
+        return conn
+            .query_row(
+                "SELECT r.id FROM raw_definitions r
+                  JOIN  modules m ON r.module_id = m.id
+                 WHERE  r.identifier = ?1
+                   AND  m.object_id = ?2
+                 LIMIT  1",
+                params![raw.get_identifier(), meta.get_module_object_id().as_bytes(),],
+                |row| row.get(0),
+            )
+            .optional();
+    }
+
+    // Fallback, search for raw by the identifier and module details
     let module_location_id = get_id_for_module_location(conn, meta.get_location())?;
 
     conn.query_row(

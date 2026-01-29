@@ -176,3 +176,24 @@ pub fn raws_to_string(raws: Vec<Box<dyn RawObject>>) -> String {
     json.push(']');
     json
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dfraw_parser::{Creature, metadata::RawMetadata};
+
+    #[test]
+    fn test_raws_to_string() {
+        // Create a creature and give it an identifier so JSON isn't empty/default
+        let c1 = Creature::new("TestCreature", &RawMetadata::default());
+
+        let raws: Vec<Box<dyn RawObject>> = vec![Box::new(c1)];
+
+        let json_output = raws_to_string(raws);
+
+        // Basic validation: should be a JSON array containing the identifier
+        assert!(json_output.starts_with('['));
+        assert!(json_output.ends_with(']'));
+        assert!(json_output.contains("TestCreature"));
+    }
+}
