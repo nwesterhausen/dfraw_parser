@@ -1,8 +1,8 @@
 //! Implementation of custom 'HABIT_NUM' value which can be a number or "TEST_ALL"
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 /// The 'HABIT_NUM' value which can be a number or "TEST_ALL"
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, specta::Type, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize, specta::Type, Eq)]
 pub enum HabitCount {
     /// Test all possible habit values
     TestAll,
@@ -48,6 +48,15 @@ impl FromStr for HabitCount {
                     .map_err(|_| format!("Invalid habit number: {s}"))?;
                 Ok(Self::Specific(val))
             }
+        }
+    }
+}
+
+impl Display for HabitCount {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            HabitCount::TestAll => write!(f, "TEST_ALL"),
+            HabitCount::Specific(val) => write!(f, "{}", val),
         }
     }
 }

@@ -1,5 +1,6 @@
 use crate::raw_definitions::tokens::ENTITY_TOKENS;
 use crate::tokens::EntityToken;
+use crate::traits::RawToken;
 use std::collections::HashMap;
 use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
@@ -10,12 +11,8 @@ use std::sync::OnceLock;
 /// This mirrors the pattern used by other tag lookup utilities: a lazily-initialized
 /// static `HashMap` keyed by the enum `Discriminant` is populated from the
 /// existing PHF token map and cached in a `OnceLock` for fast subsequent lookups.
-impl EntityToken {
-    /// Returns the original token string for this variant, if available.
-    ///
-    /// Example:
-    /// - `EntityTag::Creature.get_key()` -> `Some("CREATURE")`
-    pub fn get_key(&self) -> Option<&'static str> {
+impl RawToken for EntityToken {
+    fn get_key(&self) -> Option<&'static str> {
         static REVERSE_MAP: OnceLock<HashMap<Discriminant<EntityToken>, &'static str>> =
             OnceLock::new();
 

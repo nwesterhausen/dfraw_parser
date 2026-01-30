@@ -1,7 +1,7 @@
 use crate::{
     metadata::NumericToken,
     tokens::CasteToken,
-    traits::{NumericTokenTransform, RawObjectToken},
+    traits::{NumericTokenTransform, RawToken},
 };
 
 impl NumericTokenTransform for CasteToken {

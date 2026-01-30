@@ -14,7 +14,7 @@ use crate::{
         PLANT_GROWTH_TYPE_TOKENS, PLANT_TOKENS, SHRUB_TOKENS, TREE_TOKENS,
     },
     tokens::{BiomeToken, ObjectType, PlantGrowthToken, PlantGrowthTypeToken, PlantToken},
-    traits::RawObject,
+    traits::{RawObject, RawToken},
     utilities::{generate_object_id_using_raw_metadata, parse_min_max_range},
 };
 
@@ -230,16 +230,14 @@ impl RawObject for Plant {
 
         for token in PlantToken::FLAG_TOKENS {
             if self.has_tag(token) {
-                tokens.insert(PlantToken::get_key(token).unwrap_or_default());
+                tokens.insert(RawToken::get_key(token).unwrap_or_default());
             }
         }
 
         if let Some(growths) = &self.growths {
             for growth in growths {
                 if PlantGrowthTypeToken::FLAG_TOKENS.contains(&growth.get_growth_type()) {
-                    tokens.insert(
-                        PlantGrowthTypeToken::get_key(growth.get_growth_type()).unwrap_or_default(),
-                    );
+                    tokens.insert(RawToken::get_key(growth.get_growth_type()).unwrap_or_default());
                 }
             }
         }

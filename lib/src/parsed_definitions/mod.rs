@@ -1,6 +1,7 @@
 //! These are the parsed results from reading the raw .txt files.
 
 pub mod custom_types;
+mod into_raw_string;
 mod token_parsing;
 pub mod tokens;
 

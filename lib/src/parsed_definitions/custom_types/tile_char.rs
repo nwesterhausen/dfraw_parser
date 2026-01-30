@@ -1,9 +1,12 @@
 //! Custom wrapper for parsing the tile character
 
-use std::str::FromStr;
+use std::{
+    fmt::{Display, Write},
+    str::FromStr,
+};
 
 /// Custom wrapper for the Tile character used in tags
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, specta::Type, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize, specta::Type, Eq)]
 pub struct TileCharacter {
     /// The character used for the tile
     pub value: char,
@@ -58,5 +61,11 @@ impl FromStr for TileCharacter {
             Some(chr) => Ok(Self { value: chr }),
             None => Err(format!("Unable to find valid character: {s}")),
         }
+    }
+}
+
+impl Display for TileCharacter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_char(self.value)
     }
 }

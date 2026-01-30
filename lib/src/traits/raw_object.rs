@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::{
     metadata::{NumericToken, RawMetadata},
     tokens::ObjectType,
-    traits::Cleanable,
+    traits::{Cleanable, ToRawFileString},
 };
 
 #[allow(clippy::module_name_repetitions)]
@@ -16,7 +16,7 @@ use crate::{
 /// The `RawObject` trait is implemented by all raw objects. This trait is used
 /// to provide a common interface for all raw objects, so that they can be
 /// stored in a single vector. It also provides a common interface for parsing.
-pub trait RawObject: RawObjectToAny + Send + Sync + Cleanable {
+pub trait RawObject: RawObjectToAny + ToRawFileString + Send + Sync + Cleanable {
     /// Get the metadata for the raw.
     fn get_metadata(&self) -> RawMetadata;
     /// Get the identifier of the raw.

@@ -3,7 +3,9 @@
 //! e.g. from [`ObjectType::Creature`] to "CREATURE"
 
 mod biome;
+mod caste;
 mod condition;
+mod creature;
 mod creature_effect;
 mod creature_effect_property;
 mod creature_variation;

@@ -1,4 +1,4 @@
-use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType};
+use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType, traits::RawToken};
 use rusqlite::{Connection, Result, Transaction, params};
 use strum::IntoEnumIterator;
 

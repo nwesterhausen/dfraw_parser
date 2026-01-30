@@ -1,13 +1,12 @@
 use crate::raw_definitions::tokens::BIOME_TOKENS;
 use crate::tokens::BiomeToken;
+use crate::traits::RawToken;
 use std::collections::HashMap;
 use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-impl BiomeToken {
-    /// Retrieves the original string token key for this tag (e.g., "MOUNTAIN").
-    /// Uses a cached reverse-lookup map for O(1) performance.
-    pub fn get_key(&self) -> Option<&'static str> {
+impl RawToken for BiomeToken {
+    fn get_key(&self) -> Option<&'static str> {
         // Lazily-initialized static reverse map: Discriminant<BiomeTag> -> &'static str
         static REVERSE_MAP: OnceLock<HashMap<Discriminant<BiomeToken>, &'static str>> =
             OnceLock::new();

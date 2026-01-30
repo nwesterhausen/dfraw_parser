@@ -1,5 +1,6 @@
 use crate::raw_definitions::tokens::CREATURE_EFFECT_PROPERTY_TOKENS;
 use crate::tokens::CreatureEffectPropertyToken;
+use crate::traits::RawToken;
 use std::collections::HashMap;
 use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
@@ -11,11 +12,8 @@ use std::sync::OnceLock;
 /// static `HashMap` keyed by the enum `Discriminant` is populated from the
 /// existing PHF token map and cached in a `OnceLock` for fast subsequent
 /// lookups.
-impl CreatureEffectPropertyToken {
-    /// Returns the original token string for this variant, if available.
-    ///
-    /// Example: `CreatureEffectPropertyTag::Severity.get_key()` -> `Some("SEV")`
-    pub fn get_key(&self) -> Option<&'static str> {
+impl RawToken for CreatureEffectPropertyToken {
+    fn get_key(&self) -> Option<&'static str> {
         static REVERSE_MAP: OnceLock<
             HashMap<Discriminant<CreatureEffectPropertyToken>, &'static str>,
         > = OnceLock::new();

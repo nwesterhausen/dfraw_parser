@@ -1,26 +1,20 @@
-use crate::Creature;
-use crate::raw_definitions::tokens::CREATURE_TOKENS;
-use crate::tokens::CreatureToken;
-use crate::traits::RawObjectToken;
+use crate::raw_definitions::tokens::CREATURE_EFFECT_TOKENS;
+use crate::tokens::CreatureEffectToken;
+use crate::traits::RawToken;
 use std::collections::HashMap;
 use std::mem::{Discriminant, discriminant};
 use std::sync::OnceLock;
 
-#[typetag::serialize]
-impl RawObjectToken<Creature> for CreatureToken {
-    fn is_within(&self, object: &Creature) -> bool {
-        object.get_tags().contains(self)
-    }
-
+impl RawToken for CreatureEffectToken {
     fn get_key(&self) -> Option<&'static str> {
         // Static lazy-initialized reverse map from enum discriminant -> token string
-        static REVERSE_MAP: OnceLock<HashMap<Discriminant<CreatureToken>, &'static str>> =
+        static REVERSE_MAP: OnceLock<HashMap<Discriminant<CreatureEffectToken>, &'static str>> =
             OnceLock::new();
 
         let map = REVERSE_MAP.get_or_init(|| {
             let mut m = HashMap::new();
             // Iterate the existing token map and populate reverse lookup
-            for (key, tag_template) in &CREATURE_TOKENS {
+            for (key, tag_template) in &CREATURE_EFFECT_TOKENS {
                 m.insert(discriminant(tag_template), *key);
             }
             m

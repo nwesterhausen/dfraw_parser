@@ -3,7 +3,7 @@ use chrono::Utc;
 use dfraw_parser::{
     Graphic, ModuleInfo, TilePage,
     tokens::{ConditionToken, ObjectType},
-    traits::RawObject,
+    traits::{RawObject, RawToken},
 };
 use rusqlite::{Connection, Result, Transaction, params};
 use tracing::error;

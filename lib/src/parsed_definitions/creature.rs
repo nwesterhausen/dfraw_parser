@@ -14,8 +14,8 @@ use crate::{
     raw_definitions::{BIOME_TOKENS, CASTE_TOKENS, CREATURE_TOKENS},
     tokens::{BiomeToken, CasteToken, CreatureToken, ObjectType},
     traits::{
-        Cleanable, CreatureVariationRequirements, NumericTokenTransform as _, RawObject,
-        RawObjectToken, TagOperations,
+        Cleanable, CreatureVariationRequirements, NumericTokenTransform as _, RawObject, RawToken,
+        TagOperations,
     },
     utilities::generate_object_id_using_raw_metadata,
 };
@@ -882,14 +882,14 @@ impl RawObject for Creature {
 
         for token in CreatureToken::FLAG_TOKENS {
             if self.has_tag(token) {
-                tokens.insert(CreatureToken::get_key(token).unwrap_or_default());
+                tokens.insert(RawToken::get_key(token).unwrap_or_default());
             }
         }
 
         for caste in &self.castes {
             for token in CasteToken::FLAG_TOKENS {
                 if caste.has_tag(token) {
-                    tokens.insert(CasteToken::get_key(token).unwrap_or_default());
+                    tokens.insert(RawToken::get_key(token).unwrap_or_default());
                 }
             }
         }
