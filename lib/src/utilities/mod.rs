@@ -19,25 +19,8 @@
 //! }
 //! ```
 
-mod biome_tag_lookup;
-mod caste_tag_flags;
-mod caste_tag_numeric_tokens;
-mod condition_tag_lookup;
-mod creature_effect_property_tag_lookup;
-mod creature_effect_tag_lookup;
-mod creature_tag_flags;
-mod creature_tag_numeric_token;
-mod creature_variation_tag_lookup;
-mod entity_tag_lookup;
 mod file_operations;
 mod object_id;
-mod object_type_lookup;
-mod plant_growth_tag_lookup;
-mod plant_growth_type_tag_flags;
-mod plant_growth_type_tag_lookup;
-mod plant_part_tag_lookup;
-mod plant_tag_flags;
-mod plant_tag_lookup;
 mod searchable;
 mod steam_directory_lookup;
 mod user_directory_lookup;

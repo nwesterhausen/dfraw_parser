@@ -19,7 +19,17 @@ use crate::traits::IsEmpty;
 /// Raws are part of modules since 50.xx. Raw modules are loaded from 3 common locations:
 /// `{df_directory}/data/vanilla`, `{df_directory}/mods`, and `{df_directory/data/installed_mods}`
 #[derive(
-    Serialize, Debug, Deserialize, Clone, Copy, PartialEq, Eq, Default, Hash, specta::Type,
+    Serialize,
+    Debug,
+    Deserialize,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Default,
+    Hash,
+    specta::Type,
+    strum_macros::EnumIter,
 )]
 pub enum RawModuleLocation {
     /// The "installed" mods directory
@@ -30,9 +40,9 @@ pub enum RawModuleLocation {
     Vanilla = 1,
     /// An unknown location
     #[default]
-    Unknown = 4,
+    Unknown = 99,
     /// Used for handling legends exported files
-    LegendsExport,
+    LegendsExport = 4,
 }
 
 impl RawModuleLocation {
@@ -88,23 +98,13 @@ impl Display for RawModuleLocation {
 
 impl From<RawModuleLocation> for u32 {
     fn from(value: RawModuleLocation) -> Self {
-        match value {
-            RawModuleLocation::InstalledMods => 3,
-            RawModuleLocation::WorkshopMods => 2,
-            RawModuleLocation::Vanilla => 1,
-            RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
-        }
+        value as u32
     }
 }
 
 impl From<&RawModuleLocation> for u32 {
     fn from(value: &RawModuleLocation) -> Self {
-        match *value {
-            RawModuleLocation::InstalledMods => 3,
-            RawModuleLocation::WorkshopMods => 2,
-            RawModuleLocation::Vanilla => 1,
-            RawModuleLocation::Unknown | RawModuleLocation::LegendsExport => 4,
-        }
+        u32::from(*value)
     }
 }
 
