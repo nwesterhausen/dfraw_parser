@@ -483,8 +483,8 @@ struct PendingName {
 struct PendingSprite {
     raw_id: i64,
     tile_page_id: String,
-    offset: (i64, i64),
-    offset2: Option<(i64, i64)>,
+    offset: (i32, i32),
+    offset2: Option<(i32, i32)>,
     primary_cond: String,
     secondary_cond: Option<String>,
     target_id: String,

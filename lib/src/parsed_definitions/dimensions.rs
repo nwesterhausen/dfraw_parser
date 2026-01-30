@@ -18,9 +18,9 @@ use tracing::{error, warn};
 )]
 pub struct Dimensions {
     /// The x coordinate
-    pub x: i64,
+    pub x: i32,
     /// The y coordinate
-    pub y: i64,
+    pub y: i32,
 }
 
 #[allow(dead_code)] // Until we add graphics parsing
@@ -91,14 +91,14 @@ impl Dimensions {
     ///
     /// If it fails to parse a token, returns `0` for that value.
     pub fn from_two_tokens(dim_x: &&str, dim_y: &&str) -> Self {
-        let x: i64 = match dim_x.parse() {
+        let x: i32 = match dim_x.parse() {
             Ok(n) => n,
             Err(e) => {
                 warn!("Failed to parse dim_x: {e}");
                 0
             }
         };
-        let y: i64 = match dim_y.parse() {
+        let y: i32 = match dim_y.parse() {
             Ok(n) => n,
             Err(e) => {
                 warn!("Failed to parse dim_y: {e}");
@@ -147,16 +147,16 @@ impl Dimensions {
 }
 
 #[allow(clippy::from_over_into)]
-impl Into<(i64, i64)> for Dimensions {
-    fn into(self) -> (i64, i64) {
+impl Into<(i32, i32)> for Dimensions {
+    fn into(self) -> (i32, i32) {
         (self.x, self.y)
     }
 }
 
 impl<T, U> From<(T, U)> for Dimensions
 where
-    T: TryInto<i64>,
-    U: TryInto<i64>,
+    T: TryInto<i32>,
+    U: TryInto<i32>,
     T::Error: std::fmt::Display,
     U::Error: std::fmt::Display,
 {

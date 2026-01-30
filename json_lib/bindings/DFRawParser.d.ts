@@ -5894,11 +5894,11 @@ export type Dimensions = {
 /**
  * The x coordinate
  */
-x: string; 
+x: number; 
 /**
  * The y coordinate
  */
-y: string }
+y: number }
 
 /**
  * A struct representing an Entity object.
