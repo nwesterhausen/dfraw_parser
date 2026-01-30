@@ -152,11 +152,8 @@ pub fn insert_module_and_data(
     data: &[&dyn RawObject],
 ) -> Result<()> {
     let module_db_id = insert_module(conn, overwrite_raws, module)?;
-    let tx = conn.transaction()?;
 
-    super::process_raw_insertions(&tx, module_db_id, module, data, overwrite_raws)?;
-
-    tx.commit()
+    super::process_raw_insertions(conn, module_db_id, module, data, overwrite_raws)
 }
 
 /// Insert a module with its supporting data, returning its id in the database.
@@ -241,6 +238,30 @@ pub fn insert_module_dependencies(
             dep_stmt.execute(params![module_db_id, id, 4])?;
         }
     }
+
+    Ok(())
+}
+
+/// Clear the side tables (search indices and lookup tables) for a given raw id.
+///
+/// The other relations are not touched (and rely on the cascade delete); e.g. tiles or sprites.
+///
+/// # Errors
+///
+/// - database errors
+pub fn clear_side_tables_for_module_id(conn: &Connection, id: i64) -> Result<()> {
+    const DELETE_COMMON_FLAGS_FOR_ID: &str = "DELETE FROM common_raw_flags WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1)";
+    const DELETE_COMMON_NUMERIC_FLAGS_FOR_ID: &str = "DELETE FROM common_raw_flags_with_numeric_value WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1)";
+    const DELETE_SEARCH_IDX_FOR_ID: &str = "DELETE FROM raw_search_index WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1)";
+    const DELETE_NAME_SEARCH_IDX_FOR_ID: &str = "DELETE FROM raw_names WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1)";
+
+    // Clear side tables (CASCADE handles tile_pages, sprite_graphics, raw_names, flags; in this
+    // case we explicitly remove the raw_names and flags in order to allow them to be updated if
+    // needed)
+    conn.execute(DELETE_COMMON_FLAGS_FOR_ID, params![id])?;
+    conn.execute(DELETE_COMMON_NUMERIC_FLAGS_FOR_ID, params![id])?;
+    conn.execute(DELETE_SEARCH_IDX_FOR_ID, params![id])?;
+    conn.execute(DELETE_NAME_SEARCH_IDX_FOR_ID, params![id])?;
 
     Ok(())
 }

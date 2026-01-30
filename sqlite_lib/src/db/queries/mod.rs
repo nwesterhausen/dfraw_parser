@@ -6,6 +6,7 @@ mod process_raw_insertions;
 mod raw_definitions;
 mod search_raw_definitions;
 mod sprite_graphics;
+pub(super) mod table_inserts;
 mod tile_pages;
 
 pub(super) use get_set_db_metadata::*;

@@ -2,43 +2,6 @@ use rusqlite::{Connection, Result, params};
 
 use crate::models::SpriteGraphicData;
 
-const GET_SPRITE_GRAPHIC_BY_ID: &str = r"
-SELECT
-    id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
-FROM sprite_graphics
-WHERE
-    id = ?1;
-";
-const GET_SPRITE_GRAPHIC_BY_RAW_ID: &str = r"
-SELECT
-    id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
-FROM sprite_graphics
-WHERE
-    raw_id = ?1;
-";
-const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER: &str = r"
-SELECT
-    id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
-FROM sprite_graphics
-WHERE
-    target_identifier = ?1;
-";
-const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_CASTE: &str = r"
-SELECT
-    id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
-FROM sprite_graphics
-WHERE
-    target_identifier = ?1;
-";
-const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_ANY_CASTES: &str = r"
-SELECT
-    id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
-FROM sprite_graphics
-WHERE
-    target_identifier = ?1
- OR target_identifier LIKE ?2;
-";
-
 /// Get a sprite graphic by its id
 ///
 /// # Errors
@@ -46,6 +9,14 @@ WHERE
 /// - database error
 /// - no sprite graphic with given `id`
 pub fn get_sprite_graphic_by_id(conn: &Connection, id: i64) -> Result<SpriteGraphicData> {
+    const GET_SPRITE_GRAPHIC_BY_ID: &str = r"
+    SELECT
+        id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+    FROM sprite_graphics
+    WHERE
+        id = ?1;
+    ";
+
     conn.query_row(GET_SPRITE_GRAPHIC_BY_ID, params![id], |row| {
         Ok(SpriteGraphicData {
             id: row.get(0)?,
@@ -69,6 +40,14 @@ pub fn get_sprite_graphic_by_id(conn: &Connection, id: i64) -> Result<SpriteGrap
 /// - database error
 /// - no sprite graphic with given `raw_id`
 pub fn get_sprite_graphic_by_raw_id(conn: &Connection, raw_id: i64) -> Result<SpriteGraphicData> {
+    const GET_SPRITE_GRAPHIC_BY_RAW_ID: &str = r"
+    SELECT
+        id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+    FROM sprite_graphics
+    WHERE
+        raw_id = ?1;
+    ";
+
     conn.query_row(GET_SPRITE_GRAPHIC_BY_RAW_ID, params![raw_id], |row| {
         Ok(SpriteGraphicData {
             id: row.get(0)?,
@@ -95,6 +74,14 @@ pub fn get_sprite_graphics_for_target_identifier(
     conn: &Connection,
     target_identifier: &str,
 ) -> Result<Vec<SpriteGraphicData>> {
+    const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER: &str = r"
+    SELECT
+        id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+    FROM sprite_graphics
+    WHERE
+        target_identifier = ?1;
+    ";
+
     let mut stmt = conn.prepare(GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER)?;
     let mut rows = stmt.query(params![target_identifier])?;
     let mut sprites = Vec::new();
@@ -128,6 +115,14 @@ pub fn get_sprite_graphics_for_target_identifier_and_caste(
     target_identifier: &str,
     target_caste: &str,
 ) -> Result<Vec<SpriteGraphicData>> {
+    const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_CASTE: &str = r"
+    SELECT
+        id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+    FROM sprite_graphics
+    WHERE
+        target_identifier = ?1;
+    ";
+
     let mut stmt = conn.prepare(GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_CASTE)?;
     let mut rows = stmt.query(params![format!("{target_identifier}:{target_caste}")])?;
     let mut sprites = Vec::new();
@@ -160,6 +155,15 @@ pub fn get_sprite_graphics_for_target_identifier_and_any_castes(
     conn: &Connection,
     target_identifier: &str,
 ) -> Result<Vec<SpriteGraphicData>> {
+    const GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_ANY_CASTES: &str = r"
+    SELECT
+        id, raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier
+    FROM sprite_graphics
+    WHERE
+        target_identifier = ?1
+     OR target_identifier LIKE ?2;
+    ";
+
     let mut stmt = conn.prepare(GET_SPRITE_GRAPHICS_FOR_TARGET_IDENTIFIER_AND_ANY_CASTES)?;
     let caste_pattern = format!("{target_identifier}:%");
     let mut rows = stmt.query(params![target_identifier, caste_pattern])?;

@@ -5,24 +5,55 @@ use dfraw_parser::{
     tokens::{ConditionToken, ObjectType},
     traits::RawObject,
 };
-use rusqlite::{Result, Transaction, params};
+use rusqlite::{Connection, Result, Transaction, params};
 use tracing::error;
 
-use crate::search_helpers::{extract_names_and_descriptions, remove_dup_strings};
+use crate::{
+    db::queries,
+    search_helpers::{extract_names_and_descriptions, remove_dup_strings},
+};
+
+use super::table_inserts::{
+    INSERT_COMMON_FLAG, INSERT_LARGE_SPRITE_GRAPHIC, INSERT_LOOKUP_NAME, INSERT_NUMERIC_FLAG,
+    INSERT_RAW_DEFINITION_NO_UPDATE_RETURN_ID, INSERT_RAW_DEFINITION_WITH_UPDATE_RETURN_ID,
+    INSERT_SEARCH_INDEX, INSERT_SPRITE_GRAPHIC, INSERT_TILE_PAGE,
+};
 
 /// Inserts a batch of raws using prepared statements for efficiency.
 ///
 /// # Errors
 ///
 /// - Database error (will not commit transaction if error)
-#[allow(clippy::too_many_lines)]
 pub fn process_raw_insertions(
+    conn: &mut Connection,
+    module_db_id: i64,
+    info: &ModuleInfo,
+    raws: &[&dyn RawObject],
+    overwrite_raws: bool,
+) -> Result<()> {
+    // Clear out existing names/flags if overwrite is true
+    if overwrite_raws {
+        queries::clear_side_tables_for_module_id(conn, module_db_id)?;
+    }
+
+    // Setup transaction
+    let tx = conn.transaction()?;
+    // The inner process scopes tx so the compiler can relax
+    process_raw_insertions_inner(&tx, module_db_id, info, raws, overwrite_raws)?;
+
+    tx.commit()
+}
+
+#[allow(clippy::too_many_lines)]
+fn process_raw_insertions_inner(
     tx: &Transaction,
     module_db_id: i64,
     info: &ModuleInfo,
     raws: &[&dyn RawObject],
     overwrite_raws: bool,
 ) -> Result<()> {
+    // error counter for serialization failure limit
+    // after 5 raws fail to serialize we quit
     let mut error_count = 0;
     // batching of expensive or extremely-numerous operations
     let mut pending_search_batch = Vec::new();
@@ -30,83 +61,23 @@ pub fn process_raw_insertions(
     let mut pending_flags_batch = Vec::new();
     let mut pending_numeric_flags_batch = Vec::new();
     let mut pending_names_batch = Vec::new();
-
     // Insert new raw data
     // Choose the statement based on the overwrite preference
     let mut upsert_stmt = if overwrite_raws {
         // UPSERT: Insert or update and always return the ID
-        tx.prepare_cached(
-            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob, object_id)
-                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4), ?5)
-                 ON CONFLICT(module_id, identifier) DO UPDATE SET
-                    data_blob = excluded.data_blob,
-                    object_id = excluded.object_id
-                 RETURNING id",
-        )?
+        tx.prepare_cached(INSERT_RAW_DEFINITION_WITH_UPDATE_RETURN_ID)?
     } else {
         // INSERT OR IGNORE: Only insert if new; RETURNING id will be empty on conflict
-        tx.prepare_cached(
-            "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob, object_id)
-                 VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4), ?5)
-                 ON CONFLICT(module_id, identifier) DO NOTHING
-                 RETURNING id",
-        )?
+        tx.prepare_cached(INSERT_RAW_DEFINITION_NO_UPDATE_RETURN_ID)?
     };
 
-    // Clear out existing names/flags entries for this module
-    let mut delete_existing_flag_relations_stmt = tx.prepare_cached(
-        "DELETE FROM common_raw_flags
-        WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1);",
-    )?;
-    let mut delete_existing_name_relations_stmt = tx.prepare_cached(
-        "DELETE FROM raw_names
-        WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1);",
-    )?;
-
-    // Search by name
-    let mut insert_name_stmt =
-        tx.prepare_cached("INSERT INTO raw_names (raw_id, name) VALUES (?1, ?2)")?;
-    // Search by flag
-    let mut insert_flag_stmt =
-        tx.prepare_cached("INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)")?;
-
-    // Search descriptions/details about raw
-    let mut upsert_search_stmt = tx.prepare_cached(
-        "INSERT OR REPLACE INTO raw_search_index (raw_id, names, description)
-        VALUES (?1, ?2, ?3);",
-    )?;
-
-    // Special case for graphics for ease of retrieval.
-    let mut insert_tile_page_stmt = tx.prepare_cached(
-        "INSERT INTO tile_pages
-            (raw_id, identifier, file_path, tile_width, tile_height, page_width, page_height)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-    )?;
-
-    // Regular sprite
-    let mut insert_sprite_graphic_stmt = tx.prepare_cached(
-        "INSERT INTO sprite_graphics
-        (raw_id, tile_page_identifier, offset_x, offset_y, primary_condition, secondary_condition, target_identifier)
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-    )?;
-
-    // Large sprites
-    let mut insert_large_sprite_graphic_stmt = tx.prepare_cached(
-        "INSERT INTO sprite_graphics
-        (raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier)
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
-    )?;
-
-    //  Numeric flags
-    let mut insert_numeric_flag_stmt = tx.prepare_cached(
-            "INSERT INTO common_raw_flags_with_numeric_value (raw_id, token_name, value) VALUES (?1, ?2, ?3)"
-        )?;
-
-    // Delete numeric flags
-    let mut delete_existing_numeric_flag_relations_stmt = tx.prepare_cached(
-        "DELETE FROM common_raw_flags_with_numeric_value
-            WHERE raw_id IN (SELECT id FROM raw_definitions WHERE module_id = ?1);",
-    )?;
+    let mut insert_name_stmt = tx.prepare_cached(INSERT_LOOKUP_NAME)?;
+    let mut insert_flag_stmt = tx.prepare_cached(INSERT_COMMON_FLAG)?;
+    let mut upsert_search_stmt = tx.prepare_cached(INSERT_SEARCH_INDEX)?;
+    let mut insert_tile_page_stmt = tx.prepare_cached(INSERT_TILE_PAGE)?;
+    let mut insert_sprite_graphic_stmt = tx.prepare_cached(INSERT_SPRITE_GRAPHIC)?;
+    let mut insert_large_sprite_graphic_stmt = tx.prepare_cached(INSERT_LARGE_SPRITE_GRAPHIC)?;
+    let mut insert_numeric_flag_stmt = tx.prepare_cached(INSERT_NUMERIC_FLAG)?;
 
     #[cfg(debug_assertions)]
     let mut total_serialization_time = chrono::TimeDelta::zero();
@@ -116,31 +87,6 @@ pub fn process_raw_insertions(
     let mut total_search_index_time = chrono::TimeDelta::zero();
     #[cfg(debug_assertions)]
     let mut total_graphic_time = chrono::TimeDelta::zero();
-
-    // Clear out existing names/flags if overwrite is true
-    if overwrite_raws {
-        delete_existing_flag_relations_stmt
-            .execute(params![module_db_id])
-            .inspect_err(|e| {
-                tracing::error!(
-                    "Failed clearing existing flag relations for module:{module_db_id}: {e}",
-                );
-            })?;
-        delete_existing_numeric_flag_relations_stmt
-            .execute(params![module_db_id])
-            .inspect_err(|e| {
-                tracing::error!(
-                    "Failed clearing existing flag relations for module:{module_db_id}: {e}",
-                );
-            })?;
-        delete_existing_name_relations_stmt
-            .execute(params![module_db_id])
-            .inspect_err(|e| {
-                tracing::error!(
-                    "Failed clearing existing flag relations for module:{module_db_id}: {e}",
-                );
-            })?;
-    }
 
     for raw in raws {
         // Trace serialization
@@ -283,8 +229,10 @@ pub fn process_raw_insertions(
                                 primary_cond: ConditionToken::get_key(&s.get_primary_condition())
                                     .unwrap_or_default()
                                     .to_string(),
-                                secondary_cond: ConditionToken::get_key(&s.get_secondary_condition())
-                                    .map(String::from),
+                                secondary_cond: ConditionToken::get_key(
+                                    &s.get_secondary_condition(),
+                                )
+                                .map(String::from),
                                 target_id: g.get_identifier().to_string(),
                             });
                         } else {
@@ -296,8 +244,10 @@ pub fn process_raw_insertions(
                                 primary_cond: ConditionToken::get_key(&s.get_primary_condition())
                                     .unwrap_or_default()
                                     .to_string(),
-                                secondary_cond: ConditionToken::get_key(&s.get_secondary_condition())
-                                    .map(String::from),
+                                secondary_cond: ConditionToken::get_key(
+                                    &s.get_secondary_condition(),
+                                )
+                                .map(String::from),
                                 target_id: g.get_identifier().to_string(),
                             });
                         }

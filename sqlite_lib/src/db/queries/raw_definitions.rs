@@ -5,6 +5,11 @@ use uuid::Uuid;
 use crate::db::queries::get_id_for_module_location;
 
 use super::super::rusqlite_extensions::OptionalResultExtension;
+use super::table_inserts::{
+    INSERT_COMMON_FLAG, INSERT_LARGE_SPRITE_GRAPHIC, INSERT_LOOKUP_NAME,
+    INSERT_RAW_DEFINITION_NO_UPDATE_RETURN_ID, INSERT_SEARCH_INDEX, INSERT_SPRITE_GRAPHIC,
+    INSERT_TILE_PAGE,
+};
 
 /// Returns true if the raw exists in the database.
 ///
@@ -74,12 +79,16 @@ pub fn try_get_raw_id_by_identifier_and_module_object_id(
     identifier: &str,
     module_object_id: Uuid,
 ) -> Result<Option<i64>> {
+    const GET_RAW_ID_BY_RAW_IDENTIFIER_AND_MODULE_OBJECT_ID: &str = r"
+        SELECT r.id FROM raw_definitions r
+             JOIN  modules m ON r.module_id = m.id
+            WHERE  r.identifier = ?1
+             AND   m.object_id = ?2
+            LIMIT  1
+    ";
+
     conn.query_row(
-        "SELECT r.id FROM raw_definitions r
-              JOIN  modules m ON r.module_id = m.id
-             WHERE  r.identifier = ?1
-               AND  m.object_id = ?2
-             LIMIT  1",
+        GET_RAW_ID_BY_RAW_IDENTIFIER_AND_MODULE_OBJECT_ID,
         params![identifier, module_object_id.as_bytes(),],
         |row| row.get(0),
     )
@@ -100,12 +109,16 @@ pub fn try_get_raw_id_by_identifier_and_module_id(
     identifier: &str,
     module_id: i64,
 ) -> Result<Option<i64>> {
+    const GET_RAW_ID_BY_RAW_IDENTIFIER_AND_MODULE_ID: &str = r"
+    SELECT r.id FROM raw_definitions r
+         JOIN  modules m ON r.module_id = m.id
+        WHERE  r.identifier = ?1
+         AND   m.id = ?2
+        LIMIT  1
+    ";
+
     conn.query_row(
-        "SELECT r.id FROM raw_definitions r
-              JOIN  modules m ON r.module_id = m.id
-             WHERE  r.identifier = ?1
-               AND  m.id = ?2
-             LIMIT  1",
+        GET_RAW_ID_BY_RAW_IDENTIFIER_AND_MODULE_ID,
         params![identifier, module_id],
         |row| row.get(0),
     )
@@ -123,6 +136,16 @@ pub fn try_get_raw_id_by_identifier_and_module_id(
 /// - database error
 #[allow(clippy::borrowed_box)]
 pub fn try_get_raw_id(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<Option<i64>> {
+    const GET_RAW_ID_BY_IDENTIFIER_AND_MODULE_METADATA: &str = r"
+        SELECT r.id FROM raw_definitions r
+             JOIN modules m ON r.module_id = m.id
+            WHERE r.identifier = ?1
+             AND  m.identifier = ?2
+             AND  m.version = ?3
+             AND  m.module_location_id = ?4
+            LIMIT 1
+     ";
+
     if raw.get_object_id() != Uuid::nil() {
         try_get_raw_id_by_object_id(conn, raw.get_object_id())
     } else if raw.get_module_object_id() != Uuid::nil() {
@@ -136,13 +159,7 @@ pub fn try_get_raw_id(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<Opt
         // Fallback, search for raw by the identifier and module details
         let module_location_id = get_id_for_module_location(conn, meta.get_location())?;
         conn.query_row(
-            "SELECT r.id FROM raw_definitions r
-             JOIN modules m ON r.module_id = m.id
-             WHERE r.identifier = ?1
-               AND m.identifier = ?2
-               AND m.version = ?3
-               AND m.module_location_id = ?4
-             LIMIT 1",
+            GET_RAW_ID_BY_IDENTIFIER_AND_MODULE_METADATA,
             params![
                 raw.get_identifier(),
                 meta.get_module_name(),
@@ -190,11 +207,9 @@ pub fn upsert_raw_definition(conn: &Connection, raw: &Box<dyn RawObject>) -> Res
 ///
 /// - database error
 pub fn get_raw_definition(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
-    let json_str: String = conn.query_row(
-        "SELECT json(data_blob) FROM raw_definitions WHERE id = ?1",
-        params![id],
-        |row| row.get(0),
-    )?;
+    const GET_JSON_RAW_BY_ID: &str = "SELECT json(data_blob) FROM raw_definitions WHERE id = ?1";
+
+    let json_str: String = conn.query_row(GET_JSON_RAW_BY_ID, params![id], |row| row.get(0))?;
     serde_json::from_str(&json_str).map_err(|_| rusqlite::Error::InvalidQuery)
 }
 
@@ -205,13 +220,13 @@ pub fn get_raw_definition(conn: &Connection, id: i64) -> Result<Box<dyn RawObjec
 /// - database error
 #[allow(clippy::borrowed_box)]
 pub fn update_raw_definition(conn: &Connection, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
+    const UPDATE_RAW_JSONB_BY_ID: &str =
+        "UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2";
+
     let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
 
-    conn.execute(
-        "UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2",
-        params![json_payload, id],
-    )?;
-    clear_side_tables(conn, id)?;
+    conn.execute(UPDATE_RAW_JSONB_BY_ID, params![json_payload, id])?;
+    clear_side_tables_for_raw_id(conn, id)?;
 
     populate_side_tables(conn, id, raw)?;
     Ok(())
@@ -224,7 +239,7 @@ pub fn update_raw_definition(conn: &Connection, id: i64, raw: &Box<dyn RawObject
 /// # Errors
 ///
 /// - database errors
-fn clear_side_tables(conn: &Connection, id: i64) -> Result<()> {
+pub fn clear_side_tables_for_raw_id(conn: &Connection, id: i64) -> Result<()> {
     const DELETE_COMMON_FLAGS_FOR_ID: &str = "DELETE FROM common_raw_flags WHERE raw_id = ?1";
     const DELETE_COMMON_NUMERIC_FLAGS_FOR_ID: &str =
         "DELETE FROM common_raw_flags_with_numeric_value WHERE raw_id = ?1";
@@ -248,8 +263,10 @@ fn clear_side_tables(conn: &Connection, id: i64) -> Result<()> {
 ///
 /// - database error
 pub fn delete_raw_definition(conn: &Connection, id: i64) -> Result<()> {
-    clear_side_tables(conn, id)?;
-    conn.execute("DELETE FROM raw_definitions WHERE id = ?1", params![id])?;
+    const DELETE_RAW_BY_ID: &str = "DELETE FROM raw_definitions WHERE id = ?1";
+
+    clear_side_tables_for_raw_id(conn, id)?;
+    conn.execute(DELETE_RAW_BY_ID, params![id])?;
     Ok(())
 }
 
@@ -260,10 +277,12 @@ pub fn delete_raw_definition(conn: &Connection, id: i64) -> Result<()> {
 /// - database error
 #[allow(clippy::borrowed_box)]
 pub fn get_module_id_from_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
+    const GET_MODULE_ID_FOR_RAW_BY_ID: &str = "SELECT id FROM modules WHERE object_id = ?1 LIMIT 1";
+
     let meta = raw.get_metadata();
 
     conn.query_row(
-        "SELECT id FROM modules WHERE object_id = ?1 LIMIT 1",
+        GET_MODULE_ID_FOR_RAW_BY_ID,
         params![meta.get_module_object_id().as_bytes()],
         |row| row.get(0),
     )
@@ -280,17 +299,10 @@ pub fn create_raw_definition_with_module(
     module_id: i64,
     raw: &Box<dyn RawObject>,
 ) -> Result<i64> {
-    const INSERT_RAW_WITH_MODULE_DATA: &str = r"
-    INSERT INTO raw_definitions
-           (raw_type_id, identifier, module_id, data_blob, object_id)
-    VALUES
-           (?1, ?2, ?3, jsonb(?4), ?5);
-    ";
-
     let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
 
-    conn.execute(
-        INSERT_RAW_WITH_MODULE_DATA,
+    let raw_id: i64 = conn.query_row(
+        INSERT_RAW_DEFINITION_NO_UPDATE_RETURN_ID,
         params![
             u32::from(raw.get_type()),
             raw.get_identifier(),
@@ -298,9 +310,9 @@ pub fn create_raw_definition_with_module(
             json_payload,
             raw.get_object_id().as_bytes()
         ],
+        |row| row.get(0),
     )?;
 
-    let raw_id = conn.last_insert_rowid();
     populate_side_tables(conn, raw_id, raw)?;
     Ok(raw_id)
 }
@@ -311,10 +323,7 @@ pub fn create_raw_definition_with_module(
 fn populate_side_tables(conn: &Connection, raw_id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
     // Flags
     for flag in raw.get_searchable_tokens() {
-        conn.execute(
-            "INSERT INTO common_raw_flags (raw_id, token_name) VALUES (?1, ?2)",
-            params![raw_id, flag],
-        )?;
+        conn.execute(INSERT_COMMON_FLAG, params![raw_id, flag])?;
     }
 
     let mut search_names = Vec::<&str>::new();
@@ -332,9 +341,17 @@ fn populate_side_tables(conn: &Connection, raw_id: i64, raw: &Box<dyn RawObject>
                 let tile_dimensions = tp.get_tile_dimensions();
                 let page_dimensions = tp.get_page_dimensions();
                 conn.execute(
-                "INSERT INTO tile_pages (raw_id, identifier, file_path, tile_width, tile_height, page_width, page_height) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-                params![raw_id, tp.get_identifier(), tp.get_file_path().to_str(), tile_dimensions.x, tile_dimensions.y, page_dimensions.x, page_dimensions.y]
-            )?;
+                    INSERT_TILE_PAGE,
+                    params![
+                        raw_id,
+                        tp.get_identifier(),
+                        tp.get_file_path().to_str(),
+                        tile_dimensions.x,
+                        tile_dimensions.y,
+                        page_dimensions.x,
+                        page_dimensions.y
+                    ],
+                )?;
             }
         }
         ObjectType::Graphics => {
@@ -343,14 +360,32 @@ fn populate_side_tables(conn: &Connection, raw_id: i64, raw: &Box<dyn RawObject>
                     let s_offset = s.get_offset();
                     if let Some(s_offset_2) = s.get_offset2() {
                         conn.execute(
-                        "INSERT INTO sprite_graphics (raw_id, tile_page_identifier, offset_x, offset_y, offset_x_2, offset_y_2, primary_condition, secondary_condition, target_identifier) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
-                        params![raw_id, s.get_tile_page_id(), s_offset.x, s_offset.y, s_offset_2.x, s_offset_2.y, &s.get_primary_condition().to_string(), g.get_identifier()]
-                    )?;
+                            INSERT_LARGE_SPRITE_GRAPHIC,
+                            params![
+                                raw_id,
+                                s.get_tile_page_id(),
+                                s_offset.x,
+                                s_offset.y,
+                                s_offset_2.x,
+                                s_offset_2.y,
+                                &s.get_primary_condition().to_string(),
+                                &s.get_secondary_condition().to_string(),
+                                g.get_identifier()
+                            ],
+                        )?;
                     } else {
                         conn.execute(
-                    "INSERT INTO sprite_graphics (raw_id, tile_page_identifier, offset_x, offset_y, primary_condition, secondary_condition, target_identifier) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-                    params![raw_id, s.get_tile_page_id(), s_offset.x, s_offset.y, &s.get_primary_condition().to_string(), g.get_identifier()]
-                )?;
+                            INSERT_SPRITE_GRAPHIC,
+                            params![
+                                raw_id,
+                                s.get_tile_page_id(),
+                                s_offset.x,
+                                s_offset.y,
+                                &s.get_primary_condition().to_string(),
+                                &s.get_secondary_condition().to_string(),
+                                g.get_identifier()
+                            ],
+                        )?;
                     }
                 }
             }
@@ -359,14 +394,11 @@ fn populate_side_tables(conn: &Connection, raw_id: i64, raw: &Box<dyn RawObject>
     }
 
     for n in &search_names {
-        conn.execute(
-            "INSERT INTO raw_names (raw_id, name) VALUES (?1, ?2)",
-            params![raw_id, n],
-        )?;
+        conn.execute(INSERT_LOOKUP_NAME, params![raw_id, n])?;
     }
 
     conn.execute(
-        "INSERT INTO raw_search_index (raw_id, names, description) VALUES (?1, ?2, ?3)",
+        INSERT_SEARCH_INDEX,
         params![
             raw_id,
             search_names.join(" "),
