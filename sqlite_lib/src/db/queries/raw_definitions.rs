@@ -8,8 +8,10 @@ use super::super::rusqlite_extensions::OptionalResultExtension;
 
 /// Returns true if the raw exists in the database.
 ///
-/// Searches for a match based on the raw identifier and its metadata: location,
-/// module name and module version.
+/// Searches for a match based on the raw identifier and its metadata.
+///
+/// First tries using the raw's `object_id`, then the identifier and stored `module_object_id`
+/// in its metadata, and finally using identifier, location, module name and module version.
 ///
 /// # Errors
 ///
@@ -20,6 +22,94 @@ pub fn exists_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<bool> {
         Ok(res) => Ok(res.is_some()),
         Err(e) => Err(e),
     }
+}
+
+/// Returns true if the raw exists in the database, searching by identifier in a specific module.
+///
+/// # Errors
+///
+/// - database error
+pub fn exists_raw_in_module_by_object_id(
+    conn: &Connection,
+    identifier: &str,
+    module_object_id: Uuid,
+) -> Result<bool> {
+    match try_get_raw_id_by_identifier_and_module_object_id(conn, identifier, module_object_id) {
+        Ok(res) => Ok(res.is_some()),
+        Err(e) => Err(e),
+    }
+}
+
+/// Attempts to find the database ID for a specific raw searching by the raw `object_id`.
+///
+/// Returns `Ok(Some(id))` if it exists, or `Ok(None)` if it does not.
+/// This is useful for checking existence and obtaining the key for updates
+/// in a single operation.
+///
+/// # Errors
+///
+/// - database error
+pub fn try_get_raw_id_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Option<i64>> {
+    conn.query_row(
+        "SELECT r.id FROM raw_definitions r
+             WHERE r.object_id = ?1
+             LIMIT 1",
+        params![object_id.as_bytes()],
+        |row| row.get(0),
+    )
+    .optional()
+}
+
+/// Attempts to find the database ID for a specific raw, searching by identifier and module `object_id`
+///
+/// Returns `Ok(Some(id))` if it exists, or `Ok(None)` if it does not.
+/// This is useful for checking existence and obtaining the key for updates
+/// in a single operation.
+///
+/// # Errors
+///
+/// - database error
+pub fn try_get_raw_id_by_identifier_and_module_object_id(
+    conn: &Connection,
+    identifier: &str,
+    module_object_id: Uuid,
+) -> Result<Option<i64>> {
+    conn.query_row(
+        "SELECT r.id FROM raw_definitions r
+              JOIN  modules m ON r.module_id = m.id
+             WHERE  r.identifier = ?1
+               AND  m.object_id = ?2
+             LIMIT  1",
+        params![identifier, module_object_id.as_bytes(),],
+        |row| row.get(0),
+    )
+    .optional()
+}
+
+/// Attempts to find the database ID for a specific raw, searching by identifier and module `id`
+///
+/// Returns `Ok(Some(id))` if it exists, or `Ok(None)` if it does not.
+/// This is useful for checking existence and obtaining the key for updates
+/// in a single operation.
+///
+/// # Errors
+///
+/// - database error
+pub fn try_get_raw_id_by_identifier_and_module_id(
+    conn: &Connection,
+    identifier: &str,
+    module_id: i64,
+) -> Result<Option<i64>> {
+    conn.query_row(
+        "SELECT r.id FROM raw_definitions r
+              JOIN  modules m ON r.module_id = m.id
+             WHERE  r.identifier = ?1
+               AND  m.id = ?2
+             LIMIT  1",
+        params![identifier, module_id],
+        |row| row.get(0),
+    )
+    .optional()
 }
 
 /// Attempts to find the database ID for a specific raw definition.
@@ -34,54 +124,35 @@ pub fn exists_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<bool> {
 #[allow(clippy::borrowed_box)]
 pub fn try_get_raw_id(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<Option<i64>> {
     if raw.get_object_id() != Uuid::nil() {
-        return conn
-            .query_row(
-                "SELECT r.id FROM raw_definitions r
-                 WHERE r.object_id = ?1
-                 LIMIT 1",
-                params![raw.get_object_id().as_bytes(),],
-                |row| row.get(0),
-            )
-            .optional();
-    }
-
-    let meta = raw.get_metadata();
-
-    // Check if we were given "empty" metadata or populated. Search by module object_id if it exists
-    if meta.get_module_object_id() != Uuid::nil() {
-        return conn
-            .query_row(
-                "SELECT r.id FROM raw_definitions r
-                  JOIN  modules m ON r.module_id = m.id
-                 WHERE  r.identifier = ?1
-                   AND  m.object_id = ?2
-                 LIMIT  1",
-                params![raw.get_identifier(), meta.get_module_object_id().as_bytes(),],
-                |row| row.get(0),
-            )
-            .optional();
-    }
-
-    // Fallback, search for raw by the identifier and module details
-    let module_location_id = get_id_for_module_location(conn, meta.get_location())?;
-
-    conn.query_row(
-        "SELECT r.id FROM raw_definitions r
-         JOIN modules m ON r.module_id = m.id
-         WHERE r.identifier = ?1
-           AND m.identifier = ?2
-           AND m.version = ?3
-           AND m.module_location_id = ?4
-         LIMIT 1",
-        params![
+        try_get_raw_id_by_object_id(conn, raw.get_object_id())
+    } else if raw.get_module_object_id() != Uuid::nil() {
+        try_get_raw_id_by_identifier_and_module_object_id(
+            conn,
             raw.get_identifier(),
-            meta.get_module_name(),
-            meta.get_module_version(),
-            module_location_id
-        ],
-        |row| row.get(0),
-    )
-    .optional()
+            raw.get_module_object_id(),
+        )
+    } else {
+        let meta = raw.get_metadata();
+        // Fallback, search for raw by the identifier and module details
+        let module_location_id = get_id_for_module_location(conn, meta.get_location())?;
+        conn.query_row(
+            "SELECT r.id FROM raw_definitions r
+             JOIN modules m ON r.module_id = m.id
+             WHERE r.identifier = ?1
+               AND m.identifier = ?2
+               AND m.version = ?3
+               AND m.module_location_id = ?4
+             LIMIT 1",
+            params![
+                raw.get_identifier(),
+                meta.get_module_name(),
+                meta.get_module_version(),
+                module_location_id
+            ],
+            |row| row.get(0),
+        )
+        .optional()
+    }
 }
 
 /// Creates a new raw definition and populates all associated search and graphics tables.
@@ -140,19 +211,34 @@ pub fn update_raw_definition(conn: &Connection, id: i64, raw: &Box<dyn RawObject
         "UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2",
         params![json_payload, id],
     )?;
-
-    // Clear side tables (CASCADE handles tile_pages, sprite_graphics, raw_names, flags)
-    conn.execute(
-        "DELETE FROM common_raw_flags WHERE raw_id = ?1",
-        params![id],
-    )?;
-    conn.execute("DELETE FROM raw_names WHERE raw_id = ?1", params![id])?;
-    conn.execute(
-        "DELETE FROM raw_search_index WHERE raw_id = ?1",
-        params![id],
-    )?;
+    clear_side_tables(conn, id)?;
 
     populate_side_tables(conn, id, raw)?;
+    Ok(())
+}
+
+/// Clear the side tables (search indices and lookup tables) for a given raw id.
+///
+/// The other relations are not touched (and rely on the cascade delete); e.g. tiles or sprites.
+///
+/// # Errors
+///
+/// - database errors
+fn clear_side_tables(conn: &Connection, id: i64) -> Result<()> {
+    const DELETE_COMMON_FLAGS_FOR_ID: &str = "DELETE FROM common_raw_flags WHERE raw_id = ?1";
+    const DELETE_COMMON_NUMERIC_FLAGS_FOR_ID: &str =
+        "DELETE FROM common_raw_flags_with_numeric_value WHERE raw_id = ?1";
+    const DELETE_SEARCH_IDX_FOR_ID: &str = "DELETE FROM raw_search_index WHERE raw_id = ?1";
+    const DELETE_NAME_SEARCH_IDX_FOR_ID: &str = "DELETE FROM raw_names WHERE raw_id = ?1";
+
+    // Clear side tables (CASCADE handles tile_pages, sprite_graphics, raw_names, flags; in this
+    // case we explicitly remove the raw_names and flags in order to allow them to be updated if
+    // needed)
+    conn.execute(DELETE_COMMON_FLAGS_FOR_ID, params![id])?;
+    conn.execute(DELETE_COMMON_NUMERIC_FLAGS_FOR_ID, params![id])?;
+    conn.execute(DELETE_SEARCH_IDX_FOR_ID, params![id])?;
+    conn.execute(DELETE_NAME_SEARCH_IDX_FOR_ID, params![id])?;
+
     Ok(())
 }
 
@@ -162,11 +248,7 @@ pub fn update_raw_definition(conn: &Connection, id: i64, raw: &Box<dyn RawObject
 ///
 /// - database error
 pub fn delete_raw_definition(conn: &Connection, id: i64) -> Result<()> {
-    // FTS5 doesn't support ON DELETE CASCADE
-    conn.execute(
-        "DELETE FROM raw_search_index WHERE raw_id = ?1",
-        params![id],
-    )?;
+    clear_side_tables(conn, id)?;
     conn.execute("DELETE FROM raw_definitions WHERE id = ?1", params![id])?;
     Ok(())
 }
@@ -198,13 +280,19 @@ pub fn create_raw_definition_with_module(
     module_id: i64,
     raw: &Box<dyn RawObject>,
 ) -> Result<i64> {
+    const INSERT_RAW_WITH_MODULE_DATA: &str = r"
+    INSERT INTO raw_definitions
+           (raw_type_id, identifier, module_id, data_blob, object_id)
+    VALUES
+           (?1, ?2, ?3, jsonb(?4), ?5);
+    ";
+
     let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
 
     conn.execute(
-        "INSERT INTO raw_definitions (raw_type_id, identifier, module_id, data_blob, object_id)
-         VALUES ((SELECT id FROM raw_types WHERE name = ?1), ?2, ?3, jsonb(?4), ?5)",
+        INSERT_RAW_WITH_MODULE_DATA,
         params![
-            raw.get_type().to_string().to_uppercase().replace(' ', "_"),
+            u32::from(raw.get_type()),
             raw.get_identifier(),
             module_id,
             json_payload,

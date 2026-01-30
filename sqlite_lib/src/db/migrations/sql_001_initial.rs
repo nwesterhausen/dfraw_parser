@@ -4,12 +4,6 @@ CREATE TABLE module_locations (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL
 );
-INSERT INTO module_locations VALUES
-    (1, 'Vanilla'),
-    (2, 'Workshop Mods'),
-    (3, 'Installed Mods'),
-    -- For any module loaded from some arbitrary location instead of one of the 3 recognized ones
-    (4, 'Unknown');
 
 CREATE TABLE modules (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -91,47 +85,6 @@ CREATE TABLE raw_types (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL
 );
-INSERT INTO raw_types (id, name) VALUES
-    (1, 'CREATURE'),
-    (2, 'INORGANIC'),
-    (3, 'PLANT'),
-    (4, 'ITEM'),
-    (5, 'ITEM_AMMO'),
-    (6, 'ITEM_ARMOR'),
-    (7, 'ITEM_FOOD'),
-    (8, 'ITEM_GLOVES'),
-    (9, 'ITEM_HELM'),
-    (10, 'ITEM_INSTRUMENT'),
-    (11, 'ITEM_PANTS'),
-    (12, 'ITEM_SHIELD'),
-    (13, 'ITEM_SHOES'),
-    (14, 'ITEM_SIEGEAMMO'),
-    (15, 'ITEM_TOOL'),
-    (16, 'ITEM_TOY'),
-    (17, 'ITEM_TRAPCOMP'),
-    (18, 'ITEM_WEAPON'),
-    (19, 'BUILDING'),
-    (20, 'BUILDING_WORKSHOP'),
-    (21, 'BUILDING_FURNACE'),
-    (22, 'REACTION'),
-    (23, 'GRAPHICS'),
-    (24, 'MATERIAL_TEMPLATE'),
-    (25, 'BODY_DETAIL_PLAN'),
-    (26, 'BODY'),
-    (27, 'ENTITY'),
-    (28, 'LANGUAGE'),
-    (29, 'TRANSLATION'),
-    (30, 'TISSUE_TEMPLATE'),
-    (31, 'CREATURE_VARIATION'),
-    (32, 'TEXT_SET'),
-    (33, 'TILE_PAGE'),
-    (34, 'DESCRIPTOR_COLOR'),
-    (35, 'DESCRIPTOR_PATTERN'),
-    (36, 'DESCRIPTOR_SHAPE'),
-    (37, 'PALETTE'),
-    (38, 'MUSIC'),
-    (39, 'SOUND'),
-    (40, 'INTERACTION');
 
 CREATE TABLE raw_definitions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -17,7 +17,7 @@ use crate::db::metadata_markers::{
 };
 use crate::db::migrate::{apply_migrations, migrate_down};
 use crate::db::migrations::LATEST_SCHEMA_VERSION;
-use crate::db::queries::{self, insert_module_and_data};
+use crate::db::queries::{self, init_constant_tables, insert_module_and_data};
 use crate::db::util::get_current_schema_version;
 use crate::models::{SpriteGraphicData, TilePageData};
 use crate::search_query::DEFAULT_SEARCH_LIMIT;
@@ -40,7 +40,7 @@ impl DbClient {
     /// - Issue creating/opening database
     /// - Issue performing migrations
     pub fn init_db(path: &str, options: ClientOptions) -> Result<Self> {
-        let conn = Connection::open(path)?;
+        let mut conn = Connection::open(path)?;
         info!("Database connection opened.");
         debug!("Database: {path}");
         let mut current_schema_version: i32 = get_current_schema_version(&conn)?;
@@ -58,6 +58,8 @@ impl DbClient {
         if current_schema_version < LATEST_SCHEMA_VERSION {
             apply_migrations(&conn)?;
         }
+
+        init_constant_tables(&mut conn)?;
 
         Ok(Self { conn, options })
     }
@@ -568,6 +570,88 @@ impl DbClient {
     #[allow(clippy::borrowed_box)]
     pub fn try_get_raw_id(&self, raw: &Box<dyn RawObject>) -> Result<Option<i64>> {
         queries::try_get_raw_id(&self.conn, raw)
+    }
+
+    /// Attempts to find the database ID for a specific raw, searching by identifier and module `id`
+    ///
+    /// Returns `Ok(Some(id))` if it exists, or `Ok(None)` if it does not.
+    /// This is useful for checking existence and obtaining the key for updates
+    /// in a single operation.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn try_get_raw_id_by_identifier_and_module_id(
+        &self,
+        identifier: &str,
+        module_id: i64,
+    ) -> Result<Option<i64>> {
+        queries::try_get_raw_id_by_identifier_and_module_id(&self.conn, identifier, module_id)
+    }
+
+    /// Attempts to find the database ID for a specific raw, searching by identifier and module `id`
+    ///
+    /// Returns `Ok(Some(id))` if it exists, or `Ok(None)` if it does not.
+    /// This is useful for checking existence and obtaining the key for updates
+    /// in a single operation.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn try_get_raw_id_by_identifier_and_module_object_id(
+        &self,
+        identifier: &str,
+        module_object_id: Uuid,
+    ) -> Result<Option<i64>> {
+        queries::try_get_raw_id_by_identifier_and_module_object_id(
+            &self.conn,
+            identifier,
+            module_object_id,
+        )
+    }
+
+    /// Attempts to find the database ID for a specific raw, searching by identifier and module
+    ///
+    /// Returns `Ok(Some(id))` if it exists, or `Ok(None)` if it does not.
+    /// This is useful for checking existence and obtaining the key for updates
+    /// in a single operation.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn try_get_raw_id_by_identifier_and_module(
+        &self,
+        identifier: &str,
+        module: &ModuleInfo,
+    ) -> Result<Option<i64>> {
+        self.try_get_raw_id_by_identifier_and_module_object_id(identifier, module.get_object_id())
+    }
+
+    /// Returns true if the raw exists in the database, restricted to a specific module.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn exists_raw_in_module(
+        &self,
+        raw: &Box<dyn RawObject>,
+        module: &ModuleInfo,
+    ) -> Result<bool> {
+        self.exists_raw_by_identifier_in_module(raw.get_identifier(), module)
+    }
+
+    /// Returns true if the raw exists in the database, searching by identifier in a specific module.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn exists_raw_by_identifier_in_module(
+        &self,
+        identifier: &str,
+        module: &ModuleInfo,
+    ) -> Result<bool> {
+        queries::exists_raw_in_module_by_object_id(&self.conn, identifier, module.get_object_id())
     }
 
     /// Get a tile page by its id
