@@ -32,6 +32,15 @@ pub struct CreatureVariation {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
     identifier: String,
+    /// A generated id that is used to uniquely identify this object.
+    ///
+    /// This is deterministic based on the following:
+    /// * The raw's `identifier`
+    /// * The raw's [`ObjectType`]
+    /// * [`RawModuleLocation`] where the raw was found
+    /// * The containing module's `numeric_version`
+    ///
+    /// See [`crate::utilities::generate_object_id`]
     object_id: Uuid,
 
     /// Creature variations are basically just a set of simple tag actions which are applied to

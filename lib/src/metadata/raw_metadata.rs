@@ -36,7 +36,13 @@ use super::RawModuleLocation;
 )]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
-    // The object_id of the raw module
+    /// A generated id that is used to uniquely identify this object.
+    ///
+    /// This is deterministic based on the following:
+    /// * The modules's `identifier`
+    /// * [`ObjectType::ModuleInfo`]
+    /// * [`RawModuleLocation`] where the raw was found
+    /// * The containing module's `numeric_version`
     module_object_id: Uuid,
     // The name of the raw module the raw is from.
     module_name: String,

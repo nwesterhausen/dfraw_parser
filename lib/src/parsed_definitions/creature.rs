@@ -130,9 +130,15 @@ pub struct Creature {
     /// These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     apply_creature_variation: Option<Vec<String>>,
-    /// A generated id that is used to uniquely identify this object. It is generated from the `metadata`, `identifier`, and `ObjectType`.
+    /// A generated id that is used to uniquely identify this object.
     ///
-    /// This field is always serialized.
+    /// This is deterministic based on the following:
+    /// * The raw's `identifier`
+    /// * The raw's [`ObjectType`]
+    /// * [`RawModuleLocation`] where the raw was found
+    /// * The containing module's `numeric_version`
+    ///
+    /// See [`crate::utilities::generate_object_id`]
     object_id: Uuid,
     /// Various `SELECT_CREATUR` modifications.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]

@@ -9,10 +9,16 @@ use uuid::Uuid;
 #[derive(Serialize, Deserialize, Clone, Debug, Default, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct RawObject {
-    /// The object identifier
+    /// The raw object's identifier
     identifier: String,
-    /// The metadata for this raw (includes the `ObjectType`, `RawModuleLocation` and other module info)
+    /// The raw object's metadata, which can be used to get additional information
     metadata: RawMetadata,
-    /// A deterministed uuid for the object
+    /// A generated id that is used to uniquely identify this object.
+    ///
+    /// This is deterministic based on the following:
+    /// * The raw's `identifier`
+    /// * The raw's [`ObjectType`]
+    /// * [`RawModuleLocation`] where the raw was found
+    /// * The containing module's `numeric_version`
     object_id: Uuid,
 }

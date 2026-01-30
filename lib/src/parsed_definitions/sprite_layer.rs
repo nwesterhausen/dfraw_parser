@@ -20,26 +20,35 @@ use crate::{Dimensions, raw_definitions::CONDITION_TOKENS, tokens::ConditionToke
 )]
 #[serde(rename_all = "camelCase")]
 pub struct SpriteLayer {
+    /// Name of the layer (its identifier)
     layer_name: String,
+    /// Identifier of the tile page used by this layer
     tile_page_id: String,
+    /// The position in the tile page that is the top-left corner of the defined sprite
     offset: Dimensions,
+    /// Optionally defines the bottom-right position in the tile page (for non-square sprites)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     offset_2: Option<Dimensions>,
+    /// Whether the sprite is a large image (i.e., includes a 2nd offset)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     large_image: Option<bool>,
+    /// An array of required conditions for this sprite to be visible/used
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     conditions: Option<Vec<(ConditionToken, String)>>,
 }
 
 impl SpriteLayer {
+    /// Get the top-left position of the defined sprite
     #[must_use]
     pub fn get_offset(&self) -> Dimensions {
         self.offset
     }
+    /// Get the bottom-right position of the defined sprite, or None if it isn't defined
     #[must_use]
     pub fn get_offset2(&self) -> Option<Dimensions> {
         self.offset_2
     }
+    /// Get the name/identifier of the sprite
     #[must_use]
     pub fn get_name(&self) -> String {
         self.layer_name.clone()

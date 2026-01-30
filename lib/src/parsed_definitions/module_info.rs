@@ -37,6 +37,15 @@ use super::steam_data::SteamData;
 #[serde(rename_all = "camelCase")]
 pub struct ModuleInfo {
     identifier: String,
+    /// A generated id that is used to uniquely identify this object.
+    ///
+    /// This is deterministic based on the following:
+    /// * The modules's `identifier`
+    /// * [`ObjectType::ModuleInfo`]
+    /// * [`RawModuleLocation`] where the raw was found
+    /// * The containing module's `numeric_version`
+    ///
+    /// See [`crate::utilities::generate_object_id`]
     object_id: Uuid,
     location: RawModuleLocation,
     parent_directory: String,
