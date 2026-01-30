@@ -9,13 +9,13 @@ pub struct SpriteGraphicData {
     /// identifier of tile page sprite is on
     pub tile_page_identifier: String,
     /// sprite offset x1
-    pub offset_x: i64,
+    pub offset_x: i32,
     /// sprite offset y1
-    pub offset_y: i64,
+    pub offset_y: i32,
     /// for large sprites, offset x2
-    pub offset_x_2: Option<i64>,
+    pub offset_x_2: Option<i32>,
     /// for large sprites, offset y2
-    pub offset_y_2: Option<i64>,
+    pub offset_y_2: Option<i32>,
     /// primary condition for the sprite
     pub primary_condition: String,
     /// secondary condition for the sprite
