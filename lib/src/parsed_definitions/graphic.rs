@@ -16,6 +16,8 @@ use crate::{
 };
 
 /// A struct representing a Graphic object.
+///
+/// Stores data about layers and sprites defined in the graphic raw.
 #[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
@@ -31,35 +33,159 @@ use crate::{
 )]
 #[serde(rename_all = "camelCase")]
 pub struct Graphic {
+    /// The `metadata` field is of type `RawMetadata` and is used to provide additional information
+    /// about the raws the `Graphic` is found in.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: Option<RawMetadata>,
+    /// The `identifier` field is a string that represents the identifier of the graphic. It is used
+    /// to uniquely identify the graphic
     identifier: String,
+    /// A generated id that is used to uniquely identify this object.
+    ///
+    /// This is deterministic based on the following:
+    /// * The raw's `identifier`
+    /// * The raw's [`ObjectType`]
+    /// * [`RawModuleLocation`] where the raw was found
+    /// * The containing module's `numeric_version`
+    ///
+    /// See [`crate::utilities::generate_object_id`]
     object_id: Uuid,
-
+    /// An optional identifier targeting a specific caste
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     caste_identifier: Option<String>,
+    /// The type of graphic
     #[cleanable(ignore)]
     kind: GraphicTypeToken,
-
+    /// A vector of sprites defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     sprites: Option<Vec<SpriteGraphic>>,
+    /// A vector of layers defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     layers: Option<Vec<(String, Vec<SpriteLayer>)>>,
+    /// A vector of growths defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     growths: Option<Vec<(String, Vec<SpriteGraphic>)>>,
-
+    /// A vector of custom extensions defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     custom_extensions: Option<Vec<CustomGraphicExtension>>,
+    /// A vector of the defined tags in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tags: Option<Vec<String>>,
-
+    /// Internal switch used during parsing to indicate whether currently within a layer
     #[serde(skip)]
     layer_mode: bool,
-
+    /// Internal cache for tracking the group conditions defined for a layer
+    #[serde(skip)]
+    #[cleanable(ignore)]
+    group_conditions: Vec<(String, String)>,
+    /// The palletes used or defined in the raw
     palletes: Vec<GraphicPalette>,
 }
 
 impl Graphic {
+    /// Function to create a new Graphic.
+    ///
+    /// # Parameters
+    ///
+    /// * `identifier` - The identifier for the Graphic.
+    /// * `metadata` - The metadata for the Graphic.
+    /// * `graphic_type` - The type of graphic.
+    ///
+    /// # Returns
+    ///
+    /// * `Graphic` - The new Graphic.
+    #[must_use]
+    pub fn new(identifier: &str, metadata: &RawMetadata, graphic_type: GraphicTypeToken) -> Self {
+        Self {
+            identifier: String::from(identifier),
+            metadata: Some(metadata.clone()),
+            object_id: generate_object_id_using_raw_metadata(
+                identifier,
+                ObjectType::Graphics,
+                metadata,
+            ),
+            kind: graphic_type,
+            ..Self::default()
+        }
+    }
+
+    /// Function to create a new empty Graphic.
+    ///
+    /// # Returns
+    ///
+    /// * `Graphic` - The new empty Graphic.
+    #[must_use]
+    pub fn empty() -> Self {
+        Self {
+            metadata: Some(
+                RawMetadata::default()
+                    .with_object_type(ObjectType::Graphics)
+                    .with_hidden(true),
+            ),
+            ..Default::default()
+        }
+    }
+
+    /// Get the sprites defined in this graphic
+    #[must_use]
+    pub fn get_sprites(&self) -> Vec<SpriteGraphic> {
+        match self.sprites.as_ref() {
+            Some(sprites) => sprites.clone(),
+            None => Vec::new(),
+        }
+    }
+
+    /// Get the sprites defined in this graphic
+    #[must_use]
+    pub fn get_layers(&self) -> Vec<(String, Vec<SpriteLayer>)> {
+        match self.layers.as_ref() {
+            Some(layers) => layers.clone(),
+            None => Vec::new(),
+        }
+    }
+
+    /// Get the growths defined in this graphic
+    #[must_use]
+    pub fn get_growths(&self) -> Vec<(String, Vec<SpriteGraphic>)> {
+        match self.growths.as_ref() {
+            Some(growths) => growths.clone(),
+            None => Vec::new(),
+        }
+    }
+
+    /// Get the type of the Graphic.
+    ///
+    /// # Returns
+    ///
+    /// * `GraphicType` - The type of the Graphic.
+    #[must_use]
+    pub const fn get_graphic_type(&self) -> GraphicTypeToken {
+        self.kind
+    }
+
+    /// Get the tile page IDs for the Graphic.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<String>` - The tile page IDs for the Graphic.
+    #[must_use]
+    pub fn get_tile_pages(&self) -> Vec<String> {
+        let mut vec = Vec::new();
+        if let Some(sprites) = &self.sprites {
+            for sprite in sprites {
+                vec.push(sprite.get_tile_page_id().to_string());
+            }
+        }
+        if let Some(layers) = &self.layers {
+            for layer in layers {
+                for sprite in &layer.1 {
+                    vec.push(sprite.get_tile_page_id().to_string());
+                }
+            }
+        }
+        vec
+    }
+
     /// Merge another Graphic object into this one.
     ///
     /// This transfers all sprites/layers/etc from `other` to `self`
@@ -113,130 +239,6 @@ impl Graphic {
         self.palletes.extend(other.palletes);
     }
 
-    /// Get the sprites defined in this graphic
-    #[must_use]
-    pub fn get_sprites(&self) -> Vec<SpriteGraphic> {
-        match self.sprites.as_ref() {
-            Some(sprites) => sprites.clone(),
-            None => Vec::new(),
-        }
-    }
-    /// Get the sprites defined in this graphic
-    #[must_use]
-    pub fn get_layers(&self) -> Vec<(String, Vec<SpriteLayer>)> {
-        match self.layers.as_ref() {
-            Some(layers) => layers.clone(),
-            None => Vec::new(),
-        }
-    }
-    /// Function to create a new empty Graphic.
-    ///
-    /// # Returns
-    ///
-    /// * `Graphic` - The new empty Graphic.
-    #[must_use]
-    pub fn empty() -> Self {
-        Self {
-            metadata: Some(
-                RawMetadata::default()
-                    .with_object_type(ObjectType::Graphics)
-                    .with_hidden(true),
-            ),
-            ..Default::default()
-        }
-    }
-    /// Function to create a new Graphic.
-    ///
-    /// # Parameters
-    ///
-    /// * `identifier` - The identifier for the Graphic.
-    /// * `metadata` - The metadata for the Graphic.
-    /// * `graphic_type` - The type of graphic.
-    ///
-    /// # Returns
-    ///
-    /// * `Graphic` - The new Graphic.
-    #[must_use]
-    pub fn new(identifier: &str, metadata: &RawMetadata, graphic_type: GraphicTypeToken) -> Self {
-        Self {
-            identifier: String::from(identifier),
-            metadata: Some(metadata.clone()),
-            object_id: generate_object_id_using_raw_metadata(
-                identifier,
-                ObjectType::Graphics,
-                metadata,
-            ),
-            kind: graphic_type,
-            ..Self::default()
-        }
-    }
-    fn add_layer_if_not_exists(&mut self, layer_name: String) {
-        if let Some(layers) = self.layers.as_mut() {
-            if !layers.iter().any(|(name, _)| name == &layer_name) {
-                layers.push((layer_name, Vec::new()));
-            }
-        } else {
-            self.layers = Some(vec![(layer_name, Vec::new())]);
-        }
-    }
-    fn parse_layer_set_from_value(&mut self, value: &str) {
-        self.add_layer_if_not_exists(String::from(value));
-    }
-    fn parse_layer_from_value(&mut self, value: &str) {
-        if let Some(layer) = SpriteLayer::parse_layer_from_value(value) {
-            if self.layers.is_none() {
-                self.add_layer_if_not_exists(String::from("default"));
-            }
-            if let Some(layers) = self.layers.as_mut() {
-                #[allow(clippy::unwrap_used)]
-                layers.last_mut().unwrap().1.push(layer);
-            }
-        }
-    }
-
-    #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
-    fn parse_layer_palette_info(&mut self, key: &str, value: &str) {
-        if let Some(condition_tag) = CONDITION_TOKENS.get(key) {
-            let last_pallete = self.palletes.last_mut();
-            match condition_tag {
-                ConditionToken::LayerSetPalette => self.palletes.push(GraphicPalette::new(value)),
-                ConditionToken::LayerSetPaletteDefault => {
-                    if let Some(palette) = last_pallete {
-                        palette.set_default_row(value.parse().unwrap_or_default());
-                    }
-                }
-                ConditionToken::LayerSetPaletteFile => {
-                    if let Some(palette) = last_pallete {
-                        palette.set_file(value);
-                    }
-                }
-                _ => {}
-            }
-        } else {
-            warn!("Expected LS_PALETTE token was invalid")
-        }
-    }
-
-    #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
-    fn parse_layer_condition_token(&mut self, key: &str, value: &str) {
-        if let Some(layers) = self.layers.as_mut() {
-            // Conditions get attached to the last layer in the last layer group
-            #[allow(clippy::unwrap_used)]
-            if let Some(layer_entry) = layers.last_mut() {
-                if layer_entry.1.is_empty() {
-                    warn!("Failed to parse, No SpriteLayer defined yet: {layer_entry:?}")
-                } else if let Some(layer) = layer_entry.1.last_mut() {
-                    layer.parse_condition_token(key, value);
-                } else {
-                    warn!("Failed to parse, no mutable SpriteLayer: {layer_entry:?}",);
-                }
-            } else {
-                warn!("Failed to parse, no layer to append to: {layers:?}");
-            }
-        } else {
-            warn!("Failed to parse, (No existing layers)");
-        }
-    }
     /// Parse a token from a tag into a `SpriteGraphic` and add it to the current sprite.
     ///
     /// # Parameters
@@ -258,7 +260,9 @@ impl Graphic {
         }
 
         // Check if key is LAYER_SET meaning a new layer group is starting
+        // We clear the group conditions since this is a new layer group
         if key == "LAYER_SET" {
+            self.group_conditions.clear();
             // Parse the value into a SpriteLayer
             self.parse_layer_set_from_value(value);
             self.layer_mode = true;
@@ -273,13 +277,16 @@ impl Graphic {
             return;
         }
 
-        // Layers can be defined in groups.. for now we just ignore it
-        if key == "LAYER_GROUP" {
-            self.layer_mode = true;
+        // End of a group, so clear any groups and end layer mode
+        if key == "END_LAYER_GROUP" {
+            self.group_conditions.clear();
+            self.layer_mode = false;
             return;
         }
-        if key == "END_LAYER_GROUP" {
-            self.layer_mode = false;
+        // Handle Layer Group Conditions (like LG_CONDITION_BP), register conditions into groups for later reference
+        if key == "LG_CONDITION_BP" {
+            self.group_conditions
+                .push((String::from(key), String::from(value)));
             return;
         }
 
@@ -343,6 +350,7 @@ impl Graphic {
             }
             return;
         }
+
         // Check if the key is plant graphic template, which for now we accept only on growths
         if let Some(_plant_graphic_template) = PLANT_GRAPHIC_TEMPLATE_TOKENS.get(key) {
             if let Some(sprite_graphic) =
@@ -382,36 +390,79 @@ impl Graphic {
             );
         }
     }
-    /// Get the type of the Graphic.
-    ///
-    /// # Returns
-    ///
-    /// * `GraphicType` - The type of the Graphic.
-    #[must_use]
-    pub const fn get_graphic_type(&self) -> GraphicTypeToken {
-        self.kind
+
+    fn add_layer_if_not_exists(&mut self, layer_name: String) {
+        if let Some(layers) = self.layers.as_mut() {
+            if !layers.iter().any(|(name, _)| name == &layer_name) {
+                layers.push((layer_name, Vec::new()));
+            }
+        } else {
+            self.layers = Some(vec![(layer_name, Vec::new())]);
+        }
     }
-    /// Get the tile page IDs for the Graphic.
-    ///
-    /// # Returns
-    ///
-    /// * `Vec<String>` - The tile page IDs for the Graphic.
-    #[must_use]
-    pub fn get_tile_pages(&self) -> Vec<String> {
-        let mut vec = Vec::new();
-        if let Some(sprites) = &self.sprites {
-            for sprite in sprites {
-                vec.push(sprite.get_tile_page_id().to_string());
+    fn parse_layer_set_from_value(&mut self, value: &str) {
+        self.add_layer_if_not_exists(String::from(value));
+    }
+
+    fn parse_layer_from_value(&mut self, value: &str) {
+        if let Some(mut layer) = SpriteLayer::parse_layer_from_value(value) {
+            // Apply any active group conditions to this new layer
+            for (key, val) in &self.group_conditions {
+                layer.parse_condition_token(key, val);
+            }
+
+            if self.layers.is_none() {
+                self.add_layer_if_not_exists(String::from("default"));
+            }
+            if let Some(layers) = self.layers.as_mut() {
+                #[allow(clippy::unwrap_used)]
+                layers.last_mut().unwrap().1.push(layer);
             }
         }
-        if let Some(layers) = &self.layers {
-            for layer in layers {
-                for sprite in &layer.1 {
-                    vec.push(sprite.get_tile_page_id().to_string());
+    }
+
+    #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
+    fn parse_layer_palette_info(&mut self, key: &str, value: &str) {
+        if let Some(condition_tag) = CONDITION_TOKENS.get(key) {
+            let last_pallete = self.palletes.last_mut();
+            match condition_tag {
+                ConditionToken::LayerSetPalette => self.palletes.push(GraphicPalette::new(value)),
+                ConditionToken::LayerSetPaletteDefault => {
+                    if let Some(palette) = last_pallete {
+                        palette.set_default_row(value.parse().unwrap_or_default());
+                    }
                 }
+                ConditionToken::LayerSetPaletteFile => {
+                    if let Some(palette) = last_pallete {
+                        palette.set_file(value);
+                    }
+                }
+                _ => {}
             }
+        } else {
+            warn!("Expected LS_PALETTE token was invalid")
         }
-        vec
+    }
+
+    #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
+    fn parse_layer_condition_token(&mut self, key: &str, value: &str) {
+        if let Some(layers) = self.layers.as_mut() {
+            // Conditions get attached to the last layer in the last layer group
+            #[allow(clippy::unwrap_used)]
+            if let Some(layer_entry) = layers.last_mut() {
+                if layer_entry.1.is_empty() {
+                    warn!("Failed to parse, No SpriteLayer defined yet: {layer_entry:?}")
+                } else if let Some(layer) = layer_entry.1.last_mut() {
+                    layer.parse_condition_token(key, value);
+                } else {
+                    warn!("Failed to parse, no mutable SpriteLayer: {layer_entry:?}",);
+                }
+            } else {
+                warn!("Failed to parse, no layer to append to: {layers:?}");
+            }
+        } else {
+            warn!("Failed to parse, (No existing layers)");
+        }
     }
 }
 
