@@ -4,6 +4,7 @@ use chrono::TimeDelta;
 use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType, traits::IsEmpty};
 use dfraw_parser_sqlite_lib::{NumericConstraint, NumericFilter, SearchQuery};
 use dfraw_parser_test_util::{get_test_client, json_helpers::identifier_from_json_blob};
+use uuid::Uuid;
 
 use crate::common::setup_tracing;
 
@@ -1041,4 +1042,66 @@ fn verify_tile_page_lookups() {
         // Assuming vanilla data, tile pages should exist.
         tracing::warn!("No tile pages found in test data, skipping verification.");
     }
+}
+
+#[test]
+fn get_raw_from_object_id() {
+    let hydra_obj_id: Uuid = Uuid::parse_str("0617fc81-77b0-508a-947b-3899d1aebfd6")
+        .expect("Failed to parse Hydra UUID");
+
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    let raw = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .get_raw_by_object_id(hydra_obj_id)
+        .expect("Hydra not found by object_id");
+
+    assert_eq!(raw.get_identifier(), "HYDRA");
+}
+
+#[test]
+fn search_in_modules() {
+    // If the version of Vanilla Creatures ever changes from 53.01, then we should
+    // update this to match the latest version.
+    let vanilla_creatures_5301_obj_id: Uuid =
+        Uuid::parse_str("91D6C282-C40E-5964-B648-2351F99AF882")
+            .expect("Failed to parse module UIUD");
+
+    setup_tracing();
+    let client_mutex = get_test_client();
+
+    let query = SearchQuery {
+        in_modules: vec![vanilla_creatures_5301_obj_id],
+        limit: 1000,
+        ..Default::default()
+    };
+
+    let search_results = client_mutex
+        .lock()
+        .expect("Failed to lock DbClient")
+        .search_raws(&query)
+        .expect("Search failed");
+
+    assert!(
+        !search_results.results.is_empty(),
+        "Search should have results"
+    );
+
+    assert!(
+        search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+        "Expected BIRD_BUZZARD to be found in Vanilla Creatures module"
+    );
+
+    assert!(
+        !search_results
+            .results
+            .iter()
+            .any(|r| identifier_from_json_blob(&r.data) == "SWEET_POTATO"),
+        "Expected SWEET_POTATO to be abset (it should be in Vanilla Plants module)"
+    );
 }

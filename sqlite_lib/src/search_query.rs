@@ -1,5 +1,6 @@
 use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::NumericFilter;
 
@@ -39,6 +40,11 @@ pub struct SearchQuery {
     ///
     /// Default: false
     pub favorites_only: bool,
+    /// Limit results to only be within these modules.
+    ///
+    /// Specify using the module's `object_id` which can be found from the raw:
+    ///     `raw.metadata.module_object_it`
+    pub in_modules: Vec<Uuid>,
 }
 
 impl SearchQuery {
@@ -93,6 +99,7 @@ impl Default for SearchQuery {
             limit: DEFAULT_SEARCH_LIMIT,
             page: 1,
             favorites_only: false,
+            in_modules: Vec::new(),
         }
     }
 }
