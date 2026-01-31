@@ -103,6 +103,20 @@ impl Inorganic {
             ..Self::default()
         }
     }
+    #[must_use]
+    pub fn get_tags(&self) -> Vec<InorganicToken> {
+        if self.tags.is_none() {
+            return Vec::new();
+        }
+
+        let mut ret_tags = Vec::new();
+        if let Some(tags) = &self.tags {
+            for tag in tags {
+                ret_tags.push(*tag);
+            }
+        }
+        ret_tags
+    }
 
     /// Add a tag to the inorganic raw.
     ///

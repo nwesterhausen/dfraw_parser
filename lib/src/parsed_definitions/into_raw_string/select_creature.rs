@@ -10,8 +10,8 @@ impl ToRawFileString for SelectCreature {
 
         file_lines.push(ObjectType::SelectCreature.to_raw_token());
         file_lines.push(String::new());
-        file_lines.push(format!("[CREATURE_VARIATION:{}]", self.get_identifier()));
+        file_lines.push(format!("[SELECT_CREATURE:{}]", self.get_identifier()));
 
-        file_lines.join(":")
+        file_lines.join("\n") + "\n"
     }
 }

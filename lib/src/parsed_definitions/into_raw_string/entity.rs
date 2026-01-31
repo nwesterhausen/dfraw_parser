@@ -10,8 +10,16 @@ impl ToRawFileString for Entity {
 
         file_lines.push(ObjectType::Entity.to_raw_token());
         file_lines.push(String::new());
-        file_lines.push(format!("[CREATURE_VARIATION:{}]", self.get_identifier()));
+        file_lines.push(format!("[ENTITY:{}]", self.get_identifier()));
 
-        file_lines.join(":")
+        for token in self.get_tags() {
+            file_lines.push(format!(
+                "\t[{}:{}]",
+                token.0.get_key().unwrap_or_default(),
+                token.1
+            ));
+        }
+
+        file_lines.join("\n") + "\n"
     }
 }

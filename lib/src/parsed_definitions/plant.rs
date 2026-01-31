@@ -135,6 +135,20 @@ impl Plant {
             .map_or_else(Vec::new, std::clone::Clone::clone)
     }
 
+    #[must_use]
+    pub fn get_tags(&self) -> Vec<PlantToken> {
+        if self.tags.is_none() {
+            return Vec::new();
+        }
+
+        let mut ret_tags = Vec::new();
+        if let Some(tags) = &self.tags {
+            for tag in tags {
+                ret_tags.push(*tag);
+            }
+        }
+        ret_tags
+    }
     pub fn get_all_names(&self) -> Vec<&str> {
         let mut names = HashSet::new();
 

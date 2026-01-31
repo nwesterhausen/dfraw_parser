@@ -48,6 +48,9 @@ pub struct CreatureVariation {
     /// tags which are applied in a reverse order.
     rules: Vec<CreatureVariationRuleToken>,
 
+    /// The raw tags making up the creature variation
+    tags: Vec<(CreatureVariationToken, String)>,
+
     /// A creature variation can define any number of arguments which can be used in the rules.
     /// These arguments replace instances of `!ARGn` in the rules. Use `apply_arguments` to apply
     /// a set of arguments to a creature variation (and get a very specific variation back). Use
@@ -78,6 +81,7 @@ impl CreatureVariation {
                 metadata,
             ),
             rules: Vec::new(),
+            tags: Vec::new(),
             argument_count: 0,
         }
     }
@@ -97,6 +101,7 @@ impl CreatureVariation {
             identifier: String::new(),
             object_id: Uuid::nil(),
             rules: Vec::new(),
+            tags: Vec::new(),
             argument_count: 0,
         }
     }
@@ -126,6 +131,11 @@ impl CreatureVariation {
                 )
             })
             .collect()
+    }
+
+    #[must_use]
+    pub fn get_tags(&self) -> Vec<(CreatureVariationToken, String)> {
+        self.tags.clone()
     }
 }
 
@@ -174,6 +184,8 @@ impl RawObject for CreatureVariation {
         //      [CVCT_MASTER:tag:argument_index:argument_value]
         //      [CVCT_TARGET:tag:argument_index:argument_value(s)]
         //      [CVCT_REPLACEMENT:tag:argument_index:argument_value(s)]
+
+        self.tags.push((*token, value.to_string()));
 
         let mut parts = value.split(':');
 

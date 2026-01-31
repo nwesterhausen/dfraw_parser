@@ -10,8 +10,8 @@ impl ToRawFileString for TilePage {
 
         file_lines.push(ObjectType::TilePage.to_raw_token());
         file_lines.push(String::new());
-        file_lines.push(format!("[CREATURE_VARIATION:{}]", self.get_identifier()));
+        file_lines.push(format!("[TILE_PAGE:{}]", self.get_identifier()));
 
-        file_lines.join(":")
+        file_lines.join("\n") + "\n"
     }
 }

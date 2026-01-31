@@ -10,6 +10,7 @@ mod creature_effect;
 mod creature_effect_property;
 mod creature_variation;
 mod entity;
+mod inorganic;
 mod object_type;
 mod plant;
 mod plant_growth;

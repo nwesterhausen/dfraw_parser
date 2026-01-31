@@ -5676,6 +5676,10 @@ objectId: string;
  */
 rules: CreatureVariationRuleToken[]; 
 /**
+ * The raw tags making up the creature variation
+ */
+tags: ([CreatureVariationToken, string])[]; 
+/**
  * A creature variation can define any number of arguments which can be used in the rules.
  * These arguments replace instances of `!ARGn` in the rules. Use `apply_arguments` to apply
  * a set of arguments to a creature variation (and get a very specific variation back). Use
@@ -5915,7 +5919,7 @@ export type Entity = { metadata: Metadata | null; identifier: string;
  * 
  * See [`crate::utilities::generate_object_id`]
  */
-objectId: string; tags: EntityToken[]; creature: string | null; translation: string | null; exclusiveStartBiome: string | null; biomeSupport: ([string, number])[] | null; settlementBiome: string[] | null; startBiome: string[] | null; likesSites: string[] | null; toleratesSites: string[] | null; worldConstructions: string[] | null; maxPopNumber: number | null; maxSitePopNumber: number | null; maxStartingCivNumber: number | null; permittedBuildings: string[] | null; permittedJobs: string[] | null; permittedReactions: string[] | null; currency: ([string, number])[] | null; artFacetModifier: ([string, number])[] | null; artImageElementModifier: ([string, number])[] | null; itemImprovementModifier: ([string, number])[] | null; selectSymbols: ([string, string])[] | null; subselectSymbols: ([string, string])[] | null; cullSymbols: ([string, string])[] | null; friendlyColor: Color | null; religion: string | null; religionSpheres: string[] | null; sphereAlignments: string[] | null; positions: Position[] | null; landHolderTrigger: string | null; siteVariablePositions: string[] | null; variablePositions: string[] | null; ethics: ([string, string])[] | null; values: ([string, number])[] | null; variableValues: ([string, number, number])[] | null; activeSeason: string | null; banditry: number | null; progressTriggerPopulation: number | null; progressTriggerProduction: number | null; progressTriggerTrade: number | null; progressTriggerPopulationSiege: number | null; progressTriggerProductionSiege: number | null; progressTriggerTradeSiege: number | null; scholars: string[] | null; ammo: string[] | null; armors: ([string, number])[] | null; diggers: string[] | null; gloves: ([string, number])[] | null; helms: ([string, number])[] | null; instrument: string[] | null; pants: ([string, number])[] | null; shields: string[] | null; shoes: ([string, number])[] | null; siegeAmmo: string[] | null; tool: string[] | null; toys: string[] | null; trapComponents: string[] | null; weapons: string[] | null; gemShape: string[] | null; stoneShape: string[] | null; sourceHfid: number | null }
+objectId: string; tags: ([EntityToken, string])[]; creature: string | null; translation: string | null; exclusiveStartBiome: string | null; biomeSupport: ([string, number])[] | null; settlementBiome: string[] | null; startBiome: string[] | null; likesSites: string[] | null; toleratesSites: string[] | null; worldConstructions: string[] | null; maxPopNumber: number | null; maxSitePopNumber: number | null; maxStartingCivNumber: number | null; permittedBuildings: string[] | null; permittedJobs: string[] | null; permittedReactions: string[] | null; currency: ([string, number])[] | null; artFacetModifier: ([string, number])[] | null; artImageElementModifier: ([string, number])[] | null; itemImprovementModifier: ([string, number])[] | null; selectSymbols: ([string, string])[] | null; subselectSymbols: ([string, string])[] | null; cullSymbols: ([string, string])[] | null; friendlyColor: Color | null; religion: string | null; religionSpheres: string[] | null; sphereAlignments: string[] | null; positions: Position[] | null; landHolderTrigger: string | null; siteVariablePositions: string[] | null; variablePositions: string[] | null; ethics: ([string, string])[] | null; values: ([string, number])[] | null; variableValues: ([string, number, number])[] | null; activeSeason: string | null; banditry: number | null; progressTriggerPopulation: number | null; progressTriggerProduction: number | null; progressTriggerTrade: number | null; progressTriggerPopulationSiege: number | null; progressTriggerProductionSiege: number | null; progressTriggerTradeSiege: number | null; scholars: string[] | null; ammo: string[] | null; armors: ([string, number])[] | null; diggers: string[] | null; gloves: ([string, number])[] | null; helms: ([string, number])[] | null; instrument: string[] | null; pants: ([string, number])[] | null; shields: string[] | null; shoes: ([string, number])[] | null; siegeAmmo: string[] | null; tool: string[] | null; toys: string[] | null; trapComponents: string[] | null; weapons: string[] | null; gemShape: string[] | null; stoneShape: string[] | null; sourceHfid: number | null }
 
 /**
  * Tokens that can be found in an entity raw file.
@@ -10548,19 +10552,19 @@ tilePageIdentifier: string;
 /**
  * sprite offset x1
  */
-offsetX: string; 
+offsetX: number; 
 /**
  * sprite offset y1
  */
-offsetY: string; 
+offsetY: number; 
 /**
  * for large sprites, offset x2
  */
-offsetX2: string | null; 
+offsetX2: number | null; 
 /**
  * for large sprites, offset y2
  */
-offsetY2: string | null; 
+offsetY2: number | null; 
 /**
  * primary condition for the sprite
  */

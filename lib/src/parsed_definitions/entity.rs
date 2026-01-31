@@ -41,7 +41,7 @@ pub struct Entity {
     /// See [`crate::utilities::generate_object_id`]
     object_id: Uuid,
 
-    tags: Vec<EntityToken>,
+    tags: Vec<(EntityToken, String)>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     creature: Option<String>,
@@ -224,6 +224,10 @@ impl Entity {
             ..Default::default()
         }
     }
+
+    pub fn get_tags(&self) -> Vec<(EntityToken, String)> {
+        self.tags.clone()
+    }
 }
 
 #[typetag::serde]
@@ -272,7 +276,7 @@ impl RawObject for Entity {
             }
         }
 
-        let Some(tag) = ENTITY_TOKENS.get(key) else {
+        let Some(token) = ENTITY_TOKENS.get(key) else {
             warn!(
                 "Entity::parse_tag: called `Option::unwrap()` on a `None` value for presumed Entity tag: {}",
                 key
@@ -280,7 +284,9 @@ impl RawObject for Entity {
             return;
         };
 
-        match tag {
+        self.tags.push((*token, value.to_string()));
+
+        match token {
             EntityToken::ActiveSeason => {
                 self.active_season = Some(value.to_string());
             }
@@ -688,10 +694,7 @@ impl RawObject for Entity {
             EntityToken::Translation => {
                 self.translation = Some(value.to_string());
             }
-
-            _ => {
-                self.tags.push(*tag);
-            }
+            _ => {}
         }
     }
     fn get_module_object_id(&self) -> Uuid {

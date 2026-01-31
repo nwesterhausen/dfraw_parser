@@ -10,8 +10,12 @@ impl ToRawFileString for Plant {
 
         file_lines.push(ObjectType::Plant.to_raw_token());
         file_lines.push(String::new());
-        file_lines.push(format!("[CREATURE_VARIATION:{}]", self.get_identifier()));
+        file_lines.push(format!("[PLANT:{}]", self.get_identifier()));
 
-        file_lines.join(":")
+        for token in self.get_tags() {
+            file_lines.push(format!("\t{}", token.to_raw_token()));
+        }
+
+        file_lines.join("\n") + "\n"
     }
 }

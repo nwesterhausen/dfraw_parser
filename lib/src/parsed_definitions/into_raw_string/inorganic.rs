@@ -10,8 +10,12 @@ impl ToRawFileString for Inorganic {
 
         file_lines.push(ObjectType::Inorganic.to_raw_token());
         file_lines.push(String::new());
-        file_lines.push(format!("[CREATURE_VARIATION:{}]", self.get_identifier()));
+        file_lines.push(format!("[INORGANIC:{}]", self.get_identifier()));
 
-        file_lines.join(":")
+        for token in self.get_tags() {
+            file_lines.push(format!("\t{}", token.to_raw_token()));
+        }
+
+        file_lines.join("\n") + "\n"
     }
 }
