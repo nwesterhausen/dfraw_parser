@@ -10242,7 +10242,14 @@ page: number;
  * 
  * Default: false
  */
-favoritesOnly: boolean }
+favoritesOnly: boolean; 
+/**
+ * Limit results to only be within these modules.
+ * 
+ * Specify using the module's `object_id` which can be found from the raw:
+ * `raw.metadata.module_object_it`
+ */
+inModules: string[] }
 
 /**
  * A structured response for search operations, containing the requested page of data
