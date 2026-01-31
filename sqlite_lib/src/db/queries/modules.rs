@@ -18,7 +18,7 @@ pub fn exists_module_by_identifiers(
     numeric_version: i64,
     location: RawModuleLocation,
 ) -> Result<bool> {
-    match try_get_module_id_by_identifiers(conn, identifier, numeric_version, location) {
+    match try_get_module_id_by_metadata(conn, identifier, numeric_version, location) {
         Ok(res) => Ok(res.is_some()),
         Err(e) => Err(e),
     }
@@ -32,7 +32,7 @@ pub fn exists_module_by_identifiers(
 /// # Errors
 ///
 /// - database error
-pub fn try_get_module_id_by_identifiers(
+pub fn try_get_module_id_by_metadata(
     conn: &Connection,
     identifier: &str,
     numeric_version: i64,
@@ -151,7 +151,7 @@ pub fn insert_module_and_data(
     module: &ModuleInfo,
     data: &[&dyn RawObject],
 ) -> Result<()> {
-    let module_db_id = insert_module(conn, overwrite_raws, module)?;
+    let module_db_id = create_module(conn, overwrite_raws, module)?;
 
     super::process_raw_insertions(conn, module_db_id, module, data, overwrite_raws)
 }
@@ -163,7 +163,7 @@ pub fn insert_module_and_data(
 /// # Errors
 ///
 /// - database errors
-pub fn insert_module(
+pub fn create_module(
     conn: &mut Connection,
     overwrite_raws: bool,
     module: &ModuleInfo,

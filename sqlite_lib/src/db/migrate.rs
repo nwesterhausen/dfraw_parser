@@ -11,7 +11,7 @@ pub(super) fn apply_migrations(conn: &Connection) -> Result<(), Error> {
 
 pub(super) fn migrate_up(conn: &Connection, final_schema: i32) -> Result<(), Error> {
     let starting_version: i32 = get_current_schema_version(conn)?;
-    info!("Migrating database schema v{starting_version:02} >> v{final_schema:02}");
+    info!("Migrating database schema {starting_version:02} >> {final_schema:02}");
     for (schema_version, up_sql) in UP_MIGRATIONS {
         if starting_version < schema_version {
             info!("Applying databse schema v{schema_version:02}");

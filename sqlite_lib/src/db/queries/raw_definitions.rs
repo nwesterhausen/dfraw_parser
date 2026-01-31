@@ -178,9 +178,9 @@ pub fn try_get_raw_id(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<Opt
 ///
 /// - database error
 #[allow(clippy::borrowed_box)]
-pub fn create_raw_definition(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
+pub fn create_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
     let module_id = get_module_id_from_raw(conn, raw)?;
-    create_raw_definition_with_module(conn, module_id, raw)
+    create_raw_with_module(conn, module_id, raw)
 }
 
 /// Updates or creates a raw definition based on its identifier and module identity.
@@ -189,15 +189,15 @@ pub fn create_raw_definition(conn: &Connection, raw: &Box<dyn RawObject>) -> Res
 ///
 /// - database error
 #[allow(clippy::borrowed_box)]
-pub fn upsert_raw_definition(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
+pub fn upsert_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
     let existing_id: Option<i64> = try_get_raw_id(conn, raw)?;
 
     match existing_id {
         Some(id) => {
-            update_raw_definition(conn, id, raw)?;
+            update_raw(conn, id, raw)?;
             Ok(id)
         }
-        None => create_raw_definition(conn, raw),
+        None => create_raw(conn, raw),
     }
 }
 
@@ -206,11 +206,24 @@ pub fn upsert_raw_definition(conn: &Connection, raw: &Box<dyn RawObject>) -> Res
 /// # Errors
 ///
 /// - database error
-pub fn get_raw_definition(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
+pub fn get_raw(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
     const GET_JSON_RAW_BY_ID: &str = "SELECT json(data_blob) FROM raw_definitions WHERE id = ?1";
 
     let json_str: String = conn.query_row(GET_JSON_RAW_BY_ID, params![id], |row| row.get(0))?;
     serde_json::from_str(&json_str).map_err(|_| rusqlite::Error::InvalidQuery)
+}
+
+/// Retrieves a raw object by its object id.
+///
+/// # Errors
+///
+/// - database error
+pub fn get_raw_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Box<dyn RawObject>> {
+    let Some(id) = try_get_raw_id_by_object_id(conn, object_id)? else {
+        return Err(rusqlite::Error::InvalidQuery);
+    };
+
+    get_raw(conn, id)
 }
 
 /// Updates the data blob and associated tables for an existing raw definition.
@@ -219,7 +232,7 @@ pub fn get_raw_definition(conn: &Connection, id: i64) -> Result<Box<dyn RawObjec
 ///
 /// - database error
 #[allow(clippy::borrowed_box)]
-pub fn update_raw_definition(conn: &Connection, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
+pub fn update_raw(conn: &Connection, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
     const UPDATE_RAW_JSONB_BY_ID: &str =
         "UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2";
 
@@ -230,6 +243,24 @@ pub fn update_raw_definition(conn: &Connection, id: i64, raw: &Box<dyn RawObject
 
     populate_side_tables(conn, id, raw)?;
     Ok(())
+}
+
+/// Updates the data blob and associated tables for an existing raw definition.
+///
+/// # Errors
+///
+/// - database error
+#[allow(clippy::borrowed_box)]
+pub fn update_raw_by_object_id(
+    conn: &Connection,
+    object_id: Uuid,
+    raw: &Box<dyn RawObject>,
+) -> Result<()> {
+    let Some(id) = try_get_raw_id_by_object_id(conn, object_id)? else {
+        return Err(rusqlite::Error::InvalidQuery);
+    };
+
+    update_raw(conn, id, raw)
 }
 
 /// Clear the side tables (search indices and lookup tables) for a given raw id.
@@ -262,12 +293,25 @@ pub fn clear_side_tables_for_raw_id(conn: &Connection, id: i64) -> Result<()> {
 /// # Errors
 ///
 /// - database error
-pub fn delete_raw_definition(conn: &Connection, id: i64) -> Result<()> {
+pub fn delete_raw(conn: &Connection, id: i64) -> Result<()> {
     const DELETE_RAW_BY_ID: &str = "DELETE FROM raw_definitions WHERE id = ?1";
 
     clear_side_tables_for_raw_id(conn, id)?;
     conn.execute(DELETE_RAW_BY_ID, params![id])?;
     Ok(())
+}
+
+/// Deletes a raw definition. FTS5 index is cleared manually.
+///
+/// # Errors
+///
+/// - database error
+pub fn delete_raw_by_object_id(conn: &Connection, object_id: Uuid) -> Result<()> {
+    let Some(id) = try_get_raw_id_by_object_id(conn, object_id)? else {
+        return Err(rusqlite::Error::InvalidQuery);
+    };
+
+    delete_raw(conn, id)
 }
 
 /// Retrieves the top result for a module id matching the data in the raw's metadata.
@@ -294,7 +338,7 @@ pub fn get_module_id_from_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Re
 ///
 /// - database error
 #[allow(clippy::borrowed_box)]
-pub fn create_raw_definition_with_module(
+pub fn create_raw_with_module(
     conn: &Connection,
     module_id: i64,
     raw: &Box<dyn RawObject>,

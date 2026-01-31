@@ -48,12 +48,19 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
     add_numeric_filter(query, &mut sql, &mut conditions, &mut params_vec);
 
     // Module Join (if module info needed)
-    if !query.locations.is_empty() {
+    if !query.locations.is_empty() || !query.in_modules.is_empty() {
         sql.push_str("JOIN modules m ON r.module_id = m.id ");
     }
 
     // A default condition that's always true to simplify adding an unknown amount of other conditions
     sql.push_str(" WHERE 1=1 ");
+
+    if !query.in_modules.is_empty() {
+        for module_obj_id in &query.in_modules {
+            conditions.push(format!("m.object_id = ?{}", params_vec.len() + 1));
+            params_vec.push(Box::new(module_obj_id.as_bytes().to_vec()));
+        }
+    }
 
     if query.favorites_only {
         let favorite_raw_list =

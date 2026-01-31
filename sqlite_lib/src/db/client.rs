@@ -52,7 +52,7 @@ impl DbClient {
         }
 
         info!(
-            "Current database schema: v{current_schema_version}, Target database schema: v{LATEST_SCHEMA_VERSION}"
+            "Current database schema: {current_schema_version:02}, Target database schema: {LATEST_SCHEMA_VERSION:02}"
         );
 
         if current_schema_version < LATEST_SCHEMA_VERSION {
@@ -104,6 +104,188 @@ impl DbClient {
         Ok(())
     }
 
+    /// Get the date of the last insertion.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn get_last_insertion_date(&self) -> Result<Option<String>> {
+        queries::get_typed_metadata::<LastRawsInsertion>(&self.conn)
+    }
+
+    /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_insertion_date(&self, insertion_date: &str) -> Result<()> {
+        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &insertion_date.to_string())
+    }
+
+    /// Set the date of the last insertion. Expects a `DateTime` in UTC timezone.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_insertion_utc_datetime(&self, utc_date: &DateTime<Utc>) -> Result<()> {
+        let str_date = utc_date.to_rfc3339();
+        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
+    }
+
+    /// Set the date of the last insertion as `Utc::now()`.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_insertion_as_utc_now(&self) -> Result<()> {
+        let str_date = Utc::now().to_rfc3339();
+        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
+    }
+
+    /// Get the last raw files insertion duration as a `chrono::TimeDelta`
+    ///
+    /// If there is no saved measurement, returns None
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - deseialization error
+    pub fn get_last_insertion_duration(&self) -> Result<Option<TimeDelta>> {
+        queries::get_typed_metadata::<PreviousInsertionDuration>(&self.conn)
+    }
+
+    /// Set the last raw files insertion duration from a `chrono::TimeDelta`
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - seialization error
+    pub fn set_last_insertion_duration(&self, duration: &TimeDelta) -> Result<()> {
+        queries::set_typed_metadata::<PreviousInsertionDuration>(&self.conn, duration)
+    }
+
+    /// Get the date of the last insertion.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn get_last_parse_operation_date(&self) -> Result<Option<String>> {
+        queries::get_typed_metadata::<LastRawsParsingOperation>(&self.conn)
+    }
+
+    /// Set the date of the last parse operation. Expects a `DateTime` in UTC timezone.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_parse_operation_utc_datetime(&self, utc_date: &DateTime<Utc>) -> Result<()> {
+        let str_date = utc_date.to_rfc3339();
+        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &str_date)
+    }
+
+    /// Set the date of the last parse operation as `Utc::now()`.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_parse_operation_as_utc_now(&self) -> Result<()> {
+        let str_date = Utc::now().to_rfc3339();
+        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &str_date)
+    }
+
+    /// Set the date of the last parse operation. Expects RFC 3339 (ISO 8601) formatted string.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_parse_operation_date(&self, parse_date: &str) -> Result<()> {
+        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &parse_date.to_string())
+    }
+
+    /// Get the last parse duration as a `chrono::TimeDelta`
+    ///
+    /// If there is no saved measurement, returns None
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - deseialization error
+    pub fn get_last_parse_duration(&self) -> Result<Option<TimeDelta>> {
+        queries::get_typed_metadata::<PreviousParseDuration>(&self.conn)
+    }
+
+    /// Set the last parse duration from a `chrono::TimeDelta`
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - seialization error
+    pub fn set_last_parse_duration(&self, duration: &TimeDelta) -> Result<()> {
+        queries::set_typed_metadata::<PreviousParseDuration>(&self.conn, duration)
+    }
+
+    /// Get the last used Dwarf Fortress installation directory
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - deserialization error
+    pub fn get_last_used_df_game_dir(&self) -> Result<String> {
+        (queries::get_typed_metadata::<PreviousDwarfFortressGamePath>(&self.conn)?)
+            .map_or_else(|| Ok(String::new()), Ok)
+    }
+
+    /// Set the last used Dwarf Fortress installation directory
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_used_df_game_dir(&self, dwarf_fortress_directory: &Path) -> Result<()> {
+        let path_str = dwarf_fortress_directory.to_string_lossy().to_string();
+        queries::set_typed_metadata::<PreviousDwarfFortressGamePath>(&self.conn, &path_str)
+    }
+
+    /// Get the last used Dwarf Fortress user directory
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - deserialization error
+    pub fn get_last_used_df_user_dir(&self) -> Result<String> {
+        (queries::get_typed_metadata::<PreviousDwarfFortressUserPath>(&self.conn)?)
+            .map_or_else(|| Ok(String::new()), Ok)
+    }
+
+    /// Set the last used Dwarf Fortress user directory
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn set_last_used_df_user_dir(&self, user_data_dir: &Path) -> Result<()> {
+        let path_str = user_data_dir.to_string_lossy().to_string();
+        queries::set_typed_metadata::<PreviousDwarfFortressUserPath>(&self.conn, &path_str)
+    }
+
+    /// Get the last used parser options
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - deseialization error
+    pub fn get_last_used_parser_options(&self) -> Result<Option<ParserOptions>> {
+        queries::get_typed_metadata::<PreviousParserOptions>(&self.conn)
+    }
+
     /// Set the last used parser options
     ///
     /// If there is no saved options, returns None
@@ -131,77 +313,38 @@ impl DbClient {
         queries::set_typed_metadata::<PreviousParserOptions>(&self.conn, options)
     }
 
-    /// Get the stored settings
+    /// Get the user's preference for number of results per page
+    ///
+    /// Returns the default value if not previously updated
     ///
     /// # Errors
     ///
     /// - database error
-    pub fn get_stored_settings(&self) -> Result<String> {
-        (queries::get_typed_metadata::<StoredSettings>(&self.conn)?)
-            .map_or_else(|| Ok(String::new()), Ok)
+    /// - deserialization error
+    pub fn get_preferred_search_limit(&self) -> Result<u32> {
+        (queries::get_typed_metadata::<PreferredSearchLimit>(&self.conn)?)
+            .map_or_else(|| Ok(DEFAULT_SEARCH_LIMIT), Ok)
     }
 
-    /// Set the stored settings
+    /// Set the user's preference for number of results per page
     ///
     /// # Errors
     ///
     /// - database error
-    pub fn set_stored_settings(&self, settings_json: &String) -> Result<()> {
-        queries::set_typed_metadata::<StoredSettings>(&self.conn, settings_json)
+    /// - serialization error
+    pub fn set_preferred_search_limit(&self, search_limit: u32) -> Result<()> {
+        queries::set_typed_metadata::<PreferredSearchLimit>(&self.conn, &search_limit)
     }
 
-    /// Get the last used parser options
+    /// Get up to the last 10 recent search terms
     ///
     /// # Errors
     ///
     /// - database error
     /// - deseialization error
-    pub fn get_last_used_parser_options(&self) -> Result<Option<ParserOptions>> {
-        queries::get_typed_metadata::<PreviousParserOptions>(&self.conn)
-    }
-
-    /// Set the last parse duration from a `chrono::TimeDelta`
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - seialization error
-    pub fn set_last_parse_duration(&self, duration: &TimeDelta) -> Result<()> {
-        queries::set_typed_metadata::<PreviousParseDuration>(&self.conn, duration)
-    }
-
-    /// Get the last parse duration as a `chrono::TimeDelta`
-    ///
-    /// If there is no saved measurement, returns None
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - deseialization error
-    pub fn get_last_parse_duration(&self) -> Result<Option<TimeDelta>> {
-        queries::get_typed_metadata::<PreviousParseDuration>(&self.conn)
-    }
-
-    /// Set the last raw files insertion duration from a `chrono::TimeDelta`
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - seialization error
-    pub fn set_last_insertion_duration(&self, duration: &TimeDelta) -> Result<()> {
-        queries::set_typed_metadata::<PreviousInsertionDuration>(&self.conn, duration)
-    }
-
-    /// Get the last raw files insertion duration as a `chrono::TimeDelta`
-    ///
-    /// If there is no saved measurement, returns None
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - deseialization error
-    pub fn get_last_insertion_duration(&self) -> Result<Option<TimeDelta>> {
-        queries::get_typed_metadata::<PreviousInsertionDuration>(&self.conn)
+    pub fn get_recent_search_terms(&self) -> Result<Vec<String>> {
+        (queries::get_typed_metadata::<RecentSearchTerms>(&self.conn)?)
+            .map_or_else(|| Ok(Vec::new()), Ok)
     }
 
     /// Add the last search term to the list of last 10 search terms
@@ -229,8 +372,8 @@ impl DbClient {
         }
 
         if !replaced &&
-            // Check if exact term already exists to avoid duplicates
-             !terms.contains(&search_term)
+                // Check if exact term already exists to avoid duplicates
+                 !terms.contains(&search_term)
         {
             terms.insert(0, search_term);
         }
@@ -241,25 +384,23 @@ impl DbClient {
         queries::set_typed_metadata::<RecentSearchTerms>(&self.conn, &terms)
     }
 
-    /// Get up to the last 10 recent search terms
+    /// Get the stored settings
     ///
     /// # Errors
     ///
     /// - database error
-    /// - deseialization error
-    pub fn get_recent_search_terms(&self) -> Result<Vec<String>> {
-        (queries::get_typed_metadata::<RecentSearchTerms>(&self.conn)?)
-            .map_or_else(|| Ok(Vec::new()), Ok)
+    pub fn get_stored_settings(&self) -> Result<String> {
+        (queries::get_typed_metadata::<StoredSettings>(&self.conn)?)
+            .map_or_else(|| Ok(String::new()), Ok)
     }
 
-    /// Set the user's preference for using the Steam-based autodetect of Dwarf Fortress
+    /// Set the stored settings
     ///
     /// # Errors
     ///
     /// - database error
-    /// - serialization error
-    pub fn set_use_steam_autodetect(&self, use_steam_autodetect: bool) -> Result<()> {
-        queries::set_typed_metadata::<UseSteamAutodetect>(&self.conn, &use_steam_autodetect)
+    pub fn set_stored_settings(&self, settings_json: &String) -> Result<()> {
+        queries::set_typed_metadata::<StoredSettings>(&self.conn, settings_json)
     }
 
     /// Get the user's preference for using the Steam-based autodetect of Dwarf Fortress
@@ -273,48 +414,25 @@ impl DbClient {
             .map_or_else(|| Ok(false), Ok)
     }
 
-    /// Set the last used Dwarf Fortress installation directory
+    /// Set the user's preference for using the Steam-based autodetect of Dwarf Fortress
     ///
     /// # Errors
     ///
     /// - database error
     /// - serialization error
-    pub fn set_last_used_df_game_dir(&self, dwarf_fortress_directory: &Path) -> Result<()> {
-        let path_str = dwarf_fortress_directory.to_string_lossy().to_string();
-        queries::set_typed_metadata::<PreviousDwarfFortressGamePath>(&self.conn, &path_str)
+    pub fn set_use_steam_autodetect(&self, use_steam_autodetect: bool) -> Result<()> {
+        queries::set_typed_metadata::<UseSteamAutodetect>(&self.conn, &use_steam_autodetect)
     }
 
-    /// Get the last used Dwarf Fortress installation directory
+    /// Get the user's favorited raws as ids (to be used with the database for retrival/matching).
     ///
     /// # Errors
     ///
     /// - database error
     /// - deserialization error
-    pub fn get_last_used_df_game_dir(&self) -> Result<String> {
-        (queries::get_typed_metadata::<PreviousDwarfFortressGamePath>(&self.conn)?)
-            .map_or_else(|| Ok(String::new()), Ok)
-    }
-
-    /// Set the last used Dwarf Fortress user directory
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_last_used_df_user_dir(&self, user_data_dir: &Path) -> Result<()> {
-        let path_str = user_data_dir.to_string_lossy().to_string();
-        queries::set_typed_metadata::<PreviousDwarfFortressUserPath>(&self.conn, &path_str)
-    }
-
-    /// Get the last used Dwarf Fortress user directory
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - deserialization error
-    pub fn get_last_used_df_user_dir(&self) -> Result<String> {
-        (queries::get_typed_metadata::<PreviousDwarfFortressUserPath>(&self.conn)?)
-            .map_or_else(|| Ok(String::new()), Ok)
+    pub fn get_favorite_raws(&self) -> Result<Vec<i64>> {
+        (queries::get_typed_metadata::<FavoriteRaws>(&self.conn)?)
+            .map_or_else(|| Ok(Vec::new()), Ok)
     }
 
     /// Adds a raw ID to the user's favorites list.
@@ -356,132 +474,6 @@ impl DbClient {
         Ok(())
     }
 
-    /// Get the user's favorited raws as ids (to be used with the database for retrival/matching).
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - deserialization error
-    pub fn get_favorite_raws(&self) -> Result<Vec<i64>> {
-        (queries::get_typed_metadata::<FavoriteRaws>(&self.conn)?)
-            .map_or_else(|| Ok(Vec::new()), Ok)
-    }
-
-    /// Set the user's preference for number of results per page
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_preferred_search_limit(&self, search_limit: u32) -> Result<()> {
-        queries::set_typed_metadata::<PreferredSearchLimit>(&self.conn, &search_limit)
-    }
-
-    /// Get the user's preference for number of results per page
-    ///
-    /// Returns the default value if not previously updated
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - deserialization error
-    pub fn get_preferred_search_limit(&self) -> Result<u32> {
-        (queries::get_typed_metadata::<PreferredSearchLimit>(&self.conn)?)
-            .map_or_else(|| Ok(DEFAULT_SEARCH_LIMIT), Ok)
-    }
-
-    /// Set the date of the last insertion. Expects RFC 3339 (ISO 8601) formatted string.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_last_insertion_date(&self, insertion_date: &str) -> Result<()> {
-        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &insertion_date.to_string())
-    }
-    /// Set the date of the last insertion. Expects a `DateTime` in UTC timezone.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_last_insertion_utc_datetime(&self, utc_date: &DateTime<Utc>) -> Result<()> {
-        let str_date = utc_date.to_rfc3339();
-        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
-    }
-
-    /// Set the date of the last insertion as `Utc::now()`.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_last_insertion_as_utc_now(&self) -> Result<()> {
-        let str_date = Utc::now().to_rfc3339();
-        queries::set_typed_metadata::<LastRawsInsertion>(&self.conn, &str_date)
-    }
-
-    /// Get the date of the last insertion.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn get_last_insertion_date(&self) -> Result<Option<String>> {
-        queries::get_typed_metadata::<LastRawsInsertion>(&self.conn)
-    }
-
-    /// Set the date of the last parse operation. Expects a `DateTime` in UTC timezone.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_last_parse_operation_utc_datetime(&self, utc_date: &DateTime<Utc>) -> Result<()> {
-        let str_date = utc_date.to_rfc3339();
-        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &str_date)
-    }
-
-    /// Set the date of the last parse operation as `Utc::now()`.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_last_parse_operation_as_utc_now(&self) -> Result<()> {
-        let str_date = Utc::now().to_rfc3339();
-        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &str_date)
-    }
-
-    /// Set the date of the last parse operation. Expects RFC 3339 (ISO 8601) formatted string.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn set_last_parse_operation_date(&self, parse_date: &str) -> Result<()> {
-        queries::set_typed_metadata::<LastRawsParsingOperation>(&self.conn, &parse_date.to_string())
-    }
-
-    /// Get the date of the last insertion.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - serialization error
-    pub fn get_last_parse_operation_date(&self) -> Result<Option<String>> {
-        queries::get_typed_metadata::<LastRawsParsingOperation>(&self.conn)
-    }
-
-    /// Retrieves a raw object by its database ID.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    pub fn get_raw(&self, id: i64) -> Result<Box<dyn RawObject>> {
-        queries::get_raw_definition(&self.conn, id)
-    }
-
     /// Creates a new raw definition and populates all associated search and graphics tables.
     ///
     /// # Errors
@@ -489,46 +481,7 @@ impl DbClient {
     /// - database error
     #[allow(clippy::borrowed_box)]
     pub fn create_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
-        queries::create_raw_definition(&self.conn, raw)
-    }
-
-    /// Updates or creates a raw definition based on its identifier and module identity.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    #[allow(clippy::borrowed_box)]
-    pub fn upsert_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
-        queries::upsert_raw_definition(&self.conn, raw)
-    }
-
-    /// Updates the data blob and associated tables for an existing raw definition.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    #[allow(clippy::borrowed_box)]
-    pub fn update_raw(&self, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
-        queries::update_raw_definition(&self.conn, id, raw)
-    }
-
-    /// Deletes a raw definition.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    pub fn delete_raw(&self, id: i64) -> Result<()> {
-        queries::delete_raw_definition(&self.conn, id)
-    }
-
-    /// Retrieves the top result for a module id matching the data in the raw's metadata.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    #[allow(clippy::borrowed_box)]
-    pub fn get_module_id_from_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
-        queries::get_module_id_from_raw(&self.conn, raw)
+        queries::create_raw(&self.conn, raw)
     }
 
     /// Creates a new raw defintion with a link to a specific module
@@ -537,12 +490,8 @@ impl DbClient {
     ///
     /// - database error
     #[allow(clippy::borrowed_box)]
-    pub fn create_raw_definition_with_module(
-        &self,
-        module_id: i64,
-        raw: &Box<dyn RawObject>,
-    ) -> Result<i64> {
-        queries::create_raw_definition_with_module(&self.conn, module_id, raw)
+    pub fn create_raw_with_module(&self, module_id: i64, raw: &Box<dyn RawObject>) -> Result<i64> {
+        queries::create_raw_with_module(&self.conn, module_id, raw)
     }
 
     /// Returns true if the raw exists in the database.
@@ -556,6 +505,111 @@ impl DbClient {
     #[allow(clippy::borrowed_box)]
     pub fn exists_raw(&self, raw: &Box<dyn RawObject>) -> Result<bool> {
         queries::exists_raw(&self.conn, raw)
+    }
+
+    /// Returns true if the raw exists in the database, restricted to a specific module.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn exists_raw_in_module(
+        &self,
+        raw: &Box<dyn RawObject>,
+        module: &ModuleInfo,
+    ) -> Result<bool> {
+        self.exists_raw_by_identifier_in_module(raw.get_identifier(), module)
+    }
+
+    /// Returns true if the raw exists in the database, searching by identifier in a specific module.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn exists_raw_by_identifier_in_module(
+        &self,
+        identifier: &str,
+        module: &ModuleInfo,
+    ) -> Result<bool> {
+        queries::exists_raw_in_module_by_object_id(&self.conn, identifier, module.get_object_id())
+    }
+
+    /// Retrieves a raw object by its database ID.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn get_raw(&self, id: i64) -> Result<Box<dyn RawObject>> {
+        queries::get_raw(&self.conn, id)
+    }
+
+    /// Retrieves a raw object by its object id.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn get_raw_by_object_id(&self, object_id: Uuid) -> Result<Box<dyn RawObject>> {
+        queries::get_raw_by_object_id(&self.conn, object_id)
+    }
+
+    /// Retrieves the top result for a module id matching the data in the raw's metadata.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn get_module_id_from_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
+        queries::get_module_id_from_raw(&self.conn, raw)
+    }
+
+    /// Updates or creates a raw definition based on its identifier and module identity.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn upsert_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
+        queries::upsert_raw(&self.conn, raw)
+    }
+
+    /// Updates the data blob and associated tables for an existing raw definition.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn update_raw(&self, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
+        queries::update_raw(&self.conn, id, raw)
+    }
+
+    /// Updates the data blob and associated tables for an existing raw definition.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    #[allow(clippy::borrowed_box)]
+    pub fn update_raw_by_object_id(&self, object_id: Uuid, raw: &Box<dyn RawObject>) -> Result<()> {
+        queries::update_raw_by_object_id(&self.conn, object_id, raw)
+    }
+
+    /// Deletes a raw definition.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - raw doesn't exist
+    pub fn delete_raw(&self, id: i64) -> Result<()> {
+        queries::delete_raw(&self.conn, id)
+    }
+
+    /// Deletes a raw definition.
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - raw doesn't exist
+    pub fn delete_raw_by_object_id(&self, object_id: Uuid) -> Result<()> {
+        queries::delete_raw_by_object_id(&self.conn, object_id)
     }
 
     /// Attempts to find the database ID for a specific raw definition.
@@ -627,33 +681,6 @@ impl DbClient {
         self.try_get_raw_id_by_identifier_and_module_object_id(identifier, module.get_object_id())
     }
 
-    /// Returns true if the raw exists in the database, restricted to a specific module.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    #[allow(clippy::borrowed_box)]
-    pub fn exists_raw_in_module(
-        &self,
-        raw: &Box<dyn RawObject>,
-        module: &ModuleInfo,
-    ) -> Result<bool> {
-        self.exists_raw_by_identifier_in_module(raw.get_identifier(), module)
-    }
-
-    /// Returns true if the raw exists in the database, searching by identifier in a specific module.
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    pub fn exists_raw_by_identifier_in_module(
-        &self,
-        identifier: &str,
-        module: &ModuleInfo,
-    ) -> Result<bool> {
-        queries::exists_raw_in_module_by_object_id(&self.conn, identifier, module.get_object_id())
-    }
-
     /// Get a tile page by its id
     ///
     /// # Errors
@@ -662,6 +689,16 @@ impl DbClient {
     /// - no tile page with given `id`
     pub fn get_tile_page_by_id(&self, id: i64) -> Result<TilePageData> {
         queries::get_tile_page_by_id(&self.conn, id)
+    }
+
+    /// Get a tile page by its linked raw id
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no tile page with given `raw id`
+    pub fn get_tile_page_by_raw_id(&self, raw_id: i64) -> Result<TilePageData> {
+        queries::get_tile_page_by_raw_id(&self.conn, raw_id)
     }
 
     /// Get a tile page by its identifier
@@ -675,14 +712,24 @@ impl DbClient {
         queries::get_tile_page_by_identifier(&self.conn, identifier)
     }
 
-    /// Get a tile page by its linked raw id
+    /// Get a sprite graphic by its id
     ///
     /// # Errors
     ///
     /// - database error
-    /// - no tile page with given `raw id`
-    pub fn get_tile_page_by_raw_id(&self, raw_id: i64) -> Result<TilePageData> {
-        queries::get_tile_page_by_raw_id(&self.conn, raw_id)
+    /// - no sprite graphic with given `id`
+    pub fn get_sprite_graphic_by_id(&self, id: i64) -> Result<SpriteGraphicData> {
+        queries::get_sprite_graphic_by_id(&self.conn, id)
+    }
+
+    /// Get a sprite graphic by its linked raw id
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - no sprite graphic with given `raw_id`
+    pub fn get_sprite_graphic_by_raw_id(&self, raw_id: i64) -> Result<SpriteGraphicData> {
+        queries::get_sprite_graphic_by_raw_id(&self.conn, raw_id)
     }
 
     /// Get a sprite graphic by its target identifier
@@ -696,22 +743,6 @@ impl DbClient {
         target_identifier: &str,
     ) -> Result<Vec<SpriteGraphicData>> {
         queries::get_sprite_graphics_for_target_identifier(&self.conn, target_identifier)
-    }
-
-    /// Get a sprite graphic by its target identifier and include any caste-specific matches
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - no sprite graphic with given `target`
-    pub fn get_sprite_graphics_for_target_identifier_and_any_castes(
-        &self,
-        target_identifier: &str,
-    ) -> Result<Vec<SpriteGraphicData>> {
-        queries::get_sprite_graphics_for_target_identifier_and_any_castes(
-            &self.conn,
-            target_identifier,
-        )
     }
 
     /// Get a sprite graphic by its target identifier and caste
@@ -732,38 +763,31 @@ impl DbClient {
         )
     }
 
-    /// Get a sprite graphic by its linked raw id
+    /// Get a sprite graphic by its target identifier and include any caste-specific matches
     ///
     /// # Errors
     ///
     /// - database error
-    /// - no sprite graphic with given `raw_id`
-    pub fn get_sprite_graphic_by_raw_id(&self, raw_id: i64) -> Result<SpriteGraphicData> {
-        queries::get_sprite_graphic_by_raw_id(&self.conn, raw_id)
-    }
-
-    /// Get a sprite graphic by its id
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    /// - no sprite graphic with given `id`
-    pub fn get_sprite_graphic_by_id(&self, id: i64) -> Result<SpriteGraphicData> {
-        queries::get_sprite_graphic_by_id(&self.conn, id)
-    }
-
-    /// Try to get a module id by specific identifiers
-    ///
-    /// # Errors
-    ///
-    /// - database error
-    pub fn try_get_module_id_by_identifiers(
+    /// - no sprite graphic with given `target`
+    pub fn get_sprite_graphics_for_target_identifier_and_any_castes(
         &self,
-        identifier: &str,
-        numeric_version: i64,
-        location: RawModuleLocation,
-    ) -> Result<Option<i64>> {
-        queries::try_get_module_id_by_identifiers(&self.conn, identifier, numeric_version, location)
+        target_identifier: &str,
+    ) -> Result<Vec<SpriteGraphicData>> {
+        queries::get_sprite_graphics_for_target_identifier_and_any_castes(
+            &self.conn,
+            target_identifier,
+        )
+    }
+
+    /// Insert a module with its supporting data, returning its id in the database.
+    ///
+    /// This inserts the module along with its dependency chain and steam tag data.
+    ///
+    /// # Errors
+    ///
+    /// - database errors
+    pub fn create_module(&mut self, module: &ModuleInfo) -> Result<i64> {
+        queries::create_module(&mut self.conn, self.options.overwrite_raws, module)
     }
 
     /// Returns true if the module exists, searching by specific identifiers.
@@ -780,13 +804,13 @@ impl DbClient {
         queries::exists_module_by_identifiers(&self.conn, identifier, numeric_version, location)
     }
 
-    /// Try get module by its `object_id`
+    /// Check if a module exists (uses its `object_id`)
     ///
     /// # Errors
     ///
-    /// - database errors
-    pub fn try_get_module_id_by_object_id(&self, object_id: Uuid) -> Result<Option<i64>> {
-        queries::try_get_module_id_by_object_id(&self.conn, object_id)
+    /// - datbase errors
+    pub fn exists_module(&self, module: &ModuleInfo) -> Result<bool> {
+        queries::exists_module(&self.conn, module)
     }
 
     /// Check if a module exists by its `object_id`
@@ -807,23 +831,26 @@ impl DbClient {
         queries::try_get_module_id(&self.conn, module)
     }
 
-    /// Check if a module exists (uses its `object_id`)
-    ///
-    /// # Errors
-    ///
-    /// - datbase errors
-    pub fn exists_module(&self, module: &ModuleInfo) -> Result<bool> {
-        queries::exists_module(&self.conn, module)
-    }
-
-    /// Insert a module with its supporting data, returning its id in the database.
-    ///
-    /// This inserts the module along with its dependency chain and steam tag data.
+    /// Try get module by its `object_id`
     ///
     /// # Errors
     ///
     /// - database errors
-    pub fn insert_module(&mut self, module: &ModuleInfo) -> Result<i64> {
-        queries::insert_module(&mut self.conn, self.options.overwrite_raws, module)
+    pub fn try_get_module_id_by_object_id(&self, object_id: Uuid) -> Result<Option<i64>> {
+        queries::try_get_module_id_by_object_id(&self.conn, object_id)
+    }
+
+    /// Try to get a module id by specific identifiers
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn try_get_module_id_by_metadata(
+        &self,
+        identifier: &str,
+        numeric_version: i64,
+        location: RawModuleLocation,
+    ) -> Result<Option<i64>> {
+        queries::try_get_module_id_by_metadata(&self.conn, identifier, numeric_version, location)
     }
 }
