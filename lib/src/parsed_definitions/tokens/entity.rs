@@ -10,7 +10,6 @@
     Eq,
     Default,
     specta::Type,
-    Copy,
     strum_macros::EnumIter,
 )]
 pub enum EntityToken {
@@ -29,7 +28,7 @@ pub enum EntityToken {
     ///
     /// For example, if you have one entity with three `[CREATURE:DWARF]` entries and another separate entity with a single `[CREATURE:ELF]` entry,
     /// then you can expect to see three times as many of the former placed as the latter.
-    Creature,
+    Creature { creature: String },
     /// Arguments: number (integer)
     ///
     /// Found on generated angel entities. Appears to draw from creatures with this HFID, which associates the entity with a historical
@@ -45,26 +44,26 @@ pub enum EntityToken {
     /// For example, humans spread quickly over oceans but cannot actually build in them.
     ///
     /// e.g. `[BIOME_SUPPORT:ANY_GRASSLAND:4]`
-    BiomeSupport,
+    BiomeSupport { biome: String, frequency: u32 },
     /// Arguments: biome
     ///
     /// If the civ's territory crosses over this biome, it can build settlements here.
     ///
     /// e.g. `[SETTLEMENT_BIOME:ANY_GRASSLAND]`
-    SettlementBiome,
+    SettlementBiome { biome: String },
     /// Arguments: biome
     ///
     /// Combination of `EXCLUSIVE_START_BIOME` and `SETTLEMENT_BIOME`; allows the civ to start in and create settlements in the biome.
     ///
     /// e.g. `[START_BIOME:ANY_FOREST]`
-    StartBiome,
+    StartBiome { biome: String },
     /// Arguments: biome
     ///
     /// The birth of the civilization can occur in this biome, but cannot (necessarily) build in it.
     /// If the civ does not have `SETTLEMENT_BIOME` or `START_BIOME` for the biome in question, it will only construct a single settlement there.
     ///
     /// e.g. `[EXCLUSIVE_START_BIOME:MOUNTAIN]`
-    ExclusiveStartBiome,
+    ExclusiveStartBiome { biome: String },
     /// Arguments: site type
     ///
     /// Valid site types are `DARK_FORTRESS` (π), `CAVE` (•), `CAVE_DETAILED` (Ω), `TREE_CITY` (î), and `CITY` (#).
@@ -77,25 +76,25 @@ pub enum EntityToken {
     /// `CAVE_DETAILED` civilizations will create fortresses in mountainous regions and hillocks in non-mountainous regions.
     ///
     /// e.g. `[DEFAULT_SITE_TYPE:CAVE_DETAILED]`
-    DefaultSiteType,
+    DefaultSiteType { site_type: String },
     /// Arguments: site type
     ///
     /// Most residents will try to move to this site type, unless already at one.
     ///
     /// e.g. `[LIKES_SITE:CAVE_DETAILED]`
-    LikesSite,
+    LikesSite { site_type: String },
     /// Arguments: site type
     ///
     /// Some residents will try to move to this site type, unless already at one.
     ///
     /// e.g. `[TOLERATES_SITE:CITY]`
-    ToleratesSite,
+    ToleratesSite { site_type: String },
     /// Arguments: construction
     ///
     /// Controls which constructions the civ will build on the world map. Valid constructions are ROAD, TUNNEL, BRIDGE, and WALL.
     ///
     /// e.g. `[WORLD_CONSTRUCTION:BRIDGE] [WORLD_CONSTRUCTION:ROAD] [WORLD_CONSTRUCTION:TUNNEL] [WORLD_CONSTRUCTION:WALL]`
-    WorldConstruction,
+    WorldConstruction { construction: String },
     //# Population Tokens #
     /// Arguments: number
     ///
@@ -104,7 +103,7 @@ pub enum EntityToken {
     /// Defaults to 500.
     ///
     /// e.g. `[MAX_POP_NUMBER:500]`
-    MaxPopNumber,
+    MaxPopNumber { number: u32 },
     /// Arguments: number
     ///
     /// Max historical population per individual site.
@@ -112,7 +111,7 @@ pub enum EntityToken {
     /// Defaults to 50.
     ///
     /// e.g. `[MAX_SITE_POP_NUMBER:200]`
-    MaxSitePopNumber,
+    MaxSitePopNumber { number: u32 },
     /// Arguments: number
     ///
     /// Max number of civ to spawn at world generation. Worldgen picks entities in some sequential order from the raws,
@@ -126,21 +125,21 @@ pub enum EntityToken {
     /// Defaults to 3.
     ///
     /// e.g `[MAX_STARTING_CIV_NUMBER:3]`
-    MaxStartingCivNumber,
+    MaxStartingCivNumber { number: u32 },
     // # Flavor Tokens #
     /// Arguments: building name
     ///
     /// The named, custom building can be built by a civilization in Fortress Mode.
     ///
     /// e.g. `[PERMITTED_BUILDING:SOAP_MAKER]`
-    PermittedBuilding,
+    PermittedBuilding { building: String },
     /// Arguments: profession
     ///
     /// Allows this job type to be selected. This applies to worldgen creatures, in the embark screen, and in play.
     /// Certain professions also influence the availability of materials for trade.
     ///
     /// e.g. `[PERMITTED_JOB:MINER]`
-    PermittedJob,
+    PermittedJob { job: String },
     /// Arguments: reaction name
     ///
     /// Allows this reaction to be used by a civilization. It is used primarily in Fortress Mode,
@@ -148,7 +147,7 @@ pub enum EntityToken {
     /// this token must be present or the player will not be able to use the reaction in Fortress Mode.
     ///
     /// e.g. `[PERMITTED_REACTION:TAN_A_HIDE]`
-    PermittedReaction,
+    PermittedReaction { reaction: String },
     /// Causes the civ's currency to be numbered with the year it was minted.
     CurrencyByYear,
     /// Arguments: inorganic material, value
@@ -157,7 +156,7 @@ pub enum EntityToken {
     /// Due to the Dwarven economy having been disabled since version 0.31, the value doesn't actually do anything.
     ///
     /// e.g `[CURRENCY:SILVER:5]`
-    Currency,
+    Currency { material: String, value: u32 },
     /// Arguments: type, number
     ///
     /// `OWN_RACE`, `FANCIFUL`, `EVIL`, `GOOD`
@@ -165,7 +164,7 @@ pub enum EntityToken {
     /// Number goes from `0` to `25_600` where `256` is the default.
     ///
     /// e.g. `[ART_FACET_MODIFIER:OWN_RACE:512]`
-    ArtFacetModifier,
+    ArtFacetModifier { modifier: String, number: u32 },
     /// Arguments: item, number
     ///
     /// Allowed item: CREATURE, PLANT, TREE, SHAPE, ITEM
@@ -176,7 +175,7 @@ pub enum EntityToken {
     /// for default (non-historical) artwork.
     ///
     /// e.g. `[ART_IMAGE_ELEMENT_MODIFIER:TREE:512]`
-    ArtImageElementModifier,
+    ArtImageElementModifier { item: String, number: u32 },
     /// Arguments: item, number
     ///
     /// Allowed item: `ART_IMAGE`, `COVERED` or `GLAZED`, `RINGS_HANGING`, `BANDS`, `SPIKES`, `ITEMSPECIFIC`, `THREAD`, `CLOTH`, `SEWN_IMAGE`
@@ -188,7 +187,7 @@ pub enum EntityToken {
     /// `[ITEM_IMPROVEMENT_MODIFIER:SPIKES:0]`
     ///
     /// This also seems to change the amount that the entity will pay for items that are improved in these ways in their tokens.
-    ItemImprovementModifier,
+    ItemImprovementModifier { item: String, number: u32 },
     /// Arguments: language
     ///
     /// What language raw the entity uses.
@@ -198,7 +197,7 @@ pub enum EntityToken {
     /// - If `GEN_DIVINE` is entered, the entity will use a generated divine language, that is, the same language that is used for the names of angels.
     ///
     /// e.g. `[TRANSLATION:DWARF]`
-    Translation,
+    Translation { language: String },
     /// Arguments: noun, symbol
     ///
     /// Allowed Values:
@@ -210,19 +209,19 @@ pub enum EntityToken {
     /// REMAINING will select all symbols that have not already been declared above it.
     ///
     /// e.g. `[SELECT_SYMBOL:ALL:PEACE]`
-    SelectSymbol,
+    SelectSymbol { noun: String, symbol: String },
     /// Arguments: noun, symbol
     ///
     /// Causes the symbol set to be preferred as adjectives by the civilization. Used in vanilla to put violent names in sieges and battles.
     ///
     /// e.g. `[SELECT_SYMBOL:SIEGE:NAME_SIEGE] [SUBSELECT_SYMBOL:SIEGE:VIOLENT]`
-    SubselectSymbol,
+    SubselectSymbol { noun: String, symbol: String },
     /// Arguments: noun, symbol
     ///
     /// Causes the entity to not use the words in these SYM sets.
     ///
     /// e.g. `[CULL_SYMBOL:ALL:UGLY]`
-    CullSymbol,
+    CullSymbol { noun: String, symbol: String },
     /// Arguments: color
     ///
     /// The color of this entity's civilization settlements in the world gen and embark screens, also used when announcing arrival of their caravan.
@@ -230,7 +229,14 @@ pub enum EntityToken {
     /// Defaults to 7:0:1.
     ///
     /// e.g. `[FRIENDLY_COLOR:1:0:1]`
-    FriendlyColor,
+    FriendlyColor {
+        /// The foreground color
+        foreground: u32,
+        /// The background color
+        background: u32,
+        /// The brightness of the color
+        brightness: u32,
+    },
     // # Religion Tokens #
     /// Arguments: type
     ///
@@ -238,7 +244,7 @@ pub enum EntityToken {
     /// - `PANTHEON`: The creatures will worship a group of gods, each aligned with their spheres and other appropriate ones as well.
     ///
     /// e.g. `[RELIGION:PANTHEON]`
-    Religion,
+    Religion { religion_type: String },
     /// Arguments: sphere
     ///
     /// Can be any available sphere - multiple entries are possible. Choosing a religious sphere will automatically make
@@ -247,7 +253,7 @@ pub enum EntityToken {
     /// (and therefore, towers) "in" the entity.
     ///
     /// e.g. `[RELIGION_SPHERE:FORTRESSES]`
-    ReligionSphere,
+    ReligionSphere { sphere: String },
     /// Arguments: sphere, number
     ///
     /// This token forces an entity to favor or disfavor particular religious spheres, causing them to acquire those spheres more
@@ -256,29 +262,23 @@ pub enum EntityToken {
     /// Default is 256, minimum is 0, maximum is 25600.
     ///
     /// e.g. `[SPHERE_ALIGNMENT:TREES:512]`
-    SphereAlignment,
+    SphereAlignment { sphere: String, number: u32 },
     // # Position Tokens #
     /// Defines a leader/noble position for a civilization. These replace previous tags such as `[MAYOR]` and `[CAN_HAVE_SITE_LEADER]` and so on.
     ///
     /// To define a position further, see Position token.
-    Position,
-    /// Arguments: land  holder ID, population, wealth exported, wealth created
-    ///
-    /// Defines when a particular land-holding noble (baron, count, duke in vanilla) will arrive at a fortress.
-    ///
-    /// As of version 0.44.11, however, this is obsolete due to the changes in how sites are elevated in status.
-    LandHolderTrigger,
+    Position { name: String },
     /// Arguments: position responsibility or 'ALL'
     ///
     /// Allows a site responsibility to be taken up by a dynamically generated position (lords, hearth-persons, etc.).
     /// Any defined positions holding a given responsibility will take precedence over generated positions for that responsibility.
     /// Also appears to cause site disputes.
-    SiteVariablePositions,
+    SiteVariablePositions { responsibility: String },
     /// Arguments: position responsibility or 'ALL'
     ///
     /// Allows a responsibility to be taken up by a dynamically generated position (such as Law-maker).
     /// Any defined positions holding a given responsibility will take precedence over generated positions for that responsibility.
-    VariablePositions,
+    VariablePositions { responsibility: String },
     // # Behavior Tokens #
     /// Arguments: behavior, action
     ///
@@ -287,7 +287,7 @@ pub enum EntityToken {
     /// and when at extremes (one ACCEPTABLE, another civ UNTHINKABLE; for example) they will often go to war over it.
     ///
     /// e.g. `[ETHIC:EAT_SAPIENT_KILL:ACCEPTABLE]`
-    Ethic,
+    Ethic { behavior: String, rating: String },
     /// Arguments: value, number
     ///
     /// Sets the civ's cultural values. Numbers range from -50 (complete anathema) to 0 (neutral) to 50 (highly valued).
@@ -300,7 +300,7 @@ pub enum EntityToken {
     /// - 15+ COOPERATION and 15+ CRAFTSMANSHIP for craft guilds
     ///
     /// Guilds also need guild-valid professions (see `PERMITTED_JOB`)
-    Value,
+    Value { value: String, strength: u32 },
     /// Arguments: value or `ALL`, min, max
     ///
     /// Makes values randomized rather than specified.
@@ -308,7 +308,7 @@ pub enum EntityToken {
     /// This tag overrides the VALUE tag. Using `[VARIABLE_VALUE:ALL:x:y]` and then overwriting single values with further
     ///
     /// e.g. `[VARIABLE_VALUE:value:x:y]` tags works
-    VariableValue,
+    VariableValue { value: String, min: u32, max: u32 },
     /// Makes the civ's traders accept offered goods.
     WillAcceptTribute,
     /// The civ will send out Wanderer adventurers in worldgen, which seems to increase Tracker skill.
@@ -346,7 +346,7 @@ pub enum EntityToken {
     /// which civ to trade with at the depot menu. `ACTIVE_SEASON` tags may be changed for a currently active fort.
     ///
     /// e.g. `[ACTIVE_SEASON:SUMMER]`
-    ActiveSeason,
+    ActiveSeason { season: String },
     /// When invading, sneaks around and shoots at straggling members of your society. They will spawn on the edge of the map and will only be visible when
     /// one of their party are spotted; this can be quite dangerous to undefended trade depots. If the civilization also has the SIEGER token,
     /// they will eventually ramp it up to less subtle means of warfare.
@@ -371,7 +371,7 @@ pub enum EntityToken {
     /// Arguments: percentage
     ///
     /// Sets a percentage of the entity population to be used as bandits.
-    Banditry,
+    Banditry { percentage: u32 },
     /// Visiting diplomats are accompanied by a pair of soldiers.
     DiplomatBodyguards,
     /// Found on generated divine "HF Guardian Entities". Cannot be used in user-defined raws.
@@ -413,7 +413,7 @@ pub enum EntityToken {
     /// Progress triggers may be changed, added, or deleted for a currently active fort.
     ///
     /// Note: hostile civs require that this be fulfilled as well as at least one other non-siege trigger before visiting for non-siege activities.
-    ProgressTriggerPopulation,
+    ProgressTriggerPopulation { level: u32 },
     /// Arguments: level
     ///
     /// 0 to 5, civ will come to site once created wealth has reached that level. If multiple progress triggers exist for a civ,
@@ -427,7 +427,7 @@ pub enum EntityToken {
     /// - 5 to 300000☼.
     ///
     /// Progress triggers may be changed, added, or deleted for a currently active fort.
-    ProgressTriggerProduction,
+    ProgressTriggerProduction { level: u32 },
     /// Arguments: level
     ///
     /// 0 to 5, civ will come to site once exported goods has reached that level. If multiple progress triggers exist for a civ,
@@ -441,28 +441,28 @@ pub enum EntityToken {
     /// - 5 to 30000☼.
     ///
     /// Progress triggers may be changed, added, or deleted for a currently active fort.
-    ProgressTriggerTrade,
+    ProgressTriggerTrade { level: u32 },
     /// Arguments: level
     ///
     /// 0 to 5, civ will begin to send sieges against the player civ when this level is reached if it is hostile.
     ///
     /// If multiple progress triggers exist for a civ, it will come when any one of them is fulfilled instead of
     /// waiting for all of them to be reached. A value of 0 disables the trigger
-    ProgressTriggerPopulationSiege,
+    ProgressTriggerPopulationSiege { level: u32 },
     /// Arguments: level
     ///
     /// 0 to 5, civ will begin to send sieges against the player civ when this level is reached if it is hostile.
     ///
     /// If multiple progress triggers exist for a civ, it will come when any one of them is fulfilled instead of
     /// waiting for all of them to be reached. A value of 0 disables the trigger
-    ProgressTriggerProductionSiege,
+    ProgressTriggerProductionSiege { level: u32 },
     /// Arguments: level
     ///
     /// 0 to 5, civ will begin to send sieges against the player civ when this level is reached if it is hostile.
     ///
     /// If multiple progress triggers exist for a civ, it will come when any one of them is fulfilled instead of
     /// waiting for all of them to be reached. A value of 0 disables the trigger
-    ProgressTriggerTradeSiege,
+    ProgressTriggerTradeSiege { level: u32 },
     /// Will start campfires and wait around at the edge of your map for a month or two before rushing in to attack.
     /// This will occur when the progress triggers for sieging are reached. If the civ lacks smaller methods of conflict
     /// (`AMBUSHER`, `BABYSNATCHER`, `ITEM_THIEF`), they will instead send smaller-scale sieges when their triggers for
@@ -499,7 +499,7 @@ pub enum EntityToken {
     /// Arguments: scholar type
     ///
     /// `ALL`, `ASTRONOMER`, `CHEMIST`, `DOCTOR`, `ENGINEER`, `GEOGRAPHER`, `HISTORIAN`, `MATHEMATICIAN`, `NATURALIST`, `PHILOSOPHER`
-    Scholar,
+    Scholar { scholar_type: String },
     /// Generates scholars based on the values generated with the `VARIABLE_VALUE` tag.
     SetScholarsOnValuesAndJobs,
     /// Used for kobolds.
@@ -513,7 +513,7 @@ pub enum EntityToken {
     /// Used before a ranged weapon type.
     ///
     /// e.g. `[AMMO:ITEM_AMMO_BOLTS]`
-    Ammo,
+    Ammo { item: String },
     /// Arguments: `item_token`, rarity
     ///
     /// Rarity is optional, and valid values are FORCED, COMMON, UNCOMMON, and RARE (anything else is treated as COMMON).
@@ -522,7 +522,7 @@ pub enum EntityToken {
     /// until an option is successfully chosen.
     ///
     /// e.g. `[ARMOR:ITEM_ARMOR_PLATEMAIL:COMMON]`
-    Armor,
+    Armor { item: String, chance: String },
     /// Arguments: `item_token`
     ///
     /// Causes the selected weapon to fall under the "digging tools" section of the embark screen.
@@ -532,21 +532,21 @@ pub enum EntityToken {
     /// for that, the item itself needs to be a weapon with `[SKILL:MINING]`.
     ///
     /// e.g. `[DIGGER:ITEM_WEAPON_PICK]`
-    Digger,
+    Digger { item: String },
     /// Arguments: `item_token`, `rarity`
     ///
     /// Rarity is optional, and valid values are FORCED, COMMON, UNCOMMON, and RARE (anything else is treated as COMMON).
     /// Uses the same rarity values and methods as outlined in ARMOR.
     ///
     /// e.g. `[GLOVES:ITEM_GLOVES_GAUNTLETS:COMMON]`
-    Gloves,
+    Gloves { item: String, chance: String },
     /// Arguments: `item_token`, `rarity`
     ///
     /// Rarity is optional, and valid values are FORCED, COMMON, UNCOMMON, and RARE (anything else is treated as COMMON).
     /// Uses the same rarity values and methods as outlined in ARMOR.
     ///
     /// e.g. `[HELM:ITEM_HELM_HELM:COMMON]`
-    Helm,
+    Helm { item: String, chance: String },
     /// Arguments: `item_token`
     ///
     /// No longer used as of Version 0.42.01 due to the ability to generate instruments in world generation.
@@ -557,48 +557,48 @@ pub enum EntityToken {
     /// to the craftsdwarf workshop menu.
     ///
     /// e.g. `[INSTRUMENT:ITEM_INSTRUMENT_FLUTE]`
-    Instrument,
+    Instrument { item: String },
     /// Arguments: `item_token`, `rarity`
     ///
     /// Rarity is optional, and valid values are FORCED, COMMON, UNCOMMON, and RARE (anything else is treated as COMMON).
     /// Uses the same rarity values and methods as outlined in ARMOR.
     ///
     /// e.g. `[PANTS:ITEM_PANTS_LEGGINGS:COMMON]`
-    Pants,
+    Pants { item: String, chance: String },
     /// Arguments: `item_token`
     ///
     /// e.g. `[SHIELD:ITEM_SHIELD_BUCKLER]`
-    Shield,
+    Shield { item: String },
     /// Arguments: `item_token`, `rarity`
     ///
     /// Rarity is optional, and valid values are FORCED, COMMON, UNCOMMON, and RARE (anything else is treated as COMMON).
     /// Uses the same rarity values and methods as outlined in ARMOR.
     ///
     /// e.g. `[SHOES:ITEM_SHOES_BOOTS:COMMON]`
-    Shoes,
+    Shoes { item: String, chance: String },
     /// Arguments: `item_token`
     ///
     /// e.g. `[SIEGEAMMO:ITEM_SIEGEAMMO_BALLISTA]`
-    SiegeAmmo,
+    SiegeAmmo { item: String },
     /// Arguments: `item_token`
     ///
     /// e.g. `[TOOL:ITEM_TOOL_NEST_BOX]`
-    Tool,
+    Tool { item: String },
     /// Arguments: `item_token`
     ///
     /// e.g. `[TOY:ITEM_TOY_PUZZLEBOX]`
-    Toy,
+    Toy { item: String },
     /// Arguments: `item_token`
     ///
     /// e.g. `[TRAPCOMP:ITEM_TRAPCOMP_GIANTAXEBLADE]`
-    TrapComponent,
+    TrapComponent { item: String },
     /// Arguments: `item_token`
     ///
     /// While this does not accept a rarity value, something similar can be achieved by having multiple variations of a weapon type
     /// with small differences and specifying each of them.
     ///
     /// e.g. `[WEAPON:ITEM_WEAPON_AXE_BATTLE]`
-    Weapon,
+    Weapon { item: String },
     /// Allows use of products made from animals. All relevant creatures will be able to provide wool, silk, and extracts (including milk and venom)
     /// for trade, and non-sentient creatures (unless ethics state otherwise) will be able to provide eggs, caught fish, meat, leather, bone,
     /// shell, pearl, horn, and ivory.
@@ -706,11 +706,11 @@ pub enum EntityToken {
     /// Arguments: shape
     ///
     /// Precious gems cut by this civilization's jewelers can be of this shape.
-    GemShape,
+    GemShape { shape: String },
     /// Arguments: shape
     ///
     /// Ordinary non-gem stones cut by this civilization's jewelers can be of this shape.
-    StoneShape,
+    StoneShape { shape: String },
     /// Allows use of materials with `[DIVINE]` for clothing. Used for generated divine entities.
     DivineMatClothing,
     /// Allows use of materials with `[DIVINE]` for crafts. Used for generated divine entities.
@@ -726,20 +726,20 @@ pub enum EntityToken {
     /// Arguments: creature token
     ///
     /// Select specific creature.
-    AnimalToken,
+    AnimalToken { creature: String },
     /// Arguments: creature caste token
     ///
     /// Select specific creature caste (requires `ANIMAL_TOKEN`). Sites with animal populations will still include all castes,
     /// but only the selected ones will be used for specific roles.
-    AnimalCasteToken,
+    AnimalCasteToken { caste: String },
     /// Arguments: creature class
     ///
     /// Select creature castes with this creature class (multiple uses allowed).
-    AnimalClass,
+    AnimalClass { class: String },
     /// Arguments: creature class
     ///
     /// Forbid creature castes with this creature class (multiple uses allowed).
-    AnimalForbiddenClass,
+    AnimalForbiddenClass { class: String },
     /// Animal will be present even if it does not naturally occur in the entity's terrain.
     /// All creatures, including demons, night trolls and other generated ones will be used if no specific creature or class is selected.
     AnimalAlwaysPresent,
@@ -767,17 +767,17 @@ pub enum EntityToken {
     ///
     /// Select a tissue layer which has the ID attached using `TISSUE_STYLE_UNIT` token in unit raws.
     /// This allows setting further cultural style parameters for the selected tissue layer.
-    TissueStyle,
+    TissueStyle { tissue: String },
     /// Arguments: min : max
     ///
     /// Presumably sets culturally preferred tissue length for selected tissue. Needs testing.
     /// Dwarves have their beards set to 100:NONE by default.
-    TissueStyleMaintainLength,
+    TissueStyleMaintainLength { min: u32, max: u32 },
     /// Arguments: styling token
     ///
     /// Valid tokens are `NEATLY_COMBED`, `BRAIDED`, `DOUBLE_BRAIDS`, `PONY_TAILS`, `CLEAN_SHAVEN` and `STANDARD_HAIR/BEARD/MOUSTACHE/SIDEBURNS_SHAPINGS`.
     /// Presumably sets culturally preferred tissue shapings for selected tissue. Needs testing.
-    TissueStylePreferredShaping,
+    TissueStylePreferredShaping { style: String },
     /// An unknown token
     #[default]
     Unknown,

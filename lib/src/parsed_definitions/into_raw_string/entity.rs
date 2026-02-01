@@ -12,12 +12,8 @@ impl ToRawFileString for Entity {
         file_lines.push(String::new());
         file_lines.push(format!("[ENTITY:{}]", self.get_identifier()));
 
-        for token in self.get_tags() {
-            file_lines.push(format!(
-                "\t[{}:{}]",
-                token.0.get_key().unwrap_or_default(),
-                token.1
-            ));
+        for token in self.get_tokens() {
+            file_lines.push(format!("\t{}", token.to_raw_token()));
         }
 
         file_lines.join("\n") + "\n"

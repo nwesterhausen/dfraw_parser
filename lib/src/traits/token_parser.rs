@@ -85,25 +85,27 @@ pub trait TokenParser: Debug {
 
     /// Helper: Parses a Label (String) + Variable number of values.
     /// Usage: [TAG:LABEL:1:2:3...] -> parse_labeled_vector(..., |label, vec| ...)
-    fn parse_labeled_vector<T, F, S>(&self, values: &[&str], builder: F) -> Option<S>
+    fn parse_labeled_vector<Y, T, F, S>(&self, values: &[&str], builder: F) -> Option<S>
     where
+        Y: FromStr + Default + Debug,
+        <Y as FromStr>::Err: Debug,
         T: std::str::FromStr,
         <T as std::str::FromStr>::Err: std::fmt::Debug,
-        F: Fn(String, Vec<T>) -> S,
+        F: Fn(Y, Vec<T>) -> S,
     {
         if values.is_empty() {
             tracing::warn!("parse_labeled_vector: missing label for tag {:?}", self);
             return None;
         }
 
-        let label = values[0].to_string();
+        let label = self.parse_value(values.first()?)?;
 
         // Try to parse the rest of the slice into a Vec<T>
         let parsed_args: Vec<T> = values[1..]
                 .iter()
                 .map(|&v| v.parse::<T>())
                 .collect::<Result<_, _>>()
-                .map_err(|e| tracing::warn!("parse_labeled_vector: failed to parse args for tag {:?} label '{label}': {e:?}", self))
+                .map_err(|e| tracing::warn!("parse_labeled_vector: failed to parse args for tag {:?} label '{label:?}': {e:?}", self))
                 .ok()?;
 
         Some(builder(label, parsed_args))
@@ -151,7 +153,7 @@ pub trait TokenParser: Debug {
             return None;
         }
 
-        // 1. Collect exactly N items into a Vec
+        // Collect exactly N items into a Vec
         // This handles the parsing and the "NONE" logic via our custom parse_value
         let parsed_vec: Vec<T> = values
             .iter()
@@ -159,7 +161,7 @@ pub trait TokenParser: Debug {
             .map(|v| self.parse_value(v))
             .collect::<Option<Vec<T>>>()?;
 
-        // 2. Convert the Vec into an Array
+        // Convert the Vec into an Array
         // This can move Strings into the array without needing Copy
         match parsed_vec.try_into() {
             Ok(arr) => Some(builder(arr)),
@@ -177,11 +179,18 @@ pub trait TokenParser: Debug {
     /// Helper: Parses a Label + N values.
     /// Updated to support non-Copy types.
     /// Usage: [TAG:LABEL:1:2:3...] -> parse_labeled_vector(..., |label, vec| ...)
-    fn parse_labeled_array<T, const N: usize, F, S>(&self, values: &[&str], builder: F) -> Option<S>
+    /// Usage: [TAG:10:Something:Else...] -> parse_labeled_vector(..., |label, vec| ...)
+    fn parse_labeled_array<Y, T, const N: usize, F, S>(
+        &self,
+        values: &[&str],
+        builder: F,
+    ) -> Option<S>
     where
-        T: FromStr + Default + Debug, // Removed Copy
+        Y: FromStr + Default + Debug,
+        <Y as FromStr>::Err: Debug,
+        T: FromStr + Default + Debug,
         <T as FromStr>::Err: Debug,
-        F: Fn(String, [T; N]) -> S,
+        F: Fn(Y, [T; N]) -> S,
     {
         if values.len() < N + 1 {
             tracing::warn!(
@@ -193,7 +202,7 @@ pub trait TokenParser: Debug {
             return None;
         }
 
-        let label = values[0].to_string();
+        let label = self.parse_value(values.first()?)?;
 
         // Same logic: Collect N items (skipping the label) into a Vec
         let parsed_vec: Vec<T> = values[1..]
@@ -227,11 +236,11 @@ pub trait TokenParser: Debug {
             return None;
         }
 
-        // 1. Parse the Tail (Last Element)
+        // Parse the Tail (Last Element)
         let tail_str = values.last()?;
         let tail = self.parse_value::<U>(tail_str)?;
 
-        // 2. Parse the Body (All elements except the last)
+        // Parse the Body (All elements except the last)
         let body_values = &values[..values.len() - 1];
         let body: Vec<T> = body_values
             .iter()
@@ -247,3 +256,5 @@ impl TokenParser for crate::tokens::CasteToken {}
 impl TokenParser for crate::tokens::CreatureToken {}
 impl TokenParser for crate::tokens::PlantToken {}
 impl TokenParser for crate::tokens::ConditionToken {}
+impl TokenParser for crate::tokens::EntityToken {}
+impl TokenParser for crate::tokens::PositionToken {}

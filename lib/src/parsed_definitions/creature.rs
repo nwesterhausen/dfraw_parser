@@ -5,7 +5,7 @@
 use std::collections::HashSet;
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
-use tracing::{debug, trace, warn};
+use tracing::{debug, warn};
 use uuid::Uuid;
 
 use crate::{
@@ -763,17 +763,19 @@ impl RawObject for Creature {
     #[allow(clippy::too_many_lines)]
     fn parse_tag(&mut self, key: &str, value: &str) {
         if CASTE_TOKENS.contains_key(key) {
-            #[allow(clippy::unwrap_used)]
-            self.castes.last_mut().unwrap().parse_tag(key, value);
-            return;
-        }
-        if !CREATURE_TOKENS.contains_key(key) {
-            trace!("parse_tag: unknown tag {} with value {}", key, value);
+            if let Some(caste) = self.castes.last_mut() {
+                caste.parse_tag(key, value);
+                return;
+            }
+            // Create an unknown caste to parse it instead of missing the token
+            let mut caste = Caste::new("unknown");
+            caste.parse_tag(key, value);
+            self.castes.push(caste);
             return;
         }
 
         let Some(tag) = CreatureToken::parse(key, value) else {
-            warn!("parse_tag: unknown tag {} with value {}", key, value);
+            warn!("CreatureToken::parse: failed to parse {key}:{value}");
             return;
         };
 

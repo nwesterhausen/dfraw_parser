@@ -1,5 +1,10 @@
 //! The enum variants are used to represent the raw tokens in a more Rust-friendly way.
 
+mod flags;
+mod numeric_flags;
+mod raw_token_impl;
+mod tag_operations;
+
 mod biome;
 mod caste;
 mod color_modification;
@@ -11,7 +16,6 @@ mod creature_variation;
 mod creature_variation_rule;
 mod entity;
 mod environment_class;
-mod flags;
 mod fuel_type;
 mod gait_modifier;
 mod gait_type;
@@ -24,7 +28,6 @@ mod material_state;
 mod material_type;
 mod material_usage;
 mod modification;
-mod numeric_flags;
 mod object_type;
 mod plant;
 mod plant_graphic_template;
@@ -32,7 +35,6 @@ mod plant_growth;
 mod plant_growth_type;
 mod plant_part;
 mod position;
-mod raw_token_impl;
 mod season;
 mod select_creature_rule;
 mod shrub;

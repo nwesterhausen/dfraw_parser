@@ -1,6 +1,6 @@
 //! Position tags are used to define the properties of a position in the game. They are used in the `position` token.
 
-use crate::traits::IsEmpty;
+use crate::{custom_types::Amount, traits::IsEmpty};
 
 /// Represents a position token
 #[derive(
@@ -12,7 +12,6 @@ use crate::traits::IsEmpty;
     Eq,
     Default,
     specta::Type,
-    Copy,
     strum_macros::EnumIter,
 )]
 pub enum PositionToken {
@@ -21,19 +20,19 @@ pub enum PositionToken {
     /// Arguments: creature class token
     ///
     /// Only creatures with the specified class token can be appointed to this position. Multiple entries are allowed
-    AllowedClass,
+    AllowedClass { class: String },
     /// Arguments: creature:caste token
     ///
     /// Restricts the position to only the defined caste. Only works with a caste of the entity's current race.
     /// (If the entity had multiple CREATURE: tokens). Multiple entries are allowed
-    AllowedCreature,
+    AllowedCreature { creature: String, caste: String },
     /// Arguments: position
     ///
     /// This position can only be chosen for the task from the nobles screen, and is available only if there is an *argument* present.
     /// For example, the `GENERAL` is `[APPOINTED_BY:MONARCH]`. Contrast `[ELECTED]`. Being appointed by a `MONARCH` seems to handle a lot of
     /// worldgen stuff, and interferes with fort mode titles. Multiple entries are allowed. If you have neither an `ELECTED`-token nor a
     /// `APPOINTED_BY`-token, the holder may always be changed (like the expedition leader)
-    AppointedBy,
+    AppointedBy { position: String },
     /// A creature that kills a member of this position will be sure to talk about it a lot.
     BragOnKill,
     /// In adventure mode, when referencing locations, an NPC may mention this position holder living there or having done some
@@ -47,19 +46,26 @@ pub enum PositionToken {
     /// Creatures of this position will have this color, instead of their profession color
     ///
     /// e.g. `[COLOR:5:0:1]`.
-    Color,
+    Color {
+        foreground: u32,
+        background: u32,
+        brightness: u32,
+    },
     /// Arguments: position, 'ALL'
     ///
     /// This position will act as a commander of the specified position.
     ///
     /// E.g. GENERAL is `[COMMANDER:LIEUTENANT:ALL]`. Unknown if values other than ALL work. Multiple entries are allowed
-    Commander,
+    Commander {
+        position: String,
+        commanded_position: String,
+    },
     /// This position is a puppet ruler left behind in a conquered site.
     ConqueredSite,
     /// Arguments: number (0-`100`)
     ///
     /// How many demands the position can make of the population at one time.
-    DemandMax,
+    DemandMax { amount: u32 },
     /// The site's (or civ's) minted coins, if any, will have images that reflect the personality of this position holder.
     DeterminesCoinDesign,
     /// The position won't be culled from Legends as "unimportant" during world generation.
@@ -74,7 +80,7 @@ pub enum PositionToken {
     /// Arguments: weapon skill
     ///
     /// A mandatory sub-tag of `[RESPONSIBILITY:EXECUTIONS]`. Determines the weapon chosen by the executioner for their work.
-    ExecutionSkill,
+    ExecutionSkill { skill: String },
     /// The various members who have filled this role will be listed in the civilization's history.
     ExportedInLegends,
     /// The creature holding this position will visibly flash, like legendary citizens. Represents a properly noble station by default.
@@ -82,7 +88,7 @@ pub enum PositionToken {
     /// Arguments: 'MALE' or 'FEMALE'
     ///
     /// The position can only be held by the specified gender. Currently bugged Bug:2714
-    Gender,
+    Gender { name: String },
     /// The position can assign quests to adventurers.
     KillQuest,
     /// Arguments: importance tier (1-`10`)
@@ -90,7 +96,7 @@ pub enum PositionToken {
     /// This is an alternative to `SITE`. What it does is allow positions to be created at civ-level 'as needed' for all sites that
     /// meet the requirements to have them, which are the values set in `LAND_HOLDER_TRIGGER`. The character is tied permanently to
     /// a particular site but also operates at the civ-level. Since 50* modded levels of higher than 3 are possible.
-    LandHolder,
+    LandHolder { importance: u32 },
     /// Arguments: name (a string)
     ///
     /// The name the area takes on when under the control of a `LAND_HOLDER`.
@@ -98,7 +104,7 @@ pub enum PositionToken {
     /// E.g. for the DUKE, `[LAND_NAME:a duchy]`.
     ///
     /// If the position is not a `LAND_HOLDER`, the `land_name` is still displayed left of the position in the nobles menu.
-    LandName,
+    LandName { name: String },
     /// Arguments: number (0-`100`)
     ///
     /// The maximum number of mandates the position can make at once.
@@ -112,23 +118,23 @@ pub enum PositionToken {
     /// Arguments: `SingPlurName`
     ///
     /// The name of the position.
-    Name,
+    Name { singular: String, plural: String },
     /// Arguments: `SingPlurName`
     ///
     /// If the creature holding the position is male, this is the position's name.
     ///
     /// E.g. for MONARCH, `[NAME_MALE:king:kings]`
-    NameMale,
+    NameMale { singular: String, plural: String },
     /// Arguments: `SingPlurName`
     ///
     /// If the creature holding the position is female, this is the position's name.
     ///
     /// E.g. for MONARCH, `[NAME_FEMALE:queen:queens]`
-    NameFemale,
+    NameFemale { singular: String, plural: String },
     /// arguments: description
     ///
     /// Description of this position in the nobles screen.
-    Description,
+    Description { description: String },
     /// Arguments: number or `AS_NEEDED`
     ///
     /// How many of the position there should be. If the `[SITE]` token exists, this is per site, otherwise this is per civilization.
@@ -138,7 +144,7 @@ pub enum PositionToken {
     /// The problem with Lieutenants and Captains not been created, is their `AS_NEEDED` number.
     /// They are only then created when the're needed, and that has some pretty unusual conditions.
     /// When a fixed number is used, they are appointed with the creation of the civ.
-    Number,
+    Number { number: Amount },
     /// Arguments: number (0 - `30_000`) or 'NONE'
     ///
     /// How important the position is in society; a lower number is more important and displayed higher in the Nobles menu.
@@ -147,7 +153,7 @@ pub enum PositionToken {
     ///
     /// A civ-position will also be created without precedence. Positions may have the same precedence and will be appointed,
     /// although the effect is unknown.
-    Precedence,
+    Precedence { importance: Amount },
     /// The position holder will not be held accountable for his or her crimes. Currently nonfunctional.
     PunishmentExemption,
     /// The position holder can give quests in Adventure mode. Functionality in 0.31.13 and later is uncertain.
@@ -155,48 +161,48 @@ pub enum PositionToken {
     /// Arguments: creature class token
     ///
     /// Creatures of the specified class cannot be appointed to this position. Multiple entries are allowed
-    RejectedClass,
+    RejectedClass { class: String },
     /// Arguments: `creature:caste` token
     ///
     /// Restricts position holders by `CREATURE` type. Multiple entries are allowed
-    RejectedCreature,
+    RejectedCreature { creature: String, caste: String },
     /// Arguments: position
     ///
     /// This position is absorbed by another down the line. For example, expedition leader is `[REPLACED_BY:MAYOR]`.
     /// Only a single entry is allowed.
-    ReplacedBy,
+    ReplacedBy { position: String },
     /// Arguments: number (0 - `10_000_000`)
     ///
     /// The position holder requires a bedroom with at least this value.
-    RequiredBedroom,
+    RequiredBedroom { value: u32 },
     /// Arguments: number (0 - `100`)
     ///
     /// The position holder requires at least this many boxes.
-    RequiredBoxes,
+    RequiredBoxes { amount: u32 },
     /// Arguments: number (0 - `100`)
     ///
     /// The position holder requires at least this many cabinets.
-    RequiredCabinets,
+    RequiredCabinets { amount: u32 },
     /// Arguments: number (0 - `10_000_000`)
     ///
     /// The position holder requires a dining room with at least this value.
-    RequiredDining,
+    RequiredDining { value: u32 },
     /// Arguments: number (0 - `10_000_000`)
     ///
     /// The position holder requires an office with at least this value.
-    RequiredOffice,
+    RequiredOffice { value: u32 },
     /// Arguments: number (0 - `100`)
     ///
     /// The position holder requires at least this many weapon racks.
-    RequiredRacks,
+    RequiredRacks { amount: u32 },
     /// Arguments: number (0 - `100`)
     ///
     /// The position holder requires at least this many armour stands.
-    RequiredStands,
+    RequiredStands { amount: u32 },
     /// Arguments: number (0 - `10_000_000`)
     ///
     /// The position holder requires a tomb with at least this value.
-    RequiredTomb,
+    RequiredTomb { value: u32 },
     /// Does not have anything directly to do with markets. It means that in minor sites (such as hillocks) the position will not
     /// appear, while in major sites (such as dwarf fortresses) it will.
     RequiresMarket,
@@ -204,13 +210,13 @@ pub enum PositionToken {
     ///
     /// The position requires the population to be at least this number before it becomes available, or before the position holder
     /// will move in.
-    RequiresPopulation,
+    RequiresPopulation { population: u32 },
     /// Arguments: responsibility
     ///
     /// The position holder does a thing. See the table below for suitable arguments.
     ///
     /// A position does not need to have a responsibility.
-    Responsibility,
+    Responsibility { responsibility: String },
     /// If there is a special location set aside for rulers, such as a human castle/mead hall, the position holder will always be
     /// found at that particular location. Does nothing for dwarven nobles, because at present, dwarves have no such special locations.
     RulesFromLocation,
@@ -226,27 +232,31 @@ pub enum PositionToken {
     /// Arguments: `SingPlurName`
     ///
     /// The name of the position holder's spouse.
-    Spouse,
+    Spouse { singular: String, plural: String },
     /// Arguments: `SingPlurName`
     ///
     /// If the spouse of the creature holding the position is female, this is the spouse's position name.
-    SpouseFemale,
+    SpouseFemale { singular: String, plural: String },
     /// Arguments: `SingPlurName`
     ///
     /// If the spouse of the creature holding the position is male, this is the spouse's position name.
-    SpouseMale,
+    SpouseMale { singular: String, plural: String },
     /// Arguments: `number:SingPlurName`
     ///
     /// The position holder is authorized to form a military squad, led by themselves using the leader and military tactics skills.
     /// The number denotes the maximum headcount. The noun used to describe the subordinates (e.g. royal guard) is used in adventure
     /// mode for the adventurer.
-    Squad,
+    Squad {
+        headcount: u32,
+        singular: String,
+        plural: String,
+    },
     /// Arguments: `BY_HEIR` or `BY_POSITION:position`
     ///
     /// How a new position holder is chosen. A single position can have multiple `BY_POSITION` tokens.
     /// See Noble for more information on how succession is handled in the game.
-    Succession,
-    /// An uknow token.
+    Succession { inheritor: String },
+    /// An uknown token.
     #[default]
     Unknown,
 }
