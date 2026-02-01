@@ -1,5 +1,7 @@
 //! Tokens that can be found in an entity raw file.
 
+use crate::custom_types::Color;
+
 /// Tokens that can be found in an entity raw file.
 #[derive(
     serde::Serialize,
@@ -230,12 +232,8 @@ pub enum EntityToken {
     ///
     /// e.g. `[FRIENDLY_COLOR:1:0:1]`
     FriendlyColor {
-        /// The foreground color
-        foreground: u32,
-        /// The background color
-        background: u32,
-        /// The brightness of the color
-        brightness: u32,
+        /// The unit color
+        color: Color,
     },
     // # Religion Tokens #
     /// Arguments: type

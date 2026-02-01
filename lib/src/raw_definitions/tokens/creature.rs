@@ -1,6 +1,9 @@
 //! String token to parsed tag map for creature tokens.
 
-use crate::{custom_types::TileCharacter, tokens::CreatureToken};
+use crate::{
+    custom_types::{Color, Name, TileCharacter},
+    tokens::CreatureToken,
+};
 
 /// A map of creature tags to their respective enum values.
 pub static CREATURE_TOKENS: phf::Map<&'static str, CreatureToken> = phf::phf_map! {
@@ -18,7 +21,7 @@ pub static CREATURE_TOKENS: phf::Map<&'static str, CreatureToken> = phf::phf_map
     "VERMIN_ROTTER" => CreatureToken::VerminRotter,
     "VERMIN_GROUNDER" => CreatureToken::VerminGrounder,
     "VERMIN_EATER" => CreatureToken::VerminEater,
-    "FREQUENCY" => CreatureToken::Frequency { frequency: 0 },
+    "FREQUENCY" => CreatureToken::Frequency { frequency: 50 },
     "UNDERGROUND_DEPTH" => CreatureToken::UndergroundDepth { min: 0, max: 0 },
     "LARGE_ROAMING" => CreatureToken::LargeRoaming,
     "LOCAL_POPS_CONTROLLABLE" => CreatureToken::LocalPopsControllable,
@@ -27,18 +30,18 @@ pub static CREATURE_TOKENS: phf::Map<&'static str, CreatureToken> = phf::phf_map
     "MUNDANE" => CreatureToken::Mundane,
     "BIOME" => CreatureToken::Biome { id: String::new() },
     "PREFSTRING" => CreatureToken::PrefString { pref_string: String::new() },
-    "NAME" => CreatureToken::Name { name: String::new(), plural_name: String::new(), adjective: String::new() },
-    "GENERAL_BABY_NAME" => CreatureToken::GeneralBabyName { singular: String::new(), plural: String::new() },
-    "GENERAL_CHILD_NAME" => CreatureToken::GeneralChildName { singular: String::new(), plural: String::new() },
-    "POPULATION_NUMBER" => CreatureToken::PopulationNumber { min: 0, max: 0 },
+    "NAME" => CreatureToken::Name { name: Name::new_empty() },
+    "GENERAL_BABY_NAME" => CreatureToken::GeneralBabyName { name: Name::new_empty() },
+    "GENERAL_CHILD_NAME" => CreatureToken::GeneralChildName { name: Name::new_empty() },
+    "POPULATION_NUMBER" => CreatureToken::PopulationNumber { min: 1, max: 1 },
     "COPY_TAGS_FROM" => CreatureToken::CopyTagsFrom { creature: String::new() },
     "CREATURE_TILE" => CreatureToken::CreatureTile { character: TileCharacter::new() },
     "ALTTILE" => CreatureToken::AltTile { character: TileCharacter::new() },
-    "COLOR" => CreatureToken::Color { foreground: 0, background: 0, brightness: 0 },
-    "GLOWCOLOR" => CreatureToken::GlowColor { foreground: 0, background: 0, brightness: 0 },
+    "COLOR" => CreatureToken::Color { color: Color::new() },
+    "GLOWCOLOR" => CreatureToken::GlowColor { color: Color::new() },
     "GLOWTILE" => CreatureToken::GlowTile { character: TileCharacter::new()  },
     "CHANGE_FREQUENCY_PERC" => CreatureToken::ChangeFrequencyPercent { percent: 0 },
-    "CLUSTER_NUMBER" => CreatureToken::ClusterNumber { min: 0, max: 0 },
+    "CLUSTER_NUMBER" => CreatureToken::ClusterNumber { min: 1, max: 1 },
     "MATES_TO_BREED" => CreatureToken::MatesToBreed,
     "ALL_CASTES_ALIVE" => CreatureToken::AllCastesAlive,
     "TWO_GENDERS" => CreatureToken::TwoGenders,

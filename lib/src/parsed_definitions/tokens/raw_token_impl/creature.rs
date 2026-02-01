@@ -47,25 +47,17 @@ impl RawToken for CreatureToken {
             CreatureToken::CopyTagsFrom { creature } => format!("[{key}:{creature}]"),
             CreatureToken::CreatureSoldierTile { character } => format!("[{key}:{character}]"),
             CreatureToken::CreatureTile { character } => format!("[{key}:{character}]"),
-            CreatureToken::Color {
-                foreground,
-                background,
-                brightness,
-            } => format!("[{key}:{foreground}:{background}:{brightness}]"),
+            CreatureToken::Color { color } => format!("[{key}:{}]", color.as_value()),
 
             CreatureToken::Frequency { frequency } => format!("[{key}:{frequency}]"),
-            CreatureToken::GeneralBabyName { singular, plural } => {
-                format!("[{key}:{singular}:{plural}]")
+            CreatureToken::GeneralBabyName { name } => {
+                format!("[{key}:{}]", name.as_vec().join(":"))
             }
-            CreatureToken::GeneralChildName { singular, plural } => {
-                format!("[{key}:{singular}:{plural}]")
+            CreatureToken::GeneralChildName { name } => {
+                format!("[{key}:{}]", name.as_vec().join(":"))
             }
 
-            CreatureToken::GlowColor {
-                foreground,
-                background,
-                brightness,
-            } => format!("[{key}:{foreground}:{background}:{brightness}]"),
+            CreatureToken::GlowColor { color } => format!("[{key}:{}]", color.as_value()),
             CreatureToken::GlowTile { character } => format!("[{key}:{character}]"),
 
             CreatureToken::GoToTag { tag } => format!("[{key}:{tag}]"),
@@ -75,11 +67,7 @@ impl RawToken for CreatureToken {
                 item_tokens,
             } => format!("[{key}:{number}:{time}:{}]", item_tokens.join(":")),
 
-            CreatureToken::Name {
-                name,
-                plural_name,
-                adjective,
-            } => format!("[{key}:{name}:{plural_name}:{adjective}]"),
+            CreatureToken::Name { name } => format!("[{key}:{}]", name.as_vec().join(":")),
             CreatureToken::PlusMaterial { material } => format!("[{key}:{material}]"),
             CreatureToken::PopulationNumber { min, max } => format!("[{key}:{min}:{max}]"),
             CreatureToken::PrefString { pref_string } => format!("[{key}:{pref_string}]"),

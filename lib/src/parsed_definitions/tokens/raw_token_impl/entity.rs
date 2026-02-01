@@ -59,11 +59,7 @@ impl RawToken for EntityToken {
             EntityToken::CullSymbol { noun, symbol } => {
                 format!("[{}:{}:{}]", key, noun, symbol)
             }
-            EntityToken::FriendlyColor {
-                foreground,
-                background,
-                brightness,
-            } => format!("[{}:{}:{}:{}]", key, foreground, background, brightness),
+            EntityToken::FriendlyColor { color } => format!("[{key}:{}]", color.as_value()),
             EntityToken::SphereAlignment { sphere, number } => {
                 format!("[{}:{}:{}]", key, sphere, number)
             }

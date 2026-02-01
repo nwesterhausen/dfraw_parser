@@ -55,7 +55,7 @@ pub struct Plant {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pref_strings: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<PlantToken>>,
+    pub tokens: Vec<PlantToken>,
 
     // Environment Tokens
     /// Default [0, 0] (aboveground)
@@ -138,19 +138,9 @@ impl Plant {
 
     #[must_use]
     pub fn get_tags(&self) -> Vec<PlantToken> {
-        if self.tags.is_none() {
-            return Vec::new();
-        }
-
-        let mut ret_tags = Vec::new();
-        if let Some(tags) = &self.tags {
-            for tag in tags {
-                ret_tags.push(*tag);
-            }
-        }
-        ret_tags
+        self.tokens.clone()
     }
-    pub fn get_all_names(&self) -> Vec<&str> {
+    pub fn get_names(&self) -> Vec<&str> {
         let mut names = HashSet::new();
 
         names.insert(self.name.get_singular());
@@ -182,17 +172,7 @@ impl Plant {
     ///
     /// * `tag` - The tag to add to the plant
     pub fn add_tag(&mut self, tag: PlantToken) {
-        if self.tags.is_none() {
-            self.tags = Some(Vec::new());
-        }
-        if let Some(tags) = self.tags.as_mut() {
-            tags.push(tag);
-        } else {
-            warn!(
-                "Plant::add_tag: ({}) Failed to add tag {:?}",
-                self.identifier, tag
-            );
-        }
+        self.tokens.push(tag)
     }
 
     /// Check whether the plant has a specific tag
@@ -206,11 +186,9 @@ impl Plant {
     /// Whether the plant has the tag
     #[must_use]
     pub fn has_tag(&self, tag: &PlantToken) -> bool {
-        if let Some(tags) = &self.tags {
-            for t in tags {
-                if std::mem::discriminant(t) == std::mem::discriminant(tag) {
-                    return true;
-                }
+        for t in &self.tokens {
+            if std::mem::discriminant(t) == std::mem::discriminant(tag) {
+                return true;
             }
         }
         false

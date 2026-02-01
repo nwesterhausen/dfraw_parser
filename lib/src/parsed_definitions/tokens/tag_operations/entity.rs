@@ -196,13 +196,7 @@ impl TagOperations for EntityToken {
                 EntityToken::CullSymbol { noun, symbol }
             }),
             EntityToken::FriendlyColor { .. } => {
-                token.parse_array(&values, |[foreground, background, brightness]| {
-                    EntityToken::FriendlyColor {
-                        foreground,
-                        background,
-                        brightness,
-                    }
-                })
+                token.parse_single(&values, |color| EntityToken::FriendlyColor { color })
             }
             EntityToken::Religion { .. } => token.parse_single(&values, |religion_type| {
                 EntityToken::Religion { religion_type }

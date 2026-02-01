@@ -1,1 +1,2 @@
+mod creature;
 mod entity;

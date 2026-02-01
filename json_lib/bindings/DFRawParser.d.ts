@@ -379,7 +379,7 @@ identifier: string;
 /**
  * A collection of tags assigned to this caste.
  */
-tags: CasteToken[] | null; 
+tokens: CasteToken[]; 
 /**
  * Flavor text shown in-game when examining a creature of this caste.
  */
@@ -4421,6 +4421,18 @@ metadata: Metadata | null;
  */
 identifier: string; 
 /**
+ * A generated id that is used to uniquely identify this object.
+ * 
+ * This is deterministic based on the following:
+ * * The raw's `identifier`
+ * * The raw's [`ObjectType`]
+ * * [`RawModuleLocation`] where the raw was found
+ * * The containing module's `numeric_version`
+ * 
+ * See [`crate::utilities::generate_object_id`]
+ */
+objectId: string; 
+/**
  * The `castes` field is a vector of `Caste` objects. Each `Caste` object represents a caste of the
  * creature. For example, a creature may have a `MALE` and `FEMALE` caste. Each `Caste` object has
  * its own properties, such as `name`, `description`, `body`, `flags`, etc.
@@ -4431,71 +4443,7 @@ castes: Caste[];
 /**
  * Any tags that are not parsed into their own fields are stored in the `tags` field.
  */
-tags: CreatureToken[] | null; 
-/**
- * The biomes that this creature can be found in
- */
-biomes: BiomeToken[] | null; 
-/**
- * Pref strings are things that make dwarves (or others?) like or dislike the creature.
- */
-prefStrings: string[] | null; 
-/**
- * The tile that represents the creature in the game (classic mode)
- */
-tile: Tile | null; 
-/**
- * Determines the chances of a creature appearing within its environment, with higher values resulting in more frequent appearance.
- * 
- * Also affects the chance of a creature being brought in a caravan for trading. The game effectively considers all creatures that
- * can possibly appear and uses the FREQUENCY value as a weight - for example, if there are three creatures with frequencies 10/25/50,
- * the creature with `[FREQUENCY:50]` will appear approximately 58.8% of the time.
- * 
- * Defaults to 50 if not specified.
- * 
- * Minimum value is 0, maximum value is 100.
- * 
- * Note: not to be confused with `[POP_RATIO]`.
- */
-frequency: number | null; 
-/**
- * The minimum/maximum numbers of how many creatures per spawned cluster. Vermin fish with this token in combination with
- * temperate ocean and river biome tokens will perform seasonal migrations.
- * 
- * Defaults to [1,1] if not specified.
- */
-clusterNumber: [number, number] | null; 
-/**
- * The minimum/maximum numbers of how many of these creatures are present in each world map tile of the appropriate region.
- * 
- * Defaults to [1,1] if not specified.
- */
-populationNumber: [number, number] | null; 
-/**
- * Depth that the creature appears underground. Numbers can be from 0 to 5. 0 is actually 'above ground' and can be used if the
- * creature is to appear both above and below ground. Values from 1-3 are the respective cavern levels, 4 is the magma sea and
- * 5 is the HFS.
- * 
- * A single argument may be used instead of min and max.
- * 
- * Civilizations that can use underground plants or animals will only export (via the embark screen or caravans) things that are available at depth 1.
- * 
- * Default [0, 0] (aboveground)
- */
-undergroundDepth: [number, number] | null; 
-/**
- * Like `[BABYNAME]`, but applied regardless of caste.
- */
-generalBabyName: Name | null; 
-/**
- * Like `[CHILDNAME]`, but applied regardless of caste.
- */
-generalChildName: Name | null; 
-/**
- * The generic name for any creature of this type - will be used when distinctions between caste are unimportant. For names for specific castes,
- * use `[CASTE_NAME]` instead. If left undefined, the creature will be labeled as "nothing" by the game.
- */
-name: Name; 
+tokens: CreatureToken[]; 
 /**
  * Copies another specified creature. This will override any definitions made before it; essentially, it makes this creature identical to the other one,
  * which can then be modified. Often used in combination with `[APPLY_CREATURE_VARIATION]` to import standard variations from a file.
@@ -4509,18 +4457,6 @@ copyTagsFrom: string | null;
  * These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
  */
 applyCreatureVariation: string[] | null; 
-/**
- * A generated id that is used to uniquely identify this object.
- * 
- * This is deterministic based on the following:
- * * The raw's `identifier`
- * * The raw's [`ObjectType`]
- * * [`RawModuleLocation`] where the raw was found
- * * The containing module's `numeric_version`
- * 
- * See [`crate::utilities::generate_object_id`]
- */
-objectId: string; 
 /**
  * Various `SELECT_CREATUR` modifications.
  */
@@ -4982,17 +4918,9 @@ character: TileCharacter } } |
  */
 { Color: { 
 /**
- * The foreground color
+ * The color
  */
-foreground: number; 
-/**
- * The background color
- */
-background: number; 
-/**
- * The brightness of the color
- */
-brightness: number } } | 
+color: Color } } | 
 /**
  * Adding this token to a creature prevents it from appearing in generated worlds (unless it's marked as always present for a particular
  * civilization). For example, adding it to dogs will lead to worlds being generated without dogs in them. Also removes the creature from the
@@ -5042,13 +4970,9 @@ frequency: number } } |
  */
 { GeneralBabyName: { 
 /**
- * The name of the baby
+ * The name for the baby
  */
-singular: string; 
-/**
- * The plural name of the baby
- */
-plural: string } } | 
+name: Name } } | 
 /**
  * Name of the creatures child form. Applies to all castes but can be overridden by `[CasteToken::ChildName]`.
  * 
@@ -5056,13 +4980,9 @@ plural: string } } |
  */
 { GeneralChildName: { 
 /**
- * The name of the child
+ * The name for the child
  */
-singular: string; 
-/**
- * The plural name of the child
- */
-plural: string } } | 
+name: Name } } | 
 /**
  * Found on procedurally generated creatures like forgotten beasts, titans, demons, angels, and night creatures. Cannot be specified in user-defined raws.
  * 
@@ -5082,17 +5002,9 @@ plural: string } } |
  */
 { GlowColor: { 
 /**
- * The foreground color
+ * The color
  */
-foreground: number; 
-/**
- * The background color
- */
-background: number; 
-/**
- * The brightness of the color
- */
-brightness: number } } | 
+color: Color } } | 
 /**
  * The creature's tile when it is glowing.
  * 
@@ -5206,17 +5118,9 @@ item_tokens: string[] } } |
  */
 { Name: { 
 /**
- * The name of the creature
+ * Name of the creature
  */
-name: string; 
-/**
- * The plural name of the creature
- */
-plural_name: string; 
-/**
- * The adjective form of the creature's name
- */
-adjective: string } } | 
+name: Name } } | 
 /**
  * Adds a material to selected materials. Used immediately after `[SELECT_MATERIAL]`.
  * 
@@ -6184,17 +6088,9 @@ export type EntityToken =
  */
 { FriendlyColor: { 
 /**
- * The foreground color
+ * The unit color
  */
-foreground: number; 
-/**
- * The background color
- */
-background: number; 
-/**
- * The brightness of the color
- */
-brightness: number } } | 
+color: Color } } | 
 /**
  * Arguments: type
  * 
@@ -9399,7 +9295,7 @@ metadata: Metadata | null; identifier: string;
  * 
  * See [`crate::utilities::generate_object_id`]
  */
-objectId: string; name: Name; prefStrings: string[] | null; tags: PlantToken[] | null; 
+objectId: string; name: Name; prefStrings: string[] | null; tokens: PlantToken[]; 
 /**
  * Default [0, 0] (aboveground)
  */

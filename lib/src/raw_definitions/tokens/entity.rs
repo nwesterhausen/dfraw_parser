@@ -1,6 +1,6 @@
 //! String token to parsed tag map for entity tokens.
 
-use crate::tokens::EntityToken;
+use crate::{custom_types::Color, tokens::EntityToken};
 /// A map of all the entity tokens to strings
 pub static ENTITY_TOKENS: phf::Map<&'static str, EntityToken> = phf::phf_map! {
     "ALL_MAIN_POPS_CONTROLLABLE" => EntityToken::AllMainPopsControllable,
@@ -30,7 +30,7 @@ pub static ENTITY_TOKENS: phf::Map<&'static str, EntityToken> = phf::phf_map! {
     "SELECT_SYMBOL" => EntityToken::SelectSymbol {noun: String::new(), symbol: String::new()},
     "SUBSELECT_SYMBOL" => EntityToken::SubselectSymbol {noun: String::new(), symbol: String::new()},
     "CULL_SYMBOL" => EntityToken::CullSymbol{noun: String::new(), symbol: String::new()},
-    "FRIENDLY_COLOR" => EntityToken::FriendlyColor { foreground: 0, background: 0, brightness: 0 },
+    "FRIENDLY_COLOR" => EntityToken::FriendlyColor { color: Color::new() },
     "RELIGION" => EntityToken::Religion {religion_type: String::new()},
     "RELIGION_SPHERE" => EntityToken::ReligionSphere {sphere: String::new()},
     "SPHERE_ALIGNMENT" => EntityToken::SphereAlignment {sphere: String::new(), number: 0},

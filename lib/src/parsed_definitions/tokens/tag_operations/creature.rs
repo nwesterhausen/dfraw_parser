@@ -88,33 +88,19 @@ impl TagOperations for CreatureToken {
                 CreatureToken::CreatureTile { character }
             }),
             CreatureToken::Color { .. } => {
-                token.parse_array(&values, |[foreground, background, brightness]| {
-                    CreatureToken::Color {
-                        foreground,
-                        background,
-                        brightness,
-                    }
-                })
+                token.parse_single(&values, |color| CreatureToken::Color { color })
             }
             CreatureToken::Frequency { .. } => {
                 token.parse_single(&values, |frequency| CreatureToken::Frequency { frequency })
             }
-            CreatureToken::GeneralBabyName { .. } => token
-                .parse_array(&values, |[singular, plural]| {
-                    CreatureToken::GeneralBabyName { singular, plural }
-                }),
-            CreatureToken::GeneralChildName { .. } => token
-                .parse_array(&values, |[singular, plural]| {
-                    CreatureToken::GeneralChildName { singular, plural }
-                }),
+            CreatureToken::GeneralBabyName { .. } => {
+                token.parse_single(&values, |name| CreatureToken::GeneralBabyName { name })
+            }
+            CreatureToken::GeneralChildName { .. } => {
+                token.parse_single(&values, |name| CreatureToken::GeneralChildName { name })
+            }
             CreatureToken::GlowColor { .. } => {
-                token.parse_array(&values, |[foreground, background, brightness]| {
-                    CreatureToken::GlowColor {
-                        foreground,
-                        background,
-                        brightness,
-                    }
-                })
+                token.parse_single(&values, |color| CreatureToken::GlowColor { color })
             }
             CreatureToken::GlowTile { .. } => {
                 token.parse_single(&values, |character| CreatureToken::GlowTile { character })
@@ -157,13 +143,7 @@ impl TagOperations for CreatureToken {
                 })
             }
             CreatureToken::Name { .. } => {
-                token.parse_array(&values, |[name, plural_name, adjective]| {
-                    CreatureToken::Name {
-                        name,
-                        plural_name,
-                        adjective,
-                    }
-                })
+                token.parse_single(&values, |name| CreatureToken::Name { name })
             }
             CreatureToken::PlusMaterial { .. } => {
                 token.parse_single(&values, |material| CreatureToken::PlusMaterial { material })

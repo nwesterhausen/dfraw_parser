@@ -103,18 +103,23 @@ impl FromStr for BodySize {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let split = s.split(':').collect::<Vec<&str>>();
         if split.len() != 3 {
-            return Err("BodySize requires 3 ':'-separated values; cannot parse {s}".into());
+            return Err(format!(
+                "BodySize requires 3 ':'-separated values; cannot parse {s}"
+            ));
         }
 
         let years = split[0]
+            .trim()
             .parse::<u32>()
             .map_err(|e| format!("Invalid years: {e}"))?;
 
         let days = split[1]
+            .trim()
             .parse::<u32>()
             .map_err(|e| format!("Invalid days: {e}"))?;
 
         let size_cm3 = split[2]
+            .trim()
             .parse::<u32>()
             .map_err(|e| format!("Invalid size_cm3: {e}"))?;
 

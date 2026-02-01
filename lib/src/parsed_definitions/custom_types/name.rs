@@ -191,16 +191,22 @@ impl FromStr for Name {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let split: Vec<&str> = s.split(':').collect::<Vec<&str>>();
 
-        if split.len() != 2 || split.len() != 3 {
+        if split.is_empty() || split.len() > 3 {
             return Err("Name requires 2 or 3 ':'-separated values, cannot use {s}".into());
         }
 
-        let singular = String::from(split[0]);
-        let plural = String::from(split[1]);
-        let adjective = if split.len() == 2 {
-            None
+        let singular = String::from(split[0].trim());
+        // Sometimes a plural is not specified, and the same singular gets used
+        let plural = if split.len() >= 2 {
+            String::from(split[1].trim())
         } else {
-            Some(String::from(split[2]))
+            singular.clone()
+        };
+        // Handle adjective if available
+        let adjective = if split.len() == 3 {
+            Some(String::from(split[2].trim()))
+        } else {
+            None
         };
 
         Ok(Self {

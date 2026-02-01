@@ -1,6 +1,6 @@
 //! Contains the `CreatureTag` enum and associated implementations.
 
-use crate::custom_types::TileCharacter;
+use crate::custom_types::{Color, Name, TileCharacter};
 
 /// An enum representing a creature tag.
 #[derive(
@@ -111,12 +111,8 @@ pub enum CreatureToken {
     ///
     /// Appears as `COLOR:0:0:0`
     Color {
-        /// The foreground color
-        foreground: u32,
-        /// The background color
-        background: u32,
-        /// The brightness of the color
-        brightness: u32,
+        /// The color
+        color: Color,
     },
     /// Adding this token to a creature prevents it from appearing in generated worlds (unless it's marked as always present for a particular
     /// civilization). For example, adding it to dogs will lead to worlds being generated without dogs in them. Also removes the creature from the
@@ -153,19 +149,15 @@ pub enum CreatureToken {
     ///
     /// Appears as `GENERAL_BABY_NAME:BabyName:BabyNames`
     GeneralBabyName {
-        /// The name of the baby
-        singular: String,
-        /// The plural name of the baby
-        plural: String,
+        /// The name for the baby
+        name: Name,
     },
     /// Name of the creatures child form. Applies to all castes but can be overridden by `[CasteToken::ChildName]`.
     ///
     /// Appears as `GENERAL_CHILD_NAME:ChildName:ChildNames`
     GeneralChildName {
-        /// The name of the child
-        singular: String,
-        /// The plural name of the child
-        plural: String,
+        /// The name for the child
+        name: Name,
     },
     /// Found on procedurally generated creatures like forgotten beasts, titans, demons, angels, and night creatures. Cannot be specified in user-defined raws.
     ///
@@ -181,12 +173,8 @@ pub enum CreatureToken {
     ///
     /// Appears as `GLOWCOLOR:0:0:0`
     GlowColor {
-        /// The foreground color
-        foreground: u32,
-        /// The background color
-        background: u32,
-        /// The brightness of the color
-        brightness: u32,
+        /// The color
+        color: Color,
     },
     /// The creature's tile when it is glowing.
     ///
@@ -269,12 +257,8 @@ pub enum CreatureToken {
     ///
     /// Appears as `NAME:Name:Names:NameAdj`
     Name {
-        /// The name of the creature
-        name: String,
-        /// The plural name of the creature
-        plural_name: String,
-        /// The adjective form of the creature's name
-        adjective: String,
+        /// Name of the creature
+        name: Name,
     },
     /// Adds a material to selected materials. Used immediately after `[SELECT_MATERIAL]`.
     ///

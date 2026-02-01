@@ -3,6 +3,7 @@
 pub mod custom_types;
 mod into_raw_string;
 mod raw_object;
+mod searchable;
 pub mod tokens;
 
 mod caste;

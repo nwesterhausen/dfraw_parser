@@ -137,14 +137,17 @@ impl FromStr for Color {
         }
 
         let foreground = split[0]
+            .trim()
             .parse::<u8>()
             .map_err(|e| format!("Invalid foreground: {e}"))?;
 
         let background = split[1]
+            .trim()
             .parse::<u8>()
             .map_err(|e| format!("Invalid background: {e}"))?;
 
         let brightness = split[2]
+            .trim()
             .parse::<u8>()
             .map_err(|e| format!("Invalid brightness: {e}"))?;
 

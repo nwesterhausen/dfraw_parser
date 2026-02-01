@@ -1,3 +1,4 @@
+use dfraw_parser::traits::Searchable as _;
 use dfraw_parser::{Creature, Graphic, TilePage, tokens::ObjectType, traits::RawObject};
 use rusqlite::{Connection, Result, params};
 use uuid::Uuid;
@@ -370,8 +371,8 @@ fn populate_side_tables(conn: &Connection, raw_id: i64, raw: &Box<dyn RawObject>
         conn.execute(INSERT_COMMON_FLAG, params![raw_id, flag])?;
     }
 
-    let mut search_names = Vec::<&str>::new();
-    let mut search_descriptions = Vec::<&str>::new();
+    let mut search_names = Vec::<String>::new();
+    let mut search_descriptions = Vec::<String>::new();
 
     match raw.get_type() {
         ObjectType::Creature => {

@@ -3,7 +3,7 @@
 //! The `ExportedCreature` struct is used to store information about a creature that has been exported
 //! from the Legends Viewer.
 
-use crate::{Creature, custom_types::Name, metadata::RawMetadata};
+use crate::{Creature, custom_types::Name, metadata::RawMetadata, tokens::CreatureToken};
 
 /// The `ExportedCreature` struct is used to store information about a creature that has been exported
 #[derive(Debug, Default)]
@@ -68,7 +68,9 @@ impl ExportedCreature {
     #[must_use]
     pub fn into_creature(self, metadata: &RawMetadata) -> Creature {
         let mut creature = Creature::new(&self.creature_id, metadata);
-        creature.set_name(Name::new(&self.name_singular, &self.name_plural, ""));
+        creature.add_token(CreatureToken::Name {
+            name: Name::new(&self.name_singular, &self.name_plural, ""),
+        });
         creature.parse_tags_from_xml(self.tags.as_slice());
 
         creature

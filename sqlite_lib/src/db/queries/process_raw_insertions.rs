@@ -171,13 +171,13 @@ fn process_raw_insertions_inner(
         for name in &search_names {
             pending_names_batch.push(PendingName {
                 raw_id: raw_db_id,
-                name: name.to_string(),
+                name: name.clone(),
             });
         }
 
         pending_search_batch.push(PendingSearch {
             raw_id: raw_db_id,
-            names: remove_dup_strings(search_names, true).join(" "),
+            names: remove_dup_strings(search_names.as_slice(), true).join(" "),
             description: search_descriptions.join(" "),
         });
 

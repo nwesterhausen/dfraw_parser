@@ -31,11 +31,11 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct Caste {
     /// The unique name used in raw files for this caste (e.g., "MALE", "FEMALE").
-    identifier: String,
+    pub identifier: String,
     /// A collection of tags assigned to this caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[cleanable(ignore)]
-    tags: Option<Vec<CasteToken>>,
+    pub tokens: Vec<CasteToken>,
     /// Flavor text shown in-game when examining a creature of this caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     description: Option<String>,
@@ -273,7 +273,7 @@ impl Caste {
     /// * `&[CasteTag]` - The tags of the creature caste.
     #[must_use]
     pub fn get_tags(&self) -> &[CasteToken] {
-        self.tags.as_ref().map_or(&[], |tags| tags.as_slice())
+        self.tokens.as_slice()
     }
 
     /// Returns the tiles used to represent this caste in-game.
@@ -291,11 +291,9 @@ impl Caste {
     /// This check uses the variant discriminant to match tags regardless of internal data.
     #[must_use]
     pub fn has_tag(&self, tag: &CasteToken) -> bool {
-        if let Some(tags) = &self.tags {
-            for t in tags {
-                if std::mem::discriminant(t) == std::mem::discriminant(tag) {
-                    return true;
-                }
+        for t in &self.tokens {
+            if std::mem::discriminant(t) == std::mem::discriminant(tag) {
+                return true;
             }
         }
         false
@@ -328,7 +326,7 @@ impl Caste {
     /// This method maps raw file tokens directly to internal struct fields.
     #[allow(clippy::too_many_lines)]
     pub fn parse_tag(&mut self, key: &str, value: &str) {
-        let Some(tag) = CasteToken::parse(key, value) else {
+        let Some(token) = CasteToken::parse(key, value) else {
             warn!(
                 "parse_tag: called `Option::unwrap()` on a `None` value for presumed caste tag: '{}'",
                 key
@@ -336,13 +334,9 @@ impl Caste {
             return;
         };
 
-        if let Some(tags) = self.tags.as_mut() {
-            tags.push(tag.clone());
-        } else {
-            self.tags = Some(vec![tag.clone()]);
-        }
+        self.tokens.push(token.clone());
 
-        match tag {
+        match token {
             CasteToken::Description { description } => self.description = Some(description),
             CasteToken::EggSize { size } => self.egg_size = Some(size),
             CasteToken::Baby { age } => self.baby = Some(age),
@@ -483,9 +477,7 @@ impl Caste {
                 }
             }
 
-        if let Some(tags) = self.tags.as_mut() {
-            tags.retain(|t| t != tag);
-        }
+        self.tokens.retain(|t| t != tag);
     }
 
     /// Overwrites the properties of this caste with non-default values from another.
@@ -497,11 +489,9 @@ impl Caste {
     #[allow(clippy::cognitive_complexity)]
     pub fn overwrite_caste(&mut self, other: &Self) {
         // Include any tags from other that aren't in self
-        if let Some(tags) = &other.tags {
-            for tag in tags {
-                if !self.has_tag(tag) {
-                    self.add_tag(tag.clone());
-                }
+        for tag in &other.tokens {
+            if !self.has_tag(tag) {
+                self.add_tag(tag.clone());
             }
         }
 
@@ -578,12 +568,8 @@ impl Caste {
     ///
     /// * `tag` - The [`CasteTag`] to add.
     fn add_tag(&mut self, tag: CasteToken) {
-        if let Some(tags) = self.tags.as_mut() {
-            if !tags.contains(&tag) {
-                tags.push(tag);
-            }
-        } else {
-            self.tags = Some(vec![tag]);
+        if !self.tokens.contains(&tag) {
+            self.tokens.push(tag);
         }
     }
 }
