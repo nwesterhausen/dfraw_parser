@@ -9,7 +9,8 @@ use tracing::{debug, warn};
 use uuid::Uuid;
 
 use crate::{
-    Caste, Name, SelectCreature, Tile,
+    Caste, SelectCreature,
+    custom_types::{Name, Tile},
     metadata::{NumericToken, RawMetadata},
     raw_definitions::{BIOME_TOKENS, CASTE_TOKENS, CREATURE_TOKENS},
     tokens::{BiomeToken, CasteToken, CreatureToken, ObjectType},

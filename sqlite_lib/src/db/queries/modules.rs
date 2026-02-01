@@ -109,13 +109,13 @@ pub fn insert_module_record(conn: &Connection, info: &ModuleInfo) -> Result<i64>
                 .map(|s| s.get_file_id().cast_signed()),
             info.get_steam_data()
                 .as_ref()
-                .map(dfraw_parser::SteamData::get_title),
+                .map(dfraw_parser::custom_types::SteamData::get_title),
             info.get_steam_data()
                 .as_ref()
-                .map(dfraw_parser::SteamData::get_description),
+                .map(dfraw_parser::custom_types::SteamData::get_description),
             info.get_steam_data()
                 .as_ref()
-                .map(dfraw_parser::SteamData::get_changelog),
+                .map(dfraw_parser::custom_types::SteamData::get_changelog),
             info.get_object_id().as_bytes()
         ],
     )?;

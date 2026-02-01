@@ -7,7 +7,7 @@ use tracing::warn;
 use uuid::Uuid;
 
 use crate::{
-    Dimensions,
+    custom_types::Dimensions,
     metadata::RawMetadata,
     raw_definitions::TILE_PAGE_TOKENS,
     tokens::{ObjectType, TilePageToken},

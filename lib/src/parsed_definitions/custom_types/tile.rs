@@ -2,7 +2,7 @@
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
-use super::color::Color;
+use super::Color;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(
@@ -160,7 +160,7 @@ impl Tile {
     /// # Example
     ///
     /// ```
-    /// use dfraw_parser::Tile;
+    /// use dfraw_parser::custom_types::Tile;
     ///
     /// let tile = Tile::default().with_character("a");
     /// ```

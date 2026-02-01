@@ -457,10 +457,6 @@ creatureClass: string[] | null;
  */
 bodySize: BodySize[] | null; 
 /**
- * Material and frequency information for milking.
- */
-milkable: Milkable | null; 
-/**
  * Character and color data for map representation.
  */
 tile: Tile | null; 
@@ -8962,11 +8958,6 @@ export type Metadata = {
  * * The containing module's `numeric_version`
  */
 moduleObjectId: string; moduleName: string; moduleVersion: string; rawFilePath: string; rawIdentifier: string; objectType: ObjectType; rawModuleLocation: RawModuleLocation; moduleNumericVersion: number }
-
-/**
- * How often a creature can be milked and what material it produces
- */
-export type Milkable = { material: string; frequency: number }
 
 /**
  * A struct representing a modification to a creature

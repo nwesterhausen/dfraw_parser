@@ -4,7 +4,8 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use tracing::warn;
 
 use crate::{
-    BodySize, Gait, Milkable, Name, Tile,
+    Gait,
+    custom_types::{BodySize, Name, Tile},
     raw_definitions::CASTE_TOKENS,
     tokens::CasteToken,
     traits::{IsEmpty, TagOperations},
@@ -95,9 +96,6 @@ pub struct Caste {
     /// Growth stages and volume measurements.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     body_size: Option<Vec<BodySize>>,
-    /// Material and frequency information for milking.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    milkable: Option<Milkable>,
     /// Character and color data for map representation.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     tile: Option<Tile>,
@@ -250,17 +248,6 @@ impl Caste {
         self.max_age
     }
 
-    /// Returns the milkable properties of this caste, if applicable.
-    ///
-    /// This includes the material produced and the frequency at which the
-    /// creature can be milked, defined by the `[MILKABLE]` tag.
-    #[must_use]
-    pub fn get_milkable(&self) -> Milkable {
-        self.milkable
-            .as_ref()
-            .map_or_else(Milkable::default, std::clone::Clone::clone)
-    }
-
     /// Returns the pet value of this caste, if specified.
     ///
     /// The pet value affects how desirable this creature is as a pet and influences
@@ -383,7 +370,6 @@ impl Caste {
                     self.body_size = Some(vec![BodySize::from_value(value)]);
                 }
             }
-            CasteToken::Milkable { .. } => self.milkable = Some(Milkable::from_value(value)),
             CasteToken::BabyName { .. } => self.baby_name = Some(Name::from_value(value)),
             CasteToken::Name { .. } => self.caste_name = Some(Name::from_value(value)),
             CasteToken::ChildName { .. } => self.child_name = Some(Name::from_value(value)),
@@ -476,7 +462,6 @@ impl Caste {
                         body_sizes.retain(|body_size| body_size != &BodySize::from_value(value));
                     }
                 }
-                "MILKABLE" => self.milkable = None,
                 "BABY_NAME" => self.baby_name = None,
                 "NAME" => self.caste_name = None,
                 "CHILD_NAME" => self.child_name = None,
@@ -583,9 +568,6 @@ impl Caste {
         }
         if !other.body_size.is_empty() {
             self.body_size = other.body_size.clone();
-        }
-        if !other.milkable.is_empty() {
-            self.milkable = other.milkable.clone();
         }
         if !other.tile.is_empty() {
             self.tile = other.tile.clone();

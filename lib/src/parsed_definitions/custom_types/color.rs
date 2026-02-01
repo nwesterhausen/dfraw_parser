@@ -1,6 +1,9 @@
 //! A module containing the `Color` struct and its implementations.
 
+use std::str::FromStr;
+
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+use tracing::error;
 
 /// Represents a Dwarf Fortress color triplet.
 ///
@@ -41,21 +44,19 @@ impl Color {
     /// # Examples
     ///
     /// ```
-    /// use dfraw_parser::Color;
+    /// use dfraw_parser::custom_types::Color;
     /// let color = Color::from_value("7:0:1");
     /// assert_eq!(color.get_foreground(), 7);
     /// ```
     #[must_use]
     pub fn from_value(value: &str) -> Self {
-        let split = value.split(':').collect::<Vec<&str>>();
-        if split.len() == 3 {
-            return Self {
-                foreground: split.first().unwrap_or(&"").parse::<u8>().unwrap_or(0),
-                background: split.get(1).unwrap_or(&"").parse::<u8>().unwrap_or(0),
-                brightness: split.get(2).unwrap_or(&"").parse::<u8>().unwrap_or(0),
-            };
+        match Self::from_str(value) {
+            Ok(size) => size,
+            Err(e) => {
+                error!("Color::from_value {e}");
+                Self::default()
+            }
         }
-        Self::default()
     }
 
     /// Returns true if the color is the default (all components are 0).
@@ -104,5 +105,34 @@ impl std::convert::From<(u8, u8, u8)> for Color {
 impl PartialEq<(u8, u8, u8)> for Color {
     fn eq(&self, other: &(u8, u8, u8)) -> bool {
         self.foreground == other.0 && self.background == other.1 && self.brightness == other.2
+    }
+}
+
+impl FromStr for Color {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let split = s.split(':').collect::<Vec<&str>>();
+        if split.len() != 3 {
+            return Err("Color requires 3 ':'-separated values; cannot parse {s}".into());
+        }
+
+        let foreground = split[0]
+            .parse::<u8>()
+            .map_err(|e| format!("Invalid foreground: {e}"))?;
+
+        let background = split[1]
+            .parse::<u8>()
+            .map_err(|e| format!("Invalid background: {e}"))?;
+
+        let brightness = split[2]
+            .parse::<u8>()
+            .map_err(|e| format!("Invalid brightness: {e}"))?;
+
+        Ok(Self {
+            foreground,
+            background,
+            brightness,
+        })
     }
 }

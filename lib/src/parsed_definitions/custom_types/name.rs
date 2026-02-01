@@ -1,5 +1,7 @@
 //! Name struct for singular, plural, and adjective names (or any combination thereof)
 
+use std::str::FromStr;
+
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 /// A name with a singular, plural, and adjective form
@@ -171,5 +173,30 @@ impl Name {
             plural: name_plural.to_string(),
             adjective: None,
         }
+    }
+}
+
+impl FromStr for Name {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let split: Vec<&str> = s.split(':').collect::<Vec<&str>>();
+
+        if split.len() != 2 || split.len() != 3 {
+            return Err("Name requires 2 or 3 ':'-separated values, cannot use {s}".into());
+        }
+
+        let singular = String::from(split[0]);
+        let plural = String::from(split[1]);
+        let adjective = if split.len() == 2 {
+            None
+        } else {
+            Some(String::from(split[2]))
+        };
+
+        Ok(Self {
+            singular,
+            plural,
+            adjective,
+        })
     }
 }

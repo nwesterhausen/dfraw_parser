@@ -4,7 +4,8 @@ use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
 use crate::{
-    Color, MaterialMechanics, StateNames, Syndrome, Temperatures, Tile,
+    MaterialMechanics, StateNames, Syndrome,
+    custom_types::{Color, Temperatures, Tile},
     raw_definitions::{
         CREATURE_EFFECT_TOKENS, FUEL_TYPE_TOKENS, MATERIAL_PROPERTY_TOKENS, MATERIAL_TYPE_TOKENS,
         MATERIAL_USAGE_TOKENS, SYNDROME_TOKENS,

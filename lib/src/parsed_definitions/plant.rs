@@ -7,7 +7,8 @@ use tracing::{debug, warn};
 use uuid::Uuid;
 
 use crate::{
-    Material, Name, PlantGrowth, Shrub, Tree,
+    Material, PlantGrowth, Shrub, Tree,
+    custom_types::Name,
     metadata::RawMetadata,
     raw_definitions::{
         BIOME_TOKENS, MATERIAL_PROPERTY_TOKENS, MATERIAL_USAGE_TOKENS, PLANT_GROWTH_TOKENS,

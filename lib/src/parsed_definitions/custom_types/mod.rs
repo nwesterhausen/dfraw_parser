@@ -1,7 +1,21 @@
 mod amount;
+mod body_size;
+mod color;
+mod dimensions;
 mod habit_count;
+mod name;
+mod steam_data;
+mod temperatures;
+mod tile;
 mod tile_char;
 
 pub use amount::Amount;
+pub use body_size::BodySize;
+pub use color::Color;
+pub use dimensions::Dimensions;
 pub use habit_count::HabitCount;
+pub use name::Name;
+pub use steam_data::SteamData;
+pub use temperatures::Temperatures;
+pub use tile::Tile;
 pub use tile_char::TileCharacter;

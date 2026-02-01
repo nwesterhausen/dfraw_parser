@@ -5,7 +5,7 @@ use itertools::Itertools;
 use tracing::warn;
 
 use crate::{
-    Dimensions,
+    custom_types::Dimensions,
     raw_definitions::{CONDITION_TOKENS, GRAPHIC_TYPE_TOKENS},
     tokens::{ColorModificationToken, ConditionToken, GraphicTypeToken},
 };

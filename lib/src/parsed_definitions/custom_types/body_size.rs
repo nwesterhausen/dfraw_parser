@@ -1,5 +1,9 @@
 //! A module containing the `[BodySize]` struct and its implementation.
 
+use std::str::FromStr;
+
+use tracing::error;
+
 /// Represents a creature's body size at a specific age.
 ///
 /// This structure is used to define growth stages for creatures in Dwarf Fortress raw files.
@@ -27,20 +31,18 @@ impl BodySize {
     /// # Examples
     ///
     /// ```
-    /// use dfraw_parser::BodySize;
+    /// use dfraw_parser::custom_types::BodySize;
     /// let size = BodySize::from_value("1:150:5000");
     /// ```
     #[must_use]
     pub fn from_value(value: &str) -> Self {
-        let split = value.split(':').collect::<Vec<&str>>();
-        if split.len() == 3 {
-            return Self {
-                years: split.first().unwrap_or(&"").parse::<u32>().unwrap_or(0),
-                days: split.get(1).unwrap_or(&"").parse::<u32>().unwrap_or(0),
-                size_cm3: split.get(2).unwrap_or(&"").parse::<u32>().unwrap_or(0),
-            };
+        match Self::from_str(value) {
+            Ok(size) => size,
+            Err(e) => {
+                error!("BodySize::from_value {e}");
+                Self::default()
+            }
         }
-        Self::default()
     }
     /// Returns the years portion of this body size
     #[must_use]
@@ -77,5 +79,34 @@ impl std::fmt::Display for BodySize {
                 self.size_cm3, self.years, year_ending, self.days, day_ending
             ),
         }
+    }
+}
+
+impl FromStr for BodySize {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let split = s.split(':').collect::<Vec<&str>>();
+        if split.len() != 3 {
+            return Err("BodySize requires 3 ':'-separated values; cannot parse {s}".into());
+        }
+
+        let years = split[0]
+            .parse::<u32>()
+            .map_err(|e| format!("Invalid years: {e}"))?;
+
+        let days = split[1]
+            .parse::<u32>()
+            .map_err(|e| format!("Invalid days: {e}"))?;
+
+        let size_cm3 = split[2]
+            .parse::<u32>()
+            .map_err(|e| format!("Invalid size_cm3: {e}"))?;
+
+        Ok(Self {
+            years,
+            days,
+            size_cm3,
+        })
     }
 }

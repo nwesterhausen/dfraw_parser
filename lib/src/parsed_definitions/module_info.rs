@@ -19,7 +19,7 @@ use crate::{
     utilities::{generate_object_id, get_parent_dir_name, try_get_file},
 };
 
-use super::steam_data::SteamData;
+use super::custom_types::SteamData;
 
 /// Represents the `info.txt` file for a raw module
 #[derive(
