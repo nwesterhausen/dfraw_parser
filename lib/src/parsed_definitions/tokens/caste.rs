@@ -1,7 +1,9 @@
 //! Tags that can be used to define a creature's caste.
 
 use crate::{
-    custom_types::TileCharacter, parsed_definitions::custom_types::HabitCount, tokens::ObjectType,
+    custom_types::{BodySize, Color, Name, TileCharacter},
+    parsed_definitions::custom_types::HabitCount,
+    tokens::ObjectType,
 };
 
 /// Tokens that can be found in a creature's caste definitions.
@@ -112,10 +114,8 @@ pub enum CasteToken {
     ///
     /// Appears as `BABYNAME:SomeName:SomeNames`
     BabyName {
-        /// Singular name for the baby
-        singular: String,
-        /// Plural name for the baby
-        plural: String,
+        /// Name of the baby
+        name: Name,
     },
     /// Creature may be subject to beaching, becoming stranded on shores, where they will eventually air-drown. The
     /// number indicates the frequency of the occurrence. Presumably requires the creature to be `[Aquatic]`. Used by
@@ -192,12 +192,8 @@ pub enum CasteToken {
     ///
     /// Appears as `BODY_SIZE:0:0:1000`
     BodySize {
-        /// Year at which the size is set
-        year: u32,
-        /// Days at which the size is set
-        days: u32,
-        /// Size in cubic centimeters
-        size: u32,
+        /// The body size descriptor
+        size: BodySize,
     },
     /// Substitutes body part text with replacement text. Draws gloss information from `OBJECT:BODY`files
     /// (such as `body_default.txt`)
@@ -319,10 +315,8 @@ pub enum CasteToken {
     ///
     /// Appears as `CHILDNAME:SomeName:SomeNames`
     ChildName {
-        /// Singular name for the child
-        singular: String,
-        /// Plural name for the child
-        plural: String,
+        /// Name of the child
+        name: Name,
     },
     /// Number of eggs laid in one sitting.
     ///
@@ -343,12 +337,8 @@ pub enum CasteToken {
     ///
     /// Appears as `CASTE_COLOR:0:0:0`
     Color {
-        /// The foreground color
-        foreground: u32,
-        /// The background color
-        background: u32,
-        /// The brightness of the color
-        brightness: u32,
+        /// Color
+        color: Color,
     },
     /// When combined with any of `[Pet]`, `[PackAnimal]`, `[WagonPuller]` and/or `[Mount]`, the creature is guaranteed
     /// to be domesticated by any civilization with `[crate::tokens::EntityToken::CommonDomesticPet]`,
@@ -604,12 +594,8 @@ pub enum CasteToken {
     ///
     /// Appears as `CASTE_GLOWCOLOR:0:0:0`
     GlowColor {
-        /// The foreground color
-        foreground: u32,
-        /// The background color
-        background: u32,
-        /// The brightness of the color
-        brightness: u32,
+        /// Color
+        color: Color,
     },
     /// Caste-specific glow tile.
     ///
@@ -1157,12 +1143,8 @@ pub enum CasteToken {
     ///
     /// Appears as `CASTE_NAME:SomeName:SomeNames:SomeAdjective`
     Name {
-        /// The singular name of the caste
-        singular: String,
-        /// The plural name of the caste
-        plural: String,
-        /// The adjective form of the caste
-        adjective: String,
+        /// Name for the caste
+        name: Name,
     },
     /// Animal is considered to be natural. NATURAL animals will not engage creatures tagged with `[AtPeaceWitHWildlife]` in combat unless they are
     /// members of a hostile entity and vice-versa.
@@ -1557,10 +1539,8 @@ pub enum CasteToken {
     ProfessionName {
         /// The profession name / unit type token ID
         profession: String,
-        /// The singular name of the profession
-        singular: String,
-        /// The plural name of the profession
-        plural: String,
+        /// Name used for the profression
+        name: Name,
     },
     /// Creature has a percentage chance to flip out at visible non-friendly creatures. Enraged creatures attack anything regardless of timidity and get a
     /// strength bonus to their hits. This is what makes badgers so hardcore.

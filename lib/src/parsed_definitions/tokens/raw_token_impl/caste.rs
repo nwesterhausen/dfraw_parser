@@ -57,7 +57,7 @@ impl RawToken for CasteToken {
                 created_wealth,
             } => format!("[{key}:{population}:{exported_wealth}:{created_wealth}]"),
             CasteToken::Baby { age } => format!("[{key}:{age}]"),
-            CasteToken::BabyName { singular, plural } => format!("[{key}:{singular}:{plural}]"),
+            CasteToken::BabyName { name } => format!("[{key}:{}]", name.as_vec().join(":")),
             CasteToken::BeachFrequency { frequency } => format!("[{key}:{frequency}]"),
             CasteToken::Blood { material, state } => {
                 format!("[{key}:{}:{state}]", material.join(":"))
@@ -81,7 +81,7 @@ impl RawToken for CasteToken {
                     format!("[{key}:{body_plan}:{}]", arguments.join(":"))
                 }
             }
-            CasteToken::BodySize { year, days, size } => format!("[{key}:{year}:{days}:{size}]"),
+            CasteToken::BodySize { size } => format!("[{key}:{}]", size.as_value()),
             CasteToken::BodyGloss { gloss } => format!("[{key}:{gloss}]"),
             CasteToken::BodyPartAddType { body_part_type } => format!("[{key}:{body_part_type}]"),
             CasteToken::BodyPartAppearanceModifier { quality, spread } => {
@@ -101,13 +101,9 @@ impl RawToken for CasteToken {
             CasteToken::CanDoInteraction { interaction } => format!("[{key}:{interaction}]"),
             CasteToken::ChangeBodySizePercent { percent } => format!("[{key}:{percent}]"),
             CasteToken::Child { age } => format!("[{key}:{age}]"),
-            CasteToken::ChildName { singular, plural } => format!("[{key}:{singular}:{plural}]"),
+            CasteToken::ChildName { name } => format!("[{key}:{}]", name.as_vec().join(":")),
             CasteToken::ClutchSize { min, max } => format!("[{key}:{min}:{max}]"),
-            CasteToken::Color {
-                foreground,
-                background,
-                brightness,
-            } => format!("[{key}:{foreground}:{background}:{brightness}]"),
+            CasteToken::Color { color } => format!("[{key}:{}]", color.as_value()),
             CasteToken::CreatureClass { class } => format!("[{key}:{class}]"),
             CasteToken::CreatureVariationAddTag { tag } => format!("[{key}:{tag}]"),
             CasteToken::CreatureVariationRemoveTag { tag } => format!("[{key}:{tag}]"),
@@ -137,11 +133,7 @@ impl RawToken for CasteToken {
             CasteToken::GeneralMaterialForceMultiplier { value_a, value_b } => {
                 format!("[{key}:{value_a}:{value_b}]")
             }
-            CasteToken::GlowColor {
-                foreground,
-                background,
-                brightness,
-            } => format!("[{key}:{foreground}:{background}:{brightness}]"),
+            CasteToken::GlowColor { color } => format!("[{key}:{}]", color.as_value()),
             CasteToken::GlowTile { tile } => format!("[{key}:{tile}]"),
             CasteToken::Gnawer { verb } => format!("[{key}:{verb}]"),
             CasteToken::GobbleVerminClass { vermin_class } => format!("[{key}:{vermin_class}]"),
@@ -225,11 +217,7 @@ impl RawToken for CasteToken {
                 frequency,
             } => format!("[{key}:{}:{frequency}]", material.join(":")),
             CasteToken::ModValue { value } => format!("[{key}:{value}]"),
-            CasteToken::Name {
-                singular,
-                plural,
-                adjective,
-            } => format!("[{key}:{singular}:{plural}:{adjective}]"),
+            CasteToken::Name { name } => format!("[{key}:{}]", name.as_vec().join(":")),
             CasteToken::NaturalSkill { skill, level } => format!("[{key}:{skill}:{level}]"),
             CasteToken::OdorLevel { odor_level } => format!("[{key}:{odor_level}]"),
             CasteToken::OdorString { odor_string } => format!("[{key}:{odor_string}]"),
@@ -273,11 +261,9 @@ impl RawToken for CasteToken {
                 format!("[{key}:{}]", selector.join(":"))
             }
             CasteToken::PopulationRatio { pop_ratio } => format!("[{key}:{pop_ratio}]"),
-            CasteToken::ProfessionName {
-                profession,
-                singular,
-                plural,
-            } => format!("[{key}:{profession}:{singular}:{plural}]"),
+            CasteToken::ProfessionName { profession, name } => {
+                format!("[{key}:{profession}:{}]", name.as_vec().join(":"))
+            }
             CasteToken::ProneToRage { rage_chance } => format!("[{key}:{rage_chance}]"),
             CasteToken::Pus { material, state } => {
                 format!("[{key}:{}:{state}]", material.join(":"))

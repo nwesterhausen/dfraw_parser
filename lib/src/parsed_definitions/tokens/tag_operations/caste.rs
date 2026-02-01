@@ -219,12 +219,12 @@ impl TagOperations for CasteToken {
                 })
             }
             CasteToken::Baby { .. } => token.parse_single(&values, |age| CasteToken::Baby { age }),
-            CasteToken::BabyName { .. } => token.parse_array(&values, |[singular, plural]| {
-                CasteToken::BabyName { singular, plural }
-            }),
-            CasteToken::BeachFrequency { .. } => {
-                token.parse_single(&values, |frequency| CasteToken::BeachFrequency { frequency })
+            CasteToken::BabyName { .. } => {
+                token.parse_single(&values, |name| CasteToken::BabyName { name })
             }
+            CasteToken::BeachFrequency { .. } => token.parse_single(&values, |frequency| {
+                CasteToken::BeachFrequency { frequency }
+            }),
             CasteToken::Blood { .. } => token.parse_vector_with_tail(&values, |material, state| {
                 CasteToken::Blood { material, state }
             }),
@@ -243,9 +243,9 @@ impl TagOperations for CasteToken {
                     }
                 })
             }
-            CasteToken::BodySize { .. } => token.parse_array(&values, |[year, days, size]| {
-                CasteToken::BodySize { year, days, size }
-            }),
+            CasteToken::BodySize { .. } => {
+                token.parse_single(&values, |size| CasteToken::BodySize { size })
+            }
             CasteToken::BodyGloss { .. } => {
                 token.parse_single(&values, |gloss| CasteToken::BodyGloss { gloss })
             }
@@ -256,9 +256,10 @@ impl TagOperations for CasteToken {
                 .parse_labeled_array(&values, |quality, spread| {
                     CasteToken::BodyPartAppearanceModifier { quality, spread }
                 }),
-            CasteToken::BodyPartRemoveType { .. } => token.parse_single(&values, |body_part_type| {
-                CasteToken::BodyPartRemoveType { body_part_type }
-            }),
+            CasteToken::BodyPartRemoveType { .. } => token
+                .parse_single(&values, |body_part_type| CasteToken::BodyPartRemoveType {
+                    body_part_type,
+                }),
             CasteToken::BuildingDestroyer { .. } => {
                 token.parse_single(&values, |int_value: u32| CasteToken::BuildingDestroyer {
                     door_and_furniture_focused: int_value == 1,
@@ -270,21 +271,17 @@ impl TagOperations for CasteToken {
             CasteToken::ChangeBodySizePercent { .. } => token.parse_single(&values, |percent| {
                 CasteToken::ChangeBodySizePercent { percent }
             }),
-            CasteToken::Child { .. } => token.parse_single(&values, |age| CasteToken::Child { age }),
-            CasteToken::ChildName { .. } => token.parse_array(&values, |[singular, plural]| {
-                CasteToken::ChildName { singular, plural }
-            }),
+            CasteToken::Child { .. } => {
+                token.parse_single(&values, |age| CasteToken::Child { age })
+            }
+            CasteToken::ChildName { .. } => {
+                token.parse_single(&values, |name| CasteToken::ChildName { name })
+            }
             CasteToken::ClutchSize { .. } => {
                 token.parse_array(&values, |[min, max]| CasteToken::ClutchSize { min, max })
             }
             CasteToken::Color { .. } => {
-                token.parse_array(&values, |[foreground, background, brightness]| {
-                    CasteToken::Color {
-                        foreground,
-                        background,
-                        brightness,
-                    }
-                })
+                token.parse_single(&values, |color| CasteToken::Color { color })
             }
             CasteToken::CreatureClass { .. } => {
                 token.parse_single(&values, |class| CasteToken::CreatureClass { class })
@@ -292,23 +289,22 @@ impl TagOperations for CasteToken {
             CasteToken::CreatureVariationAddTag { .. } => {
                 token.parse_single(&values, |tag| CasteToken::CreatureVariationAddTag { tag })
             }
-            CasteToken::CreatureVariationRemoveTag { .. } => {
-                token.parse_single(&values, |tag| CasteToken::CreatureVariationRemoveTag { tag })
-            }
-            CasteToken::Description { .. } => {
-                token.parse_single(&values, |description| CasteToken::Description { description })
-            }
+            CasteToken::CreatureVariationRemoveTag { .. } => token.parse_single(&values, |tag| {
+                CasteToken::CreatureVariationRemoveTag { tag }
+            }),
+            CasteToken::Description { .. } => token.parse_single(&values, |description| {
+                CasteToken::Description { description }
+            }),
             CasteToken::Difficulty { .. } => {
                 token.parse_single(&values, |difficulty| CasteToken::Difficulty { difficulty })
             }
-            CasteToken::ExtraButcherObjectItem { .. } => {
-                token.parse_labeled_vector(&values, |item, material| {
+            CasteToken::ExtraButcherObjectItem { .. } => token
+                .parse_labeled_vector(&values, |item, material| {
                     CasteToken::ExtraButcherObjectItem { item, material }
-                })
-            }
-            CasteToken::ExtraButcherObjectShape { .. } => {
-                token.parse_single(&values, |shape| CasteToken::ExtraButcherObjectShape { shape })
-            }
+                }),
+            CasteToken::ExtraButcherObjectShape { .. } => token.parse_single(&values, |shape| {
+                CasteToken::ExtraButcherObjectShape { shape }
+            }),
             CasteToken::EggMaterial { .. } => {
                 token.parse_vector_with_tail(&values, |material, state| CasteToken::EggMaterial {
                     material,
@@ -335,18 +331,13 @@ impl TagOperations for CasteToken {
             CasteToken::Gait { .. } => {
                 token.parse_vector(&values, |gait_values| CasteToken::Gait { gait_values })
             }
-            CasteToken::GeneralMaterialForceMultiplier { .. } => token
-                .parse_array(&values, |[value_a, value_b]| {
+            CasteToken::GeneralMaterialForceMultiplier { .. } => {
+                token.parse_array(&values, |[value_a, value_b]| {
                     CasteToken::GeneralMaterialForceMultiplier { value_a, value_b }
-                }),
-            CasteToken::GlowColor { .. } => {
-                token.parse_array(&values, |[foreground, background, brightness]| {
-                    CasteToken::GlowColor {
-                        foreground,
-                        background,
-                        brightness,
-                    }
                 })
+            }
+            CasteToken::GlowColor { .. } => {
+                token.parse_single(&values, |color| CasteToken::GlowColor { color })
             }
             CasteToken::GlowTile { .. } => {
                 token.parse_single(&values, |tile| CasteToken::GlowTile { tile })
@@ -380,27 +371,31 @@ impl TagOperations for CasteToken {
             CasteToken::HabitNumber { .. } => {
                 token.parse_single(&values, |number| CasteToken::HabitNumber { number })
             }
-            CasteToken::Homeotherm { .. } => {
-                token.parse_single(&values, |temperature| CasteToken::Homeotherm { temperature })
-            }
+            CasteToken::Homeotherm { .. } => token.parse_single(&values, |temperature| {
+                CasteToken::Homeotherm { temperature }
+            }),
             CasteToken::InteractionDetail { .. } => {
                 token.parse_labeled_vector(&values, |label, args| CasteToken::InteractionDetail {
                     label,
                     args,
                 })
             }
-            CasteToken::ItemCorpse { .. } => token.parse_labeled_vector(&values, |item, material| {
-                CasteToken::ItemCorpse { item, material }
-            }),
+            CasteToken::ItemCorpse { .. } => {
+                token.parse_labeled_vector(&values, |item, material| CasteToken::ItemCorpse {
+                    item,
+                    material,
+                })
+            }
             CasteToken::ItemCorpseQuality { .. } => {
                 token.parse_single(&values, |quality| CasteToken::ItemCorpseQuality { quality })
             }
             CasteToken::Lair { .. } => token.parse_labeled_array(&values, |lair, [probability]| {
                 CasteToken::Lair { lair, probability }
             }),
-            CasteToken::LairCharacteristic { .. } => token.parse_single(&values, |characteristic| {
-                CasteToken::LairCharacteristic { characteristic }
-            }),
+            CasteToken::LairCharacteristic { .. } => token
+                .parse_single(&values, |characteristic| CasteToken::LairCharacteristic {
+                    characteristic,
+                }),
             CasteToken::LairHunterSpeech { .. } => token.parse_single(&values, |speech_file| {
                 CasteToken::LairHunterSpeech { speech_file }
             }),
@@ -425,9 +420,12 @@ impl TagOperations for CasteToken {
             CasteToken::LowLightVision { .. } => {
                 token.parse_single(&values, |vision| CasteToken::LowLightVision { vision })
             }
-            CasteToken::MannerismFingers { .. } => token.parse_array(&values, |[finger, fingers]| {
-                CasteToken::MannerismFingers { finger, fingers }
-            }),
+            CasteToken::MannerismFingers { .. } => {
+                token.parse_array(&values, |[finger, fingers]| CasteToken::MannerismFingers {
+                    finger,
+                    fingers,
+                })
+            }
             CasteToken::MannerismNose { .. } => {
                 token.parse_single(&values, |nose| CasteToken::MannerismNose { nose })
             }
@@ -446,9 +444,9 @@ impl TagOperations for CasteToken {
             CasteToken::MannerismHair { .. } => {
                 token.parse_single(&values, |hair| CasteToken::MannerismHair { hair })
             }
-            CasteToken::MannerismKnuckles { .. } => {
-                token.parse_single(&values, |knuckles| CasteToken::MannerismKnuckles { knuckles })
-            }
+            CasteToken::MannerismKnuckles { .. } => token.parse_single(&values, |knuckles| {
+                CasteToken::MannerismKnuckles { knuckles }
+            }),
             CasteToken::MannerismLips { .. } => {
                 token.parse_single(&values, |lips| CasteToken::MannerismLips { lips })
             }
@@ -514,11 +512,7 @@ impl TagOperations for CasteToken {
                 token.parse_single(&values, |value| CasteToken::ModValue { value })
             }
             CasteToken::Name { .. } => {
-                token.parse_array(&values, |[singular, plural, adjective]| CasteToken::Name {
-                    singular,
-                    plural,
-                    adjective,
-                })
+                token.parse_single(&values, |name| CasteToken::Name { name })
             }
             CasteToken::NaturalSkill { .. } => {
                 token.parse_labeled_array(&values, |skill, [level]| CasteToken::NaturalSkill {
@@ -529,9 +523,9 @@ impl TagOperations for CasteToken {
             CasteToken::OdorLevel { .. } => {
                 token.parse_single(&values, |odor_level| CasteToken::OdorLevel { odor_level })
             }
-            CasteToken::OdorString { .. } => {
-                token.parse_single(&values, |odor_string| CasteToken::OdorString { odor_string })
-            }
+            CasteToken::OdorString { .. } => token.parse_single(&values, |odor_string| {
+                CasteToken::OdorString { odor_string }
+            }),
             CasteToken::Orientation { .. } => token.parse_labeled_array(
                 &values,
                 |caste, [disinterested_chance, casual_chance, strong_chance]| {
@@ -590,24 +584,21 @@ impl TagOperations for CasteToken {
                     decay_rate_demotion,
                 },
             ),
-            CasteToken::PlusBodyPartGroup { .. } => {
-                token.parse_vector(&values, |selector| CasteToken::PlusBodyPartGroup { selector })
-            }
-            CasteToken::PopulationRatio { .. } => {
-                token.parse_single(&values, |pop_ratio| CasteToken::PopulationRatio { pop_ratio })
-            }
+            CasteToken::PlusBodyPartGroup { .. } => token.parse_vector(&values, |selector| {
+                CasteToken::PlusBodyPartGroup { selector }
+            }),
+            CasteToken::PopulationRatio { .. } => token.parse_single(&values, |pop_ratio| {
+                CasteToken::PopulationRatio { pop_ratio }
+            }),
             CasteToken::ProfessionName { .. } => {
-                token.parse_array(&values, |[profession, singular, plural]| {
-                    CasteToken::ProfessionName {
-                        profession,
-                        singular,
-                        plural,
-                    }
+                token.parse_key_value(&values, |profession, name| CasteToken::ProfessionName {
+                    profession,
+                    name,
                 })
             }
-            CasteToken::ProneToRage { .. } => {
-                token.parse_single(&values, |rage_chance| CasteToken::ProneToRage { rage_chance })
-            }
+            CasteToken::ProneToRage { .. } => token.parse_single(&values, |rage_chance| {
+                CasteToken::ProneToRage { rage_chance }
+            }),
             CasteToken::Pus { .. } => token.parse_vector_with_tail(&values, |material, state| {
                 CasteToken::Pus { material, state }
             }),
@@ -768,9 +759,9 @@ impl TagOperations for CasteToken {
                     }
                 },
             ),
-            CasteToken::SlainSpeech { .. } => {
-                token.parse_single(&values, |speech_file| CasteToken::SlainSpeech { speech_file })
-            }
+            CasteToken::SlainSpeech { .. } => token.parse_single(&values, |speech_file| {
+                CasteToken::SlainSpeech { speech_file }
+            }),
             CasteToken::SoldierTile { .. } => {
                 token.parse_single(&values, |tile| CasteToken::SoldierTile { tile })
             }
@@ -850,12 +841,16 @@ impl TagOperations for CasteToken {
                 })
             }
             CasteToken::Tendons { .. } => {
-                token.parse_vector_with_tail(&values, |material, healing_rate| CasteToken::Tendons {
-                    material,
-                    healing_rate,
+                token.parse_vector_with_tail(&values, |material, healing_rate| {
+                    CasteToken::Tendons {
+                        material,
+                        healing_rate,
+                    }
                 })
             }
-            CasteToken::Tile { .. } => token.parse_single(&values, |tile| CasteToken::Tile { tile }),
+            CasteToken::Tile { .. } => {
+                token.parse_single(&values, |tile| CasteToken::Tile { tile })
+            }
             CasteToken::TissueLayer { .. } => {
                 token.parse_vector(&values, |mut args: Vec<String>| {
                     // We need at least 3 arguments (Selector, Part, Tissue)
@@ -924,9 +919,11 @@ impl TagOperations for CasteToken {
                 token.parse_single(&values, |view_range| CasteToken::ViewRange { view_range })
             }
             CasteToken::VisionArc { .. } => {
-                token.parse_array(&values, |[binocular, non_binocular]| CasteToken::VisionArc {
-                    binocular,
-                    non_binocular,
+                token.parse_array(&values, |[binocular, non_binocular]| {
+                    CasteToken::VisionArc {
+                        binocular,
+                        non_binocular,
+                    }
                 })
             }
             CasteToken::Webber { .. } => {

@@ -19,6 +19,16 @@ pub struct BodySize {
 }
 
 impl BodySize {
+    /// Creates a new, empty [`BodySize`]
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            years: 0,
+            days: 0,
+            size_cm3: 0,
+        }
+    }
+
     /// Parses a raw body size value string into a [`BodySize`] struct.
     ///
     /// * `value` - A string slice in the format `years:days:size_cm3`.
@@ -58,6 +68,11 @@ impl BodySize {
     #[must_use]
     pub fn get_size(&self) -> u32 {
         self.size_cm3
+    }
+    /// Returns the "value" of the bodysize, as used in raw files
+    #[must_use]
+    pub fn as_value(&self) -> String {
+        format!("{}:{}:{}", self.years, self.days, self.size_cm3)
     }
 }
 

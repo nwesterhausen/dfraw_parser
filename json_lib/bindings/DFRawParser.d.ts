@@ -608,13 +608,9 @@ age: number } } |
  */
 { BabyName: { 
 /**
- * Singular name for the baby
+ * Name of the baby
  */
-singular: string; 
-/**
- * Plural name for the baby
- */
-plural: string } } | 
+name: Name } } | 
 /**
  * Creature may be subject to beaching, becoming stranded on shores, where they will eventually air-drown. The
  * number indicates the frequency of the occurrence. Presumably requires the creature to be `[Aquatic]`. Used by
@@ -718,17 +714,9 @@ arguments: string[] } } |
  */
 { BodySize: { 
 /**
- * Year at which the size is set
+ * The body size descriptor
  */
-year: number; 
-/**
- * Days at which the size is set
- */
-days: number; 
-/**
- * Size in cubic centimeters
- */
-size: number } } | 
+size: BodySize } } | 
 /**
  * Substitutes body part text with replacement text. Draws gloss information from `OBJECT:BODY`files
  * (such as `body_default.txt`)
@@ -896,13 +884,9 @@ age: number } } |
  */
 { ChildName: { 
 /**
- * Singular name for the child
+ * Name of the child
  */
-singular: string; 
-/**
- * Plural name for the child
- */
-plural: string } } | 
+name: Name } } | 
 /**
  * Number of eggs laid in one sitting.
  * 
@@ -930,17 +914,9 @@ max: number } } |
  */
 { Color: { 
 /**
- * The foreground color
+ * Color
  */
-foreground: number; 
-/**
- * The background color
- */
-background: number; 
-/**
- * The brightness of the color
- */
-brightness: number } } | 
+color: Color } } | 
 /**
  * When combined with any of `[Pet]`, `[PackAnimal]`, `[WagonPuller]` and/or `[Mount]`, the creature is guaranteed
  * to be domesticated by any civilization with `[crate::tokens::EntityToken::CommonDomesticPet]`,
@@ -1296,17 +1272,9 @@ value_b: number } } |
  */
 { GlowColor: { 
 /**
- * The foreground color
+ * Color
  */
-foreground: number; 
-/**
- * The background color
- */
-background: number; 
-/**
- * The brightness of the color
- */
-brightness: number } } | 
+color: Color } } | 
 /**
  * Caste-specific glow tile.
  * 
@@ -2080,17 +2048,9 @@ value: string } } |
  */
 { Name: { 
 /**
- * The singular name of the caste
+ * Name for the caste
  */
-singular: string; 
-/**
- * The plural name of the caste
- */
-plural: string; 
-/**
- * The adjective form of the caste
- */
-adjective: string } } | 
+name: Name } } | 
 /**
  * Animal is considered to be natural. NATURAL animals will not engage creatures tagged with `[AtPeaceWitHWildlife]` in combat unless they are
  * members of a hostile entity and vice-versa.
@@ -2648,13 +2608,9 @@ pop_ratio: number } } |
  */
 profession: string; 
 /**
- * The singular name of the profession
+ * Name used for the profression
  */
-singular: string; 
-/**
- * The plural name of the profession
- */
-plural: string } } | 
+name: Name } } | 
 /**
  * Creature has a percentage chance to flip out at visible non-friendly creatures. Enraged creatures attack anything regardless of timidity and get a
  * strength bonus to their hits. This is what makes badgers so hardcore.

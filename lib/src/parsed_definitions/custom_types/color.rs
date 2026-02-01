@@ -33,6 +33,16 @@ pub struct Color {
 }
 
 impl Color {
+    /// Creates a new, empty Color
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            foreground: 0,
+            background: 0,
+            brightness: 0,
+        }
+    }
+
     /// Parses a color triplet from a string value.
     ///
     /// * `value` - A string representing a color in the format "foreground:background:brightness".
@@ -89,6 +99,15 @@ impl Color {
     #[must_use]
     pub fn get_brightness(&self) -> u8 {
         self.brightness
+    }
+
+    /// Returns the "value" of the color as used in raw files
+    #[must_use]
+    pub fn as_value(&self) -> String {
+        format!(
+            "{}:{}:{}",
+            self.foreground, self.background, self.brightness
+        )
     }
 }
 

@@ -122,10 +122,13 @@ impl NumericTokenTransform for CasteToken {
                     *created_wealth,
                 ));
             }
-            CasteToken::BodySize { year, days, size } => {
-                tokens.push(NumericToken::new(format!("{prefix}_YEAR"), *year));
-                tokens.push(NumericToken::new(format!("{prefix}_DAY"), *days));
-                tokens.push(NumericToken::new(format!("{prefix}_SIZE"), *size));
+            CasteToken::BodySize { size } => {
+                tokens.push(NumericToken::new(
+                    format!("{prefix}_YEAR"),
+                    size.get_years(),
+                ));
+                tokens.push(NumericToken::new(format!("{prefix}_DAY"), size.get_days()));
+                tokens.push(NumericToken::new(format!("{prefix}_SIZE"), size.get_size()));
             }
             _ => {}
         }

@@ -174,6 +174,16 @@ impl Name {
             adjective: None,
         }
     }
+
+    /// Creatues a new, empty Name struct
+    #[must_use]
+    pub const fn new_empty() -> Self {
+        Self {
+            singular: String::new(),
+            plural: String::new(),
+            adjective: None,
+        }
+    }
 }
 
 impl FromStr for Name {
