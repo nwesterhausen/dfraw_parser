@@ -56,10 +56,13 @@ pub fn exists_raw_in_module_by_object_id(
 ///
 /// - database error
 pub fn try_get_raw_id_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Option<i64>> {
+    const GET_RAW_ID_BY_RAW_OBJECT_ID: &str = r"
+    SELECT r.id FROM raw_definitions r
+         WHERE r.object_id = ?1
+         LIMIT 1
+    ";
     conn.query_row(
-        "SELECT r.id FROM raw_definitions r
-             WHERE r.object_id = ?1
-             LIMIT 1",
+        GET_RAW_ID_BY_RAW_OBJECT_ID,
         params![object_id.as_bytes()],
         |row| row.get(0),
     )
@@ -211,7 +214,9 @@ pub fn get_raw(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
     const GET_JSON_RAW_BY_ID: &str = "SELECT json(data_blob) FROM raw_definitions WHERE id = ?1";
 
     let json_str: String = conn.query_row(GET_JSON_RAW_BY_ID, params![id], |row| row.get(0))?;
-    serde_json::from_str(&json_str).map_err(|_| rusqlite::Error::InvalidQuery)
+    serde_json::from_str(&json_str)
+        .inspect_err(|e| tracing::error!("get_raw: deserialization failed for id:{id}: {e}"))
+        .map_err(|_| rusqlite::Error::InvalidQuery)
 }
 
 /// Retrieves a raw object by its object id.
@@ -221,6 +226,7 @@ pub fn get_raw(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
 /// - database error
 pub fn get_raw_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Box<dyn RawObject>> {
     let Some(id) = try_get_raw_id_by_object_id(conn, object_id)? else {
+        tracing::error!("get_raw_by_object_id: no raw found for {object_id}");
         return Err(rusqlite::Error::InvalidQuery);
     };
 

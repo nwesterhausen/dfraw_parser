@@ -24,7 +24,6 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct MaterialTemplate {
     pub identifier: String,
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pub metadata: RawMetadata,
     /// A generated id that is used to uniquely identify this object.
     ///

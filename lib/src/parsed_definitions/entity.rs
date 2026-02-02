@@ -25,7 +25,6 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct Entity {
     /// The metadata for this [`Entity`]
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pub metadata: RawMetadata,
     /// The identifier and name of the civilizaiton
     pub identifier: String,

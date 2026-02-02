@@ -34,7 +34,6 @@ use crate::{
 pub struct Graphic {
     /// The `metadata` field is of type `RawMetadata` and is used to provide additional information
     /// about the raws the `Graphic` is found in.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pub metadata: RawMetadata,
     /// The `identifier` field is a string that represents the identifier of the graphic. It is used
     /// to uniquely identify the graphic

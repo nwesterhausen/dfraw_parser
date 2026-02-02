@@ -36,7 +36,6 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct Plant {
     /// Common Raw file Things
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     metadata: RawMetadata,
     identifier: String,
     /// A generated id that is used to uniquely identify this object.

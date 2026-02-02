@@ -5528,11 +5528,7 @@ template: string } } |
 /**
  * A creature variation.
  */
-export type CreatureVariation = { 
-/**
- * Common Raw file Things
- */
-metadata: Metadata; identifier: string; 
+export type CreatureVariation = { metadata: Metadata; identifier: string; 
 /**
  * A generated id that is used to uniquely identify this object.
  * 

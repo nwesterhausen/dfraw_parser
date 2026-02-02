@@ -43,7 +43,6 @@ use crate::{
 pub struct Creature {
     /// The `metadata` field is of type `RawMetadata` and is used to provide additional information
     /// about the raws the `Creature` is found in.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     pub metadata: RawMetadata,
     /// The `identifier` field is a string that represents the identifier of the creature. It is used
     /// to uniquely identify the creature (however it is not guaranteed to be unique across object types
