@@ -81,4 +81,32 @@ impl Entity {
     pub fn get_tokens(&self) -> Vec<EntityToken> {
         self.tokens.clone()
     }
+    /// Returns an iterator over all creature types in this civilization.
+    pub fn creatures(&self) -> impl Iterator<Item = &str> + '_ {
+        self.tokens.iter().filter_map(|token| match token {
+            EntityToken::Creature { creature } => Some(creature.as_str()),
+            _ => None,
+        })
+    }
+
+    /// Returns the translation language, if one is defined.
+    pub fn translation(&self) -> Option<&str> {
+        self.tokens.iter().find_map(|token| match token {
+            EntityToken::Translation { language } => Some(language.as_str()),
+            _ => None,
+        })
+    }
+
+    pub fn active_seasons(&self) -> Vec<&str> {
+        self.tokens
+            .iter()
+            .filter_map(|t| {
+                if let EntityToken::ActiveSeason { season } = t {
+                    Some(season.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }

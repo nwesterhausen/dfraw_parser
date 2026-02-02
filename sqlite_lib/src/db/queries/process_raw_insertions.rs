@@ -94,8 +94,9 @@ fn process_raw_insertions_inner(
         let serialize_start = Utc::now();
 
         // Handle Serialization with retry/exit logic
-        let json_payload = match serde_json::to_vec(&raw) {
-            Ok(payload) => payload,
+        let mut binary_payload = Vec::new();
+        match ciborium::into_writer(&raw, &mut binary_payload) {
+            Ok(()) => {}
             Err(e) => {
                 error_count += 1;
                 error!(
@@ -114,7 +115,7 @@ fn process_raw_insertions_inner(
                 }
                 continue;
             }
-        };
+        }
 
         #[cfg(debug_assertions)]
         {
@@ -130,7 +131,7 @@ fn process_raw_insertions_inner(
                 raw.get_type().to_string().to_uppercase().replace(' ', "_"),
                 raw.get_identifier(),
                 module_db_id,
-                json_payload,                   // Bound as a BLOB
+                binary_payload,                 // Bound as a BLOB
                 raw.get_object_id().as_bytes()  // Bound as BLOB (UUID bytes)
             ],
             |row| row.get(0),

@@ -211,10 +211,10 @@ pub fn upsert_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
 ///
 /// - database error
 pub fn get_raw(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
-    const GET_JSON_RAW_BY_ID: &str = "SELECT json(data_blob) FROM raw_definitions WHERE id = ?1";
+    const GET_CBOR_RAW_BY_ID: &str = "SELECT data_blob FROM raw_definitions WHERE id = ?1";
 
-    let json_str: String = conn.query_row(GET_JSON_RAW_BY_ID, params![id], |row| row.get(0))?;
-    serde_json::from_str(&json_str)
+    let binary_blob: Vec<u8> = conn.query_row(GET_CBOR_RAW_BY_ID, params![id], |row| row.get(0))?;
+    ciborium::from_reader(&binary_blob[..])
         .inspect_err(|e| tracing::error!("get_raw: deserialization failed for id:{id}: {e}"))
         .map_err(|_| rusqlite::Error::InvalidQuery)
 }
@@ -240,12 +240,12 @@ pub fn get_raw_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Box<dy
 /// - database error
 #[allow(clippy::borrowed_box)]
 pub fn update_raw(conn: &Connection, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
-    const UPDATE_RAW_JSONB_BY_ID: &str =
-        "UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2";
+    const UPDATE_RAW_CBORB_BY_ID: &str = "UPDATE raw_definitions SET data_blob = ?1 WHERE id = ?2";
 
-    let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
+    let mut binary_payload = Vec::new();
+    ciborium::into_writer(&raw, &mut binary_payload).map_err(|_| rusqlite::Error::InvalidQuery)?;
 
-    conn.execute(UPDATE_RAW_JSONB_BY_ID, params![json_payload, id])?;
+    conn.execute(UPDATE_RAW_CBORB_BY_ID, params![binary_payload, id])?;
     clear_side_tables_for_raw_id(conn, id)?;
 
     populate_side_tables(conn, id, raw)?;
@@ -350,7 +350,8 @@ pub fn create_raw_with_module(
     module_id: i64,
     raw: &Box<dyn RawObject>,
 ) -> Result<i64> {
-    let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
+    let mut binary_payload = Vec::new();
+    ciborium::into_writer(&raw, &mut binary_payload).map_err(|_| rusqlite::Error::InvalidQuery)?;
 
     let raw_id: i64 = conn.query_row(
         INSERT_RAW_DEFINITION_NO_UPDATE_RETURN_ID,
@@ -358,7 +359,7 @@ pub fn create_raw_with_module(
             u32::from(raw.get_type()),
             raw.get_identifier(),
             module_id,
-            json_payload,
+            binary_payload,
             raw.get_object_id().as_bytes()
         ],
         |row| row.get(0),

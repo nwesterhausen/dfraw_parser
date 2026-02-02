@@ -73,7 +73,7 @@ impl DbClient {
     ///
     /// The `SearchResults` with the results as the JSON strings as byte arrays.
     #[tracing::instrument(level = "debug", skip(self))]
-    pub fn search_raws(&self, query: &SearchQuery) -> Result<SearchResults<Vec<u8>>> {
+    pub fn search_raws(&self, query: &SearchQuery) -> Result<SearchResults<Box<dyn RawObject>>> {
         self.add_recent_search_term(query.search_string.clone())?;
         queries::search_raws(&self.conn, query)
     }

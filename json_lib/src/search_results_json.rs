@@ -4,7 +4,7 @@ use std::fmt::Debug;
 /// and the total count of matches in the database.
 #[derive(serde::Serialize, serde::Deserialize, Clone, Default, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct SearchResults<T = ciborium::Value> {
+pub struct SearchResults<T = serde_json::Value> {
     /// The page of results found.
     pub results: Vec<ResultWithId<T>>,
     /// The total number of matches in the database (ignoring pagination limits).
@@ -14,7 +14,7 @@ pub struct SearchResults<T = ciborium::Value> {
 /// A carrier struct for passing the database id along with the object we retrieved.
 #[derive(serde::Serialize, serde::Deserialize, Clone, Default, specta::Type, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct ResultWithId<T = ciborium::Value> {
+pub struct ResultWithId<T = serde_json::Value> {
     /// id of the object in the database on its respective table
     pub id: i64,
     /// the object retrieved

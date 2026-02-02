@@ -3,7 +3,7 @@
 use chrono::TimeDelta;
 use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType, traits::IsEmpty};
 use dfraw_parser_sqlite_lib::{NumericConstraint, NumericFilter, SearchQuery};
-use dfraw_parser_test_util::{get_test_client, json_helpers::identifier_from_json_blob};
+use dfraw_parser_test_util::get_test_client;
 use uuid::Uuid;
 
 use crate::common::setup_tracing;
@@ -24,10 +24,15 @@ fn has_zero_results_for_only_workshopmods_location() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| {
+                tracing::error!("has_zero_results_for_only_workshopmods_location: {e}");
+            })
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
+            .inspect_err(|e| {
+                tracing::error!("has_zero_results_for_only_workshopmods_location: {e}");
+            })
             .expect("Failed to query the generated database")
     };
 
@@ -47,11 +52,11 @@ fn has_results_only_for_favorites() {
     {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites: {e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:add_favorite {e}"))
             .expect("Failed to lock DbClient");
         client
             .add_favorite_raw(FAVORITE_RAW_ID)
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites: {e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:add_favorite {e}"))
             .expect("Failed to add id:1206 as favorite.");
     }
 
@@ -64,11 +69,11 @@ fn has_results_only_for_favorites() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites: {e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:search_favorites {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites: {e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:search_favorites {e}"))
             .expect("Failed to query the generated database")
     };
 
@@ -88,21 +93,21 @@ fn has_results_only_for_favorites() {
     {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:remove_favorite {e}"))
             .expect("Failed to lock DbClient");
         client
             .remove_favorite_raw(FAVORITE_RAW_ID)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:remove_favorite {e}"))
             .expect("Failed to add id:1206 as favorite.");
     }
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:check_removed {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:check_removed {e}"))
             .expect("Failed to query the generated database")
     };
 
@@ -129,11 +134,11 @@ fn has_results_for_only_vanilla_location() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_for_only_vanilla_location: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_for_only_vanilla_location: {e}"))
             .expect("Failed to query the generated database")
     };
 
@@ -157,11 +162,15 @@ fn has_results_for_vanilla_or_workshopmods_locations() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| {
+                tracing::error!("has_results_for_vanilla_or_workshopmods_locations: {e}");
+            })
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| {
+                tracing::error!("has_results_for_vanilla_or_workshopmods_locations: {e}");
+            })
             .expect("Failed to query the generated database")
     };
 
@@ -186,11 +195,11 @@ fn has_results_when_using_search_index() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_when_using_search_index: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_when_using_search_index: {e}"))
             .expect("Failed to query the generated database")
     };
 
@@ -214,11 +223,11 @@ fn has_results_for_required_flag() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_for_required_flag: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("has_results_for_required_flag: {e}"))
             .expect("Failed to query the generated database")
     };
 
@@ -229,7 +238,7 @@ fn has_results_for_required_flag() {
 }
 
 #[test]
-fn test_identifier_partial_matching() {
+fn query_identifier_partial_matching() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -243,11 +252,11 @@ fn test_identifier_partial_matching() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("query_identifier_partial_matching: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("query_identifier_partial_matching: {e}"))
             .expect("Failed to query database")
     };
 
@@ -264,7 +273,7 @@ fn test_identifier_partial_matching() {
 }
 
 #[test]
-fn test_raw_type_filtering_intersection() {
+fn query_raw_type_filtering_intersection() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -277,11 +286,11 @@ fn test_raw_type_filtering_intersection() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("query_raw_type_filtering_intersection: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("query_raw_type_filtering_intersection: {e}"))
             .expect("Failed to query database")
     };
 
@@ -293,7 +302,7 @@ fn test_raw_type_filtering_intersection() {
 }
 
 #[test]
-fn test_pagination_logic() {
+fn verify_pagination_logic() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -306,9 +315,12 @@ fn test_pagination_logic() {
     let res_p1 = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("verify_pagination_logic:q1 {e}"))
             .expect("Failed to lock DbClient");
-        client.search_raws(&query_p1).expect("Failed P1")
+        client
+            .search_raws(&query_p1)
+            .inspect_err(|e| tracing::error!("verify_pagination_logic:q1 {e}"))
+            .expect("Failed P1")
     };
 
     // Page 2
@@ -320,9 +332,12 @@ fn test_pagination_logic() {
     let res_p2 = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("verify_pagination_logic:q2 {e}"))
             .expect("Failed to lock DbClient");
-        client.search_raws(&query_p2).expect("Failed P2")
+        client
+            .search_raws(&query_p2)
+            .inspect_err(|e| tracing::error!("verify_pagination_logic:q2 {e}"))
+            .expect("Failed P2")
     };
 
     assert_eq!(res_p1.results.len(), 5);
@@ -334,13 +349,14 @@ fn test_pagination_logic() {
 
     // Ensure the results are actually different (not just returning the same page)
     assert_ne!(
-        res_p1.results[0], res_p2.results[0],
+        res_p1.results[0].data.get_object_id(),
+        res_p2.results[0].data.get_object_id(),
         "Page 2 should start with different items than Page 1"
     );
 }
 
 #[test]
-fn test_combined_intersection_filtering() {
+fn query_combined_intersection_filtering() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -356,9 +372,12 @@ fn test_combined_intersection_filtering() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("query_combined_intersection_filtering: {e}"))
             .expect("Failed to lock DbClient");
-        client.search_raws(&query).expect("Failed combined query")
+        client
+            .search_raws(&query)
+            .inspect_err(|e| tracing::error!("query_combined_intersection_filtering: {e}"))
+            .expect("Failed combined query")
     };
 
     // This should match things like Giant Bats or Giant Eagles
@@ -369,7 +388,7 @@ fn test_combined_intersection_filtering() {
 }
 
 #[test]
-fn test_ranking_by_relevance() {
+fn verify_ranking_by_relevance() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -384,16 +403,19 @@ fn test_ranking_by_relevance() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("verify_ranking_by_relevance: {e}"))
             .expect("Failed to lock DbClient");
-        client.search_raws(&query).expect("Failed ranking query")
+        client
+            .search_raws(&query)
+            .inspect_err(|e| tracing::error!("verify_ranking_by_relevance: {e}"))
+            .expect("Failed ranking query")
     };
 
     assert!(!search_results.results.is_empty());
 }
 
 #[test]
-fn test_no_results_for_non_existent_criteria() {
+fn verify_no_results_for_non_existent_criteria() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -406,9 +428,12 @@ fn test_no_results_for_non_existent_criteria() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("verify_no_results_for_non_existent_criteria: {e}"))
             .expect("Failed to lock DbClient");
-        client.search_raws(&query).expect("Failed empty query")
+        client
+            .search_raws(&query)
+            .inspect_err(|e| tracing::error!("verify_no_results_for_non_existent_criteria: {e}"))
+            .expect("Failed empty query")
     };
 
     assert!(search_results.results.is_empty());
@@ -416,7 +441,7 @@ fn test_no_results_for_non_existent_criteria() {
 }
 
 #[test]
-fn test_trigram_substring_matching() {
+fn verify_trigram_substring_matching() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -429,9 +454,12 @@ fn test_trigram_substring_matching() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("verify_trigram_substring_matching: {e}"))
             .expect("Failed to lock DbClient");
-        client.search_raws(&query).expect("Failed trigram query")
+        client
+            .search_raws(&query)
+            .inspect_err(|e| tracing::error!("verify_trigram_substring_matching: {e}"))
+            .expect("Failed trigram query")
     };
 
     assert!(
@@ -446,45 +474,45 @@ fn verify_get_set_delete_favorite_raws() {
     let client_mutex = get_test_client();
     let initial_favorite_raws = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get1 {e}"))
         .expect("Failed to lock DbClient")
         .get_favorite_raws()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get1 {e}"))
         .expect("Get favorite raws failed");
     client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add13 {e}"))
         .expect("Failed to lock DbClient")
         .add_favorite_raw(13)
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add13 {e}"))
         .expect("Failed to add favorite raw 13");
     client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add203 {e}"))
         .expect("Failed to lock DbClient")
         .add_favorite_raw(203)
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add203 {e}"))
         .expect("Failed to add favorite raw 203");
     let after_favorite_raws = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get2 {e}"))
         .expect("Failed to lock DbClient")
         .get_favorite_raws()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get2 {e}"))
         .expect("Get favorite raws failed");
     client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:rem13 {e}"))
         .expect("Failed to lock DbClient")
         .remove_favorite_raw(13)
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:rem12 {e}"))
         .expect("Failed to remove favorite raw 13");
     let final_favorite_raws = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get3 {e}"))
         .expect("Failed to lock DbClient")
         .get_favorite_raws()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get3 {e}"))
         .expect("Get favorite raws failed");
 
     // Verify
@@ -500,10 +528,10 @@ fn verify_previous_insertion_duration() {
     let client_mutex = get_test_client();
     let duration = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_insertion_duration: {e}"))
         .expect("Failed to lock DbClient")
         .get_last_insertion_duration()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_insertion_duration: {e}"))
         .expect("Failed to get last insertion duration")
         .expect("No insertion duration found when expected");
     assert_ne!(duration, TimeDelta::zero(), "duration should not be zero");
@@ -519,10 +547,10 @@ fn verify_previous_insertion_date() {
     let client_mutex = get_test_client();
     let date = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_insertion_date: {e}"))
         .expect("Failed to lock DbClient")
         .get_last_insertion_date()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_insertion_date: {e}"))
         .expect("Failed to get last insertion duration");
     assert!(!date.is_empty());
     tracing::info!("Last insertion date {date:?}");
@@ -534,10 +562,10 @@ fn verify_previous_parse_date() {
     let client_mutex = get_test_client();
     let date = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_parse_date: {e}"))
         .expect("Failed to lock DbClient")
         .get_last_parse_operation_date()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_parse_date: {e}"))
         .expect("Failed to get last insertion duration");
     assert!(!date.is_empty());
     tracing::info!("Last parse operation date {date:?}");
@@ -549,10 +577,10 @@ fn verify_previous_parse_duration() {
     let client_mutex = get_test_client();
     let duration = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_parse_duration: {e}"))
         .expect("Failed to lock DbClient")
         .get_last_parse_duration()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_parse_duration: {e}"))
         .expect("Failed to get last insertion duration")
         .expect("No insertion duration found when expected");
     assert_ne!(duration, TimeDelta::zero(), "duration should not be zero");
@@ -565,10 +593,10 @@ fn verify_previous_df_dir() {
     let client_mutex = get_test_client();
     let game_dir = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_df_dir: {e}"))
         .expect("Failed to lock DbClient")
         .get_last_used_df_game_dir()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_df_dir: {e}"))
         .expect("Failed to get last insertion duration");
 
     assert!(!game_dir.is_empty(), "game dir shouldn't be empty");
@@ -580,10 +608,10 @@ fn verify_previous_user_dir() {
     let client_mutex = get_test_client();
     let user_dir = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_user_dir: {e}"))
         .expect("Failed to lock DbClient")
         .get_last_used_df_user_dir()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_previous_user_dir: {e}"))
         .expect("Failed to get last insertion duration");
 
     assert!(!user_dir.is_empty(), "user dir shouldn't be empty");
@@ -596,10 +624,10 @@ fn get_last_used_parser_options() {
     let client_mutex = get_test_client();
     let parser_options = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("get_last_used_parser_options: {e}"))
         .expect("Failed to lock DbClient")
         .get_last_used_parser_options()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("get_last_used_parser_options: {e}"))
         .expect("Failed to get last parser options")
         .expect("Last parser options shouldn't be None");
 
@@ -612,24 +640,24 @@ fn verify_preferred_search_limit() {
     let client_mutex = get_test_client();
     let page_limit_1 = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_preferred_search_limit:get1 {e}"))
         .expect("Failed to lock DbClient")
         .get_preferred_search_limit()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_preferred_search_limit:get1 {e}"))
         .expect("Failed to get preferred search limit");
     client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_preferred_search_limit:set {e}"))
         .expect("Failed to lock DbClient")
         .set_preferred_search_limit(page_limit_1 + 10)
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_preferred_search_limit:set {e}"))
         .expect("Failed to set preferred search limit");
     let page_limit_2 = client_mutex
         .lock()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_preferred_search_limit:get2 {e}"))
         .expect("Failed to lock DbClient")
         .get_preferred_search_limit()
-        .inspect_err(|e| tracing::error!("{e}"))
+        .inspect_err(|e| tracing::error!("verify_preferred_search_limit:get2 {e}"))
         .expect("Failed to get preferred search limit");
 
     assert_ne!(
@@ -660,11 +688,11 @@ fn filter_numeric_min() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_min: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_min: {e}"))
             .expect("Failed to query database")
     };
 
@@ -675,7 +703,7 @@ fn filter_numeric_min() {
         search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "JABBERER"),
+            .any(|r| r.data.get_identifier() == "JABBERER"),
         "Expected JABBERER (Value 1500) to be found with Min(500)"
     );
 
@@ -684,7 +712,7 @@ fn filter_numeric_min() {
         !search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+            .any(|r| r.data.get_identifier() == "BIRD_BUZZARD"),
         "Expected BIRD_BUZZARD (Value 30) to be excluded with Min(500)"
     );
 }
@@ -709,11 +737,11 @@ fn filter_numeric_max() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_max: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_max: {e}"))
             .expect("Failed to query database")
     };
 
@@ -723,7 +751,7 @@ fn filter_numeric_max() {
         search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+            .any(|r| r.data.get_identifier() == "BIRD_BUZZARD"),
         "Expected BIRD_BUZZARD (Value 30) to be found with Max(100)"
     );
 
@@ -731,7 +759,7 @@ fn filter_numeric_max() {
         !search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "SHARK_BASKING"),
+            .any(|r| r.data.get_identifier() == "SHARK_BASKING"),
         "Expected SHARK_BASKING (Value 1000) to be excluded with Max(100)"
     );
 }
@@ -753,11 +781,11 @@ fn filter_numeric_exact() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_exact: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_exact: {e}"))
             .expect("Failed to query database")
     };
 
@@ -767,7 +795,7 @@ fn filter_numeric_exact() {
         search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+            .any(|r| r.data.get_identifier() == "BIRD_BUZZARD"),
         "Expected BIRD_BUZZARD to be found with Exact(30)"
     );
 
@@ -775,7 +803,7 @@ fn filter_numeric_exact() {
         !search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "GIANT_BUZZARD"),
+            .any(|r| r.data.get_identifier() == "GIANT_BUZZARD"),
         "Expected GIANT_BUZZARD to be excluded with Exact(30)"
     );
 }
@@ -797,11 +825,11 @@ fn filter_numeric_range() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_range: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_range: {e}"))
             .expect("Failed to query database")
     };
 
@@ -809,7 +837,7 @@ fn filter_numeric_range() {
         search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+            .any(|r| r.data.get_identifier() == "BIRD_BUZZARD"),
         "Expected BIRD_BUZZARD (30) inside Range(20, 40)"
     );
 
@@ -817,7 +845,7 @@ fn filter_numeric_range() {
         !search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "GIANT_BUZZARD"),
+            .any(|r| r.data.get_identifier() == "GIANT_BUZZARD"),
         "Expected GIANT_BUZZARD (500) outside Range(20, 40)"
     );
 }
@@ -845,11 +873,11 @@ fn filter_numeric_multiple() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_multiple: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query_two_constraints)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("filter_numeric_multiple: {e}"))
             .expect("Failed to query database")
     };
 
@@ -860,7 +888,7 @@ fn filter_numeric_multiple() {
         search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "LIZARD_RHINO_TWO_LEGGED"),
+            .any(|r| r.data.get_identifier() == "LIZARD_RHINO_TWO_LEGGED"),
         "LIZARD_RHINO_TWO_LEGGED was expected but was missing"
     );
     // Salt-water crocodile has clutch size 20:70, so it should be absent in the results
@@ -868,13 +896,13 @@ fn filter_numeric_multiple() {
         !search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "CROCODILE_SALTWATER"),
+            .any(|r| r.data.get_identifier() == "CROCODILE_SALTWATER"),
         "CROCODILE_SALTWATER should have been missing but was present"
     );
 }
 
 #[test]
-fn test_short_search_string_is_ignored() {
+fn verify_short_search_string_is_ignored() {
     setup_tracing();
     let client_mutex = get_test_client();
 
@@ -887,11 +915,11 @@ fn test_short_search_string_is_ignored() {
     let search_results = {
         let client = client_mutex
             .lock()
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("verify_short_search_string_is_ignored: {e}"))
             .expect("Failed to lock DbClient");
         client
             .search_raws(&query)
-            .inspect_err(|e| tracing::error!("{e}"))
+            .inspect_err(|e| tracing::error!("verify_short_search_string_is_ignored: {e}"))
             .expect("Failed short string query")
     };
 
@@ -1105,7 +1133,7 @@ fn verify_raw_object_retrieval_and_metadata() {
 
     if let Some(first_result) = results.results.first() {
         let db_id = first_result.id;
-        let identifier = identifier_from_json_blob(&first_result.data);
+        let identifier = first_result.data.get_identifier();
 
         // 2. Test get_raw(id)
         let raw = client_mutex
@@ -1262,7 +1290,7 @@ fn search_in_modules() {
         search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "BIRD_BUZZARD"),
+            .any(|r| r.data.get_identifier() == "BIRD_BUZZARD"),
         "Expected BIRD_BUZZARD to be found in Vanilla Creatures module"
     );
 
@@ -1270,7 +1298,7 @@ fn search_in_modules() {
         !search_results
             .results
             .iter()
-            .any(|r| identifier_from_json_blob(&r.data) == "SWEET_POTATO"),
+            .any(|r| r.data.get_identifier() == "SWEET_POTATO"),
         "Expected SWEET_POTATO to be abset (it should be in Vanilla Plants module)"
     );
 }

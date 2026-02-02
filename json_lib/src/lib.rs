@@ -61,6 +61,8 @@ for the steam workshop if it is a mod downloaded from the steam workshop.
 pub use dfraw_parser::*;
 
 mod bindings;
+/// `serde_json` equivalents of the [`dfraw_parser_sqlite_lib::search_results`] to let specta generate the typscripte bindings
+pub(crate) mod search_results_json;
 /// This has utility functions for file operations and directory traversal.
 ///
 /// The functions provide functionality for working with directories, files, and paths.

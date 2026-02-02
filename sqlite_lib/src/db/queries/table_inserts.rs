@@ -103,7 +103,7 @@ INSERT INTO raw_definitions
         identifier, module_id, data_blob, object_id)
 VALUES
     ((SELECT id FROM raw_types WHERE name = ?1),
-        ?2, ?3, jsonb(?4), ?5)
+        ?2, ?3, ?4, ?5)
 ON CONFLICT(module_id, identifier) DO UPDATE SET
     data_blob = excluded.data_blob,
     object_id = excluded.object_id
@@ -125,7 +125,7 @@ INSERT INTO raw_definitions
         identifier, module_id, data_blob, object_id)
 VALUES
     ((SELECT id FROM raw_types WHERE name = ?1),
-        ?2, ?3, jsonb(?4), ?5)
+        ?2, ?3, ?4, ?5)
 ON CONFLICT(module_id, identifier) DO NOTHING
 RETURNING id;
 ";

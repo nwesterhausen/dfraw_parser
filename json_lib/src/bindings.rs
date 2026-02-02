@@ -97,8 +97,8 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser_sqlite_lib::SearchQuery>()
         .register::<dfraw_parser_sqlite_lib::NumericFilter>()
         .register::<dfraw_parser_sqlite_lib::NumericConstraint>()
-        .register::<dfraw_parser_sqlite_lib::ResultWithId>()
-        .register::<dfraw_parser_sqlite_lib::SearchResults>();
+        .register::<super::search_results_json::ResultWithId>()
+        .register::<super::search_results_json::SearchResults>();
 
     exporter.export_to(output_path, &types)
 }
