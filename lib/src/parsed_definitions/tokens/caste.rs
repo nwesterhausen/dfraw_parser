@@ -2202,6 +2202,41 @@ pub enum CasteToken {
     CuriousBeast,
     /// Is a flying curious beast
     CannotBreatheAir,
+
+    RemoveMaterial {
+        material: String,
+    },
+    UseMaterialTemplate {
+        material_template: String,
+    },
+    RemoveTissue {
+        tissue: String,
+    },
+    SelectTissueLayer {
+        body_part_selector: Vec<String>,
+        tissue: String,
+    },
+    SetTissueLayerGroup {
+        body_part_selector: Vec<String>,
+    },
+
+    AttackContactPercentage {
+        percentage: u32,
+    },
+    AttackCanLatch,
+    AttackPrepareAndRecover {
+        preparation: u32,
+        recovery: u32,
+    },
+    AttackPriority {
+        priority: String,
+    },
+    AttackSkill {
+        skill: String,
+    },
+    AttackVerb {
+        verb: Name,
+    },
 }
 
 impl std::fmt::Display for CasteToken {

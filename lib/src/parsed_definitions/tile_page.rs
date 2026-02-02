@@ -3,15 +3,10 @@
 use std::path::PathBuf;
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
-use tracing::warn;
 use uuid::Uuid;
 
 use crate::{
-    custom_types::Dimensions,
-    metadata::RawMetadata,
-    raw_definitions::TILE_PAGE_TOKENS,
-    tokens::{ObjectType, TilePageToken},
-    traits::RawObject,
+    custom_types::Dimensions, metadata::RawMetadata, tokens::ObjectType,
     utilities::generate_object_id_using_raw_metadata,
 };
 
@@ -32,8 +27,8 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct TilePage {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    metadata: Option<RawMetadata>,
-    identifier: String,
+    pub metadata: RawMetadata,
+    pub identifier: String,
     /// A generated id that is used to uniquely identify this object.
     ///
     /// This is deterministic based on the following:
@@ -43,11 +38,11 @@ pub struct TilePage {
     /// * The containing module's `numeric_version`
     ///
     /// See [`crate::utilities::generate_object_id`]
-    object_id: Uuid,
+    pub object_id: Uuid,
 
-    file: PathBuf,
-    tile_dim: Dimensions,
-    page_dim: Dimensions,
+    pub file: PathBuf,
+    pub tile_dim: Dimensions,
+    pub page_dim: Dimensions,
 }
 
 impl TilePage {
@@ -71,11 +66,9 @@ impl TilePage {
     #[must_use]
     pub fn empty() -> Self {
         Self {
-            metadata: Some(
-                RawMetadata::default()
-                    .with_object_type(ObjectType::TilePage)
-                    .with_hidden(true),
-            ),
+            metadata: RawMetadata::default()
+                .with_object_type(ObjectType::TilePage)
+                .with_hidden(true),
             ..Self::default()
         }
     }
@@ -93,72 +86,13 @@ impl TilePage {
     pub fn new(identifier: &str, metadata: &RawMetadata) -> Self {
         Self {
             identifier: String::from(identifier),
-            metadata: Some(metadata.clone()),
+            metadata: metadata.clone(),
             object_id: generate_object_id_using_raw_metadata(
                 identifier,
                 ObjectType::TilePage,
                 metadata,
             ),
             ..Self::default()
-        }
-    }
-}
-
-#[typetag::serde]
-impl RawObject for TilePage {
-    fn get_metadata(&self) -> RawMetadata {
-        self.metadata.as_ref().map_or_else(
-            || {
-                warn!("Metadata is missing for TilePage {}", self.get_object_id());
-                RawMetadata::default()
-                    .with_object_type(ObjectType::TilePage)
-                    .with_hidden(true)
-            },
-            std::clone::Clone::clone,
-        )
-    }
-    fn get_identifier(&self) -> &str {
-        &self.identifier
-    }
-    fn get_type(&self) -> ObjectType {
-        ObjectType::TilePage
-    }
-    fn parse_tag(&mut self, key: &str, value: &str) {
-        match TILE_PAGE_TOKENS.get(key).unwrap_or(&TilePageToken::Unknown) {
-            TilePageToken::File => {
-                let relative_path: PathBuf = value.split('/').collect();
-                let mut raw_path = PathBuf::new();
-                if let Some(metadata) = &self.metadata {
-                    raw_path = PathBuf::from(metadata.get_raw_file_path());
-                }
-                self.file = raw_path.parent().unwrap_or(&raw_path).join(relative_path);
-            }
-            TilePageToken::TileDim => {
-                self.tile_dim = Dimensions::from_token(value);
-            }
-            TilePageToken::PageDim => {
-                self.page_dim = Dimensions::from_token(value);
-            }
-            TilePageToken::Unknown => {
-                warn!(
-                    "Failed to parse {} as TilePageTag for {}",
-                    key,
-                    self.get_object_id()
-                );
-            }
-        }
-    }
-
-    fn get_object_id(&self) -> Uuid {
-        self.object_id
-    }
-    fn get_name(&self) -> &str {
-        &self.identifier
-    }
-    fn get_module_object_id(&self) -> Uuid {
-        match &self.metadata {
-            Some(meta) => meta.get_module_object_id(),
-            None => Uuid::nil(),
         }
     }
 }

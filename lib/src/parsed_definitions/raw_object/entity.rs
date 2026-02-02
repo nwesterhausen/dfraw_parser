@@ -15,15 +15,7 @@ impl RawObject for Entity {
         self.object_id
     }
     fn get_metadata(&self) -> RawMetadata {
-        self.metadata.as_ref().map_or_else(
-            || {
-                warn!("Entity::get_metadata: no metadata for {}", self.identifier);
-                RawMetadata::default()
-                    .with_object_type(ObjectType::Entity)
-                    .with_hidden(true)
-            },
-            std::clone::Clone::clone,
-        )
+        self.metadata.clone()
     }
     fn get_identifier(&self) -> &str {
         &self.identifier
@@ -55,11 +47,5 @@ impl RawObject for Entity {
         };
 
         self.tokens.push(token);
-    }
-    fn get_module_object_id(&self) -> Uuid {
-        match &self.metadata {
-            Some(meta) => meta.get_module_object_id(),
-            None => Uuid::nil(),
-        }
     }
 }

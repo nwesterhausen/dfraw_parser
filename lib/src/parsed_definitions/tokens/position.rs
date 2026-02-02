@@ -108,7 +108,7 @@ pub enum PositionToken {
     /// Arguments: number (0-`100`)
     ///
     /// The maximum number of mandates the position can make at once.
-    MandateMax,
+    MandateMax { amount: u32 },
     /// The position holder cannot be assigned labors. Currently nonfunctional.Bug:3721
     MenialWorkExemption,
     /// The spouse of the position holder doesn't have to work, either - see above.

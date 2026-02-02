@@ -1,5 +1,7 @@
 use uuid::Uuid;
 
+use crate::metadata::RawMetadata;
+
 /// Helper to check if a type is effectively "default", "empty", or "zeroed".
 ///
 /// This is used by the `Cleanable` macro to determine if an `Option<T>` can be
@@ -138,5 +140,19 @@ impl IsEmpty for Uuid {
     #[inline]
     fn is_empty(&self) -> bool {
         Uuid::is_nil(self)
+    }
+}
+
+impl IsEmpty for (String, u32) {
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.0.is_empty() && self.1 == 0
+    }
+}
+
+impl IsEmpty for RawMetadata {
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.is_hidden()
     }
 }

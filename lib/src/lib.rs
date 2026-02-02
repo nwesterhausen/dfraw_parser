@@ -12,6 +12,7 @@ pub mod raw_definitions;
 pub mod regex;
 pub mod traits;
 pub mod utilities;
+pub mod views;
 
 pub use error::Parser as ParserError;
 pub use parsed_definitions::custom_types;

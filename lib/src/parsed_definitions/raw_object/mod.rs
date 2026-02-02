@@ -1,2 +1,9 @@
 mod creature;
+mod creature_variation;
 mod entity;
+mod graphic;
+mod inorganic;
+mod material_template;
+mod plant;
+mod select_creature;
+mod tile_page;

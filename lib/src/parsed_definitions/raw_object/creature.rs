@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::{
     Caste, Creature,
     metadata::{NumericToken, RawMetadata},
-    raw_definitions::CASTE_TOKENS,
+    raw_definitions::{CASTE_TOKENS, CREATURE_VARIATION_TOKENS},
     tokens::{CasteToken, CreatureToken, ObjectType},
     traits::{NumericTokenTransform as _, RawObject, RawToken, TagOperations as _},
 };
@@ -14,18 +14,7 @@ use crate::{
 #[typetag::serde]
 impl RawObject for Creature {
     fn get_metadata(&self) -> RawMetadata {
-        self.metadata.as_ref().map_or_else(
-            || {
-                warn!(
-                    "Creature::get_metadata: ({}) metadata is None",
-                    self.identifier
-                );
-                RawMetadata::default()
-                    .with_object_type(ObjectType::Creature)
-                    .with_hidden(true)
-            },
-            std::clone::Clone::clone,
-        )
+        self.metadata.clone()
     }
     fn get_identifier(&self) -> &str {
         &self.identifier
@@ -44,6 +33,12 @@ impl RawObject for Creature {
             let mut caste = Caste::new("unknown");
             caste.parse_tag(key, value);
             self.castes.push(caste);
+            return;
+        }
+
+        if CREATURE_VARIATION_TOKENS.contains_key(key) {
+            // SKip for now?
+            warn!("Skipped {key} in {}", self.get_identifier());
             return;
         }
 
@@ -102,11 +97,5 @@ impl RawObject for Creature {
         }
 
         tokens
-    }
-    fn get_module_object_id(&self) -> Uuid {
-        match &self.metadata {
-            Some(meta) => meta.get_module_object_id(),
-            None => Uuid::nil(),
-        }
     }
 }

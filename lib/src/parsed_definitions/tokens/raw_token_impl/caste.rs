@@ -51,6 +51,14 @@ impl RawToken for CasteToken {
             CasteToken::Attack { verb, selector } => {
                 format!("[{key}:{verb}:{}]", selector.join(":"))
             }
+            CasteToken::AttackContactPercentage { percentage } => format!("[{key}:{percentage}]"),
+            CasteToken::AttackPrepareAndRecover {
+                preparation,
+                recovery,
+            } => format!("[{key}:{preparation}:{recovery}]"),
+            CasteToken::AttackPriority { priority } => format!("[{key}:{priority}]"),
+            CasteToken::AttackSkill { skill } => format!("[{key}:{skill}]"),
+            CasteToken::AttackVerb { verb } => format!("[{key}:{}]", verb.as_vec().join(":")),
             CasteToken::AttackTrigger {
                 population,
                 exported_wealth,
@@ -274,6 +282,8 @@ impl RawToken for CasteToken {
             } => format!("[{key}:{}:{relative_size}]", selector.join(":")),
             CasteToken::Remains { singular, plural } => format!("[{key}:{singular}:{plural}]"),
             CasteToken::RemainsColor { remains_color } => format!("[{key}:{remains_color}]"),
+            CasteToken::RemoveMaterial { material } => format!("[{key}:{material}]"),
+            CasteToken::RemoveTissue { tissue } => format!("[{key}:{tissue}]"),
             CasteToken::RetractIntoBodyPart {
                 body_part_selector,
                 body_part,
@@ -303,6 +313,10 @@ impl RawToken for CasteToken {
                 material.join(":"),
                 body_part_selector.join(":")
             ),
+            CasteToken::SelectTissueLayer {
+                body_part_selector,
+                tissue,
+            } => format!("[{key}:{tissue}:{}]", body_part_selector.join(":")),
             CasteToken::SenseCreatureClass {
                 creature_class,
                 tile,
@@ -311,6 +325,9 @@ impl RawToken for CasteToken {
                 brightness,
             } => format!("[{key}:{creature_class}:{tile}:{foreground}:{background}:{brightness}]"),
             CasteToken::SetBodyPartGroup { body_part_selector } => {
+                format!("[{key}:{}]", body_part_selector.join(":"))
+            }
+            CasteToken::SetTissueLayerGroup { body_part_selector } => {
                 format!("[{key}:{}]", body_part_selector.join(":"))
             }
             CasteToken::SkillLearnRate { skill, rate } => format!("[{key}:{skill}:{rate}]"),
@@ -400,6 +417,9 @@ impl RawToken for CasteToken {
                 tissue,
             } => format!("[{key}:{body_part_selector}:{body_part}:{tissue}]"),
             CasteToken::TradeCapacity { capacity } => format!("[{key}:{capacity}]"),
+            CasteToken::UseMaterialTemplate { material_template } => {
+                format!("[{key}:{material_template}]")
+            }
             CasteToken::VerminBite {
                 chance,
                 verb,
@@ -424,6 +444,7 @@ impl RawToken for CasteToken {
             | CasteToken::Aquatic
             | CasteToken::ArenaRestricted
             | CasteToken::AtPeaceWithWildlife
+            | CasteToken::AttackCanLatch
             | CasteToken::Benign
             | CasteToken::BloodSucker
             | CasteToken::BoneCarn

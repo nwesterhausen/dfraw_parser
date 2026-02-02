@@ -3543,7 +3543,7 @@ material: string[] } } |
 /**
  * Is a flying curious beast
  */
-"CannotBreatheAir"
+"CannotBreatheAir" | { RemoveMaterial: { material: string } } | { UseMaterialTemplate: { material_template: string } } | { RemoveTissue: { tissue: string } } | { SelectTissueLayer: { body_part_selector: string[]; tissue: string } } | { SetTissueLayerGroup: { body_part_selector: string[] } } | { AttackContactPercentage: { percentage: number } } | "AttackCanLatch" | { AttackPrepareAndRecover: { preparation: number; recovery: number } } | { AttackPriority: { priority: string } } | { AttackSkill: { skill: string } } | { AttackVerb: { verb: Name } }
 
 /**
  * Options for configuring the database client behavior.
@@ -4413,7 +4413,7 @@ export type Creature = {
  * The `metadata` field is of type `RawMetadata` and is used to provide additional information
  * about the raws the `Creature` is found in.
  */
-metadata: Metadata | null; 
+metadata: Metadata; 
 /**
  * The `identifier` field is a string that represents the identifier of the creature. It is used
  * to uniquely identify the creature (however it is not guaranteed to be unique across object types
@@ -5532,7 +5532,7 @@ export type CreatureVariation = {
 /**
  * Common Raw file Things
  */
-metadata: Metadata | null; identifier: string; 
+metadata: Metadata; identifier: string; 
 /**
  * A generated id that is used to uniquely identify this object.
  * 
@@ -5787,7 +5787,7 @@ export type Entity = {
 /**
  * The metadata for this [`Entity`]
  */
-metadata: Metadata | null; 
+metadata: Metadata; 
 /**
  * The identifier and name of the civilizaiton
  */
@@ -7126,7 +7126,7 @@ export type Graphic = {
  * The `metadata` field is of type `RawMetadata` and is used to provide additional information
  * about the raws the `Graphic` is found in.
  */
-metadata: Metadata | null; 
+metadata: Metadata; 
 /**
  * The `identifier` field is a string that represents the identifier of the graphic. It is used
  * to uniquely identify the graphic
@@ -7749,7 +7749,7 @@ export type InclusionTypeToken =
 /**
  * The raw representation of an inorganic object.
  */
-export type Inorganic = { identifier: string; metadata: Metadata | null; 
+export type Inorganic = { identifier: string; metadata: Metadata; 
 /**
  * A generated id that is used to uniquely identify this object.
  * 
@@ -8327,7 +8327,7 @@ export type MaterialStateToken =
 /**
  * A struct representing a material template
  */
-export type MaterialTemplate = { identifier: string; metadata: Metadata | null; 
+export type MaterialTemplate = { identifier: string; metadata: Metadata; 
 /**
  * A generated id that is used to uniquely identify this object.
  * 
@@ -9283,7 +9283,7 @@ export type Plant = {
 /**
  * Common Raw file Things
  */
-metadata: Metadata | null; identifier: string; 
+metadata: Metadata; identifier: string; 
 /**
  * A generated id that is used to uniquely identify this object.
  * 
@@ -9801,7 +9801,7 @@ export type PositionToken =
  * 
  * The maximum number of mandates the position can make at once.
  */
-"MandateMax" | 
+{ MandateMax: { amount: number } } | 
 /**
  * The position holder cannot be assigned labors. Currently nonfunctional.Bug:3721
  */
@@ -10189,7 +10189,7 @@ export type SeedMaterial = { name: Name; color: Color; material: string }
 /**
  * A struct representing a creature selection
  */
-export type SelectCreature = { metadata: Metadata | null; identifier: string; 
+export type SelectCreature = { metadata: Metadata; identifier: string; 
 /**
  * A generated id that is used to uniquely identify this object.
  * 
@@ -10703,7 +10703,7 @@ value: string }
 /**
  * A struct representing a `TilePage` object.
  */
-export type TilePage = { metadata: Metadata | null; identifier: string; 
+export type TilePage = { metadata: Metadata; identifier: string; 
 /**
  * A generated id that is used to uniquely identify this object.
  * 

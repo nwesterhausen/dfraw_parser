@@ -26,7 +26,7 @@ use crate::{
 pub struct Entity {
     /// The metadata for this [`Entity`]
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    pub metadata: Option<RawMetadata>,
+    pub metadata: RawMetadata,
     /// The identifier and name of the civilizaiton
     pub identifier: String,
     /// A generated id that is used to uniquely identify this object.
@@ -69,7 +69,7 @@ impl Entity {
     pub fn new(identifier: &str, metadata: &RawMetadata) -> Self {
         Self {
             identifier: String::from(identifier),
-            metadata: Some(metadata.clone()),
+            metadata: metadata.clone(),
             object_id: generate_object_id_using_raw_metadata(
                 identifier,
                 ObjectType::Entity,

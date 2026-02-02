@@ -11,7 +11,6 @@ use crate::{
         CONDITION_TOKENS, CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS,
     },
     tokens::{ConditionToken, GraphicTypeToken, ObjectType},
-    traits::RawObject,
     utilities::generate_object_id_using_raw_metadata,
 };
 
@@ -36,10 +35,10 @@ pub struct Graphic {
     /// The `metadata` field is of type `RawMetadata` and is used to provide additional information
     /// about the raws the `Graphic` is found in.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    metadata: Option<RawMetadata>,
+    pub metadata: RawMetadata,
     /// The `identifier` field is a string that represents the identifier of the graphic. It is used
     /// to uniquely identify the graphic
-    identifier: String,
+    pub identifier: String,
     /// A generated id that is used to uniquely identify this object.
     ///
     /// This is deterministic based on the following:
@@ -49,37 +48,37 @@ pub struct Graphic {
     /// * The containing module's `numeric_version`
     ///
     /// See [`crate::utilities::generate_object_id`]
-    object_id: Uuid,
+    pub object_id: Uuid,
     /// An optional identifier targeting a specific caste
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    caste_identifier: Option<String>,
+    pub caste_identifier: Option<String>,
     /// The type of graphic
     #[cleanable(ignore)]
-    kind: GraphicTypeToken,
+    pub kind: GraphicTypeToken,
     /// A vector of sprites defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    sprites: Option<Vec<SpriteGraphic>>,
+    pub sprites: Option<Vec<SpriteGraphic>>,
     /// A vector of layers defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    layers: Option<Vec<(String, Vec<SpriteLayer>)>>,
+    pub layers: Option<Vec<(String, Vec<SpriteLayer>)>>,
     /// A vector of growths defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    growths: Option<Vec<(String, Vec<SpriteGraphic>)>>,
+    pub growths: Option<Vec<(String, Vec<SpriteGraphic>)>>,
     /// A vector of custom extensions defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    custom_extensions: Option<Vec<CustomGraphicExtension>>,
+    pub custom_extensions: Option<Vec<CustomGraphicExtension>>,
     /// A vector of the defined tags in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    tags: Option<Vec<String>>,
+    pub tags: Option<Vec<String>>,
     /// Internal switch used during parsing to indicate whether currently within a layer
     #[serde(skip)]
-    layer_mode: bool,
+    pub layer_mode: bool,
     /// Internal cache for tracking the group conditions defined for a layer
     #[serde(skip)]
     #[cleanable(ignore)]
-    group_conditions: Vec<(String, String)>,
+    pub group_conditions: Vec<(String, String)>,
     /// The palletes used or defined in the raw
-    palletes: Vec<GraphicPalette>,
+    pub palletes: Vec<GraphicPalette>,
 }
 
 impl Graphic {
@@ -98,7 +97,7 @@ impl Graphic {
     pub fn new(identifier: &str, metadata: &RawMetadata, graphic_type: GraphicTypeToken) -> Self {
         Self {
             identifier: String::from(identifier),
-            metadata: Some(metadata.clone()),
+            metadata: metadata.clone(),
             object_id: generate_object_id_using_raw_metadata(
                 identifier,
                 ObjectType::Graphics,
@@ -117,11 +116,9 @@ impl Graphic {
     #[must_use]
     pub fn empty() -> Self {
         Self {
-            metadata: Some(
-                RawMetadata::default()
-                    .with_object_type(ObjectType::Graphics)
-                    .with_hidden(true),
-            ),
+            metadata: RawMetadata::default()
+                .with_object_type(ObjectType::Graphics)
+                .with_hidden(true),
             ..Default::default()
         }
     }
@@ -462,50 +459,6 @@ impl Graphic {
             }
         } else {
             warn!("Failed to parse, (No existing layers)");
-        }
-    }
-}
-
-#[typetag::serde]
-impl RawObject for Graphic {
-    fn get_metadata(&self) -> RawMetadata {
-        self.metadata.as_ref().map_or_else(
-            || {
-                warn!("Metadata is missing for {}", self.get_identifier());
-                RawMetadata::default()
-                    .with_object_type(ObjectType::Graphics)
-                    .with_hidden(true)
-            },
-            std::clone::Clone::clone,
-        )
-    }
-    fn get_identifier(&self) -> &str {
-        &self.identifier
-    }
-    fn get_name(&self) -> &str {
-        &self.identifier
-    }
-    fn get_type(&self) -> ObjectType {
-        ObjectType::Graphics
-    }
-
-    fn parse_tag(&mut self, key: &str, value: &str) {
-        // Any tags should just be able to be handled by the sprite graphic, but it needs to call the right function
-        warn!(
-            "Graphics tag attempted parse with wrong method: {}:{} for {}",
-            key,
-            value,
-            self.get_identifier()
-        );
-    }
-
-    fn get_object_id(&self) -> Uuid {
-        self.object_id
-    }
-    fn get_module_object_id(&self) -> Uuid {
-        match &self.metadata {
-            Some(meta) => meta.get_module_object_id(),
-            None => Uuid::nil(),
         }
     }
 }

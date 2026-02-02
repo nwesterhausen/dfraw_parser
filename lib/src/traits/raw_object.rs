@@ -55,7 +55,9 @@ pub trait RawObject: RawObjectToAny + ToRawFileString + Send + Sync + Cleanable 
         self.clean()
     }
     /// Get the module object id that this raw belongs to
-    fn get_module_object_id(&self) -> Uuid;
+    fn get_module_object_id(&self) -> Uuid {
+        self.get_metadata().get_module_object_id()
+    }
 }
 
 /// The `RawObjectToAny` trait is implemented by all raw objects. This trait is

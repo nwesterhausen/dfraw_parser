@@ -30,7 +30,6 @@ impl TagOperations for PositionToken {
             | PositionToken::ExportedInLegends
             | PositionToken::Flashes
             | PositionToken::KillQuest
-            | PositionToken::MandateMax
             | PositionToken::MenialWorkExemption
             | PositionToken::MenialWorkExemptionSpouse
             | PositionToken::MilitaryScreenOnly
@@ -54,7 +53,9 @@ impl TagOperations for PositionToken {
             PositionToken::AppointedBy { .. } => {
                 token.parse_single(&values, |position| PositionToken::AppointedBy { position })
             }
-
+            PositionToken::MandateMax { .. } => {
+                token.parse_single(&values, |amount| PositionToken::MandateMax { amount })
+            }
             PositionToken::Color { .. } => {
                 token.parse_array(&values, |[foreground, background, brightness]| {
                     PositionToken::Color {

@@ -298,7 +298,7 @@ pub enum EntityToken {
     /// - 15+ COOPERATION and 15+ CRAFTSMANSHIP for craft guilds
     ///
     /// Guilds also need guild-valid professions (see `PERMITTED_JOB`)
-    Value { value: String, strength: u32 },
+    Value { value: String, strength: i32 },
     /// Arguments: value or `ALL`, min, max
     ///
     /// Makes values randomized rather than specified.
@@ -306,7 +306,7 @@ pub enum EntityToken {
     /// This tag overrides the VALUE tag. Using `[VARIABLE_VALUE:ALL:x:y]` and then overwriting single values with further
     ///
     /// e.g. `[VARIABLE_VALUE:value:x:y]` tags works
-    VariableValue { value: String, min: u32, max: u32 },
+    VariableValue { value: String, min: i32, max: i32 },
     /// Makes the civ's traders accept offered goods.
     WillAcceptTribute,
     /// The civ will send out Wanderer adventurers in worldgen, which seems to increase Tracker skill.

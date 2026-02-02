@@ -29,6 +29,7 @@ impl TagOperations for CasteToken {
             | CasteToken::AllActive
             | CasteToken::AmbushPredator
             | CasteToken::Amphibious
+            | CasteToken::AttackCanLatch
             | CasteToken::ApplyCurrentCreatureVariation
             | CasteToken::Aquatic
             | CasteToken::ArenaRestricted
@@ -209,6 +210,24 @@ impl TagOperations for CasteToken {
             CasteToken::Attack { .. } => token.parse_labeled_vector(&values, |verb, selector| {
                 CasteToken::Attack { verb, selector }
             }),
+            CasteToken::AttackSkill { .. } => {
+                token.parse_single(&values, |skill| CasteToken::AttackSkill { skill })
+            }
+            CasteToken::AttackContactPercentage { .. } => token
+                .parse_single(&values, |percentage| CasteToken::AttackContactPercentage {
+                    percentage,
+                }),
+            CasteToken::AttackPriority { .. } => {
+                token.parse_single(&values, |priority| CasteToken::AttackPriority { priority })
+            }
+            CasteToken::AttackPrepareAndRecover { .. } => {
+                token.parse_array(&values, |[preparation, recovery]| {
+                    CasteToken::AttackPrepareAndRecover {
+                        preparation,
+                        recovery,
+                    }
+                })
+            }
             CasteToken::AttackTrigger { .. } => {
                 token.parse_array(&values, |[population, exported_wealth, created_wealth]| {
                     CasteToken::AttackTrigger {
@@ -217,6 +236,9 @@ impl TagOperations for CasteToken {
                         created_wealth,
                     }
                 })
+            }
+            CasteToken::AttackVerb { .. } => {
+                token.parse_single(&values, |verb| CasteToken::AttackVerb { verb })
             }
             CasteToken::Baby { .. } => token.parse_single(&values, |age| CasteToken::Baby { age }),
             CasteToken::BabyName { .. } => {
@@ -616,6 +638,9 @@ impl TagOperations for CasteToken {
             CasteToken::RemainsColor { .. } => token.parse_single(&values, |remains_color| {
                 CasteToken::RemainsColor { remains_color }
             }),
+            CasteToken::RemoveMaterial { .. } => {
+                token.parse_single(&values, |material| CasteToken::RemoveMaterial { material })
+            }
             CasteToken::RetractIntoBodyPart { .. } => token.parse_array(
                 &values,
                 |[
@@ -698,6 +723,10 @@ impl TagOperations for CasteToken {
             CasteToken::SetBodyPartGroup { .. } => token
                 .parse_vector(&values, |body_part_selector| CasteToken::SetBodyPartGroup {
                     body_part_selector,
+                }),
+            CasteToken::SetTissueLayerGroup { .. } => token
+                .parse_vector(&values, |body_part_selector| {
+                    CasteToken::SetTissueLayerGroup { body_part_selector }
                 }),
             CasteToken::SkillLearnRate { .. } => {
                 token.parse_labeled_array(&values, |skill, [rate]| CasteToken::SkillLearnRate {
@@ -928,6 +957,21 @@ impl TagOperations for CasteToken {
             }
             CasteToken::Webber { .. } => {
                 token.parse_vector(&values, |material| CasteToken::Webber { material })
+            }
+            CasteToken::SelectTissueLayer { .. } => {
+                token.parse_labeled_vector(&values, |tissue, body_part_selector| {
+                    CasteToken::SelectTissueLayer {
+                        body_part_selector,
+                        tissue,
+                    }
+                })
+            }
+            CasteToken::UseMaterialTemplate { .. } => token
+                .parse_single(&values, |material_template| {
+                    CasteToken::UseMaterialTemplate { material_template }
+                }),
+            CasteToken::RemoveTissue { .. } => {
+                token.parse_single(&values, |tissue| CasteToken::RemoveTissue { tissue })
             }
         }
     }

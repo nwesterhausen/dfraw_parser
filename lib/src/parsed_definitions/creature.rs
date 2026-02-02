@@ -44,7 +44,7 @@ pub struct Creature {
     /// The `metadata` field is of type `RawMetadata` and is used to provide additional information
     /// about the raws the `Creature` is found in.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    pub metadata: Option<RawMetadata>,
+    pub metadata: RawMetadata,
     /// The `identifier` field is a string that represents the identifier of the creature. It is used
     /// to uniquely identify the creature (however it is not guaranteed to be unique across object types
     /// or all raws parsed, *especially* if you are parsing multiple versions of the same raws).
@@ -94,11 +94,9 @@ impl Creature {
     #[must_use]
     pub fn empty() -> Self {
         Self {
-            metadata: Some(
-                RawMetadata::default()
-                    .with_object_type(ObjectType::CreatureVariation)
-                    .with_hidden(true),
-            ),
+            metadata: RawMetadata::default()
+                .with_object_type(ObjectType::CreatureVariation)
+                .with_hidden(true),
             castes: vec![Caste::new("ALL")],
             ..Self::default()
         }
@@ -120,7 +118,7 @@ impl Creature {
     pub fn new(identifier: &str, metadata: &RawMetadata) -> Self {
         Self {
             identifier: String::from(identifier),
-            metadata: Some(metadata.clone()),
+            metadata: metadata.clone(),
             castes: vec![Caste::new("ALL")],
             object_id: generate_object_id_using_raw_metadata(
                 identifier,

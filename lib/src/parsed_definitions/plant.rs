@@ -37,7 +37,7 @@ use crate::{
 pub struct Plant {
     /// Common Raw file Things
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    metadata: Option<RawMetadata>,
+    metadata: RawMetadata,
     identifier: String,
     /// A generated id that is used to uniquely identify this object.
     ///
@@ -91,11 +91,9 @@ impl Plant {
     #[must_use]
     pub fn empty() -> Self {
         Self {
-            metadata: Some(
-                RawMetadata::default()
-                    .with_object_type(ObjectType::Plant)
-                    .with_hidden(true),
-            ),
+            metadata: RawMetadata::default()
+                .with_object_type(ObjectType::Plant)
+                .with_hidden(true),
             frequency: Some(50),
             ..Self::default()
         }
@@ -114,7 +112,7 @@ impl Plant {
     pub fn new(identifier: &str, metadata: &RawMetadata) -> Self {
         Self {
             identifier: String::from(identifier),
-            metadata: Some(metadata.clone()),
+            metadata: metadata.clone(),
             frequency: Some(50),
             object_id: generate_object_id_using_raw_metadata(
                 identifier,
@@ -238,18 +236,7 @@ impl RawObject for Plant {
         tokens.into_iter().collect()
     }
     fn get_metadata(&self) -> RawMetadata {
-        self.metadata.as_ref().map_or_else(
-            || {
-                warn!(
-                    "PlantParsing: Failed to get metadata for plant {}",
-                    self.identifier
-                );
-                RawMetadata::default()
-                    .with_object_type(ObjectType::Plant)
-                    .with_hidden(true)
-            },
-            std::clone::Clone::clone,
-        )
+        self.metadata.clone()
     }
     fn get_identifier(&self) -> &str {
         &self.identifier
@@ -428,11 +415,5 @@ impl RawObject for Plant {
 
     fn get_object_id(&self) -> Uuid {
         self.object_id
-    }
-    fn get_module_object_id(&self) -> Uuid {
-        match &self.metadata {
-            Some(meta) => meta.get_module_object_id(),
-            None => Uuid::nil(),
-        }
     }
 }

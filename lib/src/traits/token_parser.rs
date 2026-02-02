@@ -119,7 +119,7 @@ pub trait TokenParser: Debug {
         <T as FromStr>::Err: Debug,
         F: Fn(T) -> S,
     {
-        let val = self.parse_value(values.first()?)?;
+        let val = self.parse_value(values.join(":").as_str())?;
         Some(builder(val))
     }
 
@@ -136,7 +136,6 @@ pub trait TokenParser: Debug {
 
     /// Helper: Parses exactly N values into an array.
     /// Supports numbers and non-copy structs like Strings
-    /// Usage: `[COLOR:0:0:1]` -> `parse_array(..., |[r,g,b]| ...)`
     fn parse_array<T, const N: usize, F, S>(&self, values: &[&str], builder: F) -> Option<S>
     where
         T: FromStr + Default + Debug,

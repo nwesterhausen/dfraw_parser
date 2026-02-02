@@ -132,8 +132,10 @@ impl FromStr for Color {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let split = s.split(':').collect::<Vec<&str>>();
-        if split.len() != 3 {
-            return Err("Color requires 3 ':'-separated values; cannot parse {s}".into());
+        if split.len() < 2 || split.len() > 3 {
+            return Err(format!(
+                "Color requires 2 or 3 ':'-separated values; cannot parse {s} {split:?}"
+            ));
         }
 
         let foreground = split[0]
@@ -146,10 +148,14 @@ impl FromStr for Color {
             .parse::<u8>()
             .map_err(|e| format!("Invalid background: {e}"))?;
 
-        let brightness = split[2]
-            .trim()
-            .parse::<u8>()
-            .map_err(|e| format!("Invalid brightness: {e}"))?;
+        let brightness = if split.len() == 3 {
+            split[2]
+                .trim()
+                .parse::<u8>()
+                .map_err(|e| format!("Invalid brightness: {e}"))?
+        } else {
+            0
+        };
 
         Ok(Self {
             foreground,
