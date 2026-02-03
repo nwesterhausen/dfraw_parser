@@ -6,6 +6,7 @@ pub mod raw_definitions;
 mod raw_token_impl;
 mod tag_operations;
 
+mod audio;
 mod biome;
 mod caste;
 mod color_modification;
