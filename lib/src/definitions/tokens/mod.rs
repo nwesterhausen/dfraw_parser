@@ -47,6 +47,7 @@ mod tile_page;
 mod tree;
 mod twig_placement;
 
+pub use audio::AudioToken;
 pub use biome::BiomeToken;
 pub use caste::CasteToken;
 pub use color_modification::ColorModificationToken;
