@@ -1,8 +1,14 @@
-use std::{fmt::Debug, sync::Arc};
+use std::{cell::RefCell, fmt::Debug, sync::Arc};
 use zstd::{
     bulk::{Compressor, Decompressor},
     dict::{DecoderDictionary, EncoderDictionary, from_samples},
 };
+
+// Thread-local scratch buffer avoids allocations during batch operations.
+// It persists across calls within the same thread.
+thread_local! {
+    static SCRATCH_BUFFER: RefCell<Vec<u8>> = RefCell::new(Vec::with_capacity(64 * 1024));
+}
 
 pub struct DbCodec {
     encoder_dict: Arc<EncoderDictionary<'static>>,
@@ -24,19 +30,23 @@ impl DbCodec {
     where
         T: serde::Serialize,
     {
-        // Serialize to CBOR first
-        // Optimization: You could reuse this buffer if DbCodec had a RefCell<Vec<u8>>
-        let mut cbor_buffer = Vec::new();
-        ciborium::into_writer(data, &mut cbor_buffer)?;
+        // This avoids allocating a new Vec<u8> for every single record.
+        SCRATCH_BUFFER.with(|cell| {
+            let mut buffer = cell.borrow_mut();
+            buffer.clear();
 
-        // Setup Compressor with the shared dictionary
-        let mut compressor = Compressor::with_prepared_dictionary(&self.encoder_dict)?;
+            // Serialize to CBOR first
+            ciborium::into_writer(data, &mut *buffer)?;
 
-        // Compress
-        // "compress" automatically calculates the bound and allocates the Vec
-        let compressed_buffer = compressor.compress(&cbor_buffer)?;
+            // Setup Compressor with the shared dictionary
+            let mut compressor = Compressor::with_prepared_dictionary(&self.encoder_dict)?;
 
-        Ok(compressed_buffer)
+            // Compress
+            // "compress" automatically calculates the bound and allocates the Vec
+            let compressed_buffer = compressor.compress(&buffer)?;
+
+            Ok(compressed_buffer)
+        })
     }
 
     pub fn decompress_record<T>(&self, compressed_data: &[u8]) -> anyhow::Result<T>
@@ -45,14 +55,24 @@ impl DbCodec {
     {
         let mut decompressor = Decompressor::with_prepared_dictionary(&self.decoder_dict)?;
 
-        // Use .decompress() which returns a Vec<u8>.
-        // We pass an initial capacity hint (e.g., 10x size), but Zstd will
-        // automatically resize the vector if the data turns out to be larger.
-        let capacity_hint = compressed_data.len() * 10;
-        let cbor_buffer = decompressor.decompress(compressed_data, capacity_hint)?;
+        SCRATCH_BUFFER.with(|cell| {
+            let mut buffer = cell.borrow_mut();
+            buffer.clear();
 
-        let data = ciborium::from_reader(&cbor_buffer[..])?;
-        Ok(data)
+            // Use .decompress() which returns a Vec<u8>.
+            // We pass an initial capacity hint (e.g., 10x size), but Zstd will
+            // automatically resize the vector if the data turns out to be larger.
+            let capacity_hint = compressed_data.len() * 10;
+            if buffer.capacity() < capacity_hint {
+                let curr_len = buffer.len();
+                buffer.reserve(capacity_hint - curr_len);
+            }
+
+            decompressor.decompress_to_buffer(compressed_data, &mut *buffer)?;
+
+            let data = ciborium::from_reader(&buffer[..])?;
+            Ok(data)
+        })
     }
 }
 
