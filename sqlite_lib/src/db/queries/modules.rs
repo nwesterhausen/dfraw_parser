@@ -3,6 +3,8 @@ use rusqlite::{Connection, Result, Transaction, params};
 use tracing::info;
 use uuid::Uuid;
 
+use crate::db::compression::DbCodec;
+
 use super::super::rusqlite_extensions::OptionalResultExtension;
 
 /// Returns true if the module exists in the database.
@@ -147,13 +149,14 @@ pub fn exists_module(conn: &Connection, module: &ModuleInfo) -> Result<bool> {
 /// - database errors
 pub fn insert_module_and_data(
     conn: &mut Connection,
+    codec: &DbCodec,
     overwrite_raws: bool,
     module: &ModuleInfo,
     data: &[&dyn RawObject],
 ) -> Result<()> {
     let module_db_id = create_module(conn, overwrite_raws, module)?;
 
-    super::process_raw_insertions(conn, module_db_id, module, data, overwrite_raws)
+    super::process_raw_insertions(conn, codec, module_db_id, module, data, overwrite_raws)
 }
 
 /// Insert a module with its supporting data, returning its id in the database.

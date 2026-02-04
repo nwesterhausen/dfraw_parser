@@ -9,7 +9,7 @@ use rusqlite::{Connection, Result, Transaction, params};
 use tracing::error;
 
 use crate::{
-    db::queries,
+    db::{compression::DbCodec, queries},
     search_helpers::{extract_names_and_descriptions, remove_dup_strings},
 };
 
@@ -26,6 +26,7 @@ use super::table_inserts::{
 /// - Database error (will not commit transaction if error)
 pub fn process_raw_insertions(
     conn: &mut Connection,
+    codec: &DbCodec,
     module_db_id: i64,
     info: &ModuleInfo,
     raws: &[&dyn RawObject],
@@ -39,7 +40,7 @@ pub fn process_raw_insertions(
     // Setup transaction
     let tx = conn.transaction()?;
     // The inner process scopes tx so the compiler can relax
-    process_raw_insertions_inner(&tx, module_db_id, info, raws, overwrite_raws)?;
+    process_raw_insertions_inner(&tx, codec, module_db_id, info, raws, overwrite_raws)?;
 
     tx.commit()
 }
@@ -47,6 +48,7 @@ pub fn process_raw_insertions(
 #[allow(clippy::too_many_lines)]
 fn process_raw_insertions_inner(
     tx: &Transaction,
+    codec: &DbCodec,
     module_db_id: i64,
     info: &ModuleInfo,
     raws: &[&dyn RawObject],
@@ -94,9 +96,9 @@ fn process_raw_insertions_inner(
         let serialize_start = Utc::now();
 
         // Handle Serialization with retry/exit logic
-        let mut binary_payload = Vec::new();
-        match ciborium::into_writer(&raw, &mut binary_payload) {
-            Ok(()) => {}
+
+        let binary_blob = match codec.compress_record(&raw) {
+            Ok(payload) => payload,
             Err(e) => {
                 error_count += 1;
                 error!(
@@ -115,7 +117,7 @@ fn process_raw_insertions_inner(
                 }
                 continue;
             }
-        }
+        };
 
         #[cfg(debug_assertions)]
         {
@@ -131,7 +133,7 @@ fn process_raw_insertions_inner(
                 raw.get_type().to_string().to_uppercase().replace(' ', "_"),
                 raw.get_identifier(),
                 module_db_id,
-                binary_payload,                 // Bound as a BLOB
+                binary_blob,                    // Bound as a BLOB
                 raw.get_object_id().as_bytes()  // Bound as BLOB (UUID bytes)
             ],
             |row| row.get(0),

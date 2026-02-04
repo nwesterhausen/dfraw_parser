@@ -10,7 +10,7 @@ use tracing::info;
 
 use crate::{
     ResultWithId, SearchQuery, SearchResults,
-    db::{metadata_markers::FavoriteRaws, queries},
+    db::{compression::DbCodec, metadata_markers::FavoriteRaws, queries},
 };
 
 /// Uses the provided `SearchQuery` to return the JSON of all matching raws defined in the database.
@@ -24,6 +24,7 @@ use crate::{
 /// The `SearchResults` with the results as [`Box<dyn RawObject>`]
 pub fn search_raws(
     conn: &Connection,
+    codec: &DbCodec,
     query: &SearchQuery,
 ) -> Result<SearchResults<Box<dyn RawObject>>> {
     let mut sql = String::from("FROM raw_definitions r ");
@@ -135,8 +136,9 @@ pub fn search_raws(
     // Run query
     let rows = stmt.query_map(&params_ref[..], |row| {
         let id: i64 = row.get(0)?;
-        let cbor_payload: Vec<u8> = row.get(1)?; // Get as blob
-        let raw: Box<dyn RawObject> = ciborium::from_reader(&cbor_payload[..])
+        let binary_blob: Vec<u8> = row.get(1)?; // Get as blob
+        let raw: Box<dyn RawObject> = codec
+            .decompress_record(&binary_blob[..])
             .inspect_err(|e| {
                 tracing::error!("search_raws: deserialization failed for id:{id}: {e}");
             })

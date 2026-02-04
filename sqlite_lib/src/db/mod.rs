@@ -2,6 +2,7 @@
 
 pub mod client;
 pub mod client_options;
+pub mod compression;
 pub mod metadata;
 mod metadata_markers;
 mod migrate;

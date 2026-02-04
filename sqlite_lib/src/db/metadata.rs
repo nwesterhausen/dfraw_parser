@@ -27,6 +27,8 @@ pub enum AppMetadataKey {
     LastRawsParsingOperation,
     /// JSON blob with app settings
     StoredSettings,
+    /// Dictionary used for compression
+    CompressionDictionary,
 }
 
 impl AppMetadataKey {
@@ -46,6 +48,7 @@ impl AppMetadataKey {
             Self::PreviousInsertionDuration => "previous_insertion_duration",
             Self::LastRawsParsingOperation => "last_raws_parse",
             Self::StoredSettings => "stored_settings",
+            Self::CompressionDictionary => "zstd_compression_dict",
         }
     }
 
@@ -79,6 +82,9 @@ impl AppMetadataKey {
                 "The ISO-8601 (RFC 3339) timestamp of the last successful raw parsing operation"
             }
             Self::StoredSettings => "A JSON blob of stored settings used by a consuming app.",
+            Self::CompressionDictionary => {
+                "The compression dictionary used for zstd compression encoding and decoding."
+            }
         }
     }
 }
