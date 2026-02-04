@@ -3,10 +3,12 @@ use crate::{
     Plant, TilePage,
     constants::DF_ENCODING,
     metadata::{ParserOptions, RawMetadata, RawModuleLocation},
-    raw_definitions::{GRAPHIC_TYPE_TOKENS, OBJECT_TOKEN_MAP},
     reader::{PARSABLE_OBJECT_TYPES, unprocessed_raw::UnprocessedRaw},
     regex::RAW_TOKEN_RE,
-    tokens::{GraphicTypeToken, ModificationToken, ObjectType},
+    tokens::{
+        GraphicTypeToken, ModificationToken, ObjectType,
+        raw_definitions::{GRAPHIC_TYPE_TOKENS, OBJECT_TOKEN_MAP},
+    },
     traits::{IsEmpty, RawObject},
     utilities::try_get_file,
 };

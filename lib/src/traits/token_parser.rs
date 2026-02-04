@@ -257,3 +257,5 @@ impl TokenParser for crate::tokens::PlantToken {}
 impl TokenParser for crate::tokens::ConditionToken {}
 impl TokenParser for crate::tokens::EntityToken {}
 impl TokenParser for crate::tokens::PositionToken {}
+impl TokenParser for crate::tokens::ModuleInfoToken {}
+impl TokenParser for crate::tokens::SteamWorkshopToken {}
