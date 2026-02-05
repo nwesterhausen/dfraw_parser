@@ -46,6 +46,7 @@ mod shrub;
 mod steam_workshop;
 mod syndrome;
 mod tile_page;
+mod tissue;
 mod tree;
 mod twig_placement;
 
@@ -89,5 +90,6 @@ pub use shrub::ShrubToken;
 pub use steam_workshop::SteamWorkshopToken;
 pub use syndrome::SyndromeToken;
 pub use tile_page::TilePageToken;
+pub use tissue::TissueToken;
 pub use tree::TreeToken;
 pub use twig_placement::TwigPlacementToken;
