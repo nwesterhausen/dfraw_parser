@@ -8,6 +8,7 @@ mod tag_operations;
 
 mod audio;
 mod biome;
+mod body;
 mod caste;
 mod color_modification;
 mod condition;
@@ -49,6 +50,7 @@ mod twig_placement;
 
 pub use audio::AudioToken;
 pub use biome::BiomeToken;
+pub use body::BodyToken;
 pub use caste::CasteToken;
 pub use color_modification::ColorModificationToken;
 pub use condition::ConditionToken;
