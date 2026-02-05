@@ -38,6 +38,7 @@ pub struct PlantGrowth {
     /// Specifies on which part of the plant this growth grows. This is defined with `GROWTH_HOST_TILE` key.
     /// This can be unused, like in the case of crops where the plant is the growth (I think?).
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     host_tiles: Option<Vec<PlantPartToken>>,
     /// Controls the height on the trunk above which the growth begins to appear.
     /// The first value is the percent of the trunk height where the growth begins appearing:
@@ -46,21 +47,26 @@ pub struct PlantGrowth {
     /// The second value must be -1, but might be intended to control whether it starts height counting
     /// from the bottom or top.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     trunk_height_percentage: Option<[i32; 2]>,
     /// Currently has no effect.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     density: Option<u32>,
     /// Specifies the appearance of the growth. This is defined with `GROWTH_PRINT` key.
     /// This is a string until we make a proper print structure.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     print: Option<String>,
     /// Specifies at which part of the year the growth appears. Default is all year round.
     /// Minimum: 0, Maximum: `402_200`. This is defined with `GROWTH_TIMING` key.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[is_empty(value = [0, 402_200])]
     timing: Option<[u32; 2]>,
     /// Where we gather some of the growth's tags.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tags: Option<Vec<PlantGrowthToken>>,
 }
 

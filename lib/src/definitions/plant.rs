@@ -54,32 +54,41 @@ pub struct Plant {
     // Basic Tokens
     name: Name,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pref_strings: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub tokens: Vec<PlantToken>,
 
     // Environment Tokens
     /// Default [0, 0] (aboveground)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     underground_depth: Option<[u32; 2]>,
     /// Default frequency is 50
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     frequency: Option<u32>,
     /// List of biomes this plant can grow in
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     biomes: Option<Vec<BiomeToken>>,
 
     /// Growth Tokens define the growths of the plant (leaves, fruit, etc.)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     growths: Option<Vec<PlantGrowth>>,
     /// If plant is a tree, it will have details about the tree.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tree_details: Option<Tree>,
     /// If plant is a shrub, it will have details about the shrub.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     shrub_details: Option<Shrub>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     materials: Option<Vec<Material>>,
 }
 

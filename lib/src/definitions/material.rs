@@ -32,84 +32,109 @@ use crate::{
 pub struct Material {
     /// The type of the material is also the trigger to start tracking a material
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     material_type: Option<MaterialTypeToken>,
     /// The material might have a name, but its more likely that there is only an identifier to
     /// refer to another creature/plant/reaction, which are listed elsewhere.
     /// If there is no name provided, then it is a special hardcoded case, e.g. magma or green glass.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     name: Option<String>,
     /// For the coal tag, it specifies the type of fuel that can be used. It will never be None.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     fuel_type: Option<FuelTypeToken>,
     /// Linked creature identifier (and then `material_name` might be "skin", like for "`CREATURE_MAT:DWARF:SKIN`")
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     creature_identifier: Option<String>,
     /// Linked plant identifier (and then `material_name` might be "leaf", like for "`PLANT_MAT:BUSH_QUARRY:LEAF`")
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     plant_identifier: Option<String>,
     /// If a material is defined within a creature itself, it will use `LOCAL_CREATURE_MAT` tag, which implies
     /// that the material is only used by that creature. This is also true for plants and `LOCAL_PLANT_MAT`.
     // skip if false
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     is_local_material: Option<bool>,
     /// Within a reaction, there can be special material definitions. Todo: Figure this out.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     reagent_identifier: Option<String>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     reaction_product_identifier: Option<String>,
     /// If material is defined from a template, we need a way to refer to that
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     template_identifier: Option<String>,
 
     /// Usage tags
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     usage: Option<Vec<MaterialUsageToken>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[is_empty(value = 1)]
     value: Option<u32>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     color: Option<Color>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     state_names: Option<StateNames>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     state_adjectives: Option<StateNames>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     state_colors: Option<StateNames>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     temperatures: Option<Temperatures>,
 
     /// Catch-all for remaining tags we identify but don't do anything with... yet.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     properties: Option<Vec<String>>,
 
     // Syndromes attached to materials..
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     syndromes: Option<Vec<Syndrome>>,
     // Material Mechanical Properties
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     mechanical_properties: Option<MaterialMechanics>,
     // Technically, the material mechanics wouldn't apply to liquid or gaseous forms
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     liquid_density: Option<i32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     molar_mass: Option<i32>,
 
     // Colors
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     build_color: Option<Color>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     display_color: Option<Color>,
 
     // Display
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tile: Option<Tile>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     item_symbol: Option<String>,
 }
 

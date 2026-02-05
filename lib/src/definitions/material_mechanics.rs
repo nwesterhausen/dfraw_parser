@@ -22,22 +22,30 @@ use crate::{MechanicalProperties, tokens::MaterialPropertyToken};
 #[serde(rename_all = "camelCase")]
 pub struct MaterialMechanics {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     impact: Option<MechanicalProperties>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     compressive: Option<MechanicalProperties>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tensile: Option<MechanicalProperties>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     torsion: Option<MechanicalProperties>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     shear: Option<MechanicalProperties>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     bending: Option<MechanicalProperties>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     max_edge: Option<i32>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     solid_density: Option<i32>,
 }
 

@@ -379,91 +379,91 @@ identifier: string;
 /**
  * A collection of tags assigned to this caste.
  */
-tokens: CasteToken[]; 
+tokens?: CasteToken[]; 
 /**
  * Flavor text shown in-game when examining a creature of this caste.
  */
-description: string | null; 
+description?: string | null; 
 /**
  * The specific name for a creature in its baby stage.
  */
-babyName: Name | null; 
+babyName?: Name | null; 
 /**
  * The name used specifically for this caste.
  */
-casteName: Name | null; 
+casteName?: Name | null; 
 /**
  * The name for a creature in its child stage.
  */
-childName: Name | null; 
+childName?: Name | null; 
 /**
  * The range of eggs produced per clutch, measured as `[min, max]`.
  */
-clutchSize: [number, number] | null; 
+clutchSize?: [number, number] | null; 
 /**
  * The range of offspring produced per birth, measured as `[min, max]`.
  */
-litterSize: [number, number] | null; 
+litterSize?: [number, number] | null; 
 /**
  * The range of life expectancy in game ticks, measured as `[min, max]`.
  */
-maxAge: [number, number] | null; 
+maxAge?: [number, number] | null; 
 /**
  * The age in game ticks at which a creature ceases to be a baby.
  */
-baby: number | null; 
+baby?: number | null; 
 /**
  * The age in game ticks at which a creature ceases to be a child.
  */
-child: number | null; 
+child?: number | null; 
 /**
  * A rating used to determine the challenge level of the creature.
  */
-difficulty: number | null; 
+difficulty?: number | null; 
 /**
  * The size of eggs laid by this caste, measured in cubic centimeters.
  */
-eggSize: number | null; 
+eggSize?: number | null; 
 /**
  * The distance or frequency at which this creature tramples grass.
  */
-grassTrample: number | null; 
+grassTrample?: number | null; 
 /**
  * The grazing requirement for the creature to survive.
  */
-grazer: number | null; 
+grazer?: number | null; 
 /**
  * The level of vision the creature has in dark environments.
  */
-lowLightVision: number | null; 
+lowLightVision?: number | null; 
 /**
  * The value assigned to the creature when kept as a pet.
  */
-petValue: number | null; 
+petValue?: number | null; 
 /**
  * The relative frequency this caste appears in wild populations.
  */
-popRatio: number | null; 
+popRatio?: number | null; 
 /**
  * The percentage change applied to the base body size.
  */
-changeBodySizePercentage: number | null; 
+changeBodySizePercentage?: number | null; 
 /**
  * The classes or categories this caste belongs to for targeting.
  */
-creatureClass: string[] | null; 
+creatureClass?: string[] | null; 
 /**
  * Growth stages and volume measurements.
  */
-bodySize: BodySize[] | null; 
+bodySize?: BodySize[] | null; 
 /**
  * Character and color data for map representation.
  */
-tile: Tile | null; 
+tile?: Tile | null; 
 /**
  * The gaits by which the creature can move.
  */
-gaits: Gait[] | null }
+gaits?: Gait[] | null }
 
 /**
  * Tokens that can be found in a creature's caste definitions.
@@ -3887,13 +3887,13 @@ export type ConditionToken =
  * 
  * `[CONDITION_HAUL_COUNT_MIN:count]`
  */
-"haulCountMin" | 
+{ haulCountMin: { count: number } } | 
 /**
  * Counts how many items the creature is hauling. Used for `[PACK_ANIMAL]`s in vanilla.
  * 
  * `[CONDITION_HAUL_COUNT_MAX:count]`
  */
-"haulCountMax" | 
+{ haulCountMax: { count: number } } | 
 /**
  * Condition of being a class
  */
@@ -3905,7 +3905,7 @@ export type ConditionToken =
  * 
  * `[CONDITION_BP:selection:category, type, or token]`
  */
-"bodyPart" | 
+{ bodyPart: { specifier: PartSpecifier; selector: string[] } } | 
 /**
  * Checks if current `[CONDITION_BP]`'s `[BP_APPEARANCE_MODIFIER]` falls within the chosen range.
  * 
@@ -3930,13 +3930,13 @@ export type ConditionToken =
  * 
  * `[CONDITION_BODY_SIZE_MIN:size]`
  */
-"bodySizeMin" | 
+{ bodySizeMin: { size: number } } | 
 /**
  * True if creature size is less than defined size.
  * 
  * `[CONDITION_BODY_SIZE_MAX:size]`
  */
-"bodySizeMax" | 
+{ bodySizeMax: { size: number } } | 
 /**
  * Changes graphics based on any syndromes the creature is affected by. Vanilla values include:
  * - `ZOMBIE`
@@ -3948,7 +3948,7 @@ export type ConditionToken =
  * 
  * `[CONDITION_SYN_CLASS:class]`
  */
-"syndromeClass" | 
+{ syndromeClass: { syndrome: string } } | 
 /**
  * Selects a tissue layer to use for checking other conditions.
  * 
@@ -3956,7 +3956,7 @@ export type ConditionToken =
  * 
  * `[CONDITION_TISSUE_LAYER:BY_CATEGORY:bp category or 'ALL':tissue layer or 'ALL']`
  */
-"tissueLayer" | 
+{ tissueLayer: { specifier: PartSpecifier; selector: string[] } } | 
 /**
  * Chooses a random layer among layers with a `CONDITION_RANDOM_PART_INDEX` with the same identifier. Index
  * is which option this condition is, out of Range number of options.
@@ -3967,7 +3967,7 @@ export type ConditionToken =
  * 
  * `[CONDITION_RANDOM_PART_INDEX:identifier:index:range]`
  */
-"randomPartIndex" | 
+{ randomPartIndex: { identifier: string; index: number; range: number } } | 
 /**
  * Checks if the creature is a ghost.
  * 
@@ -3980,35 +3980,35 @@ export type ConditionToken =
  * 
  * `[TISSUE_MAY_HAVE_COLOR:color token:more color tokens]`
  */
-"tissueMayHaveColor" | 
+{ tissueMayHaveColor: { colors: string[] } } | 
 /**
  * Checks the current `[CONDITION_TISSUE_LAYER]`'s `LENGTH` appearance modifier. Is true if the `LENGTH` is
  * greater than the integer input.
  * 
  * `[TISSUE_MIN_LENGTH:length]`
  */
-"tissueMinLength" | 
+{ tissueMinLength: { length: number } } | 
 /**
  * Checks the current `[CONDITION_TISSUE_LAYER]`'s `LENGTH` appearance modifier. Is true if the `LENGTH` is
  * less than the integer input.
  * 
  * `[TISSUE_MAX_LENGTH:length]`
  */
-"tissueMaxLength" | 
+{ tissueMaxLength: { length: number } } | 
 /**
  * Checks the current `[CONDITION_TISSUE_LAYER]`'s `DENSITY` appearance modifier. Is true if the `DENSITY` is
  * greater than the integer input.
  * 
  * `[TISSUE_MIN_DENSITY:desnsity]`
  */
-"tissueMinDensity" | 
+{ tissueMinDensity: { density: number } } | 
 /**
  * Checks the current `[CONDITION_TISSUE_LAYER]`'s `DENSITY` appearance modifier. Is true if the `DENSITY` is
  * less than the integer input.
  * 
  * `[TISSUE_MAX_DENSITY:desnsity]`
  */
-"tissueMaxDensity" | 
+{ tissueMaxDensity: { density: number } } | 
 /**
  * Condition of being a tissue at least so curly
  */
@@ -4028,7 +4028,7 @@ export type ConditionToken =
  * 
  * `[TISSUE_MAY_HAVE_SHAPING:styling token]`
  */
-"tissueMayHaveShaping" | 
+{ tissueMayHaveShaping: { shaping: string } } | 
 /**
  * Checks the current `[CONDITION_TISSUE_LAYER]`'s color. Accepts multiple color tokens, and is true if the
  * any of the colors is present in the selected tissues.
@@ -4045,7 +4045,7 @@ export type ConditionToken =
  * 
  * `[TISSUE_SWAP:IF_MIN_CURLY:curl amount:tile page id:x pos:y pos]`
  */
-"tissueSwap" | 
+{ tissueSwap: { condition: string; value: number; tile_page_identifier: string; tile_position: Dimensions } } | 
 /**
  * Condition of being a specific layer (start layer definition)
  */
@@ -4064,7 +4064,7 @@ export type ConditionToken =
  * 
  * `[ITEM_QUALITY:quality id]`
  */
-"itemQuality" | 
+{ itemQuality: { quality: number } } | 
 /**
  * Begins a layer group. Only the first-matching layer in a group will be rendered, so list more
  * specific items at the beginning of the layer group and more general items towards the end.
@@ -4078,21 +4078,21 @@ export type ConditionToken =
  * 
  * `[LAYER_SET:condition]`
  */
-"layerSet" | 
+{ layerSet: { condition: string } } | 
 /**
  * Begins defining a palette for the layer set. Its name can then be referenced by `[USE_PALETTE]`.
  * Unlike the palettes used to render all descriptor color tokens, it can be of arbitrary length.
  * 
  * `[LS_PALETTE:name]`
  */
-"layerSetPalette" | 
+{ layerSetPalette: { name: string } } | 
 /**
  * The file name of the 8bit RGBA (sometimes called 32bit) in the /graphics/images folder of the mod,
  * such as `images/portraits/dwarf_portrait_body_palette.png`.
  * 
  * `[LS_PALETTE_FILE:file path]`
  */
-"layerSetPaletteFile" | 
+{ layerSetPaletteFile: { path: string } } | 
 /**
  * Defines the default row of a layer set palette, conventionally 0. The exact color values on this row
  * will be replaced on layer images with the colors in the same column, based on what row is passed as
@@ -4100,7 +4100,7 @@ export type ConditionToken =
  * 
  * `[LS_PALETTE_DEFAULT:integer]`
  */
-"layerSetPaletteDefault" | 
+{ layerSetPaletteDefault: { default_row: number } } | 
 /**
  * Allows the entire layer group (rather than an individual layer) to be switched on and off depending on the
  * conditions of a body part. Should accept the same tokens `[CONDITION_BP]` does.
@@ -4109,7 +4109,7 @@ export type ConditionToken =
  * 
  * `[LG_CONDITION_BP:selection:cateogry, type, or token]`
  */
-"layerGroupBodyPart" | 
+{ layerGroupBodyPart: { specifier: PartSpecifier; selector: string[] } } | 
 /**
  * Explicitly marks the end of a layer group, which allows layers after to not belong to any layer group.
  * 
@@ -4130,7 +4130,7 @@ export type ConditionToken =
  * 
  * `[CONDITION_ITEM_WORN:selection:cateogry or token:armor type:item id]`
  */
-"itemWorn" | 
+{ itemWorn: { specifier: PartSpecifier; selector: string[]; item_identifier: string } } | 
 /**
  * Causes the current layer to not be rendered if the creature has one of the items worn or equipped. Also accepts
  * the input `ANY_HELD` or `WIELD` (e.g. `WIELD:WEAPON:ANY`). Note that `ANY_HELD` has been bugged since v50.14.
@@ -4439,33 +4439,33 @@ objectId: string;
  * 
  * A lot of the properties of the `Creature` object are actually properties of a special `Caste`, `ALL`.
  */
-castes: Caste[]; 
+castes?: Caste[]; 
 /**
  * Any tags that are not parsed into their own fields are stored in the `tags` field.
  */
-tokens: CreatureToken[]; 
+tokens?: CreatureToken[]; 
 /**
  * Copies another specified creature. This will override any definitions made before it; essentially, it makes this creature identical to the other one,
  * which can then be modified. Often used in combination with `[APPLY_CREATURE_VARIATION]` to import standard variations from a file.
  * 
  * The vanilla giant animals and animal peoples are examples of this token combination.
  */
-copyTagsFrom: string | null; 
+copyTagsFrom?: string | null; 
 /**
  * Applies the specified creature variation.
  * 
  * These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
  */
-applyCreatureVariation: string[] | null; 
+applyCreatureVariation?: string[] | null; 
 /**
  * Various `SELECT_CREATUR` modifications.
  */
-selectCreatureVariation: SelectCreature[] | null }
+selectCreatureVariation?: SelectCreature[] | null }
 
 /**
  * A creature effect.
  */
-export type CreatureEffect = { severity: number; probability: number; affectedBodyPartsByCategory: string[] | null; affectedBodyPartsByType: string[] | null; affectedBodyPartsByToken: string[] | null; tags: CreatureEffectPropertyToken[] | null; start: number; peak: number; end: number; dwfStretch: number | null }
+export type CreatureEffect = { severity: number; probability: number; affectedBodyPartsByCategory?: string[] | null; affectedBodyPartsByType?: string[] | null; affectedBodyPartsByToken?: string[] | null; tags?: CreatureEffectPropertyToken[] | null; start: number; peak: number; end: number; dwfStretch?: number | null }
 
 /**
  * An enum representing a creature effect property tag.
@@ -5761,7 +5761,7 @@ export type CreatureVariationToken =
 /**
  * A custom graphic extension.
  */
-export type CustomGraphicExtension = { extensionType: GraphicTypeToken; tilePageId: string | null; value1: number | null; value2: number | null }
+export type CustomGraphicExtension = { extensionType: GraphicTypeToken; tilePageId?: string | null; value1?: number | null; value2?: number | null }
 
 /**
  * A struct representing a Dimensions object.
@@ -7143,7 +7143,7 @@ objectId: string;
 /**
  * An optional identifier targeting a specific caste
  */
-casteIdentifier: string | null; 
+casteIdentifier?: string | null; 
 /**
  * The type of graphic
  */
@@ -7151,23 +7151,23 @@ kind: GraphicTypeToken;
 /**
  * A vector of sprites defined in the raw
  */
-sprites: SpriteGraphic[] | null; 
+sprites?: SpriteGraphic[]; 
 /**
  * A vector of layers defined in the raw
  */
-layers: ([string, SpriteLayer[]])[] | null; 
+layers?: ([string, SpriteLayer[]])[]; 
 /**
  * A vector of growths defined in the raw
  */
-growths: ([string, SpriteGraphic[]])[] | null; 
+growths?: ([string, SpriteGraphic[]])[]; 
 /**
  * A vector of custom extensions defined in the raw
  */
-customExtensions: CustomGraphicExtension[] | null; 
+customExtensions?: CustomGraphicExtension[]; 
 /**
  * A vector of the defined tags in the raw
  */
-tags: string[] | null; 
+tokens?: ConditionToken[]; 
 /**
  * The palletes used or defined in the raw
  */
@@ -7757,7 +7757,7 @@ export type Inorganic = { identifier: string; metadata: Metadata;
  * 
  * See [`crate::utilities::generate_object_id`]
  */
-objectId: string; material: Material; metalOreChance: ([string, number])[] | null; threadMetalChance: ([string, number])[] | null; environmentClass: EnvironmentClassToken | null; environmentInclusionType: InclusionTypeToken | null; environmentInclusionFrequency: number | null; environmentClassSpecific: string[] | null; tags: InorganicToken[] | null }
+objectId: string; material: Material; metalOreChance?: ([string, number])[] | null; threadMetalChance?: ([string, number])[] | null; environmentClass?: EnvironmentClassToken | null; environmentInclusionType?: InclusionTypeToken | null; environmentInclusionFrequency?: number | null; environmentClassSpecific?: string[] | null; tags?: InorganicToken[] | null }
 
 /**
  * Tags that can be used in inorganic raws.
@@ -7876,52 +7876,52 @@ export type Material = {
 /**
  * The type of the material is also the trigger to start tracking a material
  */
-materialType: MaterialTypeToken | null; 
+materialType?: MaterialTypeToken | null; 
 /**
  * The material might have a name, but its more likely that there is only an identifier to
  * refer to another creature/plant/reaction, which are listed elsewhere.
  * If there is no name provided, then it is a special hardcoded case, e.g. magma or green glass.
  */
-name: string | null; 
+name?: string | null; 
 /**
  * For the coal tag, it specifies the type of fuel that can be used. It will never be None.
  */
-fuelType: FuelTypeToken | null; 
+fuelType?: FuelTypeToken | null; 
 /**
  * Linked creature identifier (and then `material_name` might be "skin", like for "`CREATURE_MAT:DWARF:SKIN`")
  */
-creatureIdentifier: string | null; 
+creatureIdentifier?: string | null; 
 /**
  * Linked plant identifier (and then `material_name` might be "leaf", like for "`PLANT_MAT:BUSH_QUARRY:LEAF`")
  */
-plantIdentifier: string | null; 
+plantIdentifier?: string | null; 
 /**
  * If a material is defined within a creature itself, it will use `LOCAL_CREATURE_MAT` tag, which implies
  * that the material is only used by that creature. This is also true for plants and `LOCAL_PLANT_MAT`.
  */
-isLocalMaterial: boolean | null; 
+isLocalMaterial?: boolean | null; 
 /**
  * Within a reaction, there can be special material definitions. Todo: Figure this out.
  */
-reagentIdentifier: string | null; reactionProductIdentifier: string | null; 
+reagentIdentifier?: string | null; reactionProductIdentifier?: string | null; 
 /**
  * If material is defined from a template, we need a way to refer to that
  */
-templateIdentifier: string | null; 
+templateIdentifier?: string | null; 
 /**
  * Usage tags
  */
-usage: MaterialUsageToken[] | null; value: number | null; color: Color | null; stateNames: StateName | null; stateAdjectives: StateName | null; stateColors: StateName | null; temperatures: Temperatures | null; 
+usage?: MaterialUsageToken[] | null; value?: number | null; color?: Color | null; stateNames?: StateName | null; stateAdjectives?: StateName | null; stateColors?: StateName | null; temperatures?: Temperatures | null; 
 /**
  * Catch-all for remaining tags we identify but don't do anything with... yet.
  */
-properties: string[] | null; syndromes: Syndrome[] | null; mechanicalProperties: MaterialMechanics | null; liquidDensity: number | null; molarMass: number | null; buildColor: Color | null; displayColor: Color | null; tile: Tile | null; itemSymbol: string | null }
+properties?: string[] | null; syndromes?: Syndrome[] | null; mechanicalProperties?: MaterialMechanics | null; liquidDensity?: number | null; molarMass?: number | null; buildColor?: Color | null; displayColor?: Color | null; tile?: Tile | null; itemSymbol?: string | null }
 
 /**
  * Represents the specific yield, fracture, and elasticity of a material for the various
  * types of mechanical stress.
  */
-export type MaterialMechanics = { impact: MechanicalProperties | null; compressive: MechanicalProperties | null; tensile: MechanicalProperties | null; torsion: MechanicalProperties | null; shear: MechanicalProperties | null; bending: MechanicalProperties | null; maxEdge: number | null; solidDensity: number | null }
+export type MaterialMechanics = { impact?: MechanicalProperties | null; compressive?: MechanicalProperties | null; tensile?: MechanicalProperties | null; torsion?: MechanicalProperties | null; shear?: MechanicalProperties | null; bending?: MechanicalProperties | null; maxEdge?: number | null; solidDensity?: number | null }
 
 /**
  * A material property that can be set in a material definition.
@@ -8897,7 +8897,7 @@ export type ModuleInfo = { identifier: string;
  * 
  * See [`crate::utilities::generate_object_id`]
  */
-objectId: string; location: RawModuleLocation; parentDirectory: string; numericVersion: number; displayedVersion: string; earliestCompatibleNumericVersion: number; earliestCompatibleDisplayedVersion: string; author: string; name: string; description: string; requiresIds: string[] | null; conflictsWithIds: string[] | null; requiresIdsBefore: string[] | null; requiresIdsAfter: string[] | null; steamData: SteamData | null }
+objectId: string; location: RawModuleLocation; parentDirectory: string; numericVersion: number; displayedVersion: string; earliestCompatibleNumericVersion: number; earliestCompatibleDisplayedVersion: string; author: string; name: string; description: string; requiresIds?: string[] | null; conflictsWithIds?: string[] | null; requiresIdsBefore?: string[] | null; requiresIdsAfter?: string[] | null; steamData?: SteamData | null }
 
 /**
  * A name with a singular, plural, and adjective form
@@ -9273,6 +9273,23 @@ logSummary: boolean;
 includeWarningsForInfoFileFormat: boolean }
 
 /**
+ * The method of specifying the method of choosing a body part location
+ */
+export type PartSpecifier = 
+/**
+ * `BY_CATEGORY`
+ */
+"Category" | 
+/**
+ * `BY_TYPE`
+ */
+"Type" | 
+/**
+ * `BY_TOKEN`
+ */
+"Token"
+
+/**
  * A struct representing a plant
  */
 export type Plant = { 
@@ -9291,31 +9308,31 @@ metadata: Metadata; identifier: string;
  * 
  * See [`crate::utilities::generate_object_id`]
  */
-objectId: string; name: Name; prefStrings: string[] | null; tokens: PlantToken[]; 
+objectId: string; name: Name; prefStrings?: string[] | null; tokens?: PlantToken[]; 
 /**
  * Default [0, 0] (aboveground)
  */
-undergroundDepth: [number, number] | null; 
+undergroundDepth?: [number, number] | null; 
 /**
  * Default frequency is 50
  */
-frequency: number | null; 
+frequency?: number | null; 
 /**
  * List of biomes this plant can grow in
  */
-biomes: BiomeToken[] | null; 
+biomes?: BiomeToken[] | null; 
 /**
  * Growth Tokens define the growths of the plant (leaves, fruit, etc.)
  */
-growths: PlantGrowth[] | null; 
+growths?: PlantGrowth[] | null; 
 /**
  * If plant is a tree, it will have details about the tree.
  */
-treeDetails: Tree | null; 
+treeDetails?: Tree | null; 
 /**
  * If plant is a shrub, it will have details about the shrub.
  */
-shrubDetails: Shrub | null; materials: Material[] | null }
+shrubDetails?: Shrub | null; materials?: Material[] | null }
 
 /**
  * The graphic of the tile
@@ -9381,7 +9398,7 @@ item: string;
  * Specifies on which part of the plant this growth grows. This is defined with `GROWTH_HOST_TILE` key.
  * This can be unused, like in the case of crops where the plant is the growth (I think?).
  */
-hostTiles: PlantPartToken[] | null; 
+hostTiles?: PlantPartToken[] | null; 
 /**
  * Controls the height on the trunk above which the growth begins to appear.
  * The first value is the percent of the trunk height where the growth begins appearing:
@@ -9390,25 +9407,25 @@ hostTiles: PlantPartToken[] | null;
  * The second value must be -1, but might be intended to control whether it starts height counting
  * from the bottom or top.
  */
-trunkHeightPercentage: [number, number] | null; 
+trunkHeightPercentage?: [number, number] | null; 
 /**
  * Currently has no effect.
  */
-density: number | null; 
+density?: number | null; 
 /**
  * Specifies the appearance of the growth. This is defined with `GROWTH_PRINT` key.
  * This is a string until we make a proper print structure.
  */
-print: string | null; 
+print?: string | null; 
 /**
  * Specifies at which part of the year the growth appears. Default is all year round.
  * Minimum: 0, Maximum: `402_200`. This is defined with `GROWTH_TIMING` key.
  */
-timing: [number, number] | null; 
+timing?: [number, number] | null; 
 /**
  * Where we gather some of the growth's tags.
  */
-tags: PlantGrowthToken[] | null }
+tags?: PlantGrowthToken[] | null }
 
 /**
  * The growth tag of a plant
@@ -9661,7 +9678,7 @@ identifier: string;
 /**
  * The tokens defining this position
  */
-tokens: PositionToken[] }
+tokens?: PositionToken[] }
 
 /**
  * Represents a position token
@@ -10197,7 +10214,7 @@ export type SelectCreature = { metadata: Metadata; identifier: string;
  * 
  * See [`crate::utilities::generate_object_id`]
  */
-objectId: string; tags: string[] }
+objectId: string; tags?: string[] }
 
 /**
  * The rules for selecting a creature
@@ -10231,95 +10248,95 @@ export type Shrub = {
  * of their season tokens.
  * Default: empty (plant will not grow in farm plots)
  */
-growingSeason: SeasonToken[] | null; 
+growingSeason?: SeasonToken[] | null; 
 /**
  * How long the plant takes to grow to harvest in a farm plot. Unit hundreds of ticks.
  * There are 1008 GROWDUR units in a season. Defaults to 300.
  */
-growDuration: number | null; 
+growDuration?: number | null; 
 /**
  * Has no known effect. Previously set the value of the harvested plant.
  */
-value: number | null; 
+value?: number | null; 
 /**
  * The tile used when the plant is harvested whole, or is ready to be picked from a farm plot. May either be a cp437
  * tile number, or a character between single quotes. See character table. Defaults to 231 (τ).
  */
-pickedTile: number | null; 
+pickedTile?: number | null; 
 /**
  * The tile used when a plant harvested whole has wilted. Defaults to 169 (⌐).
  */
-deadPickedTile: number | null; 
+deadPickedTile?: number | null; 
 /**
  * The tile used to represent this plant when it is wild, alive, and has no growths. Defaults to 34 (").
  */
-shrubTile: number | null; 
+shrubTile?: number | null; 
 /**
  * The tile used to represent this plant when it is dead in the wild. Defaults to 34 (").
  */
-deadShrubTile: number | null; 
+deadShrubTile?: number | null; 
 /**
  * The maximum stack size collected when gathered via herbalism (possibly also from farm plots?). Defaults to 5.
  */
-clusterSize: number | null; 
+clusterSize?: number | null; 
 /**
  * The color of the plant when it has been picked whole, or when it is ready for harvest in a farm plot. Defaults to 2:0:0 (dark green).
  */
-pickedColor: Color | null; 
+pickedColor?: Color | null; 
 /**
  * The color of the plant when it has been picked whole, but has wilted. Defaults to 0:0:1 (dark gray).
  */
-deadPickedColor: Color | null; 
+deadPickedColor?: Color | null; 
 /**
  * The color of the plant when it is alive, wild, and has no growths. Defaults to 2:0:0 (dark green).
  */
-shrubColor: Color | null; 
+shrubColor?: Color | null; 
 /**
  * The color of the plant when it is dead in the wild. Defaults to 6:0:0 (brown).
  */
-deadShrubColor: Color | null; 
+deadShrubColor?: Color | null; 
 /**
  * The shrub will drown once the water on its tile reaches this level. Defaults to 4.
  */
-shrubDrownLevel: number | null; 
+shrubDrownLevel?: number | null; 
 /**
  * Names a drink made from the plant, allowing it to be used in entity resources.
  * Previously also permitted brewing the plant into alcohol made of this material.
  * Now, a `MATERIAL_REACTION_PRODUCT` of type `DRINK_MAT` should be used on the proper plant material.
  */
-drink: string | null; 
+drink?: string | null; 
 /**
  * Permits milling the plant at a quern or millstone into a powder made of this material and allows its use in entity resources.
  * Said material should have `[POWDER_MISC_PLANT]` to permit proper stockpiling. This token makes the whole plant harvestable regardless
  * of which material is designated for milling.
  * For plants with millable growths, use only `MATERIAL_REACTION_PRODUCT` or `ITEM_REACTION_PRODUCT` tokens to define the milling products.
  */
-mill: string | null; 
+mill?: string | null; 
 /**
  * Permits processing the plant at a farmer's workshop to yield threads made of this material and allows its use in entity resources.
  * Said material should have `[THREAD_PLANT]` to permit proper stockpiling.
  */
-thread: string | null; 
+thread?: string | null; 
 /**
  * Causes the plant to yield plantable seeds made of this material and having these properties.
  * Said material should have `[SEED_MAT]` to permit proper stockpiling.
  */
-seed: SeedMaterial | null; 
+seed?: SeedMaterial | null; 
 /**
  * Permits processing the plant into a vial at a still to yield extract made of this material.
  * Said material should have `[EXTRACT_STORAGE:FLASK]`.
  */
-extractStillVial: string | null; 
+extractStillVial?: string | null; 
 /**
  * Permits processing the plant into a vial at a farmer's workshop to yield extract made of this material.
  * Said material should have `[EXTRACT_STORAGE:VIAL]`.
  */
-extractVial: string | null; 
+extractVial?: string | null; 
 /**
  * Permits processing the plant into a barrel at a farmer's workshop to yield extract made of this material.
  * Said material should have `[EXTRACT_STORAGE:BARREL]`.
  */
-extractBarrel: string | null }
+extractBarrel?: string | null }
 
 /**
  * The tokens for the shrubs
@@ -10425,7 +10442,7 @@ export type ShrubToken =
 /**
  * A struct representing a sprite graphic.
  */
-export type SpriteGraphic = { primaryCondition: ConditionToken; tilePageId: string; offset: Dimensions; color?: ColorModificationToken | null; largeImage: boolean | null; offset2: Dimensions | null; secondaryCondition?: ConditionToken | null; colorPalletSwap: number | null; targetIdentifier: string | null; extraDescriptor: string | null }
+export type SpriteGraphic = { primaryCondition: ConditionToken; tilePageId: string; offset: Dimensions; color?: ColorModificationToken | null; largeImage?: boolean | null; offset2?: Dimensions | null; secondaryCondition?: ConditionToken | null; colorPalletSwap?: number | null; targetIdentifier?: string | null; extraDescriptor?: string | null }
 
 /**
  * A simplified struct for sprite graphic data
@@ -10491,15 +10508,15 @@ offset: Dimensions;
 /**
  * Optionally defines the bottom-right position in the tile page (for non-square sprites)
  */
-offset2: Dimensions | null; 
+offset2?: Dimensions | null; 
 /**
  * Whether the sprite is a large image (i.e., includes a 2nd offset)
  */
-largeImage: boolean | null; 
+largeImage?: boolean | null; 
 /**
  * An array of required conditions for this sprite to be visible/used
  */
-conditions: ([ConditionToken, string])[] | null }
+conditions?: ConditionToken[] }
 
 /**
  * Represents the name of a materials 3 states (solid, liquid, gas)
@@ -10509,7 +10526,7 @@ export type StateName = { solid: string; liquid: string; gas: string }
 /**
  * The additional data specific to the steam workshop
  */
-export type SteamData = { title: string | null; description: string | null; tags: string[] | null; keyValueTags: string[] | null; metadata: string[] | null; changelog: string | null; fileId: string }
+export type SteamData = { title?: string | null; description?: string | null; tags?: string[] | null; keyValueTags?: string[] | null; metadata?: string[] | null; changelog?: string | null; fileId: string }
 
 /**
  * A struct representing a syndrome
@@ -10518,12 +10535,12 @@ export type Syndrome = {
 /**
  * Seen the `[SYN_IDENTIFIER:INEBRIATION]` tag in `material_templates.txt`
  */
-identifier: string | null; name: string | null; affectedClasses: string[] | null; immuneClasses: string[] | null; affectedCreatures: ([string, string])[] | null; immuneCreatures: ([string, string])[] | null; classes: string[] | null; 
+identifier?: string | null; name?: string | null; affectedClasses?: string[] | null; immuneClasses?: string[] | null; affectedCreatures?: ([string, string])[] | null; immuneCreatures?: ([string, string])[] | null; classes?: string[] | null; 
 /**
  * Seen the `[SYN_CONCENTRATION_ADDED:100:1000]` tag in `material_templates.txt`
  * default is 0:0
  */
-concentrationAdded: [number, number] | null; tags: SyndromeToken[] | null; conditions: string[] | null }
+concentrationAdded?: [number, number] | null; tags?: SyndromeToken[] | null; conditions?: string[] | null }
 
 /**
  * Represents the tokens that can be used in a syndrome definition.
@@ -10648,31 +10665,31 @@ export type Temperatures = {
  * before cooling down or heating up to equilibrium. The input for this token is not temperature,
  * but rather the specific heat capacity of the material.
  */
-specificHeat: number | null; 
+specificHeat?: number | null; 
 /**
  * This is the temperature at which the material will catch fire.
  */
-ignitionPoint: number | null; 
+ignitionPoint?: number | null; 
 /**
  * This is the temperature at which a liquid material will freeze, or a solid material will melt.
  * In Dwarf Fortress the melting point and freezing point coincide exactly; this is contrary to many
  * real-life materials, which can be supercooled.
  */
-meltingPoint: number | null; 
+meltingPoint?: number | null; 
 /**
  * This is the temperature at which the material will boil or condense. Water boils at 10180 °U
  */
-boilingPoint: number | null; 
+boilingPoint?: number | null; 
 /**
  * This is the temperature above which the material will begin to take heat damage.
  * Burning items without a heat damage point (or with an exceptionally high one) will take damage very slowly,
  * causing them to burn for a very long time (9 months and 16.8 days) before disappearing.
  */
-heatDamagePoint: number | null; 
+heatDamagePoint?: number | null; 
 /**
  * This is the temperature below which the material will begin to take frost damage.
  */
-coldDamagePoint: number | null; 
+coldDamagePoint?: number | null; 
 /**
  * A material's temperature can be forced to always be a certain value via the `MAT_FIXED_TEMP`
  * material definition token. The only standard material which uses this is nether-cap wood,
@@ -10680,12 +10697,12 @@ coldDamagePoint: number | null;
  * to between its cold damage point and its heat damage point, then items made from that material
  * will never suffer cold/heat damage. This makes nether-caps fire-safe and magma-safe despite being a type of wood.
  */
-materialFixedTemperature: number | null }
+materialFixedTemperature?: number | null }
 
 /**
  * Representation of a character tile (literally a single character) that is used in DF Classic
  */
-export type Tile = { character: string; altCharacter: string | null; color: Color | null; glowCharacter: string | null; glowColor: Color | null }
+export type Tile = { character: string; altCharacter?: string | null; color?: Color | null; glowCharacter?: string | null; glowColor?: Color | null }
 
 /**
  * Custom wrapper for the Tile character used in tags
@@ -10783,133 +10800,133 @@ material: string;
 /**
  * What the trunk of the tree is named
  */
-trunkName: Name | null; 
+trunkName?: Name | null; 
 /**
  * The maximum z-level height of the trunk, starting from +2 z-levels above the ground.
  * Valid values: 1-8
  * Default: 1
  */
-maxTrunkHeight: number | null; 
+maxTrunkHeight?: number | null; 
 /**
  * Upper limit of trunk thickness, in tiles. Has a geometric effect on log yield.
  * Valid values: 1-3
  * Default: 1
  */
-maxTrunkDiameter: number | null; 
+maxTrunkDiameter?: number | null; 
 /**
  * The number of years the trunk takes to grow one z-level upward. Default: 1
  */
-trunkPeriod: number | null; 
+trunkPeriod?: number | null; 
 /**
  * The number of years the trunk takes to grow one tile wider. Default: 1
  */
-trunkWidthPeriod: number | null; 
+trunkWidthPeriod?: number | null; 
 /**
  * What thin branches of the tree are named.
  */
-branchName: Name | null; 
+branchName?: Name | null; 
 /**
  * How dense the branches grow on this tree.
  */
-branchDensity: number | null; 
+branchDensity?: number | null; 
 /**
  * The radius to which branches can reach. Appears to never reach further than seven tiles from the centre.
  * Does not depend on the trunk branching amount or where trunks are.
  * The values used in the game go from 0-3. Higher values than that can cause crashes.
  */
-branchRadius: number | null; 
+branchRadius?: number | null; 
 /**
  * What thick branches of the tree are named.
  */
-heavyBranchesName: Name | null; 
+heavyBranchesName?: Name | null; 
 /**
  * Similar to `BRANCH_DENSITY` for thick branches. Default: 0
  */
-heavyBranchDensity: number | null; 
+heavyBranchDensity?: number | null; 
 /**
  * Similar as `BRANCH_DENSITY` for thick branches. Values outside 0-3 can cause crashes. Default: 0
  */
-heavyBranchRadius: number | null; 
+heavyBranchRadius?: number | null; 
 /**
  * How much the trunk branches out. 0 makes the trunk straight (default)
  */
-trunkBranching: number | null; 
+trunkBranching?: number | null; 
 /**
  * What the roots of the tree are named.
  */
-rootName: Name | null; 
+rootName?: Name | null; 
 /**
  * Density of the root growth. Defaults to 0.
  */
-rootDensity: number | null; 
+rootDensity?: number | null; 
 /**
  * How wide the roots reach out. Defaults to 0.
  */
-rootRadius: number | null; 
+rootRadius?: number | null; 
 /**
  * What the twigs of the tree are named.
  */
-twigsName: Name | null; 
+twigsName?: Name | null; 
 /**
  * Where twigs appear, defaults to `[SideBranches, AboveBranches]`
  */
-twigsPlacement: TwigPlacementToken[] | null; 
+twigsPlacement?: TwigPlacementToken[] | null; 
 /**
  * What this mushroom-cap is called. Only makes sense with `TREE_HAS_MUSHROOM_CAP`.
  */
-capName: Name | null; 
+capName?: Name | null; 
 /**
  * Similar to the other PERIOD tags, influences the rate of the mushroom cap growth. Only makes sense with `TREE_HAS_MUSHROOM_CAP`. Default: 1
  */
-capPeriod: number | null; 
+capPeriod?: number | null; 
 /**
  * The radius of a mushroom cap. Only makes sense with `TREE_HAS_MUSHROOM_CAP`. Default: 0
  */
-capRadius: number | null; 
+capRadius?: number | null; 
 /**
  * The tile used for trees of this type on the world map. Defaults to 24 (↑).
  */
-treeTile: string | null; 
+treeTile?: string | null; 
 /**
  * The tile used for (un)dead trees and deciduous trees (generally in winter) of this type. Defaults to 198 (╞).
  */
-deadTreeTile: string | null; 
+deadTreeTile?: string | null; 
 /**
  * The tile used for saplings of this tree. Defaults to 231 (τ).
  */
-saplingTile: string | null; 
+saplingTile?: string | null; 
 /**
  * The tile used for dead saplings of this tree. Defaults to 231 (τ).
  */
-deadSaplingTile: string | null; 
+deadSaplingTile?: string | null; 
 /**
  * The color of the tree on the map. Defaults to 2:0:0 (dark green).
  */
-treeColor: Color | null; 
+treeColor?: Color | null; 
 /**
  * The color of the tree on the map when (un)dead. Defaults to 0:0:1 (dark gray).
  */
-deadTreeColor: Color | null; 
+deadTreeColor?: Color | null; 
 /**
  * The color of saplings of this tree. Defaults to 2:0:0 (dark green).
  */
-saplingColor: Color | null; 
+saplingColor?: Color | null; 
 /**
  * The color of dead saplings of this tree. Defaults to 0:0:1 (dark gray).
  */
-deadSaplingColor: Color | null; 
+deadSaplingColor?: Color | null; 
 /**
  * The sapling of this tree will drown once the water on its tile reaches this level. Defaults to 4.
  */
-saplingDrownLevel: number | null; 
+saplingDrownLevel?: number | null; 
 /**
  * The water depth at which this tree will drown. Exact behavior is unknown. Defaults to 7.
  */
-treeDrownLevel: number | null; 
+treeDrownLevel?: number | null; 
 /**
  * Token tags for the tree.
  */
-tags: TreeToken[] | null }
+tags?: TreeToken[] | null }
 
 /**
  * The tokens for the tree parser

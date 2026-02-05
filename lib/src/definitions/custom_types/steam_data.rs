@@ -8,16 +8,22 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct SteamData {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     title: Option<String>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     description: Option<String>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     key_value_tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     metadata: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     changelog: Option<String>,
     file_id: u64,
 }

@@ -31,20 +31,27 @@ pub struct SpriteGraphic {
     tile_page_id: String,
     offset: Dimensions,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     #[is_empty(only_if_none)]
     color: Option<ColorModificationToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     large_image: Option<bool>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     offset2: Option<Dimensions>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     #[is_empty(only_if_none)]
     secondary_condition: Option<ConditionToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     color_pallet_swap: Option<u32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     target_identifier: Option<String>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     extra_descriptor: Option<String>,
 }
 
@@ -59,12 +66,12 @@ impl SpriteGraphic {
     }
     #[must_use]
     pub fn get_primary_condition(&self) -> ConditionToken {
-        self.primary_condition
+        self.primary_condition.clone()
     }
     #[must_use]
     pub fn get_secondary_condition(&self) -> ConditionToken {
-        match self.secondary_condition {
-            Some(condition) => condition,
+        match self.secondary_condition.as_ref() {
+            Some(condition) => condition.clone(),
             None => ConditionToken::None,
         }
     }
@@ -164,7 +171,7 @@ impl SpriteGraphic {
         let mut split = token.split(':');
 
         let sprite_condition = match split.next() {
-            Some(v) => *CONDITION_TOKENS.get(v).unwrap_or(&ConditionToken::None),
+            Some(v) => CONDITION_TOKENS.get(v).unwrap_or(&ConditionToken::None),
             _ => {
                 return None;
             }
@@ -211,7 +218,7 @@ impl SpriteGraphic {
         };
 
         Some(Self {
-            primary_condition: sprite_condition,
+            primary_condition: sprite_condition.clone(),
             tile_page_id,
             offset: Dimensions::from_xy(offset_x, offset_y),
             ..Self::default()
@@ -496,7 +503,7 @@ impl SpriteGraphic {
         key_condition: &ConditionToken,
         token: &str,
     ) -> Option<Self> {
-        let primary_condition = *key_condition;
+        let primary_condition = key_condition.clone();
         let tokens: Vec<&str> = token.split(':').collect();
         let num_args = tokens.len();
 
@@ -552,7 +559,7 @@ impl SpriteGraphic {
                 if tokens.get(4).unwrap_or(&"!").parse::<u32>().is_err() {
                     // pos 5 (idx 4) (only sometimes present)
                     let secondary_condition: Option<ConditionToken> =
-                        CONDITION_TOKENS.get(tokens.get(4).unwrap_or(&"")).copied();
+                        CONDITION_TOKENS.get(tokens.get(4).unwrap_or(&"")).cloned();
                     return Some(Self {
                         primary_condition,
                         // pos 1 (idx 0)
@@ -613,7 +620,7 @@ impl SpriteGraphic {
             7 | 8 => {
                 // pos 8 (idx 7) (only sometimes present)
                 let secondary_condition: Option<ConditionToken> = if num_args == 8 {
-                    CONDITION_TOKENS.get(tokens.get(7).unwrap_or(&"")).copied()
+                    CONDITION_TOKENS.get(tokens.get(7).unwrap_or(&"")).cloned()
                 } else {
                     None
                 };

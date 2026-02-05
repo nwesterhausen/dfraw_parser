@@ -10,7 +10,6 @@
     Eq,
     Default,
     specta::Type,
-    Copy,
     strum_macros::EnumIter,
 )]
 #[serde(rename_all = "camelCase")]

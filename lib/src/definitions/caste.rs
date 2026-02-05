@@ -33,73 +33,95 @@ pub struct Caste {
     pub identifier: String,
     /// A collection of tags assigned to this caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[cleanable(ignore)]
     pub tokens: Vec<CasteToken>,
     /// Flavor text shown in-game when examining a creature of this caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     description: Option<String>,
     /// The specific name for a creature in its baby stage.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[cleanable(recursive)]
     baby_name: Option<Name>,
     /// The name used specifically for this caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[cleanable(recursive)]
     caste_name: Option<Name>,
     /// The name for a creature in its child stage.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[cleanable(recursive)]
     child_name: Option<Name>,
     /// The range of eggs produced per clutch, measured as `[min, max]`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     clutch_size: Option<[u32; 2]>,
     /// The range of offspring produced per birth, measured as `[min, max]`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     litter_size: Option<[u32; 2]>,
     /// The range of life expectancy in game ticks, measured as `[min, max]`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     max_age: Option<[u32; 2]>,
     /// The age in game ticks at which a creature ceases to be a baby.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     baby: Option<u32>,
     /// The age in game ticks at which a creature ceases to be a child.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     child: Option<u32>,
     /// A rating used to determine the challenge level of the creature.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     difficulty: Option<u32>,
     /// The size of eggs laid by this caste, measured in cubic centimeters.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     egg_size: Option<u32>,
     /// The distance or frequency at which this creature tramples grass.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     grass_trample: Option<u32>,
     /// The grazing requirement for the creature to survive.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     grazer: Option<u32>,
     /// The level of vision the creature has in dark environments.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     low_light_vision: Option<u32>,
     /// The value assigned to the creature when kept as a pet.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pet_value: Option<u32>,
     /// The relative frequency this caste appears in wild populations.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pop_ratio: Option<u32>,
     /// The percentage change applied to the base body size.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     change_body_size_percentage: Option<u32>,
     /// The classes or categories this caste belongs to for targeting.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     creature_class: Option<Vec<String>>,
     /// Growth stages and volume measurements.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     body_size: Option<Vec<BodySize>>,
     /// Character and color data for map representation.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tile: Option<Tile>,
     /// The gaits by which the creature can move.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     gaits: Option<Vec<Gait>>,
 }
 

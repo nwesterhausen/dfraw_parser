@@ -3,10 +3,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 use tracing::warn;
 
-use crate::{
-    custom_types::Dimensions,
-    tokens::{ConditionToken, raw_definitions::CONDITION_TOKENS},
-};
+use crate::{custom_types::Dimensions, tokens::ConditionToken, traits::TagOperations as _};
 
 /// A struct representing a `SpriteLayer` object.
 #[allow(clippy::module_name_repetitions)]
@@ -31,13 +28,16 @@ pub struct SpriteLayer {
     offset: Dimensions,
     /// Optionally defines the bottom-right position in the tile page (for non-square sprites)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     offset_2: Option<Dimensions>,
     /// Whether the sprite is a large image (i.e., includes a 2nd offset)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     large_image: Option<bool>,
     /// An array of required conditions for this sprite to be visible/used
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    conditions: Option<Vec<(ConditionToken, String)>>,
+    #[serde(default)]
+    conditions: Vec<ConditionToken>,
 }
 
 impl SpriteLayer {
@@ -73,15 +73,8 @@ impl SpriteLayer {
     /// * `value` - The value of the condition token.
     pub fn parse_condition_token(&mut self, key: &str, value: &str) {
         // Condition is the key, and it should match a value in LAYER_CONDITION_TAGS
-        if let Some(condition) = CONDITION_TOKENS.get(key) {
-            if self.conditions.is_none() {
-                self.conditions = Some(Vec::new());
-            }
-            if let Some(conditions) = &mut self.conditions {
-                // It's true that some conditions have a value, some have a tag, and some are standalone.
-                // At the moment we only care about saving the tag, so we'll just save the value as a string.
-                conditions.push((*condition, String::from(value)));
-            }
+        if let Some(condition_token) = ConditionToken::parse(key, value) {
+            self.conditions.push(condition_token);
         } else {
             warn!(
                 "Failed to parse {} as LayerCondition, unknown key {}",

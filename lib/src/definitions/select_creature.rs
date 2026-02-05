@@ -35,6 +35,7 @@ pub struct SelectCreature {
     pub object_id: Uuid,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub tags: Vec<String>,
 }
 impl SelectCreature {

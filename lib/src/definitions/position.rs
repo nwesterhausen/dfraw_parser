@@ -23,6 +23,7 @@ pub struct Position {
     pub identifier: String,
     /// The tokens defining this position
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub tokens: Vec<PositionToken>,
 }
 

@@ -58,14 +58,19 @@ pub struct ModuleInfo {
     description: String,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     requires_ids: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     conflicts_with_ids: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     requires_ids_before: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     requires_ids_after: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     steam_data: Option<SteamData>,
 }
 

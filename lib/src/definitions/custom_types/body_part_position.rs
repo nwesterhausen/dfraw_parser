@@ -1,12 +1,22 @@
 use std::{fmt::Display, str::FromStr};
 
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize, specta::Type, Eq)]
+/// Specifies where to attach a body part or tissue
+#[derive(
+    Debug, Default, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize, specta::Type, Eq,
+)]
 pub enum BodyPartPosition {
+    /// Front
+    #[default]
     Front,
+    /// Back
     Back,
+    /// Left
     Left,
+    /// Right
     Right,
+    /// Top
     Top,
+    /// Bottom
     Bottom,
 }
 

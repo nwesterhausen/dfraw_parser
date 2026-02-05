@@ -54,18 +54,23 @@ pub struct CreatureView {
     ///
     /// A lot of the properties of the `Creature` object are actually properties of a special `Caste`, `ALL`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub castes: Vec<CasteView>,
     /// Any tags that are not parsed into their own fields are stored in the `tags` field.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub tags: Vec<CreatureToken>,
     /// The biomes that this creature can be found in
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub biomes: Vec<BiomeToken>,
     /// Pref strings are things that make dwarves (or others?) like or dislike the creature.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub pref_strings: Vec<String>,
     /// The tile that represents the creature in the game (classic mode)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub tile: Option<Tile>,
     /// Determines the chances of a creature appearing within its environment, with higher values resulting in more frequent appearance.
     ///
@@ -79,6 +84,7 @@ pub struct CreatureView {
     ///
     /// pub Note: not to be confused with `[POP_RATIO]`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[is_empty(value = 50)]
     pub frequency: Option<u32>,
     /// The minimum/maximum numbers of how many creatures per spawned cluster. Vermin fish with this token in combination with
@@ -86,12 +92,14 @@ pub struct CreatureView {
     ///
     /// Defaults to [1,1] if not specified.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[is_empty(value = [1,1])]
     pub cluster_number: Option<[u32; 2]>,
     /// The minimum/maximum numbers of how many of these creatures are present in each world map tile of the appropriate region.
     ///
     /// Defaults to [1,1] if not specified.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     #[is_empty(value = [1,1])]
     pub population_number: Option<[u32; 2]>,
     /// Depth that the creature appears underground. Numbers can be from 0 to 5. 0 is actually 'above ground' and can be used if the
@@ -104,12 +112,15 @@ pub struct CreatureView {
     ///
     /// Default [0, 0] (aboveground)
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub underground_depth: Option<[u32; 2]>,
     /// Like `[BABYNAME]`, but applied regardless of caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub general_baby_name: Option<Name>,
     /// Like `[CHILDNAME]`, but applied regardless of caste.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub general_child_name: Option<Name>,
     /// The generic name for any creature of this type - will be used when distinctions between caste are unimportant. For names for specific castes,
     /// use `[CASTE_NAME]` instead. If left undefined, the creature will be labeled as "nothing" by the game.

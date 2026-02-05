@@ -1,5 +1,7 @@
 //! The parsing implementation for `CasteTag`
 
+use std::str::FromStr;
+
 use crate::{
     tokens::{
         CasteToken,
@@ -14,7 +16,7 @@ impl TagOperations for CasteToken {
         Self: Sized,
     {
         let Some(token) = CASTE_TOKENS.get(key) else {
-            tracing::error!("parse_token: unknown token: {}", key);
+            tracing::error!("CasteToken::parse_token: unknown token: {}", key);
             return None;
         };
 
@@ -974,6 +976,30 @@ impl TagOperations for CasteToken {
                 }),
             CasteToken::RemoveTissue { .. } => {
                 token.parse_single(&values, |tissue| CasteToken::RemoveTissue { tissue })
+            }
+        }
+    }
+}
+
+impl FromStr for CasteToken {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let trimmed = s
+            .strip_prefix('[')
+            .unwrap_or(s)
+            .strip_suffix(']')
+            .unwrap_or(s);
+
+        if let Some((key, value)) = trimmed.split_once(':') {
+            match Self::parse(key, value) {
+                Some(token) => Ok(token),
+                None => Err(format!("CasteToken unable to parse {s}")),
+            }
+        } else {
+            match Self::parse(trimmed, "") {
+                Some(token) => Ok(token),
+                None => Err(format!("CasteToken unable to parse {s}")),
             }
         }
     }

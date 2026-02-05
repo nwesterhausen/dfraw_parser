@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::{
     tokens::{EntityToken, raw_definitions::ENTITY_TOKENS},
     traits::{TagOperations, TokenParser as _},
@@ -333,6 +335,30 @@ impl TagOperations for EntityToken {
                 .parse_single(&values, |style| EntityToken::TissueStylePreferredShaping {
                     style,
                 }),
+        }
+    }
+}
+
+impl FromStr for EntityToken {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let trimmed = s
+            .strip_prefix('[')
+            .unwrap_or(s)
+            .strip_suffix(']')
+            .unwrap_or(s);
+
+        if let Some((key, value)) = trimmed.split_once(':') {
+            match Self::parse(key, value) {
+                Some(token) => Ok(token),
+                None => Err(format!("EntityToken unable to parse {s}")),
+            }
+        } else {
+            match Self::parse(trimmed, "") {
+                Some(token) => Ok(token),
+                None => Err(format!("EntityToken unable to parse {s}")),
+            }
         }
     }
 }

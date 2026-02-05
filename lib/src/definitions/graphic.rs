@@ -9,10 +9,9 @@ use crate::{
     metadata::RawMetadata,
     tokens::{
         ConditionToken, GraphicTypeToken, ObjectType,
-        raw_definitions::{
-            CONDITION_TOKENS, CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS,
-        },
+        raw_definitions::{CUSTOM_GRAPHIC_TOKENS, GROWTH_TOKENS, PLANT_GRAPHIC_TEMPLATE_TOKENS},
     },
+    traits::TagOperations,
     utilities::generate_object_id_using_raw_metadata,
 };
 
@@ -52,25 +51,31 @@ pub struct Graphic {
     pub object_id: Uuid,
     /// An optional identifier targeting a specific caste
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub caste_identifier: Option<String>,
     /// The type of graphic
     #[cleanable(ignore)]
     pub kind: GraphicTypeToken,
     /// A vector of sprites defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    pub sprites: Option<Vec<SpriteGraphic>>,
+    #[serde(default)]
+    pub sprites: Vec<SpriteGraphic>,
     /// A vector of layers defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    pub layers: Option<Vec<(String, Vec<SpriteLayer>)>>,
+    #[serde(default)]
+    pub layers: Vec<(String, Vec<SpriteLayer>)>,
     /// A vector of growths defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    pub growths: Option<Vec<(String, Vec<SpriteGraphic>)>>,
+    #[serde(default)]
+    pub growths: Vec<(String, Vec<SpriteGraphic>)>,
     /// A vector of custom extensions defined in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    pub custom_extensions: Option<Vec<CustomGraphicExtension>>,
+    #[serde(default)]
+    pub custom_extensions: Vec<CustomGraphicExtension>,
     /// A vector of the defined tags in the raw
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    pub tags: Option<Vec<String>>,
+    #[serde(default)]
+    pub tokens: Vec<ConditionToken>,
     /// Internal switch used during parsing to indicate whether currently within a layer
     #[serde(skip)]
     pub layer_mode: bool,
@@ -127,28 +132,19 @@ impl Graphic {
     /// Get the sprites defined in this graphic
     #[must_use]
     pub fn get_sprites(&self) -> Vec<SpriteGraphic> {
-        match self.sprites.as_ref() {
-            Some(sprites) => sprites.clone(),
-            None => Vec::new(),
-        }
+        self.sprites.clone()
     }
 
     /// Get the sprites defined in this graphic
     #[must_use]
     pub fn get_layers(&self) -> Vec<(String, Vec<SpriteLayer>)> {
-        match self.layers.as_ref() {
-            Some(layers) => layers.clone(),
-            None => Vec::new(),
-        }
+        self.layers.clone()
     }
 
     /// Get the growths defined in this graphic
     #[must_use]
     pub fn get_growths(&self) -> Vec<(String, Vec<SpriteGraphic>)> {
-        match self.growths.as_ref() {
-            Some(growths) => growths.clone(),
-            None => Vec::new(),
-        }
+        self.growths.clone()
     }
 
     /// Get the type of the Graphic.
@@ -169,18 +165,16 @@ impl Graphic {
     #[must_use]
     pub fn get_tile_pages(&self) -> Vec<String> {
         let mut vec = Vec::new();
-        if let Some(sprites) = &self.sprites {
-            for sprite in sprites {
-                vec.push(sprite.get_tile_page_id().to_string());
-            }
-        }
-        if let Some(layers) = &self.layers {
-            for layer in layers {
-                for sprite in &layer.1 {
-                    vec.push(sprite.get_tile_page_id().to_string());
-                }
-            }
-        }
+        vec.extend(
+            self.sprites
+                .iter()
+                .map(|s| s.get_tile_page_id().to_string()),
+        );
+        vec.extend(
+            self.layers
+                .iter()
+                .flat_map(|layer| layer.1.iter().map(|s| s.get_tile_page_id().to_string())),
+        );
         vec
     }
 
@@ -189,48 +183,28 @@ impl Graphic {
     /// This transfers all sprites/layers/etc from `other` to `self`
     pub fn merge(&mut self, other: Graphic) {
         // Merge Sprites
-        if let Some(other_sprites) = other.sprites {
-            if let Some(my_sprites) = self.sprites.as_mut() {
-                my_sprites.extend(other_sprites);
-            } else {
-                self.sprites = Some(other_sprites);
-            }
+        if !other.sprites.is_empty() {
+            self.sprites.extend(other.sprites);
         }
 
         // Merge Layers
-        if let Some(other_layers) = other.layers {
-            if let Some(my_layers) = self.layers.as_mut() {
-                my_layers.extend(other_layers);
-            } else {
-                self.layers = Some(other_layers);
-            }
+        if !other.layers.is_empty() {
+            self.layers.extend(other.layers);
         }
 
         // Merge Growths
-        if let Some(other_growths) = other.growths {
-            if let Some(my_growths) = self.growths.as_mut() {
-                my_growths.extend(other_growths);
-            } else {
-                self.growths = Some(other_growths);
-            }
+        if !other.growths.is_empty() {
+            self.growths.extend(other.growths);
         }
 
         // Merge Custom Extensions
-        if let Some(other_extensions) = other.custom_extensions {
-            if let Some(my_extensions) = self.custom_extensions.as_mut() {
-                my_extensions.extend(other_extensions);
-            } else {
-                self.custom_extensions = Some(other_extensions);
-            }
+        if !other.custom_extensions.is_empty() {
+            self.custom_extensions.extend(other.custom_extensions);
         }
 
         // Merge Tags
-        if let Some(other_tags) = other.tags {
-            if let Some(my_tags) = self.tags.as_mut() {
-                my_tags.extend(other_tags);
-            } else {
-                self.tags = Some(other_tags);
-            }
+        if !other.tokens.is_empty() {
+            self.tokens.extend(other.tokens);
         }
 
         // Merge Palettes
@@ -295,34 +269,28 @@ impl Graphic {
 
         // Check if the key indicates a new growth.
         if key == "GROWTH" {
-            if let Some(growths) = self.growths.as_mut() {
-                growths.push((String::from(value), Vec::new()));
-            } else {
-                self.growths = Some(vec![(String::from(value), Vec::new())]);
-            }
+            self.growths.push((String::from(value), Vec::new()));
             return;
         }
 
         // Check if the value is empty, which means we have a tag
         if value.is_empty() {
-            if let Some(tags) = self.tags.as_mut() {
-                tags.push(String::from(key));
+            if let Some(token) = ConditionToken::parse(key, value) {
+                self.tokens.push(token);
             } else {
-                self.tags = Some(vec![String::from(key)]);
+                warn!("Unknown graphic token '{key}':'{value}'")
             }
             return;
         }
 
         // If the key is a custom extension, parse it into a CustomGraphicExtension and add it to the current sprite
-        if let Some(extension_type) = CUSTOM_GRAPHIC_TOKENS.get(key) {
+        if CUSTOM_GRAPHIC_TOKENS.get(key).is_some()
+            && let Some(extension_graphic_type) = GraphicTypeToken::parse(key, value)
+        {
             if let Some(custom_extension) =
-                CustomGraphicExtension::from_value(*extension_type, value)
+                CustomGraphicExtension::from_value(extension_graphic_type, value)
             {
-                if let Some(custom_extensions) = self.custom_extensions.as_mut() {
-                    custom_extensions.push(custom_extension);
-                } else {
-                    self.custom_extensions = Some(vec![custom_extension]);
-                }
+                self.custom_extensions.push(custom_extension);
             } else {
                 warn!(
                     "Graphic::parse_sprite_from_tag:_extension_type [{}] Failed to parse {},{} as CustomGraphicExtension",
@@ -333,35 +301,36 @@ impl Graphic {
         }
 
         // If the key is a growth token, parse it into a SpriteGraphic and add it to the current growth
-        if let Some(_growth_type) = GROWTH_TOKENS.get(key) {
-            if let Some(sprite_graphic) = SpriteGraphic::from_token(key, value, graphic_type) {
-                if let Some(growths) = self.growths.as_mut()
-                    && let Some(growth) = growths.last_mut()
-                {
-                    growth.1.push(sprite_graphic);
-                };
+        if GROWTH_TOKENS.get(key).is_some()
+            && let Some(sprite_graphic) = SpriteGraphic::from_token(key, value, graphic_type)
+        {
+            if let Some(last_growth) = self.growths.last_mut() {
+                last_growth.1.push(sprite_graphic);
             } else {
                 warn!(
-                    "Graphic::parse_sprite_from_tag:_growth_type [{}] Failed to parse {},{} as SpriteGraphic",
-                    self.identifier, key, value
-                );
+                    "Graphic::parse_sprite_from_tag: {} out of order (not after a GROWTH)",
+                    self.identifier
+                )
             }
             return;
         }
 
         // Check if the key is plant graphic template, which for now we accept only on growths
-        if let Some(_plant_graphic_template) = PLANT_GRAPHIC_TEMPLATE_TOKENS.get(key) {
+        if PLANT_GRAPHIC_TEMPLATE_TOKENS.get(key).is_some() {
             if let Some(sprite_graphic) =
                 SpriteGraphic::from_token(key, value, GraphicTypeToken::Template)
             {
-                if let Some(growths) = self.growths.as_mut()
-                    && let Some(growth) = growths.last_mut()
-                {
-                    growth.1.push(sprite_graphic);
-                };
+                if let Some(last_growth) = self.growths.last_mut() {
+                    last_growth.1.push(sprite_graphic);
+                } else {
+                    warn!(
+                        "Graphic::parse_sprite_from_tag: {} out of order (not after a GROWTH)",
+                        self.identifier
+                    )
+                }
             } else {
                 warn!(
-                    "Graphic::parse_sprite_from_tag:_plant_graphic_template [{}] Failed to parse {},{} as SpriteGraphic",
+                    "Graphic::parse_sprite_from_tag: [{}] Failed to parse {},{} as SpriteGraphic",
                     self.identifier, key, value
                 );
             }
@@ -376,26 +345,19 @@ impl Graphic {
 
         // Otherwise we can parse it for a sprite and report an error if that fails.
         if let Some(sprite_graphic) = SpriteGraphic::from_token(key, value, graphic_type) {
-            if let Some(sprites) = self.sprites.as_mut() {
-                sprites.push(sprite_graphic);
-            } else {
-                self.sprites = Some(vec![sprite_graphic]);
-            }
-        } else {
-            warn!(
-                "Graphic::parse_sprite_from_tag:_from_token [{}] Failed to parse [{}:{}] as SpriteGraphic::{:?}",
-                self.identifier, key, value, graphic_type
-            );
+            self.sprites.push(sprite_graphic);
+            return;
         }
+
+        warn!(
+            "Graphic::parse_sprite_from_tag: [{}] Failed to parse [{}:{}] (fell through)",
+            self.identifier, key, value
+        );
     }
 
     fn add_layer_if_not_exists(&mut self, layer_name: String) {
-        if let Some(layers) = self.layers.as_mut() {
-            if !layers.iter().any(|(name, _)| name == &layer_name) {
-                layers.push((layer_name, Vec::new()));
-            }
-        } else {
-            self.layers = Some(vec![(layer_name, Vec::new())]);
+        if !self.layers.iter().any(|(name, _)| name == &layer_name) {
+            self.layers.push((layer_name, Vec::new()));
         }
     }
     fn parse_layer_set_from_value(&mut self, value: &str) {
@@ -409,30 +371,35 @@ impl Graphic {
                 layer.parse_condition_token(key, val);
             }
 
-            if self.layers.is_none() {
+            if self.layers.is_empty() {
                 self.add_layer_if_not_exists(String::from("default"));
             }
-            if let Some(layers) = self.layers.as_mut() {
-                #[allow(clippy::unwrap_used)]
-                layers.last_mut().unwrap().1.push(layer);
+
+            if let Some(last_layer) = self.layers.last_mut() {
+                last_layer.1.push(layer);
             }
         }
     }
 
     #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
     fn parse_layer_palette_info(&mut self, key: &str, value: &str) {
-        if let Some(condition_tag) = CONDITION_TOKENS.get(key) {
-            let last_pallete = self.palletes.last_mut();
-            match condition_tag {
-                ConditionToken::LayerSetPalette => self.palletes.push(GraphicPalette::new(value)),
-                ConditionToken::LayerSetPaletteDefault => {
-                    if let Some(palette) = last_pallete {
-                        palette.set_default_row(value.parse().unwrap_or_default());
+        if let Some(condition_token) = ConditionToken::parse(key, value) {
+            match condition_token {
+                ConditionToken::LayerSetPalette { name } => {
+                    self.palletes.push(GraphicPalette::new(&name))
+                }
+                ConditionToken::LayerSetPaletteDefault { default_row } => {
+                    if let Some(pallete) = self.palletes.last_mut() {
+                        pallete.set_default_row(default_row);
+                    } else {
+                        warn!("palette default_row attempted set out of order");
                     }
                 }
-                ConditionToken::LayerSetPaletteFile => {
-                    if let Some(palette) = last_pallete {
-                        palette.set_file(value);
+                ConditionToken::LayerSetPaletteFile { path } => {
+                    if let Some(pallete) = self.palletes.last_mut() {
+                        pallete.set_file(&path);
+                    } else {
+                        warn!("palette file_path attempted set out of order");
                     }
                 }
                 _ => {}
@@ -444,22 +411,16 @@ impl Graphic {
 
     #[tracing::instrument(skip(self), fields(self.identifier = &self.identifier))]
     fn parse_layer_condition_token(&mut self, key: &str, value: &str) {
-        if let Some(layers) = self.layers.as_mut() {
-            // Conditions get attached to the last layer in the last layer group
-            #[allow(clippy::unwrap_used)]
-            if let Some(layer_entry) = layers.last_mut() {
-                if layer_entry.1.is_empty() {
-                    warn!("Failed to parse, No SpriteLayer defined yet: {layer_entry:?}")
-                } else if let Some(layer) = layer_entry.1.last_mut() {
-                    layer.parse_condition_token(key, value);
-                } else {
-                    warn!("Failed to parse, no mutable SpriteLayer: {layer_entry:?}",);
-                }
+        if let Some(last_layer) = self.layers.last_mut() {
+            if last_layer.1.is_empty() {
+                warn!("Failed to parse, No SpriteLayer defined yet: {last_layer:?}")
+            } else if let Some(sprite_layer) = last_layer.1.last_mut() {
+                sprite_layer.parse_condition_token(key, value);
             } else {
-                warn!("Failed to parse, no layer to append to: {layers:?}");
+                warn!("Failed to parse, no mutable SpriteLayer: {last_layer:?}",);
             }
         } else {
-            warn!("Failed to parse, (No existing layers)");
+            warn!("Failed to parse, no layer to append to: {:?}", self.layers);
         }
     }
 }

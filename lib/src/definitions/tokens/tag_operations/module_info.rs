@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::{
     tokens::{ModuleInfoToken, raw_definitions::MODULE_INFO_TOKENS},
     traits::{TagOperations, TokenParser as _},
@@ -48,6 +50,30 @@ impl TagOperations for ModuleInfoToken {
                 token.parse_single(&[value], |id| ModuleInfoToken::RequiresId { id })
             }
             ModuleInfoToken::Unknown => None,
+        }
+    }
+}
+
+impl FromStr for ModuleInfoToken {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let trimmed = s
+            .strip_prefix('[')
+            .unwrap_or(s)
+            .strip_suffix(']')
+            .unwrap_or(s);
+
+        if let Some((key, value)) = trimmed.split_once(':') {
+            match Self::parse(key, value) {
+                Some(token) => Ok(token),
+                None => Err(format!("ModuleInfoToken unable to parse {s}")),
+            }
+        } else {
+            match Self::parse(trimmed, "") {
+                Some(token) => Ok(token),
+                None => Err(format!("ModuleInfoToken unable to parse {s}")),
+            }
         }
     }
 }

@@ -39,20 +39,27 @@ pub struct Inorganic {
     pub material: Material,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub metal_ore_chance: Option<Vec<(String, u8)>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub thread_metal_chance: Option<Vec<(String, u8)>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub environment_class: Option<EnvironmentClassToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub environment_inclusion_type: Option<InclusionTypeToken>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub environment_inclusion_frequency: Option<u32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub environment_class_specific: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub tags: Option<Vec<InorganicToken>>,
 }
 

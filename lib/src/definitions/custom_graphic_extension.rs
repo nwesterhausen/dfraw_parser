@@ -22,10 +22,13 @@ use crate::tokens::GraphicTypeToken;
 pub struct CustomGraphicExtension {
     extension_type: GraphicTypeToken,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tile_page_id: Option<String>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     value_1: Option<u32>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     value_2: Option<u32>,
 }
 

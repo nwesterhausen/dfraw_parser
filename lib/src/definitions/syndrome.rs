@@ -24,30 +24,40 @@ use crate::tokens::{
 pub struct Syndrome {
     /// Seen the `[SYN_IDENTIFIER:INEBRIATION]` tag in `material_templates.txt`
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     identifier: Option<String>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     name: Option<String>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     affected_classes: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     immune_classes: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     affected_creatures: Option<Vec<(String, String)>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     immune_creatures: Option<Vec<(String, String)>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     classes: Option<Vec<String>>,
 
     /// Seen the `[SYN_CONCENTRATION_ADDED:100:1000]` tag in `material_templates.txt`
     /// default is 0:0
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     concentration_added: Option<[u32; 2]>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tags: Option<Vec<SyndromeToken>>,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     conditions: Option<Vec<String>>,
 }
 

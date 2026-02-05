@@ -1,6 +1,9 @@
 //! Tags for conditions that can be applied to a tile/entity (graphics)
 
-use crate::{tokens::raw_definitions::CONDITION_TOKENS, traits::IsEmpty};
+use crate::{
+    custom_types::{Dimensions, PartSpecifier},
+    traits::{IsEmpty, TagOperations as _},
+};
 
 /// A condition that can be applied to a tile/entity
 #[derive(
@@ -12,7 +15,6 @@ use crate::{tokens::raw_definitions::CONDITION_TOKENS, traits::IsEmpty};
     Eq,
     Default,
     specta::Type,
-    Copy,
     strum_macros::EnumIter,
 )]
 #[serde(rename_all = "camelCase")]
@@ -200,11 +202,11 @@ pub enum ConditionToken {
     /// Counts how many items the creature is hauling. Used for `[PACK_ANIMAL]`s in vanilla.
     ///
     /// `[CONDITION_HAUL_COUNT_MIN:count]`
-    HaulCountMin,
+    HaulCountMin { count: u32 },
     /// Counts how many items the creature is hauling. Used for `[PACK_ANIMAL]`s in vanilla.
     ///
     /// `[CONDITION_HAUL_COUNT_MAX:count]`
-    HaulCountMax,
+    HaulCountMax { count: u32 },
     /// Condition of being a class
     Class,
     /// Defines a body part graphic using standard body token selection criteria.
@@ -212,7 +214,10 @@ pub enum ConditionToken {
     /// Selection is done with `BY_TYPE`, `BY_CATEGORY`, or `BY_TOKEN`
     ///
     /// `[CONDITION_BP:selection:category, type, or token]`
-    BodyPart,
+    BodyPart {
+        specifier: PartSpecifier,
+        selector: Vec<String>,
+    },
     /// Checks if current `[CONDITION_BP]`'s `[BP_APPEARANCE_MODIFIER]` falls within the chosen range.
     ///
     /// `[BP_APPEARANCE_MODIFIER_RANGE]`
@@ -229,11 +234,11 @@ pub enum ConditionToken {
     /// True if creature size is greater than defined size.
     ///
     /// `[CONDITION_BODY_SIZE_MIN:size]`
-    BodySizeMin,
+    BodySizeMin { size: u32 },
     /// True if creature size is less than defined size.
     ///
     /// `[CONDITION_BODY_SIZE_MAX:size]`
-    BodySizeMax,
+    BodySizeMax { size: u32 },
     /// Changes graphics based on any syndromes the creature is affected by. Vanilla values include:
     /// - `ZOMBIE`
     /// - `NECROMANCER`
@@ -243,13 +248,16 @@ pub enum ConditionToken {
     /// - `GHOUL`
     ///
     /// `[CONDITION_SYN_CLASS:class]`
-    SyndromeClass,
+    SyndromeClass { syndrome: String },
     /// Selects a tissue layer to use for checking other conditions.
     ///
     /// `[CONDITION_TISSUE_LAYER:BY_CATEGORY:ALL:SKIN]`
     ///
     /// `[CONDITION_TISSUE_LAYER:BY_CATEGORY:bp category or 'ALL':tissue layer or 'ALL']`
-    TissueLayer,
+    TissueLayer {
+        specifier: PartSpecifier,
+        selector: Vec<String>,
+    },
     /// Chooses a random layer among layers with a `CONDITION_RANDOM_PART_INDEX` with the same identifier. Index
     /// is which option this condition is, out of Range number of options.
     ///
@@ -258,7 +266,11 @@ pub enum ConditionToken {
     /// variation in the appearance of the creature's head.
     ///
     /// `[CONDITION_RANDOM_PART_INDEX:identifier:index:range]`
-    RandomPartIndex,
+    RandomPartIndex {
+        identifier: String,
+        index: u32,
+        range: u32,
+    },
     /// Checks if the creature is a ghost.
     ///
     /// `[CONDITION_GHOST]`
@@ -267,27 +279,27 @@ pub enum ConditionToken {
     /// is present in the selected tissues.
     ///
     /// `[TISSUE_MAY_HAVE_COLOR:color token:more color tokens]`
-    TissueMayHaveColor,
+    TissueMayHaveColor { colors: Vec<String> },
     /// Checks the current `[CONDITION_TISSUE_LAYER]`'s `LENGTH` appearance modifier. Is true if the `LENGTH` is
     /// greater than the integer input.
     ///
     /// `[TISSUE_MIN_LENGTH:length]`
-    TissueMinLength,
+    TissueMinLength { length: u32 },
     /// Checks the current `[CONDITION_TISSUE_LAYER]`'s `LENGTH` appearance modifier. Is true if the `LENGTH` is
     /// less than the integer input.
     ///
     /// `[TISSUE_MAX_LENGTH:length]`
-    TissueMaxLength,
+    TissueMaxLength { length: u32 },
     /// Checks the current `[CONDITION_TISSUE_LAYER]`'s `DENSITY` appearance modifier. Is true if the `DENSITY` is
     /// greater than the integer input.
     ///
     /// `[TISSUE_MIN_DENSITY:desnsity]`
-    TissueMinDensity,
+    TissueMinDensity { density: u32 },
     /// Checks the current `[CONDITION_TISSUE_LAYER]`'s `DENSITY` appearance modifier. Is true if the `DENSITY` is
     /// less than the integer input.
     ///
     /// `[TISSUE_MAX_DENSITY:desnsity]`
-    TissueMaxDensity,
+    TissueMaxDensity { density: u32 },
     /// Condition of being a tissue at least so curly
     TissueMinCurly,
     /// Condition of being a tissue at most so curly
@@ -301,7 +313,7 @@ pub enum ConditionToken {
     /// - `STANDARD_HAIR/BEARD/MOUSTACHE/SIDEBURNS_SHAPINGS`
     ///
     /// `[TISSUE_MAY_HAVE_SHAPING:styling token]`
-    TissueMayHaveShaping,
+    TissueMayHaveShaping { shaping: String },
     /// Checks the current `[CONDITION_TISSUE_LAYER]`'s color. Accepts multiple color tokens, and is true if the
     /// any of the colors is present in the selected tissues.
     ///
@@ -314,7 +326,12 @@ pub enum ConditionToken {
     /// The current `[CONDITION_TISSUE_LAYER]` group must also include a `[TISSUE_MIN_LENGTH]`.
     ///
     /// `[TISSUE_SWAP:IF_MIN_CURLY:curl amount:tile page id:x pos:y pos]`
-    TissueSwap,
+    TissueSwap {
+        condition: String,
+        value: u32,
+        tile_page_identifier: String,
+        tile_position: Dimensions,
+    },
     /// Condition of being a specific layer (start layer definition)
     Layer,
     /// Condition of being the upper body
@@ -325,7 +342,7 @@ pub enum ConditionToken {
     /// See `[CONDITION_MATERIAL_FLAG:NOT_ARTIFACT]` for non-artifact-quality items.
     ///
     /// `[ITEM_QUALITY:quality id]`
-    ItemQuality,
+    ItemQuality { quality: u32 },
     /// Begins a layer group. Only the first-matching layer in a group will be rendered, so list more
     /// specific items at the beginning of the layer group and more general items towards the end.
     ///
@@ -335,30 +352,33 @@ pub enum ConditionToken {
     /// Begins defining a layer set for a creature's graphics.
     ///
     /// `[LAYER_SET:condition]`
-    LayerSet,
+    LayerSet { condition: String },
     /// Begins defining a palette for the layer set. Its name can then be referenced by `[USE_PALETTE]`.
     /// Unlike the palettes used to render all descriptor color tokens, it can be of arbitrary length.
     ///
     /// `[LS_PALETTE:name]`
-    LayerSetPalette,
+    LayerSetPalette { name: String },
     /// The file name of the 8bit RGBA (sometimes called 32bit) in the /graphics/images folder of the mod,
     /// such as `images/portraits/dwarf_portrait_body_palette.png`.
     ///
     /// `[LS_PALETTE_FILE:file path]`
-    LayerSetPaletteFile,
+    LayerSetPaletteFile { path: String },
     /// Defines the default row of a layer set palette, conventionally 0. The exact color values on this row
     /// will be replaced on layer images with the colors in the same column, based on what row is passed as
     /// an argument to `[USE_PALETTE]`.
     ///
     /// `[LS_PALETTE_DEFAULT:integer]`
-    LayerSetPaletteDefault,
+    LayerSetPaletteDefault { default_row: u32 },
     /// Allows the entire layer group (rather than an individual layer) to be switched on and off depending on the
     /// conditions of a body part. Should accept the same tokens `[CONDITION_BP]` does.
     ///
     /// Selection is done with `BY_TYPE`, `BY_CATEGORY`, or `BY_TOKEN`
     ///
     /// `[LG_CONDITION_BP:selection:cateogry, type, or token]`
-    LayerGroupBodyPart,
+    LayerGroupBodyPart {
+        specifier: PartSpecifier,
+        selector: Vec<String>,
+    },
     /// Explicitly marks the end of a layer group, which allows layers after to not belong to any layer group.
     ///
     /// `[END_LAYER_GROUP]`
@@ -375,7 +395,11 @@ pub enum ConditionToken {
     /// Selection is done with `BY_CATEGORY` or `BY_TOKEN`
     ///
     /// `[CONDITION_ITEM_WORN:selection:cateogry or token:armor type:item id]`
-    ItemWorn,
+    ItemWorn {
+        specifier: PartSpecifier,
+        selector: Vec<String>,
+        item_identifier: String,
+    },
     /// Causes the current layer to not be rendered if the creature has one of the items worn or equipped. Also accepts
     /// the input `ANY_HELD` or `WIELD` (e.g. `WIELD:WEAPON:ANY`). Note that `ANY_HELD` has been bugged since v50.14.
     ///
@@ -548,7 +572,11 @@ impl ConditionToken {
     /// The parsed Condition
     #[must_use]
     pub fn from_token(token: &str) -> Option<Self> {
-        CONDITION_TOKENS.get(token).copied()
+        if let Some((key, value)) = token.to_string().split_once(':') {
+            Self::parse(key, value)
+        } else {
+            Self::parse(token, "")
+        }
     }
     /// Whether the Condition is the default value.
     ///
@@ -556,7 +584,7 @@ impl ConditionToken {
     ///
     /// True if the Condition is the default value, false otherwise.
     #[must_use]
-    pub const fn is_default(self) -> bool {
+    pub const fn is_default(&self) -> bool {
         matches!(self, Self::None)
     }
     /// Whether the Condition is the default value.

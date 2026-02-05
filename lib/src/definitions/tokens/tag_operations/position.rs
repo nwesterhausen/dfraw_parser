@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::{
     tokens::{PositionToken, raw_definitions::POSITION_TOKENS},
     traits::{TagOperations, TokenParser as _},
@@ -184,6 +186,30 @@ impl TagOperations for PositionToken {
             }
             PositionToken::Succession { .. } => {
                 token.parse_single(&values, |inheritor| PositionToken::Succession { inheritor })
+            }
+        }
+    }
+}
+
+impl FromStr for PositionToken {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let trimmed = s
+            .strip_prefix('[')
+            .unwrap_or(s)
+            .strip_suffix(']')
+            .unwrap_or(s);
+
+        if let Some((key, value)) = trimmed.split_once(':') {
+            match Self::parse(key, value) {
+                Some(token) => Ok(token),
+                None => Err(format!("PositionToken unable to parse {s}")),
+            }
+        } else {
+            match Self::parse(trimmed, "") {
+                Some(token) => Ok(token),
+                None => Err(format!("PositionToken unable to parse {s}")),
             }
         }
     }

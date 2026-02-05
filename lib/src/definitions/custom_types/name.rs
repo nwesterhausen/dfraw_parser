@@ -198,7 +198,17 @@ impl FromStr for Name {
         let singular = String::from(split[0].trim());
         // Sometimes a plural is not specified, and the same singular gets used
         let plural = if split.len() >= 2 {
-            String::from(split[1].trim())
+            let plural_str = split[1].trim();
+
+            //  NP (No Plural)
+            if plural_str == "NP" {
+                singular.clone()
+            // STP (Standard Plural, adds an 's' on the end)
+            } else if plural_str == "STP" {
+                format!("{singular}s")
+            } else {
+                String::from(plural_str)
+            }
         } else {
             singular.clone()
         };

@@ -1,5 +1,17 @@
-use crate::custom_types::{BodyPartPosition, BodyPartSpecifier};
+use crate::custom_types::{BodyPartPosition, PartSpecifier};
 
+/// Tokens used to define body detail plans
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    specta::Type,
+    strum_macros::EnumIter,
+)]
 pub enum BodyDetailPlanToken {
     /// Create a new body detail plan with the specified identifier. The rest of the tokens in this table are then used to define this body detail plan's properties.
     PlanMarker { identifier: String },
@@ -21,27 +33,27 @@ pub enum BodyDetailPlanToken {
     /// - tissue name (or tissue ARG# for innermost tissue)
     /// - tissue thickness
     Layers {
-        specifier: BodyPartSpecifier,
-        body_part: String,
+        specifier: PartSpecifier,
+        selector: Vec<String>,
         arguments: Vec<(String, u32)>,
     },
     /// Works like BP_LAYERS, but defines layers over existing layers.
     LayersOver {
-        specifier: BodyPartSpecifier,
-        body_part: String,
+        specifier: PartSpecifier,
+        selector: Vec<String>,
         arguments: Vec<(String, u32)>,
     },
     /// Works like BP_LAYERS, but defines layers under existing layers.
     LayersUnder {
-        specifier: BodyPartSpecifier,
-        body_part: String,
+        specifier: PartSpecifier,
+        selector: Vec<String>,
         arguments: Vec<(String, u32)>,
     },
     /// Defines a position for the specified body part relative to its parent part (the nose is assigned the position FRONT, as it's on the front of the face).
     /// This has some effects on combat, attacks and the like. Valid position tokens are . The position token SIDES is
     /// of unverified validity.
     Position {
-        specifier: BodyPartSpecifier,
+        specifier: PartSpecifier,
         target: String,
         position: BodyPartPosition,
     },
@@ -49,17 +61,20 @@ pub enum BodyDetailPlanToken {
     /// covers the eye). This has some effects on combat, attacks and the like. Valid relation tokens are `AROUND`, `SURROUNDED_BY`, `ABOVE`, `BELOW`, `IN_FRONT`,
     /// `BEHIND`, `CLEANS`, and `CLEANED_BY`. The lattermost two tokens are used when specifying parts that clean each other (such as eyelids to eyes).
     Relation {
-        specified_by: BodyPartSpecifier,
-        target: String,
+        specifier: PartSpecifier,
+        selector: Vec<String>,
         relation: String,
-        parent_specifier: BodyPartSpecifier,
-        parent: String,
+        parent_specifier: PartSpecifier,
+        parent_selector: Vec<String>,
         coverage: String,
     },
     /// Defines a relsize for the selected body part for the current body detail plan
     RelativeSize {
-        specifier: BodyPartSpecifier,
-        target: String,
+        specifier: PartSpecifier,
+        selector: Vec<String>,
         relative_size: u32,
     },
+    /// Unknown token
+    #[default]
+    Unknown,
 }

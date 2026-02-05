@@ -22,12 +22,16 @@ pub struct CreatureEffect {
     probability: u8,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     affected_body_parts_by_category: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     affected_body_parts_by_type: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     affected_body_parts_by_token: Option<Vec<String>>,
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     tags: Option<Vec<CreatureEffectPropertyToken>>,
 
     start: u32,
@@ -35,5 +39,6 @@ pub struct CreatureEffect {
     end: u32,
 
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     dwf_stretch: Option<u8>,
 }

@@ -21,25 +21,31 @@ pub struct Temperatures {
     /// before cooling down or heating up to equilibrium. The input for this token is not temperature,
     /// but rather the specific heat capacity of the material.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     specific_heat: Option<u32>,
     /// This is the temperature at which the material will catch fire.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     ignition_point: Option<u32>,
     /// This is the temperature at which a liquid material will freeze, or a solid material will melt.
     /// In Dwarf Fortress the melting point and freezing point coincide exactly; this is contrary to many
     /// real-life materials, which can be supercooled.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     melting_point: Option<u32>,
     /// This is the temperature at which the material will boil or condense. Water boils at 10180 °U
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     boiling_point: Option<u32>,
     /// This is the temperature above which the material will begin to take heat damage.
     /// Burning items without a heat damage point (or with an exceptionally high one) will take damage very slowly,
     /// causing them to burn for a very long time (9 months and 16.8 days) before disappearing.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     heat_damage_point: Option<u32>,
     /// This is the temperature below which the material will begin to take frost damage.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     cold_damage_point: Option<u32>,
     /// A material's temperature can be forced to always be a certain value via the `MAT_FIXED_TEMP`
     /// material definition token. The only standard material which uses this is nether-cap wood,
@@ -47,6 +53,7 @@ pub struct Temperatures {
     /// to between its cold damage point and its heat damage point, then items made from that material
     /// will never suffer cold/heat damage. This makes nether-caps fire-safe and magma-safe despite being a type of wood.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     material_fixed_temperature: Option<u32>,
 }
 

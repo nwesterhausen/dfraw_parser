@@ -248,13 +248,54 @@ pub trait TokenParser: Debug {
 
         Some(builder(body, tail))
     }
+
+    /// Helper: Parses a Label (String) + Variable number of values.
+    /// Usage: [TAG:LABEL:1:2:3...] -> parse_labeled_vector(..., |label, vec| ...)
+    fn parse_labeled_vector_with_tail<Y, T, X, F, S>(
+        &self,
+        values: &[&str],
+        builder: F,
+    ) -> Option<S>
+    where
+        Y: FromStr + Default + Debug,
+        <Y as FromStr>::Err: Debug,
+        T: std::str::FromStr,
+        <T as std::str::FromStr>::Err: std::fmt::Debug,
+        X: FromStr + Default + Debug,
+        <X as FromStr>::Err: Debug,
+        F: Fn(Y, Vec<T>, X) -> S,
+    {
+        if values.len() < 3 {
+            tracing::warn!(
+                "parse_labeled_vector_with_tail: requires at least 3 args, found {} for {:?}",
+                values.len(),
+                self
+            );
+            return None;
+        }
+
+        let label = self.parse_value::<Y>(values.first()?)?;
+
+        let tail_str = values.last()?;
+        let tail = self.parse_value::<X>(tail_str)?;
+
+        // Try to parse the rest of the slice into a Vec<T>
+        let parsed_args: Vec<T> = values[1..values.len() - 1]
+                    .iter()
+                    .map(|&v| v.parse::<T>())
+                    .collect::<Result<_, _>>()
+                    .map_err(|e| tracing::warn!("parse_labeled_vector_with_tail: failed to parse args for tag {:?} label '{label:?}': {e:?}", self))
+                    .ok()?;
+
+        Some(builder(label, parsed_args, tail))
+    }
 }
 
 // Impls for each tag so we can use it for parsing.
 impl TokenParser for crate::tokens::CasteToken {}
+impl TokenParser for crate::tokens::ConditionToken {}
 impl TokenParser for crate::tokens::CreatureToken {}
 impl TokenParser for crate::tokens::PlantToken {}
-impl TokenParser for crate::tokens::ConditionToken {}
 impl TokenParser for crate::tokens::EntityToken {}
 impl TokenParser for crate::tokens::PositionToken {}
 impl TokenParser for crate::tokens::ModuleInfoToken {}

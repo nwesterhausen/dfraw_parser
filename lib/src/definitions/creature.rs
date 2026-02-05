@@ -66,23 +66,28 @@ pub struct Creature {
     ///
     /// A lot of the properties of the `Creature` object are actually properties of a special `Caste`, `ALL`.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub castes: Vec<Caste>,
     /// Any tags that are not parsed into their own fields are stored in the `tags` field.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub tokens: Vec<CreatureToken>,
     /// Copies another specified creature. This will override any definitions made before it; essentially, it makes this creature identical to the other one,
     /// which can then be modified. Often used in combination with `[APPLY_CREATURE_VARIATION]` to import standard variations from a file.
     ///
     /// The vanilla giant animals and animal peoples are examples of this token combination.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub copy_tags_from: Option<String>,
     /// Applies the specified creature variation.
     ///
     /// These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub apply_creature_variation: Option<Vec<String>>,
     /// Various `SELECT_CREATUR` modifications.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
     pub select_creature_variation: Option<Vec<SelectCreature>>,
 }
 
