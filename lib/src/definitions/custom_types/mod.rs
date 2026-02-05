@@ -1,4 +1,7 @@
 mod amount;
+mod body_gloss_definition;
+mod body_part_position;
+mod body_part_specifier;
 mod body_size;
 mod color;
 mod dimensions;
@@ -10,6 +13,9 @@ mod tile;
 mod tile_char;
 
 pub use amount::Amount;
+pub use body_gloss_definition::BodyGlossDefinition;
+pub use body_part_position::BodyPartPosition;
+pub use body_part_specifier::BodyPartSpecifier;
 pub use body_size::BodySize;
 pub use color::Color;
 pub use dimensions::Dimensions;

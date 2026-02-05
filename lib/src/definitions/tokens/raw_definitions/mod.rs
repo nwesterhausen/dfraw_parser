@@ -1,6 +1,7 @@
 //! The mapping of raw token strings to their corresponding token enum variants.
 
 mod biome;
+mod body_detail_plan;
 mod caste;
 mod condition;
 mod creature;
@@ -35,6 +36,7 @@ mod tree;
 mod twig_placement;
 
 pub use biome::BIOME_TOKENS;
+pub use body_detail_plan::BODY_DETAIL_PLAN_TOKENS;
 pub use caste::CASTE_TOKENS;
 pub use condition::CONDITION_TOKENS;
 pub use creature::CREATURE_TOKENS;
