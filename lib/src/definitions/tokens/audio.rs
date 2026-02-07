@@ -1,3 +1,5 @@
+use crate::custom_types::{SoundContext, SoundEvent};
+
 pub enum AudioToken {
     /// File identifier, either a path or a reference to another sound/music file.
     File { target: String },
@@ -24,29 +26,3 @@ pub enum AudioToken {
 }
 
 // see https://dwarffortresswiki.org/index.php/Audio
-
-pub enum SoundContext {
-    Any,
-    Main,
-    FirstYear,
-    SecondYearPlus,
-    CavernsOpened,
-    Spring,
-    Summer,
-    Autumn,
-    Winter,
-}
-
-pub enum SoundEvent {
-    JustEmbarked,
-    Siege,
-    FirstCavernOpened,
-    MegabeastAttack,
-    ForgottenBeastAttack,
-    DeathSpiral,
-    TavernMusicPresent,
-    TavernDancePresent,
-    LostFort,
-    FortLevel,
-    FirstGhost,
-}
