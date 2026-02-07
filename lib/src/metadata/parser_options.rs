@@ -43,7 +43,6 @@ use crate::{
 /// // let parsed_raws = dfraw_parser::parse(&options);
 ///```
 ///
-#[allow(clippy::module_name_repetitions)]
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq, Hash, specta::Type)]
 #[serde(rename_all = "camelCase")]

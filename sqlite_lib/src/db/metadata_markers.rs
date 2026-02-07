@@ -120,3 +120,12 @@ impl TypedMetadata for StoredSettings {
         AppMetadataKey::StoredSettings
     }
 }
+
+/// marker struct for the compression dictionary
+pub struct CompressionDictionary;
+impl TypedMetadata for CompressionDictionary {
+    type Value = Vec<u8>;
+    fn key() -> AppMetadataKey {
+        AppMetadataKey::CompressionDictionary
+    }
+}

@@ -1,21 +1,21 @@
 //! This library provides an API for parsing Dwarf Fortress raw files.
 
+mod definitions;
 mod error;
-mod parsed_definitions;
 mod parser;
 mod reader;
 
 pub mod constants;
 pub mod legends_export;
 pub mod metadata;
-pub mod raw_definitions;
 pub mod regex;
 pub mod traits;
 pub mod utilities;
+pub mod views;
 
+pub use definitions::custom_types;
+pub use definitions::*;
 pub use error::Parser as ParserError;
-pub use parsed_definitions::custom_types;
-pub use parsed_definitions::*;
 pub use parser::ParseResult;
 pub use parser::parse::parse;
 pub use parser::parse_location;

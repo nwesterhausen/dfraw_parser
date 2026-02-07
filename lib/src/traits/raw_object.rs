@@ -11,7 +11,6 @@ use crate::{
     traits::{Cleanable, ToRawFileString},
 };
 
-#[allow(clippy::module_name_repetitions)]
 #[typetag::serde(tag = "type")]
 /// The `RawObject` trait is implemented by all raw objects. This trait is used
 /// to provide a common interface for all raw objects, so that they can be
@@ -55,7 +54,9 @@ pub trait RawObject: RawObjectToAny + ToRawFileString + Send + Sync + Cleanable 
         self.clean()
     }
     /// Get the module object id that this raw belongs to
-    fn get_module_object_id(&self) -> Uuid;
+    fn get_module_object_id(&self) -> Uuid {
+        self.get_metadata().get_module_object_id()
+    }
 }
 
 /// The `RawObjectToAny` trait is implemented by all raw objects. This trait is

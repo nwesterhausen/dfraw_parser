@@ -9,11 +9,12 @@ use tracing::{debug, info, warn};
 use uuid::Uuid;
 
 use crate::db::client_options::ClientOptions;
+use crate::db::compression::{DbCodec, train_dictionary_from_objects};
 use crate::db::metadata_markers::{
-    FavoriteRaws, LastRawsInsertion, LastRawsParsingOperation, PreferredSearchLimit,
-    PreviousDwarfFortressGamePath, PreviousDwarfFortressUserPath, PreviousInsertionDuration,
-    PreviousParseDuration, PreviousParserOptions, RecentSearchTerms, StoredSettings,
-    UseSteamAutodetect,
+    CompressionDictionary, FavoriteRaws, LastRawsInsertion, LastRawsParsingOperation,
+    PreferredSearchLimit, PreviousDwarfFortressGamePath, PreviousDwarfFortressUserPath,
+    PreviousInsertionDuration, PreviousParseDuration, PreviousParserOptions, RecentSearchTerms,
+    StoredSettings, UseSteamAutodetect,
 };
 use crate::db::migrate::{apply_migrations, migrate_down};
 use crate::db::migrations::LATEST_SCHEMA_VERSION;
@@ -26,8 +27,12 @@ use crate::{SearchQuery, SearchResults};
 /// A client for interacting with a database to contain details about parsed raws.
 #[derive(Debug)]
 pub struct DbClient {
+    /// The `rusqlite` connection to the `SQLite` database
     conn: Connection,
+    /// Options established when the client was created
     options: ClientOptions,
+    /// Cached codec used for compression and decompression operations on blobs
+    codec: Option<DbCodec>,
 }
 
 impl DbClient {
@@ -61,7 +66,17 @@ impl DbClient {
 
         init_constant_tables(&mut conn)?;
 
-        Ok(Self { conn, options })
+        // Try to load dictionary immediately if it exists
+        let codec = match queries::get_typed_metadata::<CompressionDictionary>(&conn) {
+            Ok(Some(bytes)) => Some(DbCodec::new(&bytes, 3)),
+            _ => None,
+        };
+
+        Ok(Self {
+            conn,
+            options,
+            codec,
+        })
     }
 
     /// Uses the provided `SearchQuery` to return the JSON of all matching raws defined in the database.
@@ -73,9 +88,9 @@ impl DbClient {
     ///
     /// The `SearchResults` with the results as the JSON strings as byte arrays.
     #[tracing::instrument(level = "debug", skip(self))]
-    pub fn search_raws(&self, query: &SearchQuery) -> Result<SearchResults<Vec<u8>>> {
+    pub fn search_raws(&self, query: &SearchQuery) -> Result<SearchResults<Box<dyn RawObject>>> {
         self.add_recent_search_term(query.search_string.clone())?;
-        queries::search_raws(&self.conn, query)
+        queries::search_raws(&self.conn, self.get_codec()?, query)
     }
 
     /// Insert the `ParseResult` returned from `[dfraw_parser::parse]` into the database.
@@ -85,12 +100,28 @@ impl DbClient {
     /// - Database errors
     /// - Issues working with downcasting raws to obtain data to insert
     pub fn insert_parse_results(&mut self, parse_results: &ParseResult) -> Result<()> {
+        if self.codec.is_none() {
+            let dict = if self.get_compression_dictionary()?.is_none() {
+                let dict = train_dictionary_from_objects(parse_results.raws.as_slice())
+                    .map_err(|e| rusqlite::Error::ToSqlConversionFailure(e.into()))?;
+                self.set_compression_dictionary(&dict)?;
+                dict
+            } else {
+                self.get_compression_dictionary()?
+                    .ok_or(rusqlite::Error::InvalidQuery)?
+            };
+
+            // Initialize the codec
+            self.codec = Some(DbCodec::new(&dict, 3));
+        }
+
         let start = Utc::now();
 
         for module in &parse_results.modules {
             info!("Inserting raws for {module}");
             insert_module_and_data(
                 &mut self.conn,
+                self.codec.as_ref().ok_or(rusqlite::Error::InvalidQuery)?,
                 self.options.overwrite_raws,
                 module,
                 &parse_results.get_raws_for_module(module),
@@ -102,6 +133,39 @@ impl DbClient {
         self.set_last_insertion_utc_datetime(&end)?;
         self.set_last_insertion_duration(&insertion_duration)?;
         Ok(())
+    }
+
+    fn get_codec(&self) -> Result<&DbCodec> {
+        self.codec
+            .as_ref()
+            .ok_or(rusqlite::Error::InvalidQuery)
+            .inspect_err(|_| tracing::error!("Codec not setup yet, parsed raws must be inserted."))
+    }
+
+    /// Get the compression dictionary used for compressing and decompressing stored data
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    /// - serialization error
+    pub fn get_compression_dictionary(&self) -> Result<Option<Vec<u8>>> {
+        queries::get_typed_metadata::<CompressionDictionary>(&self.conn)
+    }
+
+    /// Private function to set the dictionary for compression and decompression
+    ///
+    /// # Errors
+    ///
+    /// - database error
+    pub fn set_compression_dictionary(&self, value: &Vec<u8>) -> Result<()> {
+        if self.get_compression_dictionary()?.is_some() {
+            warn!(
+                "Not overwriting compression dictionary. It's set automatically when database is reset."
+            );
+            Ok(())
+        } else {
+            queries::set_typed_metadata::<CompressionDictionary>(&self.conn, value)
+        }
     }
 
     /// Get the date of the last insertion.
@@ -481,7 +545,7 @@ impl DbClient {
     /// - database error
     #[allow(clippy::borrowed_box)]
     pub fn create_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
-        queries::create_raw(&self.conn, raw)
+        queries::create_raw(&self.conn, self.get_codec()?, raw)
     }
 
     /// Creates a new raw defintion with a link to a specific module
@@ -491,7 +555,7 @@ impl DbClient {
     /// - database error
     #[allow(clippy::borrowed_box)]
     pub fn create_raw_with_module(&self, module_id: i64, raw: &Box<dyn RawObject>) -> Result<i64> {
-        queries::create_raw_with_module(&self.conn, module_id, raw)
+        queries::create_raw_with_module(&self.conn, self.get_codec()?, module_id, raw)
     }
 
     /// Returns true if the raw exists in the database.
@@ -540,7 +604,7 @@ impl DbClient {
     ///
     /// - database error
     pub fn get_raw(&self, id: i64) -> Result<Box<dyn RawObject>> {
-        queries::get_raw(&self.conn, id)
+        queries::get_raw(&self.conn, self.get_codec()?, id)
     }
 
     /// Retrieves a raw object by its object id.
@@ -549,7 +613,7 @@ impl DbClient {
     ///
     /// - database error
     pub fn get_raw_by_object_id(&self, object_id: Uuid) -> Result<Box<dyn RawObject>> {
-        queries::get_raw_by_object_id(&self.conn, object_id)
+        queries::get_raw_by_object_id(&self.conn, self.get_codec()?, object_id)
     }
 
     /// Retrieves the top result for a module id matching the data in the raw's metadata.
@@ -569,7 +633,7 @@ impl DbClient {
     /// - database error
     #[allow(clippy::borrowed_box)]
     pub fn upsert_raw(&self, raw: &Box<dyn RawObject>) -> Result<i64> {
-        queries::upsert_raw(&self.conn, raw)
+        queries::upsert_raw(&self.conn, self.get_codec()?, raw)
     }
 
     /// Updates the data blob and associated tables for an existing raw definition.
@@ -579,7 +643,7 @@ impl DbClient {
     /// - database error
     #[allow(clippy::borrowed_box)]
     pub fn update_raw(&self, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
-        queries::update_raw(&self.conn, id, raw)
+        queries::update_raw(&self.conn, self.get_codec()?, id, raw)
     }
 
     /// Updates the data blob and associated tables for an existing raw definition.
@@ -589,7 +653,7 @@ impl DbClient {
     /// - database error
     #[allow(clippy::borrowed_box)]
     pub fn update_raw_by_object_id(&self, object_id: Uuid, raw: &Box<dyn RawObject>) -> Result<()> {
-        queries::update_raw_by_object_id(&self.conn, object_id, raw)
+        queries::update_raw_by_object_id(&self.conn, self.get_codec()?, object_id, raw)
     }
 
     /// Deletes a raw definition.
