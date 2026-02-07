@@ -21,6 +21,57 @@ export type Amount =
 "None"
 
 /**
+ * Tokens used in audio raws
+ */
+export type AudioToken = 
+/**
+ * File identifier, either a path or a reference to another sound/music file.
+ */
+{ File: { target: string } } | 
+/**
+ * (Music only) Displays as the song author on the pause menu
+ */
+{ Author: { name: string } } | 
+/**
+ * (Music only) If set, should play continuously until interrupted
+ */
+"Loops" | 
+/**
+ * (Music only) Displays as track title on pause menu
+ */
+{ Title: { name: string } } | 
+/**
+ * Trigger condition, can use more than one announcement token to specify multiple triggers
+ */
+{ Announcement: { announcement: string } } | 
+/**
+ * Whether it should be played randomly in a savage area
+ */
+"SavageArea" | 
+/**
+ * Defines a list of "short bits" that will be shuffled and chosen from to play for an event
+ */
+{ Card: { music_file: string } } | 
+/**
+ * If any context is met, the song can be chosed to play
+ */
+{ Context: { context: SoundContext } } | 
+/**
+ * When the chosed event occurs, the son will play and override the current song. If multiple match, a ranom
+ * one will be played from the matches.
+ */
+{ Event: { event: SoundEvent } } | 
+/**
+ * Can be set to `UNCOMMON` to set the frequency to "half as often" as any other matching options or `RARE` to
+ * make it 1/5 as often as other matching options.
+ */
+{ Frequrency: { frequency: string } } | 
+/**
+ * An unknown token
+ */
+"Unknown"
+
+/**
  * An enum representing a biome.
  */
 export type BiomeToken = 
@@ -358,12 +409,340 @@ export type BiomeToken =
 "Unknown"
 
 /**
+ * Tokens used to define body detail plans
+ */
+export type BodyDetailPlanToken = 
+/**
+ * Create a new body detail plan with the specified identifier. The rest of the tokens in this table are then used to define this body detail plan's properties.
+ */
+{ PlanMarker: { identifier: string } } | 
+/**
+ * Adds a new material to the creature based on the specified template and assigned to the specified identifier.
+ */
+{ AddMaterial: { identifier: string; material_template: string } } | 
+/**
+ * Adds a new tissue to the creature based on the specified template and assigned to the specified identifier.
+ */
+{ AddTissue: { identifier: string; tissue_template: string } } | 
+/**
+ * Defines a series of tissue layers. Alternatively to specifying a tissue, variable arguments can be entered (numbered arbitrarily to a max of 5) to be
+ * filled with tissues when the plan is called in the creature entry. The `SELECT_TISSUE` creature token with `TL_RELATIVE_THICKNESS` can change tissue thickness,
+ * but tissuen layering is hard to do without a new detail plan.
+ * 
+ * Arguments are defined as:
+ * - tissue name (or tissue ARG# for innermost tissue)
+ * - tissue thickness
+ */
+{ Layers: { specifier: PartSpecifier; selector: string[]; arguments: ([string, number])[] } } | 
+/**
+ * Works like BP_LAYERS, but defines layers over existing layers.
+ */
+{ LayersOver: { specifier: PartSpecifier; selector: string[]; arguments: ([string, number])[] } } | 
+/**
+ * Works like BP_LAYERS, but defines layers under existing layers.
+ */
+{ LayersUnder: { specifier: PartSpecifier; selector: string[]; arguments: ([string, number])[] } } | 
+/**
+ * Defines a position for the specified body part relative to its parent part (the nose is assigned the position FRONT, as it's on the front of the face).
+ * This has some effects on combat, attacks and the like. Valid position tokens are . The position token SIDES is
+ * of unverified validity.
+ */
+{ Position: { specifier: PartSpecifier; target: string; position: BodyPartPosition } } | 
+/**
+ * Defines a positional relationship between one body part and another (the right eyelid is `AROUND` the right eye with coverage 50, as it only partially
+ * covers the eye). This has some effects on combat, attacks and the like. Valid relation tokens are `AROUND`, `SURROUNDED_BY`, `ABOVE`, `BELOW`, `IN_FRONT`,
+ * `BEHIND`, `CLEANS`, and `CLEANED_BY`. The lattermost two tokens are used when specifying parts that clean each other (such as eyelids to eyes).
+ */
+{ Relation: { specifier: PartSpecifier; selector: string[]; relation: string; parent_specifier: PartSpecifier; parent_selector: string[]; coverage: string } } | 
+/**
+ * Defines a relsize for the selected body part for the current body detail plan
+ */
+{ RelativeSize: { specifier: PartSpecifier; selector: string[]; relative_size: number } } | 
+/**
+ * Unknown token
+ */
+"Unknown"
+
+/**
+ * Body gloss is defined to give different names for different parts of the body.
+ * 
+ * e.g. `[BODYGLOSS:PAW:foot:paw:feet:paws]` becomes
+ * `BodyGlossDefintion {
+ * identifier: "PAW",
+ * source_name: {Singular: "foot", Plural: "feet"},
+ * target_name: {Singular: "paw", Plural: "paws"}
+ * }`
+ */
+export type BodyGlossDefinition = { 
+/**
+ * The identifier for this body gloss
+ */
+identifier: string; 
+/**
+ * The name that should be replaced
+ */
+source_name: Name; 
+/**
+ * The name to replace the `source_name` with
+ */
+target_name: Name }
+
+/**
+ * Specifies where to attach a body part or tissue
+ */
+export type BodyPartPosition = 
+/**
+ * Front
+ */
+"Front" | 
+/**
+ * Back
+ */
+"Back" | 
+/**
+ * Left
+ */
+"Left" | 
+/**
+ * Right
+ */
+"Right" | 
+/**
+ * Top
+ */
+"Top" | 
+/**
+ * Bottom
+ */
+"Bottom"
+
+/**
  * Represents a creature's body size at a specific age.
  * 
  * This structure is used to define growth stages for creatures in Dwarf Fortress raw files.
  * It corresponds to the `[BODY_SIZE:YEARS:DAYS:SIZE_CM3]` tag.
  */
 export type BodySize = { years: number; days: number; sizeCm3: number }
+
+/**
+ * Tokens used in body defintion raws
+ */
+export type BodyToken = 
+/**
+ * Begin the definition of a body part with the given ID, name, and plural name.
+ * If the plural form would just add an 's' then it can be replaced with 'STP' (which stands for "Standard Plural").
+ */
+{ BodyPartMarker: { 
+/**
+ * Identifier of the body part
+ */
+identifier: string; 
+/**
+ * Name is singular and plural
+ */
+name: Name } } | 
+/**
+ * Marks the body part as an opening in the body. If it is `[EMBEDDED]`, it cannot be gouged.
+ */
+"Aperture" | 
+/**
+ * Body part is used to breathe. If all body parts with `[BREATHE]` ([`BodyToken::Breathe]`) are damaged or destroyed,
+ * the creature will suffocate unless it has the `[NOBREATHE]` ([`CasteTag::NoBreathe`]) tag. Note that bruising counts
+ * as (fast-healing) damage.
+ */
+"Breathe" | 
+/**
+ * Assigns the body part to a user-defined category. Used by `[CON_CAT]` ([`BodyToken::ConnectToCategory`]) to attach to other body parts.
+ */
+{ Category: { identifier: string } } | 
+/**
+ * Connects the body part to a specific other body part.
+ */
+{ Connect: { target: string } } | 
+/**
+ * Connects the body part to all other body parts having the specified [CATEGORY] ([`BodyToken::Cateogry`]).
+ */
+{ ConnectToCategory: { target_category: string } } | 
+/**
+ * Connects the body part to all other body parts having the specified type token. Valid values are
+ * * `UPPERBODY`
+ * * `LOWERBODY`
+ * * `HEAD`
+ * * `GRASP`
+ * * `STANCE`
+ */
+{ ConnectToType: { target_type: string } } | 
+/**
+ * Body part is responsible for blood circulation. Exact effects not known.
+ */
+"Circulation" | 
+/**
+ * Body part is used to connect other body parts together. Used for the neck and lower spine.
+ */
+"Connector" | 
+/**
+ * This command establishes the relative size of body parts within a creature. The numbers have no absolute meaning or units.
+ */
+{ DefaultRelativeSize: { size: number } } | 
+/**
+ * Defines part as a digit. Body parts that are digits, or have them as direct sub-parts, can perform gouging attacks within a wrestling hold.
+ */
+"Digit" | 
+/**
+ * Body part with this tag is embedded on the surface of parent body part. (i.e. eyes and mouth on head)
+ * It cannot be chopped off, can't be used to wrestle enemies and can't be grabbed by them.
+ */
+"Embedded" | 
+/**
+ * Flags the body part as being needed for flight. Damage to a certain number of `FLIER` body parts will prevent the creature from flying.
+ * Note that a creature can only fly if the creature has the `[FLIER]` tag in its creature definition, and that a flying creature does not
+ * actually need any `FLIER` body parts. This tag's only purpose is to identify body parts which will cause a creature to lose the ability to fly when damaged.
+ */
+"Flier" | 
+/**
+ * Creatures with a body part containing this token may be gelded, creating a sterile creature that is typically marked with `x♂x`
+ * Gelding may also occur during combat if this body part is damaged sufficiently.
+ * 
+ * Despite its name, `GELDABLE` does not need to be combined with `MALE`. A modded `FEMALE` creature with a `GELDABLE` body part can be "gelded" through
+ * the regular gelding interface or through combat damage, resulting in a sterile creature marked `x♀x`
+ */
+"Geldable" | 
+/**
+ * Creature can wield a picked-up weapon with the body part, and can use the part to initiate almost all wrestling moves. When creatures are spawned
+ * with a weapon and shield, one `GRASP` part will hold a weapon while all others will hold shields. A grasp-able bodypart is needed for Grasp-attacks,
+ * which are in turn needed to start a fist fight. Creatures throwing a tantrum, but missing a bodypart with the grasp-property, will be cancelling
+ * their fist fight, due to being 'too injured'.
+ */
+"Grasp" | 
+/**
+ * Body part is susceptible to low blows. Used for guts. Damage to this body part causes nausea and may make the creature lose turns, vomiting uncontrollably.
+ */
+"Guts" | 
+/**
+ * Flags the body part as being able to wear head clothing like hats, helms, etc. If all heads are chopped off, the creature dies. Multiple heads are
+ * redundant - for example, hydras can survive with several missing heads.
+ */
+"Head" | 
+/**
+ * Body part is used to hear. May be a requirement for the body part to wear earrings.
+ */
+"Hear" | 
+/**
+ * Adding individual names tells the game what to call each individual part in a `NUMBER`ed bodypart. This command replaces "first upper front tooth" for example.
+ */
+{ IndividualName: { name: Name } } | 
+/**
+ * Marks the body part as being inside the body. It is behind all the other tissues of the body part, cannot be severed, nor used for wrestling.
+ * It cannot be targeted directly in combat, but can be damaged by attacks to the parent body part.
+ */
+"Internal" | 
+/**
+ * Body part is a joint. If the limb it's in is grabbed in a wrestling hold, it can be broken with bending force, disabling the parent limb. If the joint is modded
+ * to sit outside the body, grabbing and breaking it snaps the entire limb right off.
+ */
+"Joint" | 
+/**
+ * Body part is a limb. It can be used to initiate most wrestling moves. If it is located between an `[UPPERBODY]` part and a `[GRASP]` body part,
+ * it is eligible to be covered by certain types of armor (body armors and gauntlets). If it is located between a `[LOWERBODY]` part and a `[STANCE]`
+ * body part, it is eligible to be covered by other types of armor (Leg armors like pants, etc.; trailing body armors like mail shirts and robes; and high boots).
+ */
+"Limb" | 
+/**
+ * Flags the body part as being able to wear lower body clothing like skirts, pants, etc. If all parts with this token are chopped off or pulped, the creature dies.
+ * If the creature has multiple parts with this token, they will not die until all parts with this token have been pulped or severed. No such creature exists
+ * in the base game, however.
+ */
+"LowerBody" | 
+/**
+ * Marks body part as on the left side of the body and vulnerable to attacks from the left. Used in conjunction with tags in the `b_detail_plan_default` raw.
+ */
+"Left" | 
+/**
+ * Body part is a mouth. Implication unknown.
+ */
+"Mouth" | 
+/**
+ * The number lets you stack identical body parts. These can be individually damaged by wounds, but you don't have to define them explicitly one by one.
+ * If you don't give them individual names (see teeth) they'll be preceded by ordinal numbers (first, second, etc.). In practice, though, they cannot be
+ * individually damaged - if you knock out one tooth, the entire group will be knocked out at once (and will be scattered across the area). Butchering doesn't
+ * respect this and produces only a single body part per group. The value is capped at 32.
+ */
+{ Number: { amount: Amount } } | 
+/**
+ * Body part is the hub of nervous function. Used for the parts of the spine. Damage disables everything in the parent bodypart and what's below it,
+ * causing death by suffocation in most cases.
+ */
+"Nervous" | 
+/**
+ * Body part must be destroyed in order for the attached parent object to be considered destroyed. Found on skulls and spinal columns.
+ */
+"PreventsParentCollapse" | 
+/**
+ * Marks body part as on the right side of the body and vulnerable to attacks from the right. Used in conjunction with tags in the `b_detail_plan_default` raw.
+ */
+"Right" | 
+/**
+ * Body part is part of the creature's skeleton.
+ */
+"Skeleton" | 
+/**
+ * Allows the creature to stand. Damage or loss of these body parts will cause the creature to fall over - loss of one `STANCE` part can be substituted
+ * with a crutch. Does not give the body part an ability to initiate wrestling moves, unlike `[GRASP]` or `[LIMB]`.
+ */
+"Stance" | 
+/**
+ * Body part is used to see. If the creature has no SIGHT body parts, or if all its sight body parts are damaged or destroyed, it can't see unless it has
+ * the `[EXTRAVISION]` tag in its creature definition.
+ */
+"Sight" | 
+/**
+ * Body part is used to smell. Currently unused.
+ */
+"Smell" | 
+/**
+ * "SMALL means that the part isn't displayed as part of the overall displayed body part lists, and can't be splinted. They are more often targeted for torture
+ * (although those situations might not occur anymore). They are removed in skeletons if they aren't specifically skeletons/joints/digits/apertures. They are more
+ * easily lost in world gen duels. They are the only gougable/pinchable parts (note: at least this is no longer the case.). SMALL is an old tag, so it has accumulated
+ * some weird functions which'll get split off over time. " --Toady
+ */
+"Small" | 
+/**
+ * Body part breaks off and goes flying if broken, even with blunt force. Used on teeth to make them easy to knock out - rendered invalid by `[INTERNAL]`.
+ */
+"Socket" | 
+/**
+ * Body part can be strangled - latching bites that hit the head have a chance to target this instead. Note: this tag doesn't control any bleeding behavior.
+ */
+"Throat" | 
+/**
+ * The central core of the body, used with the brain. Damage causes instant death, unless the creature has `[NO_THOUGHT_CENTER_FOR_MOVEMENT]`/`[NOTHOUGHT]` (unverified).
+ * 
+ * If no body part has this token (and none of the above exclusions are specified), the creature will spawn injured and will be unable to stand or fly. If the creature
+ * is a `[FLIER]`, this can result in it spawning in mid-air, immediately plummeting to the ground, and dying of fall damage.
+ */
+"Thought" | 
+/**
+ * This bodypart can be turned into a totem by craftsmen. Always drops from slaughtered creatures, no matter how small.
+ */
+"Totemable" | 
+/**
+ * Flags the body part as being able to wear upper body clothing like coats, breastplates etc. If all parts with this token are pulped or
+ * chopped off, the creature dies. Multiple UPPERBODY parts are redundant, but no such creatures exist in the base game. All default
+ * creatures with bodies have the upper body as the root of the body tree, making it impossible to chop off.
+ */
+"UpperBody" | 
+/**
+ * Makes the body part pop out of the body when cut through - used on guts. Body part shows up as "~" and drags behind the victim when spilled.
+ */
+"UnderPressure" | 
+/**
+ * Allows the item to be obtained from butchered or rotted vermin - used with shells.
+ */
+"VerminButcherItem" | 
+/**
+ * An unknown token
+ */
+"Unknown"
 
 /**
  * A struct representing a creature caste.
@@ -8900,6 +9279,64 @@ export type ModuleInfo = { identifier: string;
 objectId: string; location: RawModuleLocation; parentDirectory: string; numericVersion: number; displayedVersion: string; earliestCompatibleNumericVersion: number; earliestCompatibleDisplayedVersion: string; author: string; name: string; description: string; requiresIds?: string[] | null; conflictsWithIds?: string[] | null; requiresIdsBefore?: string[] | null; requiresIdsAfter?: string[] | null; steamData?: SteamData | null }
 
 /**
+ * Tokens that can be found in a module's info.txt file
+ */
+export type ModuleInfoToken = 
+/**
+ * An integer version number for the mod. Must be greater than or equal to EARLIEST_COMPATIBLE_NUMERIC_VERSION.
+ * "Integer" here means 0, 1, 2, and so on. Negatives are allowed. Anything that is not an integer will not work;
+ * 
+ * 0.2 will be read as "0".
+ */
+{ NumericVersion: { version: number } } | 
+/**
+ * The version of the mod, as displayed in-game. This is only a display, and will have no effect.
+ */
+{ DisplayedVersion: { version: string } } | 
+/**
+ * The earliest compatible numeric version of the mod. Installed mods are automatically updated, if a later
+ * compatible version is available. This must be at most the same as NUMERIC_VERSION, and doing otherwise will
+ * result in an error.
+ */
+{ EarliestCompatibleNumericVersion: { version: number } } | 
+/**
+ * The earliest compatible numeric version, as displayed in-game.
+ */
+{ EarliestCompatibleDisplayedVersion: { version: string } } | 
+/**
+ * The name of the author
+ */
+{ Author: { name: string } } | 
+/**
+ * The name of the mod
+ */
+{ Name: { name: string } } | 
+/**
+ * A description of the mod, shown in the mod loading screen
+ */
+{ Description: { description: string } } | 
+/**
+ * Mod cannot be used unless mod with given ID is also loaded.
+ */
+{ RequiresId: { id: string } } | 
+/**
+ * Mod cannot be used unless mod with given ID is earlier in the mod load list.
+ */
+{ RequiresIdBeforeMe: { id: string } } | 
+/**
+ * Mod cannot be used unless mod with given ID is later in the mod load list.
+ */
+{ RequiresIdAfterMe: { id: string } } | 
+/**
+ * Mod cannot be used if mod with given ID is also loaded.
+ */
+{ ConflictsWithId: { id: string } } | 
+/**
+ * An unknown tag
+ */
+"Unknown"
+
+/**
  * A name with a singular, plural, and adjective form
  */
 export type Name = { singular: string; plural: string; adjective: string | null }
@@ -8939,6 +9376,21 @@ key: string;
  * The constraint to apply
  */
 constraint: NumericConstraint }
+
+/**
+ * Helper struct for providing "common" tokens and their values to consumers (for searching or other operations)
+ */
+export type NumericToken = { 
+/**
+ * String key for the token, with an appended clue if more than one value exists
+ * 
+ * e.g. for "CLUTCH_SIZE", use "CLUTCH_SIZE_MIN" and "CLUTCH_SIZE_MAX"; for "PETVALUE" use "PETVALUE"
+ */
+key: string; 
+/**
+ * The value associated with the key
+ */
+value: string }
 
 /**
  * The various types of objects that are within the raw files.
@@ -10440,6 +10892,142 @@ export type ShrubToken =
 "Unknown"
 
 /**
+ * Specifies where to attach a body part or tissue
+ */
+export type SoundContext = 
+/**
+ * Can play at any time, including in menus.
+ */
+"Any" | 
+/**
+ * The gamemode is Fortress Mode.
+ */
+"Main" | 
+/**
+ * You are controlling a fortress that is less than one year old.
+ */
+"FirstYear" | 
+/**
+ * Your fortress has been around for more than one year.
+ */
+"SecondYearPlus" | 
+/**
+ * Your fortress has access to the caverns.
+ */
+"CavernsOpened" | 
+/**
+ * The current season is spring. Appears to also be played in Legends mode and the main menu.
+ */
+"Spring" | 
+/**
+ * The current season is summer. Appears to also be played in Legends mode and the main menu.
+ */
+"Summer" | 
+/**
+ * The current season is autumn. Appears to also be played in Legends mode and the main menu.
+ */
+"Autumn" | 
+/**
+ * The current season is winter.
+ */
+"Winter"
+
+/**
+ * Specifies where to attach a body part or tissue
+ */
+export type SoundEvent = 
+/**
+ * Plays when founding a new fortress.
+ */
+"JustEmbarked" | 
+/**
+ * A siege is announced.
+ */
+"Siege" | 
+/**
+ * A new cave layer is discovered
+ */
+"FirstCavernOpened" | 
+/**
+ * Plays when a megabeast's arrival is announced. It is unknown if it is also relevant for semi-megabeasts or titans.
+ */
+"MegabeastAttack" | 
+/**
+ * Plays when a forgotten beast's arrival is announced.
+ */
+"ForgottenBeastAttack" | 
+/**
+ * Many citizen deaths have occurred in short succession.
+ */
+"DeathSpiral" | 
+/**
+ * Many units have gathered to perform or watch a musical form.
+ */
+"TavernMusicPresent" | 
+/**
+ * Many units have gathered to perform or watch a dance.
+ */
+"TavernDancePresent" | 
+/**
+ * Ending a game: a fortress has just been abandoned or retired or your adventurer has died.
+ */
+"LostFort" | 
+/**
+ * May relate to reaching higher ranks of Fortress Nomenclature
+ */
+"FortLevel" | 
+/**
+ * The first time a ghost attacks
+ */
+"FirstGhost"
+
+/**
+ * A sphere, or cosmic principle, is an aspect where a being has influence. Deities, forces, angels,
+ * demons, megabeasts, semi-megabeasts, forgotten beasts and titans may be associated with one or more
+ * spheres, and civilizations may prefer certain spheres when selecting creatures to worship.
+ * 
+ * There are currently a total of 130 spheres.
+ */
+export type Sphere = { 
+/**
+ * The identifier of the sphere
+ */
+identifier: string; 
+/**
+ * List of parent spheres by identifier
+ */
+parents?: SphereToken[]; 
+/**
+ * List of children spheres by identifier
+ */
+children?: SphereToken[]; 
+/**
+ * List of friend spheres by identifier
+ */
+friends?: SphereToken[]; 
+/**
+ * List of precluded spheres by identifier
+ */
+precluded_spheres?: SphereToken[]; 
+/**
+ * A descriptive string associated with this sphere
+ */
+descriptor: string; 
+/**
+ * Properties associated with this sphere
+ */
+properties?: ([string, string])[]; 
+/**
+ * Symbols associated with this sphere
+ */
+symbols: SymbolToken[] }
+
+/**
+ * Available spheres
+ */
+export type SphereToken = "Agriculture" | "Animals" | "Art" | "Balance" | "Beauty" | "Birth" | "Blight" | "Boundaries" | "Caverns" | "Chaos" | "Charity" | "Children" | "Coasts" | "Consolation" | "Courage" | "Crafts" | "Creation" | "Dance" | "Darkness" | "Dawn" | "Day" | "Death" | "Deformity" | "Depravity" | "Discipline" | "Disease" | "Dreams" | "Dusk" | "Duty" | "Earth" | "Family" | "Fame" | "Fate" | "Fertility" | "Festivals" | "Fire" | "Fish" | "Fishing" | "Food" | "Forgiveness" | "Fortresses" | "Freedom" | "Gambling" | "Games" | "Generosity" | "Happiness" | "Healing" | "Hospitality" | "Hunting" | "Inspiration" | "Jealousy" | "Jewels" | "Justice" | "Labor" | "Lakes" | "Laws" | "Lies" | "Light" | "Lightning" | "Longevity" | "Love" | "Loyalty" | "Luck" | "Lust" | "Marriage" | "Mercy" | "Metals" | "Minerals" | "Misery" | "Mist" | "Moon" | "Mountains" | "Muck" | "Murder" | "Music" | "Nature" | "Night" | "Nightmares" | "Oaths" | "Oceans" | "Order" | "Painting" | "Peace" | "Persuasion" | "Plants" | "Poetry" | "Pregnancy" | "Rain" | "Rainbows" | "Rebirth" | "Revelry" | "Revenge" | "Rivers" | "Rulership" | "Rumors" | "Sacrifice" | "Salt" | "Scholarship" | "Seasons" | "Silence" | "Sky" | "Song" | "Speech" | "Stars" | "Storms" | "Strength" | "Suicide" | "Sun" | "Theft" | "Thralldom" | "Thunder" | "Torture" | "Trade" | "Travelers" | "Treachery" | "Trees" | "Trickery" | "Truth" | "Twilight" | "Valor" | "Victory" | "Volcanos" | "War" | "Water" | "Wealth" | "Weather" | "Wind" | "Wisdom" | "Writing" | "Youth" | "Unknown"
+
+/**
  * A struct representing a sprite graphic.
  */
 export type SpriteGraphic = { primaryCondition: ConditionToken; tilePageId: string; offset: Dimensions; color?: ColorModificationToken | null; largeImage?: boolean | null; offset2?: Dimensions | null; secondaryCondition?: ConditionToken | null; colorPalletSwap?: number | null; targetIdentifier?: string | null; extraDescriptor?: string | null }
@@ -10527,6 +11115,54 @@ export type StateName = { solid: string; liquid: string; gas: string }
  * The additional data specific to the steam workshop
  */
 export type SteamData = { title?: string | null; description?: string | null; tags?: string[] | null; keyValueTags?: string[] | null; metadata?: string[] | null; changelog?: string | null; fileId: string }
+
+/**
+ * Tokens specifically for steam workshop data that can be found in a modules info.txt file
+ */
+export type SteamWorkshopToken = 
+/**
+ * The title of the mod on Steam Workshop.
+ */
+{ Title: { title: string } } | 
+/**
+ * The description of the mod on Steam Workshop. Maximum size is 8000 bytes (about 400 words).
+ * Will overwrite the existing description of the mod on the workshop, can be omitted to avoid this behavior.
+ */
+{ Description: { description: string } } | 
+/**
+ * Any amount of these can be used. Use a separate STEAM_TAG for each one. Each string must be under 255 chars.
+ */
+{ Tag: { tag: string } } | 
+/**
+ * Any amount of these can be used. Should be a single key = value relationship. Can be used in searching.
+ */
+{ KeyValueTag: { key: string; value: string } } | 
+/**
+ * Sets arbitrary metadata for an item. This metadata can be returned from queries without having to download and
+ * install the actual content.
+ */
+{ Metadata: { metadata: string } } | 
+/**
+ * A brief description of the changes made. (Optional, set to NULL for no change note). The log message is only
+ * for the version you're uploading. This should be different each time you update a mod, and only include the
+ * changes in the new version.
+ * 
+ * Steam Workshop congregates all version changelogs, so a full changelog can be seen there.
+ */
+{ Changelog: { changes: string } } | 
+/**
+ * Connects the mod to an entry on the Steam Workshop.
+ */
+{ FileId: { id: string } } | 
+/**
+ * An unknown tag
+ */
+"Unknown"
+
+/**
+ * Symbol tokens
+ */
+export type SymbolToken = "Unknown"
 
 /**
  * A struct representing a syndrome
@@ -10787,6 +11423,175 @@ export type TilePageToken =
  * An unknown token
  */
 "unknown"
+
+/**
+ * The shape of a tissue
+ */
+export type TissueShape = 
+/**
+ * Regular "layer" tissue
+ */
+"Layer" | 
+/**
+ * Can be spun into thread at a farmer's workshop. Edge attacks will pass right through the tissue.
+ */
+"Strands" | 
+/**
+ * Edge attacks will pass right through the tissue
+ */
+"Feathers" | 
+/**
+ * Tissue is scales
+ */
+"Scales" | 
+/**
+ * Tissue is some custom type
+ */
+"Custom"
+
+/**
+ * Tokens used to define tissue
+ */
+export type TissueToken = 
+/**
+ * Name of the tissue
+ */
+{ Name: { name: Name } } | 
+/**
+ * Defines the tissue material.
+ */
+{ Material: { material_token: string } } | 
+/**
+ * The relative thickness of the tissue. A higher thickness is harder to penetrate, but raising a tissue's relative thickness decreases
+ * the thickness of all other tissues.
+ */
+{ RelativeThickness: { thickness: number } } | 
+/**
+ * Lower is faster. Omitting the token will result in a tissue that never heals.
+ */
+{ HealingRate: { rate: number } } | 
+/**
+ * Related to how much said tissue bleeds. Higher = More bleeding (Which is why the heart has the highest value.)
+ */
+{ Vascular: { bleeding_rate: number } } | 
+/**
+ * Related to how much pain your character will suffer when said tissue is damaged. Higher = More pain when damaged (Which is why the
+ * bone tissue has a much higher value than other tissues. A broken bone hurts a lot more than a flesh cut.)
+ */
+{ PainReceptors: { sensitivity: number } } | 
+/**
+ * The thickness of the tissue increases when character strength increases.
+ */
+"ThickensOnStrength" | 
+/**
+ * Thickness of said tissue increases when the character eats and doesn't exercise sufficiently.
+ */
+"ThickensOnEnergyStorage" | 
+/**
+ * The tissue contains arteries. Edged attacks have the chance to break an artery, increasing blood loss.
+ */
+"Arteries" | 
+/**
+ * Simply, whether or not the tissue will be scarred once healed.
+ */
+"Scars" | 
+/**
+ * Holds the body part together. A cut or a fracture disables the body part it's in.
+ */
+"Structural" | 
+/**
+ * Any ligaments or tendons are part of this tissue. Vulnerable to edged attacks, damage disables the limb.
+ */
+"ConnectiveTissueAnchor" | 
+/**
+ * The tissue will not heal, or heals slower, until it is set by a bone doctor.
+ */
+"Settable" | 
+/**
+ * The broken tissue can be fixed with a cast or a splint to restore function while it heals.
+ */
+"Splintable" | 
+/**
+ * The tissue performs some sort of special function (e.g. sight, hearing, breathing, etc.) An organ with such a function will stop
+ * working if a sufficient amount of damage is sustained by its `FUNCTIONAL` tissues. If an organ has no `FUNCTIONAL` tissues,
+ * it will stop working only if it is severed or destroyed entirely by heat or cold.
+ */
+"Functional" | 
+/**
+ * If a creature has no functioning parts with the `THOUGHT` token, it will be unable to move or breathe.
+ * `NO_THOUGHT_CENTER_FOR_MOVEMENT` bypasses this limitation.
+ */
+"Thought" | 
+/**
+ * Seems to affect where sensory or motor nerves are located, and whether damage to this tissue will render a limb useless.
+ */
+"Muscular" | 
+/**
+ * Holds body parts together. A body part will not be severed unless all of its component tissues with
+ * the `CONNECTS` tag are severed.
+ */
+"Connects" | 
+/**
+ * Causes tissue to sometimes severely bleed when damaged. This is independent of its `VASCULAR` value.
+ */
+"MajorArteries" | 
+/**
+ * Tissue supplies the creature with heat insulation. Higher values result in more insulation.
+ */
+{ Insulation: { value: number } } | 
+/**
+ * The tissue is purely cosmetic
+ */
+"Cosmetic" | 
+/**
+ * The tissue can be styled as per a tissue style (defined in an entity entry)
+ */
+"Styleable" | 
+/**
+ * Specifies how the tissue is shaped
+ */
+{ Shape: { shape: TissueShape } } | 
+/**
+ * Tissue is implicitly attached to another tissue and will fall off if that tissue layer is destroyed.
+ * Used for hair and feathers, which are subordinate to skin.
+ */
+{ SubordinateToTissue: { tissue: string } } | 
+/**
+ * Sets/forces a default material state for the selected tissue.
+ */
+{ TissueMaterialState: { state: MaterialStateToken } } | 
+/**
+ * The selected tissue leaks out of the creature when the layers above it are pierced.
+ */
+"Leaks" | 
+/**
+ * Used to smell - not used. This token is used in `[OBJECT:BODY]` tokens.
+ */
+"Smell" | 
+/**
+ * Used to hearing - not used. This token is used in `[OBJECT:BODY]` tokens.
+ */
+"Hear" | 
+/**
+ * Unknown - not used. Most likely related to flying, see `[FLIER]` in `[OBJECT:BODY]`.
+ */
+"Flight" | 
+/**
+ * Used to breathing - not used. This token is used in `[OBJECT:BODY]` tokens.
+ */
+"Breathe" | 
+/**
+ * Used to seeing - not used. This token is used in `[OBJECT:BODY]` tokens.
+ */
+"Sight" | 
+/**
+ * Nervous function - not used. This token is used in `[OBJECT:BODY]` tokens.
+ */
+"Nervous" | 
+/**
+ * Unknown token
+ */
+"Unknown"
 
 /**
  * A struct representing a tree.

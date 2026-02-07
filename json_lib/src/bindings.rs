@@ -9,22 +9,33 @@ use specta_typescript::{ExportError, Typescript};
 /// # Errors
 ///
 /// Will error if the Type bindings export fails
+#[allow(clippy::too_many_lines)]
 pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
     let exporter = Typescript::default().bigint(specta_typescript::BigIntExportBehavior::String);
     let mut types = TypeCollection::default();
 
     types
         .register::<dfraw_parser::custom_types::Amount>()
+        .register::<dfraw_parser::custom_types::BodyPartPosition>()
+        .register::<dfraw_parser::custom_types::BodyGlossDefinition>()
         .register::<dfraw_parser::custom_types::BodySize>()
         .register::<dfraw_parser::custom_types::Color>()
         .register::<dfraw_parser::custom_types::Dimensions>()
         .register::<dfraw_parser::custom_types::HabitCount>()
         .register::<dfraw_parser::custom_types::Name>()
+        .register::<dfraw_parser::custom_types::PartSpecifier>()
+        .register::<dfraw_parser::custom_types::SoundContext>()
+        .register::<dfraw_parser::custom_types::SoundEvent>()
+        .register::<dfraw_parser::custom_types::Sphere>()
         .register::<dfraw_parser::custom_types::SteamData>()
+        .register::<dfraw_parser::custom_types::Temperatures>()
         .register::<dfraw_parser::custom_types::TileCharacter>()
         .register::<dfraw_parser::custom_types::Tile>()
-        .register::<dfraw_parser::custom_types::Temperatures>()
+        .register::<dfraw_parser::custom_types::TissueShape>()
+        .register::<dfraw_parser::tokens::AudioToken>()
         .register::<dfraw_parser::tokens::BiomeToken>()
+        .register::<dfraw_parser::tokens::BodyToken>()
+        .register::<dfraw_parser::tokens::BodyDetailPlanToken>()
         .register::<dfraw_parser::tokens::CasteToken>()
         .register::<dfraw_parser::tokens::ColorModificationToken>()
         .register::<dfraw_parser::tokens::ConditionToken>()
@@ -47,6 +58,7 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser::tokens::MaterialTypeToken>()
         .register::<dfraw_parser::tokens::MaterialUsageToken>()
         .register::<dfraw_parser::tokens::ModificationToken>()
+        .register::<dfraw_parser::tokens::ModuleInfoToken>()
         .register::<dfraw_parser::tokens::ObjectType>()
         .register::<dfraw_parser::tokens::PlantToken>()
         .register::<dfraw_parser::tokens::PlantGraphicTemplateToken>()
@@ -57,8 +69,12 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser::tokens::SeasonToken>()
         .register::<dfraw_parser::tokens::SelectCreatureRuleToken>()
         .register::<dfraw_parser::tokens::ShrubToken>()
+        .register::<dfraw_parser::tokens::SphereToken>()
+        .register::<dfraw_parser::tokens::SteamWorkshopToken>()
+        .register::<dfraw_parser::tokens::SymbolToken>()
         .register::<dfraw_parser::tokens::SyndromeToken>()
         .register::<dfraw_parser::tokens::TilePageToken>()
+        .register::<dfraw_parser::tokens::TissueToken>()
         .register::<dfraw_parser::tokens::TreeToken>()
         .register::<dfraw_parser::tokens::TwigPlacementToken>()
         .register::<dfraw_parser::Caste>()
@@ -87,6 +103,8 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser::Syndrome>()
         .register::<dfraw_parser::TilePage>()
         .register::<dfraw_parser::Tree>()
+        .register::<dfraw_parser::metadata::LocationHelper>()
+        .register::<dfraw_parser::metadata::NumericToken>()
         .register::<dfraw_parser::metadata::ParserOptions>()
         .register::<dfraw_parser::metadata::RawModuleLocation>()
         .register::<dfraw_parser::metadata::RawMetadata>()

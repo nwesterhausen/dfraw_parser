@@ -1,3 +1,5 @@
+use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+
 use crate::custom_types::Name;
 
 /// Body gloss is defined to give different names for different parts of the body.
@@ -8,6 +10,18 @@ use crate::custom_types::Name;
 ///     source_name: {Singular: "foot", Plural: "feet"},
 ///     target_name: {Singular: "paw", Plural: "paws"}
 /// }`
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    Default,
+    specta::Type,
+    Eq,
+    PartialEq,
+    IsEmpty,
+    Cleanable,
+)]
 pub struct BodyGlossDefinition {
     /// The identifier for this body gloss
     pub identifier: String,

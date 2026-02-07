@@ -1,5 +1,17 @@
 use crate::custom_types::{Amount, Name};
 
+/// Tokens used in body defintion raws
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
+)]
 pub enum BodyToken {
     /// Begin the definition of a body part with the given ID, name, and plural name.
     /// If the plural form would just add an 's' then it can be replaced with 'STP' (which stands for "Standard Plural").
@@ -127,4 +139,7 @@ pub enum BodyToken {
     UnderPressure,
     /// Allows the item to be obtained from butchered or rotted vermin - used with shells.
     VerminButcherItem,
+    /// An unknown token
+    #[default]
+    Unknown,
 }
