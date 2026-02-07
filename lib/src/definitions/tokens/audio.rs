@@ -1,5 +1,17 @@
 use crate::custom_types::{SoundContext, SoundEvent};
 
+/// Tokens used in audio raws
+#[derive(
+    serde::Serialize,
+    serde::Deserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Default,
+    specta::Type,
+    strum_macros::EnumIter,
+)]
 pub enum AudioToken {
     /// File identifier, either a path or a reference to another sound/music file.
     File { target: String },
@@ -23,6 +35,9 @@ pub enum AudioToken {
     /// Can be set to `UNCOMMON` to set the frequency to "half as often" as any other matching options or `RARE` to
     /// make it 1/5 as often as other matching options.
     Frequrency { frequency: String },
+    /// An unknown token
+    #[default]
+    Unknown,
 }
 
 // see https://dwarffortresswiki.org/index.php/Audio

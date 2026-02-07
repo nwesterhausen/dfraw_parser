@@ -2,7 +2,6 @@
 use dfraw_parser_proc_macros::IsEmpty;
 
 /// Represents the mechanical properties of a material via the yield, fracture, and elasticity
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

@@ -11,7 +11,7 @@ pub use location_helper::LocationHelper;
 pub use numeric_token::NumericToken;
 pub use parser_options::ParserOptions;
 pub use raw_location::RawModuleLocation;
-#[allow(clippy::module_name_repetitions)]
+
 /// Metadata about the raw file
 pub use raw_metadata::Metadata as RawMetadata;
 pub use raw_object::RawObject;

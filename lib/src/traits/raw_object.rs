@@ -11,7 +11,6 @@ use crate::{
     traits::{Cleanable, ToRawFileString},
 };
 
-#[allow(clippy::module_name_repetitions)]
 #[typetag::serde(tag = "type")]
 /// The `RawObject` trait is implemented by all raw objects. This trait is used
 /// to provide a common interface for all raw objects, so that they can be

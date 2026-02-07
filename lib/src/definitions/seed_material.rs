@@ -6,7 +6,6 @@ use tracing::warn;
 use crate::custom_types::{Color, Name};
 
 /// A struct representing a seed material
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

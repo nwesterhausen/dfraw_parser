@@ -7,7 +7,6 @@ use crate::{MechanicalProperties, tokens::MaterialPropertyToken};
 
 /// Represents the specific yield, fracture, and elasticity of a material for the various
 /// types of mechanical stress.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

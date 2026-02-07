@@ -17,4 +17,5 @@ mod plant;
 mod plant_growth;
 mod plant_growth_type;
 mod plant_part;
+mod sphere;
 mod steam_workshop;

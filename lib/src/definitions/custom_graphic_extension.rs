@@ -6,7 +6,6 @@ use tracing::warn;
 use crate::tokens::GraphicTypeToken;
 
 /// A custom graphic extension.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

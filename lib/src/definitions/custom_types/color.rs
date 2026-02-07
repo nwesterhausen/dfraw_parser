@@ -9,7 +9,6 @@ use tracing::error;
 ///
 /// This format is used throughout the game raws to define the foreground,
 /// background, and brightness/intensity of tiles and text.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

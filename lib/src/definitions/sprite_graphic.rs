@@ -13,7 +13,6 @@ use crate::{
 };
 
 /// A struct representing a sprite graphic.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

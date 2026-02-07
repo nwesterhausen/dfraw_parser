@@ -14,7 +14,6 @@ use crate::{
 ///
 /// Castes are specific subgroups within a creature species, often representing
 /// biological sexes, specialized roles, or unique variations specified in the raw files.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

@@ -18,7 +18,6 @@ use crate::{
 /// A struct representing a Graphic object.
 ///
 /// Stores data about layers and sprites defined in the graphic raw.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

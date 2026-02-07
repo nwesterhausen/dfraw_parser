@@ -6,7 +6,6 @@ use tracing::warn;
 use crate::{custom_types::Dimensions, tokens::ConditionToken, traits::TagOperations as _};
 
 /// A struct representing a `SpriteLayer` object.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

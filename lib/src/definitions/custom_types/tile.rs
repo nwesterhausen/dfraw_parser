@@ -4,7 +4,6 @@ use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 
 use super::Color;
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

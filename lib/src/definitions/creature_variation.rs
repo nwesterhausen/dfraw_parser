@@ -10,7 +10,6 @@ use crate::{
 };
 
 /// A creature variation.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,

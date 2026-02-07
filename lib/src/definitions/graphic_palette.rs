@@ -2,7 +2,6 @@
 use dfraw_parser_proc_macros::IsEmpty;
 
 /// A struct representing a Graphic object.
-#[allow(clippy::module_name_repetitions)]
 #[derive(
     serde::Serialize,
     serde::Deserialize,
