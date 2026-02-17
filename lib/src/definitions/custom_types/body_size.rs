@@ -9,7 +9,7 @@ use tracing::error;
 /// This structure is used to define growth stages for creatures in Dwarf Fortress raw files.
 /// It corresponds to the `[BODY_SIZE:YEARS:DAYS:SIZE_CM3]` tag.
 #[derive(
-    serde::Serialize, serde::Deserialize, Debug, Clone, Default, PartialEq, Eq, specta::Type,
+    serde::Serialize, serde::Deserialize, Debug, Clone, Default, PartialEq, Eq, specta::Type, Hash,
 )]
 #[serde(rename_all = "camelCase")]
 pub struct BodySize {

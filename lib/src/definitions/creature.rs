@@ -5,6 +5,7 @@
 use std::mem::discriminant;
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+use itertools::Itertools;
 use tracing::{debug, warn};
 use uuid::Uuid;
 
@@ -474,11 +475,33 @@ impl Creature {
     #[must_use]
     pub fn has_caste_tag(&self, tag: &CasteToken) -> bool {
         for caste in &self.castes {
-            if caste.has_tag(tag) {
+            if caste.has_token(tag) {
                 return true;
             }
         }
         false
+    }
+
+    /// Get all names defined for this creature
+    ///
+    /// This gets all the generally defined names and any names defined on castes and removes any duplicates.
+    #[must_use]
+    pub fn get_all_names(&self) -> Vec<String> {
+        self.tokens
+            .iter()
+            .flat_map(|token| {
+                match token {
+                    // Names directly on the creature
+                    CreatureToken::Name { name }
+                    | CreatureToken::GeneralBabyName { name }
+                    | CreatureToken::GeneralChildName { name } => name.as_vec(),
+                    _ => Vec::new(),
+                }
+            })
+            // Names on all castes
+            .chain(self.castes.iter().flat_map(|caste| caste.get_all_names()))
+            .unique()
+            .collect()
     }
 }
 

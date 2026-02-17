@@ -760,89 +760,13 @@ identifier: string;
  */
 tokens?: CasteToken[]; 
 /**
- * Flavor text shown in-game when examining a creature of this caste.
- */
-description?: string | null; 
-/**
- * The specific name for a creature in its baby stage.
- */
-babyName?: Name | null; 
-/**
- * The name used specifically for this caste.
- */
-casteName?: Name | null; 
-/**
- * The name for a creature in its child stage.
- */
-childName?: Name | null; 
-/**
- * The range of eggs produced per clutch, measured as `[min, max]`.
- */
-clutchSize?: [number, number] | null; 
-/**
- * The range of offspring produced per birth, measured as `[min, max]`.
- */
-litterSize?: [number, number] | null; 
-/**
- * The range of life expectancy in game ticks, measured as `[min, max]`.
- */
-maxAge?: [number, number] | null; 
-/**
- * The age in game ticks at which a creature ceases to be a baby.
- */
-baby?: number | null; 
-/**
- * The age in game ticks at which a creature ceases to be a child.
- */
-child?: number | null; 
-/**
- * A rating used to determine the challenge level of the creature.
- */
-difficulty?: number | null; 
-/**
- * The size of eggs laid by this caste, measured in cubic centimeters.
- */
-eggSize?: number | null; 
-/**
- * The distance or frequency at which this creature tramples grass.
- */
-grassTrample?: number | null; 
-/**
- * The grazing requirement for the creature to survive.
- */
-grazer?: number | null; 
-/**
- * The level of vision the creature has in dark environments.
- */
-lowLightVision?: number | null; 
-/**
- * The value assigned to the creature when kept as a pet.
- */
-petValue?: number | null; 
-/**
- * The relative frequency this caste appears in wild populations.
- */
-popRatio?: number | null; 
-/**
- * The percentage change applied to the base body size.
- */
-changeBodySizePercentage?: number | null; 
-/**
- * The classes or categories this caste belongs to for targeting.
- */
-creatureClass?: string[] | null; 
-/**
- * Growth stages and volume measurements.
- */
-bodySize?: BodySize[] | null; 
-/**
  * Character and color data for map representation.
  */
-tile?: Tile | null; 
+tile?: Tile; 
 /**
  * The gaits by which the creature can move.
  */
-gaits?: Gait[] | null }
+gaits?: Gait[] }
 
 /**
  * Tokens that can be found in a creature's caste definitions.

@@ -27,6 +27,7 @@ impl Searchable for Creature {
         self.castes
             .iter()
             .flat_map(|caste| caste.get_all_descriptions())
+            .map(String::from)
             .collect()
     }
 }

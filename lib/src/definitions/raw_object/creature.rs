@@ -75,7 +75,7 @@ impl RawObject for Creature {
 
         for caste in &self.castes {
             for token in CasteToken::FLAG_TOKENS {
-                if caste.has_tag(token) {
+                if caste.has_token(token) {
                     tokens.insert(RawToken::get_key(token).unwrap_or_default());
                 }
             }

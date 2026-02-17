@@ -1,13 +1,16 @@
 //! A module for the Caste struct and its implementations.
 
+use std::{collections::HashSet, mem::discriminant, str::FromStr as _};
+
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+use itertools::Itertools;
 use tracing::warn;
 
 use crate::{
     Gait,
     custom_types::{BodySize, Name, Tile},
-    tokens::{CasteToken, raw_definitions::CASTE_TOKENS},
-    traits::{IsEmpty, TagOperations},
+    tokens::CasteToken,
+    traits::TagOperations,
 };
 
 /// A struct representing a creature caste.
@@ -35,93 +38,14 @@ pub struct Caste {
     #[serde(default)]
     #[cleanable(ignore)]
     pub tokens: Vec<CasteToken>,
-    /// Flavor text shown in-game when examining a creature of this caste.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    description: Option<String>,
-    /// The specific name for a creature in its baby stage.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    #[cleanable(recursive)]
-    baby_name: Option<Name>,
-    /// The name used specifically for this caste.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    #[cleanable(recursive)]
-    caste_name: Option<Name>,
-    /// The name for a creature in its child stage.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    #[cleanable(recursive)]
-    child_name: Option<Name>,
-    /// The range of eggs produced per clutch, measured as `[min, max]`.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    clutch_size: Option<[u32; 2]>,
-    /// The range of offspring produced per birth, measured as `[min, max]`.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    litter_size: Option<[u32; 2]>,
-    /// The range of life expectancy in game ticks, measured as `[min, max]`.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    max_age: Option<[u32; 2]>,
-    /// The age in game ticks at which a creature ceases to be a baby.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    baby: Option<u32>,
-    /// The age in game ticks at which a creature ceases to be a child.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    child: Option<u32>,
-    /// A rating used to determine the challenge level of the creature.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    difficulty: Option<u32>,
-    /// The size of eggs laid by this caste, measured in cubic centimeters.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    egg_size: Option<u32>,
-    /// The distance or frequency at which this creature tramples grass.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    grass_trample: Option<u32>,
-    /// The grazing requirement for the creature to survive.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    grazer: Option<u32>,
-    /// The level of vision the creature has in dark environments.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    low_light_vision: Option<u32>,
-    /// The value assigned to the creature when kept as a pet.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    pet_value: Option<u32>,
-    /// The relative frequency this caste appears in wild populations.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    pop_ratio: Option<u32>,
-    /// The percentage change applied to the base body size.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    change_body_size_percentage: Option<u32>,
-    /// The classes or categories this caste belongs to for targeting.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    creature_class: Option<Vec<String>>,
-    /// Growth stages and volume measurements.
-    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
-    #[serde(default)]
-    body_size: Option<Vec<BodySize>>,
     /// Character and color data for map representation.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
-    tile: Option<Tile>,
+    pub tile: Tile,
     /// The gaits by which the creature can move.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
-    gaits: Option<Vec<Gait>>,
+    pub gaits: Vec<Gait>,
 }
 
 impl Caste {
@@ -145,12 +69,39 @@ impl Caste {
         }
     }
 
+    #[must_use]
+    pub fn get_grazer(&self) -> Option<u32> {
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::Grazer { grazer } => Some(*grazer),
+            _ => None,
+        })
+    }
+
+    #[must_use]
+    pub fn get_grass_trample(&self) -> Option<u32> {
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::GrassTrample { trample } => Some(*trample),
+            _ => None,
+        })
+    }
+
+    #[must_use]
+    pub fn get_low_light_vision(&self) -> Option<u32> {
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::LowLightVision { vision } => Some(*vision),
+            _ => None,
+        })
+    }
+
     /// Returns the age at which creatures of this caste are considered babies.
     ///
     /// This value is specified in ticks (game time units).
     #[must_use]
     pub fn get_baby_age(&self) -> Option<u32> {
-        self.baby
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::Baby { age } => Some(*age),
+            _ => None,
+        })
     }
 
     /// Returns the name of the creature when it is in its baby stage.
@@ -158,7 +109,10 @@ impl Caste {
     /// This value is specified in the raw file using the `[BABY_NAME]` tag.
     #[must_use]
     pub fn get_baby_name(&self) -> Option<&Name> {
-        self.baby_name.as_ref()
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::BabyName { name } => Some(name),
+            _ => None,
+        })
     }
 
     /// Returns the body size measurements for this caste at different ages.
@@ -166,8 +120,15 @@ impl Caste {
     /// Measured in cubic centimeters. This list represents the growth stages
     /// specified by `[BODY_SIZE]` tags in the raw files.
     #[must_use]
-    pub fn get_body_sizes(&self) -> &[BodySize] {
-        self.body_size.as_deref().unwrap_or(&[])
+    pub fn get_body_sizes(&self) -> Vec<BodySize> {
+        self.tokens
+            .iter()
+            .filter_map(|token| match token {
+                CasteToken::BodySize { size } => Some(size.clone()),
+                _ => None,
+            })
+            .unique()
+            .collect()
     }
 
     /// Returns the specific name for this caste.
@@ -175,7 +136,10 @@ impl Caste {
     /// This value is specified in the raw file using the `[CASTE_NAME]` tag.
     #[must_use]
     pub fn get_caste_name(&self) -> Option<&Name> {
-        self.caste_name.as_ref()
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::Name { name } => Some(name),
+            _ => None,
+        })
     }
 
     /// Returns the age at which creatures of this caste are considered children.
@@ -183,7 +147,10 @@ impl Caste {
     /// This value is specified in ticks (game time units).
     #[must_use]
     pub fn get_child_age(&self) -> Option<u32> {
-        self.child
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::Child { age } => Some(*age),
+            _ => None,
+        })
     }
 
     /// Returns the name of the creature when it is in its child stage.
@@ -191,7 +158,10 @@ impl Caste {
     /// This value is specified in the raw file using the `[CHILD_NAME]` tag.
     #[must_use]
     pub fn get_child_name(&self) -> Option<&Name> {
-        self.child_name.as_ref()
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::ChildName { name } => Some(name),
+            _ => None,
+        })
     }
 
     /// Returns the clutch size range for this caste, if it lays eggs.
@@ -199,15 +169,26 @@ impl Caste {
     /// Returns a tuple of `[min, max]` eggs per clutch.
     #[must_use]
     pub fn get_clutch_size(&self) -> Option<[u32; 2]> {
-        self.clutch_size
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::ClutchSize { min, max } => Some([*min, *max]),
+            _ => None,
+        })
     }
 
     /// Returns a slice of creature classes this caste belongs to.
     ///
     /// Creature classes are used for targeting by interactions, syndromes, and other effects.
     #[must_use]
-    pub fn get_creature_classes(&self) -> &[String] {
-        self.creature_class.as_deref().unwrap_or(&[])
+    pub fn get_creature_classes(&self) -> Vec<String> {
+        self.tokens
+            .iter()
+            .filter_map(|token| match token {
+                CasteToken::CreatureClass { class } => Some(class.as_str()),
+                _ => None,
+            })
+            .unique()
+            .map(String::from)
+            .collect()
     }
 
     /// Returns the difficulty rating for this caste.
@@ -215,15 +196,36 @@ impl Caste {
     /// Higher values indicate more challenging creatures in arena mode or similar contexts.
     #[must_use]
     pub fn get_difficulty(&self) -> Option<u32> {
-        self.difficulty
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::Difficulty { difficulty } => Some(*difficulty),
+            _ => None,
+        })
     }
 
     /// Returns the description of this caste, if available.
     ///
     /// The description is the flavor text shown in-game when examining a creature of this caste.
+    ///
+    /// This will find and return the first description listed in the tokens. See [`get_all_descriptions`] for
+    /// complete results.
     #[must_use]
     pub fn get_description(&self) -> Option<&str> {
-        self.description.as_deref()
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::Description { description } => Some(description.as_str()),
+            _ => None,
+        })
+    }
+
+    #[must_use]
+    pub fn get_all_descriptions(&self) -> Vec<&str> {
+        self.tokens
+            .iter()
+            .filter_map(|token| match token {
+                CasteToken::Description { description } => Some(description.as_str()),
+                _ => None,
+            })
+            .unique()
+            .collect()
     }
 
     /// Returns the size of eggs laid by this caste, if applicable.
@@ -231,7 +233,10 @@ impl Caste {
     /// Measured in cubic centimeters (cm³).
     #[must_use]
     pub fn get_egg_size(&self) -> Option<u32> {
-        self.egg_size
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::EggSize { size } => Some(*size),
+            _ => None,
+        })
     }
 
     /// Returns a slice of gaits (movement modes) available to this caste.
@@ -239,7 +244,7 @@ impl Caste {
     /// Examples include walking, crawling, flying, and swimming.
     #[must_use]
     pub fn get_gaits(&self) -> &[Gait] {
-        self.gaits.as_deref().unwrap_or(&[])
+        self.gaits.as_slice()
     }
 
     /// Returns the unique identifier of this caste.
@@ -256,7 +261,10 @@ impl Caste {
     /// Returns a tuple of `[min, max]` offspring per litter.
     #[must_use]
     pub fn get_litter_size(&self) -> Option<[u32; 2]> {
-        self.litter_size
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::MaxAge { min, max } => Some([*min, *max]),
+            _ => None,
+        })
     }
 
     /// Returns the maximum age range for this caste.
@@ -265,7 +273,10 @@ impl Caste {
     /// within this range.
     #[must_use]
     pub fn get_max_age(&self) -> Option<[u32; 2]> {
-        self.max_age
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::MaxAge { min, max } => Some([*min, *max]),
+            _ => None,
+        })
     }
 
     /// Returns the pet value of this caste, if specified.
@@ -274,7 +285,10 @@ impl Caste {
     /// its trade value.
     #[must_use]
     pub fn get_pet_value(&self) -> Option<u32> {
-        self.pet_value
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::PetValue { pet_value } => Some(*pet_value),
+            _ => None,
+        })
     }
 
     /// Returns the population ratio for this caste.
@@ -283,7 +297,18 @@ impl Caste {
     /// For example, a pop_ratio of 50 means this caste appears 50% of the time.
     #[must_use]
     pub fn get_pop_ratio(&self) -> Option<u32> {
-        self.pop_ratio
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::PopulationRatio { pop_ratio } => Some(*pop_ratio),
+            _ => None,
+        })
+    }
+
+    #[must_use]
+    pub fn get_change_body_size_percentage(&self) -> Option<u32> {
+        self.tokens.iter().find_map(|token| match token {
+            CasteToken::ChangeBodySizePercent { percent } => Some(*percent),
+            _ => None,
+        })
     }
 
     /// Function to get the tags of the creature caste.
@@ -300,8 +325,8 @@ impl Caste {
     ///
     /// Includes graphical or character-based representations for different display modes.
     #[must_use]
-    pub fn get_tile(&self) -> Option<&Tile> {
-        self.tile.as_ref()
+    pub fn get_tile(&self) -> Tile {
+        self.tile.clone()
     }
 
     /// Returns true if the caste has the given tag, ignoring tag values.
@@ -310,13 +335,34 @@ impl Caste {
     ///
     /// This check uses the variant discriminant to match tags regardless of internal data.
     #[must_use]
-    pub fn has_tag(&self, tag: &CasteToken) -> bool {
+    pub fn has_token(&self, token: &CasteToken) -> bool {
         for t in &self.tokens {
-            if std::mem::discriminant(t) == std::mem::discriminant(tag) {
+            if std::mem::discriminant(t) == std::mem::discriminant(token) {
                 return true;
             }
         }
         false
+    }
+
+    /// Adds a tag to the internal collection if it is not already present.
+    ///
+    /// * `tag` - The [`CasteTag`] to add.
+    pub fn add_token(&mut self, tag: CasteToken) {
+        if !self.tokens.contains(&tag) {
+            self.tokens.push(tag);
+        }
+    }
+
+    /// Remove all instances of the given token.
+    pub fn remove_token(&mut self, token: &CasteToken) {
+        let target_discriminant = std::mem::discriminant(token);
+        self.tokens
+            .retain(|token| std::mem::discriminant(token) != target_discriminant);
+    }
+
+    /// Remove any tokens exactly matching the given one (takes into account its value)
+    pub fn remove_token_with_value(&mut self, token: &CasteToken) {
+        self.tokens.retain(|t| t != token);
     }
 
     /// Returns true if the caste is an egg layer.
@@ -324,7 +370,7 @@ impl Caste {
     /// Checks for the presence of the `[LAYS_EGGS]` tag via [`CasteTag::LaysEggs`].
     #[must_use]
     pub fn is_egg_layer(&self) -> bool {
-        self.has_tag(&CasteToken::LaysEggs)
+        self.has_token(&CasteToken::LaysEggs)
     }
 
     /// Returns true if the caste is milkable.
@@ -332,10 +378,26 @@ impl Caste {
     /// Checks for the presence of the `[MILKABLE]` tag via [`CasteTag::Milkable`].
     #[must_use]
     pub fn is_milkable(&self) -> bool {
-        self.has_tag(&CasteToken::Milkable {
+        self.has_token(&CasteToken::Milkable {
             material: Vec::new(),
             frequency: 0,
         })
+    }
+
+    /// Get all names for this caste (general, baby and child names)
+    ///
+    /// This doesn't return duplicates in the result.
+    pub fn get_all_names(&self) -> Vec<String> {
+        self.tokens
+            .iter()
+            .flat_map(|token| match token {
+                CasteToken::Name { name }
+                | CasteToken::BabyName { name }
+                | CasteToken::ChildName { name } => name.as_vec(),
+                _ => Vec::new(),
+            })
+            .unique()
+            .collect()
     }
 
     /// Parses a tag key and value and updates the caste state.
@@ -357,80 +419,23 @@ impl Caste {
         self.tokens.push(token.clone());
 
         match token {
-            CasteToken::Description { description } => self.description = Some(description),
-            CasteToken::EggSize { size } => self.egg_size = Some(size),
-            CasteToken::Baby { age } => self.baby = Some(age),
-            CasteToken::Child { age } => self.child = Some(age),
-            CasteToken::Difficulty { difficulty } => self.difficulty = Some(difficulty),
-            CasteToken::Grazer { grazer } => self.grazer = Some(grazer),
-            CasteToken::GrassTrample { trample } => self.grass_trample = Some(trample),
-            CasteToken::LowLightVision { vision } => self.low_light_vision = Some(vision),
-            CasteToken::PopulationRatio { pop_ratio } => self.pop_ratio = Some(pop_ratio),
-            CasteToken::PetValue { pet_value } => self.pet_value = Some(pet_value),
-            CasteToken::ClutchSize { min, max } => self.clutch_size = Some([min, max]),
-            CasteToken::LitterSize { min, max } => self.litter_size = Some([min, max]),
-            CasteToken::MaxAge { min, max } => self.max_age = Some([min, max]),
-            CasteToken::CreatureClass { class } => {
-                if let Some(creature_classes) = self.creature_class.as_mut() {
-                    creature_classes.push(class);
-                } else {
-                    self.creature_class = Some(vec![class]);
-                }
-            }
-            CasteToken::BodySize { .. } => {
-                if let Some(body_sizes) = self.body_size.as_mut() {
-                    body_sizes.push(BodySize::from_value(value));
-                } else {
-                    self.body_size = Some(vec![BodySize::from_value(value)]);
-                }
-            }
-            CasteToken::BabyName { .. } => self.baby_name = Some(Name::from_value(value)),
-            CasteToken::Name { .. } => self.caste_name = Some(Name::from_value(value)),
-            CasteToken::ChildName { .. } => self.child_name = Some(Name::from_value(value)),
             CasteToken::Tile { .. } => {
-                if let Some(tile) = self.tile.as_mut() {
-                    tile.set_character(value);
-                } else {
-                    self.tile = Some(Tile::default().with_character(value));
-                }
+                self.tile.set_character(value);
             }
             CasteToken::AltTile { .. } => {
-                if let Some(tile) = self.tile.as_mut() {
-                    tile.set_alt_character(value);
-                } else {
-                    self.tile = Some(Tile::default().with_alt_character(value));
-                }
+                self.tile.set_alt_character(value);
             }
             CasteToken::Color { .. } => {
-                if let Some(tile) = self.tile.as_mut() {
-                    tile.set_color(value);
-                } else {
-                    self.tile = Some(Tile::default().with_color(value));
-                }
+                self.tile.set_color(value);
             }
             CasteToken::GlowTile { .. } => {
-                if let Some(tile) = self.tile.as_mut() {
-                    tile.set_glow_character(value);
-                } else {
-                    self.tile = Some(Tile::default().with_glow_character(value));
-                }
+                self.tile.set_glow_character(value);
             }
             CasteToken::GlowColor { .. } => {
-                if let Some(tile) = self.tile.as_mut() {
-                    tile.set_glow_color(value);
-                } else {
-                    self.tile = Some(Tile::default().with_glow_color(value));
-                }
-            }
-            CasteToken::ChangeBodySizePercent { .. } => {
-                self.change_body_size_percentage = Some(value.parse::<u32>().unwrap_or_default());
+                self.tile.set_glow_color(value);
             }
             CasteToken::Gait { .. } => {
-                if let Some(gaits) = self.gaits.as_mut() {
-                    gaits.push(Gait::from_value(value));
-                } else {
-                    self.gaits = Some(vec![Gait::from_value(value)]);
-                }
+                self.gaits.push(Gait::from_value(value));
             }
             _ => {}
         }
@@ -444,60 +449,13 @@ impl Caste {
     /// This is used when a creature variation or selection rule negates an existing definition.
     #[allow(clippy::too_many_lines)]
     pub fn remove_tag_and_value(&mut self, key: &str, value: &str) {
-        let Some(tag) = CASTE_TOKENS.get(key) else {
-            warn!(
-                "remove_tag_and_value: called `Option::unwrap()` on a `None` value for presumed caste tag: {key}"
-            );
+        let token_text = format!("{key}:{value}");
+        let Ok(token) = CasteToken::from_str(token_text.as_str()) else {
+            tracing::warn!("Unable to remove given key_value '{key}' '{value}'");
             return;
         };
 
-        // Complex tags won't parse if we are removing them, (only the KEY is set)
-        match key {
-                "DESCRIPTION" => self.description = None,
-                "EGG_SIZE" => self.egg_size = None,
-                "BABY" => self.baby = None,
-                "CHILD" => self.child = None,
-                "DIFFICULTY" => self.difficulty = None,
-                "GRAZER" => self.grazer = None,
-                "GRASS_TRAMPLE" => self.grass_trample = None,
-                "LOW_LIGHT_VISION" => self.low_light_vision = None,
-                "POP_RATIO" => self.pop_ratio = None,
-                "PET_VALUE" => self.pet_value = None,
-                "CLUTCH_SIZE" => self.clutch_size = None,
-                "LITTER_SIZE" => self.litter_size = None,
-                "MAX_AGE" => self.max_age = None,
-                "CREATURE_CLASS" => {
-                    if let Some(creature_classes) = self.creature_class.as_mut() {
-                        creature_classes.retain(|class| class != value);
-                    }
-                }
-                "BODY_SIZE" => {
-                    if let Some(body_sizes) = self.body_size.as_mut() {
-                        body_sizes.retain(|body_size| body_size != &BodySize::from_value(value));
-                    }
-                }
-                "BABY_NAME" => self.baby_name = None,
-                "NAME" => self.caste_name = None,
-                "CHILD_NAME" => self.child_name = None,
-                "TILE" | //=> self.tile = Tile::default(),
-                "ALTTILE" | //=> self.tile = Tile::default(),
-                "COLOR" | //=> self.tile = Tile::default(),
-                "GLOWTILE" | //=> self.tile = Tile::default(),
-                "GLOWCOLOR" => self.tile = None,
-                "CHANGE_BODY_SIZE_PERCENT" => {
-                    self.change_body_size_percentage = None;
-                }
-                "GAIT" => {
-                    // Remove the specific gait from the gaits vector
-                    if let Some(gaits) = self.gaits.as_mut() {
-                        gaits.retain(|gait| gait != &Gait::from_value(value));
-                    }
-                }
-                _ => {
-                }
-            }
-
-        self.tokens.retain(|t| t != tag);
+        self.remove_token_with_value(&token);
     }
 
     /// Overwrites the properties of this caste with non-default values from another.
@@ -508,88 +466,16 @@ impl Caste {
     /// caste will not overwrite the current value.
     #[allow(clippy::cognitive_complexity)]
     pub fn overwrite_caste(&mut self, other: &Self) {
-        // Include any tags from other that aren't in self
-        for tag in &other.tokens {
-            if !self.has_tag(tag) {
-                self.add_tag(tag.clone());
-            }
-        }
+        // Identify which token types 'other' is providing using discriminants to get only the tokens (we will be
+        // removing them no matter what, so value doesn't matter)
+        let replacement_types: HashSet<_> =
+            other.tokens.iter().map(std::mem::discriminant).collect();
 
-        // For any of the other's values that are not "empty", overwrite self's values.
-        // Note: !IsEmpty::is_empty(&Option<T>) returns true only if the Option is Some
-        // AND the inner value is not empty (e.g. not "", not 0, not [0,0]).
+        // Remove the "old" values for those specific tokens
+        self.tokens
+            .retain(|token| !replacement_types.contains(&discriminant(token)));
 
-        if !other.description.is_empty() {
-            self.description = other.description.clone();
-        }
-        if !other.baby_name.is_empty() {
-            self.baby_name = other.baby_name.clone();
-        }
-        if !other.caste_name.is_empty() {
-            self.caste_name = other.caste_name.clone();
-        }
-        if !other.child_name.is_empty() {
-            self.child_name = other.child_name.clone();
-        }
-
-        if !other.clutch_size.is_empty() {
-            self.clutch_size = other.clutch_size;
-        }
-        if !other.litter_size.is_empty() {
-            self.litter_size = other.litter_size;
-        }
-        if !other.max_age.is_empty() {
-            self.max_age = other.max_age;
-        }
-
-        if !other.baby.is_empty() {
-            self.baby = other.baby;
-        }
-        if !other.child.is_empty() {
-            self.child = other.child;
-        }
-        if !other.difficulty.is_empty() {
-            self.difficulty = other.difficulty;
-        }
-        if !other.egg_size.is_empty() {
-            self.egg_size = other.egg_size;
-        }
-        if !other.grass_trample.is_empty() {
-            self.grass_trample = other.grass_trample;
-        }
-        if !other.grazer.is_empty() {
-            self.grazer = other.grazer;
-        }
-        if !other.low_light_vision.is_empty() {
-            self.low_light_vision = other.low_light_vision;
-        }
-        if !other.pet_value.is_empty() {
-            self.pet_value = other.pet_value;
-        }
-        if !other.pop_ratio.is_empty() {
-            self.pop_ratio = other.pop_ratio;
-        }
-        if !other.change_body_size_percentage.is_empty() {
-            self.change_body_size_percentage = other.change_body_size_percentage;
-        }
-
-        if !other.creature_class.is_empty() {
-            self.creature_class = other.creature_class.clone();
-        }
-        if !other.body_size.is_empty() {
-            self.body_size = other.body_size.clone();
-        }
-        if !other.tile.is_empty() {
-            self.tile = other.tile.clone();
-        }
-    }
-
-    /// Adds a tag to the internal collection if it is not already present.
-    ///
-    /// * `tag` - The [`CasteTag`] to add.
-    fn add_tag(&mut self, tag: CasteToken) {
-        if !self.tokens.contains(&tag) {
-            self.tokens.push(tag);
-        }
+        // Append all the new tokens from 'other'.
+        self.tokens.extend(other.tokens.iter().cloned());
     }
 }
