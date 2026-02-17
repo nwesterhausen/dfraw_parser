@@ -18,7 +18,7 @@ impl ToRawFileString for Creature {
 
         for caste in self.get_castes() {
             file_lines.push(format!("\t[CASTE:{}]", caste.get_identifier()));
-            caste.get_tags().iter().for_each(|token| {
+            caste.get_tokens().iter().for_each(|token| {
                 file_lines.push(format!("\t\t{}", token.to_raw_token()));
             });
         }

@@ -28,12 +28,12 @@ impl RawObject for Creature {
     fn parse_tag(&mut self, key: &str, value: &str) {
         if CASTE_TOKENS.contains_key(key) {
             if let Some(caste) = self.castes.last_mut() {
-                caste.parse_tag(key, value);
+                caste.parse_token(key, value);
                 return;
             }
             // Create an unknown caste to parse it instead of missing the token
             let mut caste = Caste::new("unknown");
-            caste.parse_tag(key, value);
+            caste.parse_token(key, value);
             self.castes.push(caste);
             return;
         }
@@ -68,7 +68,7 @@ impl RawObject for Creature {
         let mut tokens = HashSet::new();
 
         for token in CreatureToken::FLAG_TOKENS {
-            if self.has_tag(token) {
+            if self.has_token(token) {
                 tokens.insert(RawToken::get_key(token).unwrap_or_default());
             }
         }
@@ -93,7 +93,7 @@ impl RawObject for Creature {
 
         // 2. Collect from Caste Tags
         for caste in &self.castes {
-            for tag in caste.get_tags() {
+            for tag in caste.get_tokens() {
                 tokens.extend(tag.as_numeric_tokens());
             }
         }

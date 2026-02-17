@@ -70,7 +70,7 @@ pub struct Creature {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
     pub castes: Vec<Caste>,
-    /// Any tags that are not parsed into their own fields are stored in the `tags` field.
+    /// All raw tokens for the creature are stored in this field
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
     pub tokens: Vec<CreatureToken>,
@@ -80,7 +80,7 @@ pub struct Creature {
     /// The vanilla giant animals and animal peoples are examples of this token combination.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
-    pub copy_tags_from: Option<String>,
+    pub copy_tokens_from: Option<String>,
     /// Applies the specified creature variation.
     ///
     /// These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
@@ -143,8 +143,8 @@ impl Creature {
     ///
     /// The private field `copy_tags_from`.
     #[must_use]
-    pub fn get_copy_tags_from(&self) -> &str {
-        self.copy_tags_from
+    pub fn get_copy_tokens_from(&self) -> &str {
+        self.copy_tokens_from
             .as_ref()
             .map_or("", |copy_tags_from| copy_tags_from.as_str())
     }
@@ -286,23 +286,23 @@ impl Creature {
     }
 
     /// Takes two `Creature` objects and creates a new `Creature` object
-    /// by combining their tags and properties.
+    /// by combining their tokens and properties.
     ///
     /// # Arguments
     ///
-    /// * `creature`: A reference to the creature that will receive the copied tags.
+    /// * `creature`: A reference to the creature that will receive the copied tokens.
     /// * `creature_to_copy_from`: A reference to the Creature object from which we want to copy the
-    ///   tags.
+    ///   tokens.
     ///
     /// # Returns
     ///
     /// A combined `Creature`, which is a combination of the original creature and the
     /// creature to copy from.
     #[must_use]
-    pub fn copy_tags_from(creature: &Self, creature_to_copy_from: &Self) -> Self {
-        // Because anything specified in our self will override the copied tags, first we need to clone the creature
+    pub fn copy_tokens_from(creature: &Self, creature_to_copy_from: &Self) -> Self {
+        // Because anything specified in our self will override the copied tokens, first we need to clone the creature
         let mut combined_creature = creature_to_copy_from.clone();
-        // Now apply any tags that exist for us but not for the one we copy.
+        // Now apply any tokens that exist for us but not for the one we copy.
         // So we need to go through all our properties and castes and overwrite what exists on the combined creature.
 
         // our metadata is preserved
@@ -333,13 +333,13 @@ impl Creature {
         }
 
         // Loop over our tags and if they aren't in combined_creature, add them
-        let mut combined_tags = combined_creature.tokens;
+        let mut combined_tokens = combined_creature.tokens;
         for tag in creature.tokens {
-            if !combined_tags.contains(&tag) {
-                combined_tags.push(tag.clone());
+            if !combined_tokens.contains(&tag) {
+                combined_tokens.push(tag.clone());
             }
         }
-        combined_creature.tokens = combined_tags;
+        combined_creature.tokens = combined_tokens;
 
         combined_creature
     }
@@ -354,7 +354,7 @@ impl Creature {
         self.castes.as_slice()
     }
 
-    /// Get a list of tags that belong to this creature.
+    /// Get a list of tokens that belong to this creature.
     #[must_use]
     pub fn get_tokens(&self) -> Vec<CreatureToken> {
         self.tokens.clone()
@@ -406,7 +406,7 @@ impl Creature {
                 if let Some(_caste_tag) = CASTE_TOKENS.get(&caste_tag) {
                     self.select_caste("ALL");
                     if let Some(caste) = self.castes.last_mut() {
-                        caste.parse_tag(caste_tag.as_str(), "");
+                        caste.parse_token(caste_tag.as_str(), "");
                     } else {
                         debug!(
                             "Creature::parse_tags_from_xml: ({}) No castes found to apply tag {}",
@@ -415,8 +415,8 @@ impl Creature {
                     }
                 } else {
                     // Try parsing the tag as a creature tag
-                    if let Some(tag) = CREATURE_TOKENS.get(&caste_tag) {
-                        self.add_token(tag.clone());
+                    if let Some(token) = CREATURE_TOKENS.get(&caste_tag) {
+                        self.add_token(token.clone());
                     } else {
                         warn!(
                             "Creature::parse_tags_from_xml: ({}) Unknown tag {}",
@@ -426,8 +426,8 @@ impl Creature {
                 }
             } else {
                 // Try to parse the tag
-                if let Some(tag) = CREATURE_TOKENS.get(&tag.to_uppercase()) {
-                    self.add_token(tag.clone());
+                if let Some(token) = CREATURE_TOKENS.get(&tag.to_uppercase()) {
+                    self.add_token(token.clone());
                 } else {
                     warn!(
                         "Creature::parse_tags_from_xml: ({}) Unknown tag {}",
@@ -438,45 +438,45 @@ impl Creature {
         }
     }
 
-    /// Add a tag to the creature.
+    /// Add a token to the creature.
     ///
-    /// This handles making sure the tags vector is initialized.
+    /// This handles making sure the tokens vector is initialized.
     pub fn add_token(&mut self, token: CreatureToken) {
         self.tokens.push(token);
     }
 
-    /// Check whether the creature has the specified creature tag (found in the `tags` field).
+    /// Check whether the creature has the specified creature token (found in the `tokens` field).
     ///
     /// # Arguments
     ///
-    /// * `tag`: The tag to check for.
+    /// * `token`: The token to check for.
     ///
     /// # Returns
     ///
-    /// Returns true if the creature has the specified tag, and false otherwise.
+    /// Returns true if the creature has the specified token, and false otherwise.
     #[must_use]
-    pub fn has_tag(&self, tag: &CreatureToken) -> bool {
+    pub fn has_token(&self, token: &CreatureToken) -> bool {
         for t in &self.tokens {
-            if std::mem::discriminant(t) == std::mem::discriminant(tag) {
+            if std::mem::discriminant(t) == std::mem::discriminant(token) {
                 return true;
             }
         }
         false
     }
 
-    /// Check whether any of the castes have the specified creature caste tag.
+    /// Check whether any of the castes have the specified creature caste token.
     ///
     /// # Arguments
     ///
-    /// * `tag`: The tag to check for.
+    /// * `token`: The token to check for.
     ///
     /// # Returns
     ///
-    /// Returns true if any of the castes have the specified tag, and false otherwise.
+    /// Returns true if any of the castes have the specified token, and false otherwise.
     #[must_use]
-    pub fn has_caste_tag(&self, tag: &CasteToken) -> bool {
+    pub fn has_caste_token(&self, token: &CasteToken) -> bool {
         for caste in &self.castes {
-            if caste.has_token(tag) {
+            if caste.has_token(token) {
                 return true;
             }
         }
@@ -608,7 +608,7 @@ impl CreatureVariationRequirements for Creature {
             self.castes
                 .last_mut()
                 .unwrap()
-                .remove_tag_and_value(key, value);
+                .remove_token_from_key_and_value(key, value);
             return;
         }
         if !CREATURE_TOKENS.contains_key(key) {

@@ -106,7 +106,7 @@ impl Caste {
 
     /// Returns the name of the creature when it is in its baby stage.
     ///
-    /// This value is specified in the raw file using the `[BABY_NAME]` tag.
+    /// This value is specified in the raw file using the `[BABY_NAME]` token.
     #[must_use]
     pub fn get_baby_name(&self) -> Option<&Name> {
         self.tokens.iter().find_map(|token| match token {
@@ -118,7 +118,7 @@ impl Caste {
     /// Returns the body size measurements for this caste at different ages.
     ///
     /// Measured in cubic centimeters. This list represents the growth stages
-    /// specified by `[BODY_SIZE]` tags in the raw files.
+    /// specified by `[BODY_SIZE]` tokens in the raw files.
     #[must_use]
     pub fn get_body_sizes(&self) -> Vec<BodySize> {
         self.tokens
@@ -133,7 +133,7 @@ impl Caste {
 
     /// Returns the specific name for this caste.
     ///
-    /// This value is specified in the raw file using the `[CASTE_NAME]` tag.
+    /// This value is specified in the raw file using the `[CASTE_NAME]` token.
     #[must_use]
     pub fn get_caste_name(&self) -> Option<&Name> {
         self.tokens.iter().find_map(|token| match token {
@@ -155,7 +155,7 @@ impl Caste {
 
     /// Returns the name of the creature when it is in its child stage.
     ///
-    /// This value is specified in the raw file using the `[CHILD_NAME]` tag.
+    /// This value is specified in the raw file using the `[CHILD_NAME]` token.
     #[must_use]
     pub fn get_child_name(&self) -> Option<&Name> {
         self.tokens.iter().find_map(|token| match token {
@@ -327,9 +327,9 @@ impl Caste {
     ///
     /// # Returns
     ///
-    /// * `&[CasteTag]` - The tags of the creature caste.
+    /// * `&[CasteToken]` - The tokens of the creature caste.
     #[must_use]
-    pub fn get_tags(&self) -> &[CasteToken] {
+    pub fn get_tokens(&self) -> &[CasteToken] {
         self.tokens.as_slice()
     }
 
@@ -341,11 +341,11 @@ impl Caste {
         self.tile.clone()
     }
 
-    /// Returns true if the caste has the given tag, ignoring tag values.
+    /// Returns true if the caste has the given token, ignoring token values.
     ///
-    /// * `tag` - The [`CasteTag`] to check for.
+    /// * `token` - The [`CasteToken`] to check for.
     ///
-    /// This check uses the variant discriminant to match tags regardless of internal data.
+    /// This check uses the variant discriminant to match tokens regardless of internal data.
     #[must_use]
     pub fn has_token(&self, token: &CasteToken) -> bool {
         for t in &self.tokens {
@@ -356,12 +356,12 @@ impl Caste {
         false
     }
 
-    /// Adds a tag to the internal collection if it is not already present.
+    /// Adds a token to the internal collection if it is not already present.
     ///
-    /// * `tag` - The [`CasteTag`] to add.
-    pub fn add_token(&mut self, tag: CasteToken) {
-        if !self.tokens.contains(&tag) {
-            self.tokens.push(tag);
+    /// * `token` - The [`CasteToken`] to add.
+    pub fn add_token(&mut self, token: CasteToken) {
+        if !self.tokens.contains(&token) {
+            self.tokens.push(token);
         }
     }
 
@@ -379,7 +379,7 @@ impl Caste {
 
     /// Returns true if the caste is an egg layer.
     ///
-    /// Checks for the presence of the `[LAYS_EGGS]` tag via [`CasteTag::LaysEggs`].
+    /// Checks for the presence of the `[LAYS_EGGS]` token via [`CasteToken::LaysEggs`].
     #[must_use]
     pub fn is_egg_layer(&self) -> bool {
         self.has_token(&CasteToken::LaysEggs)
@@ -387,7 +387,7 @@ impl Caste {
 
     /// Returns true if the caste is milkable.
     ///
-    /// Checks for the presence of the `[MILKABLE]` tag via [`CasteTag::Milkable`].
+    /// Checks for the presence of the `[MILKABLE]` token via [`CasteToken::Milkable`].
     #[must_use]
     pub fn is_milkable(&self) -> bool {
         self.has_token(&CasteToken::Milkable {
@@ -412,17 +412,17 @@ impl Caste {
             .collect()
     }
 
-    /// Parses a tag key and value and updates the caste state.
+    /// Parses a token key and value and updates the caste state.
     ///
-    /// * `key` - The key of the tag to parse (e.g., "NAME").
-    /// * `value` - The string value associated with the tag.
+    /// * `key` - The key of the token to parse (e.g., "NAME").
+    /// * `value` - The string value associated with the token.
     ///
     /// This method maps raw file tokens directly to internal struct fields.
     #[allow(clippy::too_many_lines)]
-    pub fn parse_tag(&mut self, key: &str, value: &str) {
+    pub fn parse_token(&mut self, key: &str, value: &str) {
         let Some(token) = CasteToken::parse(key, value) else {
             warn!(
-                "parse_tag: called `Option::unwrap()` on a `None` value for presumed caste tag: '{}'",
+                "parse_token: called `Option::unwrap()` on a `None` value for presumed caste tag: '{}'",
                 key
             );
             return;
@@ -453,14 +453,14 @@ impl Caste {
         }
     }
 
-    /// Removes a specific tag and its associated value from the caste.
+    /// Removes a specific token and its associated value from the caste.
     ///
-    /// * `key` - The key of the tag to remove.
-    /// * `value` - The value of the tag to remove (relevant for multi-value tags like `GAIT`).
+    /// * `key` - The key of the token to remove.
+    /// * `value` - The value of the token to remove (relevant for multi-value tokens like `GAIT`).
     ///
     /// This is used when a creature variation or selection rule negates an existing definition.
     #[allow(clippy::too_many_lines)]
-    pub fn remove_tag_and_value(&mut self, key: &str, value: &str) {
+    pub fn remove_token_from_key_and_value(&mut self, key: &str, value: &str) {
         let token_text = format!("{key}:{value}");
         let Ok(token) = CasteToken::from_str(token_text.as_str()) else {
             tracing::warn!("Unable to remove given key_value '{key}' '{value}'");

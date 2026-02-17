@@ -770,7 +770,7 @@ pub fn apply_copy_tags_from(all_raws: &mut Vec<Box<dyn RawObject>>) {
                     .unwrap_or(&Creature::empty())
                     .clone();
 
-                if creature.get_copy_tags_from() == "" {
+                if creature.get_copy_tokens_from() == "" {
                     None
                 } else {
                     Some(creature)
@@ -780,7 +780,7 @@ pub fn apply_copy_tags_from(all_raws: &mut Vec<Box<dyn RawObject>>) {
     };
     let source_creature_identifier_list: Vec<String> = creatures_with_copy_tags_from
         .iter()
-        .map(|c| c.get_copy_tags_from().to_lowercase())
+        .map(|c| c.get_copy_tokens_from().to_lowercase())
         .unique()
         .collect();
     info!(
@@ -820,14 +820,17 @@ pub fn apply_copy_tags_from(all_raws: &mut Vec<Box<dyn RawObject>>) {
         let target_creatures: Vec<Creature> = creatures_with_copy_tags_from
             .iter()
             .filter(|c| {
-                c.get_copy_tags_from().to_lowercase()
+                c.get_copy_tokens_from().to_lowercase()
                     == source_creature.get_identifier().to_lowercase()
             })
             .cloned()
             .collect::<Vec<Creature>>();
 
         for target_creature in target_creatures {
-            new_creatures.push(Creature::copy_tags_from(&target_creature, &source_creature));
+            new_creatures.push(Creature::copy_tokens_from(
+                &target_creature,
+                &source_creature,
+            ));
         }
     }
 

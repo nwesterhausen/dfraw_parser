@@ -4848,7 +4848,7 @@ objectId: string;
  */
 castes?: Caste[]; 
 /**
- * Any tags that are not parsed into their own fields are stored in the `tags` field.
+ * All raw tokens for the creature are stored in this field
  */
 tokens?: CreatureToken[]; 
 /**
@@ -4857,7 +4857,7 @@ tokens?: CreatureToken[];
  * 
  * The vanilla giant animals and animal peoples are examples of this token combination.
  */
-copyTagsFrom?: string | null; 
+copyTokensFrom?: string | null; 
 /**
  * Applies the specified creature variation.
  * 
