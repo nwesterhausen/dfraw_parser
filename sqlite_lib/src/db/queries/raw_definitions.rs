@@ -1,7 +1,9 @@
+use dfraw_parser::traits::Searchable as _;
 use dfraw_parser::{Creature, Graphic, TilePage, tokens::ObjectType, traits::RawObject};
 use rusqlite::{Connection, Result, params};
 use uuid::Uuid;
 
+use crate::db::compression::DbCodec;
 use crate::db::queries::get_id_for_module_location;
 
 use super::super::rusqlite_extensions::OptionalResultExtension;
@@ -55,10 +57,13 @@ pub fn exists_raw_in_module_by_object_id(
 ///
 /// - database error
 pub fn try_get_raw_id_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Option<i64>> {
+    const GET_RAW_ID_BY_RAW_OBJECT_ID: &str = r"
+    SELECT r.id FROM raw_definitions r
+         WHERE r.object_id = ?1
+         LIMIT 1
+    ";
     conn.query_row(
-        "SELECT r.id FROM raw_definitions r
-             WHERE r.object_id = ?1
-             LIMIT 1",
+        GET_RAW_ID_BY_RAW_OBJECT_ID,
         params![object_id.as_bytes()],
         |row| row.get(0),
     )
@@ -178,9 +183,9 @@ pub fn try_get_raw_id(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<Opt
 ///
 /// - database error
 #[allow(clippy::borrowed_box)]
-pub fn create_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
+pub fn create_raw(conn: &Connection, codec: &DbCodec, raw: &Box<dyn RawObject>) -> Result<i64> {
     let module_id = get_module_id_from_raw(conn, raw)?;
-    create_raw_with_module(conn, module_id, raw)
+    create_raw_with_module(conn, codec, module_id, raw)
 }
 
 /// Updates or creates a raw definition based on its identifier and module identity.
@@ -189,15 +194,15 @@ pub fn create_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
 ///
 /// - database error
 #[allow(clippy::borrowed_box)]
-pub fn upsert_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
+pub fn upsert_raw(conn: &Connection, codec: &DbCodec, raw: &Box<dyn RawObject>) -> Result<i64> {
     let existing_id: Option<i64> = try_get_raw_id(conn, raw)?;
 
     match existing_id {
         Some(id) => {
-            update_raw(conn, id, raw)?;
+            update_raw(conn, codec, id, raw)?;
             Ok(id)
         }
-        None => create_raw(conn, raw),
+        None => create_raw(conn, codec, raw),
     }
 }
 
@@ -206,11 +211,14 @@ pub fn upsert_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Result<i64> {
 /// # Errors
 ///
 /// - database error
-pub fn get_raw(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
-    const GET_JSON_RAW_BY_ID: &str = "SELECT json(data_blob) FROM raw_definitions WHERE id = ?1";
+pub fn get_raw(conn: &Connection, codec: &DbCodec, id: i64) -> Result<Box<dyn RawObject>> {
+    const GET_CBOR_RAW_BY_ID: &str = "SELECT data_blob FROM raw_definitions WHERE id = ?1";
 
-    let json_str: String = conn.query_row(GET_JSON_RAW_BY_ID, params![id], |row| row.get(0))?;
-    serde_json::from_str(&json_str).map_err(|_| rusqlite::Error::InvalidQuery)
+    let binary_blob: Vec<u8> = conn.query_row(GET_CBOR_RAW_BY_ID, params![id], |row| row.get(0))?;
+    codec
+        .decompress_record(&binary_blob[..])
+        .inspect_err(|e| tracing::error!("get_raw: deserialization failed for id:{id}: {e}"))
+        .map_err(|_| rusqlite::Error::InvalidQuery)
 }
 
 /// Retrieves a raw object by its object id.
@@ -218,12 +226,17 @@ pub fn get_raw(conn: &Connection, id: i64) -> Result<Box<dyn RawObject>> {
 /// # Errors
 ///
 /// - database error
-pub fn get_raw_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Box<dyn RawObject>> {
+pub fn get_raw_by_object_id(
+    conn: &Connection,
+    codec: &DbCodec,
+    object_id: Uuid,
+) -> Result<Box<dyn RawObject>> {
     let Some(id) = try_get_raw_id_by_object_id(conn, object_id)? else {
+        tracing::error!("get_raw_by_object_id: no raw found for {object_id}");
         return Err(rusqlite::Error::InvalidQuery);
     };
 
-    get_raw(conn, id)
+    get_raw(conn, codec, id)
 }
 
 /// Updates the data blob and associated tables for an existing raw definition.
@@ -232,13 +245,20 @@ pub fn get_raw_by_object_id(conn: &Connection, object_id: Uuid) -> Result<Box<dy
 ///
 /// - database error
 #[allow(clippy::borrowed_box)]
-pub fn update_raw(conn: &Connection, id: i64, raw: &Box<dyn RawObject>) -> Result<()> {
-    const UPDATE_RAW_JSONB_BY_ID: &str =
-        "UPDATE raw_definitions SET data_blob = jsonb(?1) WHERE id = ?2";
+pub fn update_raw(
+    conn: &Connection,
+    codec: &DbCodec,
+    id: i64,
+    raw: &Box<dyn RawObject>,
+) -> Result<()> {
+    const UPDATE_RAW_CBORB_BY_ID: &str = "UPDATE raw_definitions SET data_blob = ?1 WHERE id = ?2";
 
-    let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
+    let binary_blob = codec
+        .compress_record(&raw)
+        .inspect_err(|e| tracing::error!("update_raw: {e}"))
+        .map_err(|_| rusqlite::Error::InvalidQuery)?;
 
-    conn.execute(UPDATE_RAW_JSONB_BY_ID, params![json_payload, id])?;
+    conn.execute(UPDATE_RAW_CBORB_BY_ID, params![binary_blob, id])?;
     clear_side_tables_for_raw_id(conn, id)?;
 
     populate_side_tables(conn, id, raw)?;
@@ -253,6 +273,7 @@ pub fn update_raw(conn: &Connection, id: i64, raw: &Box<dyn RawObject>) -> Resul
 #[allow(clippy::borrowed_box)]
 pub fn update_raw_by_object_id(
     conn: &Connection,
+    codec: &DbCodec,
     object_id: Uuid,
     raw: &Box<dyn RawObject>,
 ) -> Result<()> {
@@ -260,7 +281,7 @@ pub fn update_raw_by_object_id(
         return Err(rusqlite::Error::InvalidQuery);
     };
 
-    update_raw(conn, id, raw)
+    update_raw(conn, codec, id, raw)
 }
 
 /// Clear the side tables (search indices and lookup tables) for a given raw id.
@@ -340,10 +361,14 @@ pub fn get_module_id_from_raw(conn: &Connection, raw: &Box<dyn RawObject>) -> Re
 #[allow(clippy::borrowed_box)]
 pub fn create_raw_with_module(
     conn: &Connection,
+    codec: &DbCodec,
     module_id: i64,
     raw: &Box<dyn RawObject>,
 ) -> Result<i64> {
-    let json_payload = serde_json::to_string(&raw).map_err(|_| rusqlite::Error::InvalidQuery)?;
+    let binary_blob = codec
+        .compress_record(&raw)
+        .inspect_err(|e| tracing::error!("create_raw_with_module: {e}"))
+        .map_err(|_| rusqlite::Error::InvalidQuery)?;
 
     let raw_id: i64 = conn.query_row(
         INSERT_RAW_DEFINITION_NO_UPDATE_RETURN_ID,
@@ -351,7 +376,7 @@ pub fn create_raw_with_module(
             u32::from(raw.get_type()),
             raw.get_identifier(),
             module_id,
-            json_payload,
+            binary_blob,
             raw.get_object_id().as_bytes()
         ],
         |row| row.get(0),
@@ -370,8 +395,8 @@ fn populate_side_tables(conn: &Connection, raw_id: i64, raw: &Box<dyn RawObject>
         conn.execute(INSERT_COMMON_FLAG, params![raw_id, flag])?;
     }
 
-    let mut search_names = Vec::<&str>::new();
-    let mut search_descriptions = Vec::<&str>::new();
+    let mut search_names = Vec::<String>::new();
+    let mut search_descriptions = Vec::<String>::new();
 
     match raw.get_type() {
         ObjectType::Creature => {

@@ -6,9 +6,9 @@ use std::path::Path;
 
 use crate::ParserError;
 use crate::constants::DF_ENCODING;
-use crate::raw_definitions::OBJECT_TOKEN_MAP;
 use crate::regex::RAW_TOKEN_RE;
 use crate::tokens::ObjectType;
+use crate::tokens::raw_definitions::OBJECT_TOKEN_MAP;
 use crate::utilities::try_get_file;
 
 /// It reads a file, line by line, and checks the first line for the filename, reads lines until it encounters the

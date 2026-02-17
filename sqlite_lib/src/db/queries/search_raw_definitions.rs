@@ -1,4 +1,8 @@
-use dfraw_parser::{metadata::RawModuleLocation, tokens::ObjectType, traits::RawToken};
+use dfraw_parser::{
+    metadata::RawModuleLocation,
+    tokens::ObjectType,
+    traits::{RawObject, RawToken},
+};
 use itertools::Itertools as _;
 use rusqlite::{Connection, Result};
 use std::fmt::Write as _;
@@ -6,7 +10,7 @@ use tracing::info;
 
 use crate::{
     ResultWithId, SearchQuery, SearchResults,
-    db::{metadata_markers::FavoriteRaws, queries},
+    db::{compression::DbCodec, metadata_markers::FavoriteRaws, queries},
 };
 
 /// Uses the provided `SearchQuery` to return the JSON of all matching raws defined in the database.
@@ -17,8 +21,12 @@ use crate::{
 ///
 /// # Returns
 ///
-/// The `SearchResults` with the results as the JSON strings as byte arrays.
-pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResults<Vec<u8>>> {
+/// The `SearchResults` with the results as [`Box<dyn RawObject>`]
+pub fn search_raws(
+    conn: &Connection,
+    codec: &DbCodec,
+    query: &SearchQuery,
+) -> Result<SearchResults<Box<dyn RawObject>>> {
     let mut sql = String::from("FROM raw_definitions r ");
     let mut conditions = Vec::new();
     let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
@@ -93,7 +101,7 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
     };
 
     // Now we can set up our actual results
-    let mut results_sql = format!("SELECT r.id,json(r.data_blob) {sql}");
+    let mut results_sql = format!("SELECT r.id,r.data_blob {sql}");
 
     // Ensure we use BM25 ranking if searching text
     if is_full_text_search {
@@ -128,11 +136,14 @@ pub fn search_raws(conn: &Connection, query: &SearchQuery) -> Result<SearchResul
     // Run query
     let rows = stmt.query_map(&params_ref[..], |row| {
         let id: i64 = row.get(0)?;
-        let json_string: String = row.get(1)?; // Get as Text
-        Ok(ResultWithId {
-            id,
-            data: json_string.into_bytes(), // Convert to Vec<u8> for the return type
-        })
+        let binary_blob: Vec<u8> = row.get(1)?; // Get as blob
+        let raw: Box<dyn RawObject> = codec
+            .decompress_record(&binary_blob[..])
+            .inspect_err(|e| {
+                tracing::error!("search_raws: deserialization failed for id:{id}: {e}");
+            })
+            .map_err(|_| rusqlite::Error::InvalidQuery)?;
+        Ok(ResultWithId { id, data: raw })
     })?;
 
     let mut results = Vec::new();

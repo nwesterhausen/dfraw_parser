@@ -34,7 +34,7 @@ pub fn impl_derive_is_empty(input: TokenStream) -> TokenStream {
             let mut custom_value: Option<Expr> = None;
 
             for attr in &f.attrs {
-                if attr.path().is_ident("is_empty") {
+                if attr.path().is_ident("is_empty") || attr.path().is_ident("cleanable") {
                     let _ = attr.parse_nested_meta(|meta| {
                         if meta.path.is_ident("ignore") {
                             is_ignored = true;
@@ -51,6 +51,7 @@ pub fn impl_derive_is_empty(input: TokenStream) -> TokenStream {
                 }
             }
 
+            // metadata should not contribute to whether a component is "empty"
             if is_ignored || field_name.as_ref().is_some_and(|i| i == "metadata") {
                 None
             } else if let Some(val) = custom_value {

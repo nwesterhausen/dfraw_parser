@@ -1,5 +1,9 @@
+use std::str::FromStr;
+
+use crate::traits::TagOperations;
+
 /// Has methods for dealing with tokens and handling them.
-pub trait RawToken {
+pub trait RawToken: TagOperations + FromStr {
     /// Retrieves the original string token key for this tag (e.g., "PETVALUE"). This is done
     /// by reversing the string --> token mapping that already exists, providing O(1) lookup.
     fn get_key(&self) -> Option<&'static str>;

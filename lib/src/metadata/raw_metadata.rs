@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
+use dfraw_parser_proc_macros::Cleanable;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -31,9 +31,7 @@ use super::RawModuleLocation;
 /// * `hidden`: The `hidden` property is a boolean value that indicates whether the raw metadata should
 ///   be hidden or not when exporting. By default, it is set to `true`, meaning that the raw metadata will
 ///   be hidden unless specified in the `ParsingOptions` struct.
-#[derive(
-    Serialize, Deserialize, Clone, Debug, Default, specta::Type, PartialEq, Eq, IsEmpty, Cleanable,
-)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, specta::Type, PartialEq, Eq, Cleanable)]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
     /// A generated id that is used to uniquely identify this object.
