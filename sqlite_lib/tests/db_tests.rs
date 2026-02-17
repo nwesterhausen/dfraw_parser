@@ -48,17 +48,12 @@ fn has_results_only_for_favorites() {
     const FAVORITE_RAW_ID: i64 = 1206;
     setup_tracing();
     let client_mutex = get_test_client();
+    let client = client_mutex.lock().expect("Failed to lock DbClient");
 
-    {
-        let client = client_mutex
-            .lock()
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:add_favorite {e}"))
-            .expect("Failed to lock DbClient");
-        client
-            .add_favorite_raw(FAVORITE_RAW_ID)
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:add_favorite {e}"))
-            .expect("Failed to add id:1206 as favorite.");
-    }
+    client
+        .add_favorite_raw(FAVORITE_RAW_ID)
+        .inspect_err(|e| tracing::error!("has_results_only_for_favorites:add_favorite {e}"))
+        .expect("Failed to add id:1206 as favorite.");
 
     // get all raws within only 'Vanilla' location
     let query = SearchQuery {
@@ -66,16 +61,10 @@ fn has_results_only_for_favorites() {
         ..Default::default()
     };
 
-    let search_results = {
-        let client = client_mutex
-            .lock()
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:search_favorites {e}"))
-            .expect("Failed to lock DbClient");
-        client
-            .search_raws(&query)
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:search_favorites {e}"))
-            .expect("Failed to query the generated database")
-    };
+    let search_results = client
+        .search_raws(&query)
+        .inspect_err(|e| tracing::error!("has_results_only_for_favorites:search_favorites {e}"))
+        .expect("Failed to query the generated database");
 
     assert!(
         !search_results.results.is_empty(),
@@ -90,26 +79,18 @@ fn has_results_only_for_favorites() {
     );
 
     // Cleanup
-    {
-        let client = client_mutex
-            .lock()
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:remove_favorite {e}"))
-            .expect("Failed to lock DbClient");
-        client
-            .remove_favorite_raw(FAVORITE_RAW_ID)
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:remove_favorite {e}"))
-            .expect("Failed to add id:1206 as favorite.");
-    }
-    let search_results = {
-        let client = client_mutex
-            .lock()
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:check_removed {e}"))
-            .expect("Failed to lock DbClient");
-        client
-            .search_raws(&query)
-            .inspect_err(|e| tracing::error!("has_results_only_for_favorites:check_removed {e}"))
-            .expect("Failed to query the generated database")
-    };
+    client
+        .remove_favorite_raw(FAVORITE_RAW_ID)
+        .inspect_err(|e| tracing::error!("has_results_only_for_favorites:remove_favorite {e}"))
+        .expect("Failed to add id:1206 as favorite.");
+
+    let search_results = client
+        .search_raws(&query)
+        .inspect_err(|e| tracing::error!("has_results_only_for_favorites:check_removed {e}"))
+        .expect("Failed to query the generated database");
+
+    // Done with client, so can tell compiler to drop it here
+    drop(client);
 
     assert!(
         !search_results
@@ -472,45 +453,33 @@ fn verify_trigram_substring_matching() {
 fn verify_get_set_delete_favorite_raws() {
     setup_tracing();
     let client_mutex = get_test_client();
-    let initial_favorite_raws = client_mutex
-        .lock()
-        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get1 {e}"))
-        .expect("Failed to lock DbClient")
+    let client = client_mutex.lock().expect("Failed to lock DbClient");
+
+    let initial_favorite_raws = client
         .get_favorite_raws()
         .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get1 {e}"))
         .expect("Get favorite raws failed");
-    client_mutex
-        .lock()
-        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add13 {e}"))
-        .expect("Failed to lock DbClient")
+
+    client
         .add_favorite_raw(13)
         .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add13 {e}"))
         .expect("Failed to add favorite raw 13");
-    client_mutex
-        .lock()
-        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add203 {e}"))
-        .expect("Failed to lock DbClient")
+    client
         .add_favorite_raw(203)
         .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:add203 {e}"))
         .expect("Failed to add favorite raw 203");
-    let after_favorite_raws = client_mutex
-        .lock()
-        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get2 {e}"))
-        .expect("Failed to lock DbClient")
+
+    let after_favorite_raws = client
         .get_favorite_raws()
         .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get2 {e}"))
         .expect("Get favorite raws failed");
-    client_mutex
-        .lock()
-        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:rem13 {e}"))
-        .expect("Failed to lock DbClient")
+
+    client
         .remove_favorite_raw(13)
         .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:rem12 {e}"))
         .expect("Failed to remove favorite raw 13");
-    let final_favorite_raws = client_mutex
-        .lock()
-        .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get3 {e}"))
-        .expect("Failed to lock DbClient")
+
+    let final_favorite_raws = client
         .get_favorite_raws()
         .inspect_err(|e| tracing::error!("verify_get_set_delete_favorite_raws:get3 {e}"))
         .expect("Get favorite raws failed");
@@ -520,6 +489,11 @@ fn verify_get_set_delete_favorite_raws() {
     assert_eq!(after_favorite_raws.len(), 2);
     assert_eq!(final_favorite_raws.len(), 1);
     assert_eq!(final_favorite_raws.first().unwrap_or(&0), &203);
+
+    // Remove added favorite to leave DB in 'clean' state
+    client
+        .remove_favorite_raw(203)
+        .expect("Failed to cleanup favorite raw 203");
 }
 
 #[test]
