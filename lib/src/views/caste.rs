@@ -1,7 +1,7 @@
 use dfraw_parser_proc_macros::IsEmpty;
 
 use crate::{
-    Gait,
+    Caste, Gait,
     custom_types::{BodySize, Name, Tile},
     tokens::CasteToken,
 };
@@ -117,4 +117,51 @@ pub struct CasteView {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
     pub gaits: Option<Vec<Gait>>,
+}
+impl From<Caste> for CasteView {
+    fn from(value: Caste) -> Self {
+        Self {
+            identifier: value.identifier.clone(),
+            // Clone the tokens vector
+            tokens: value.tokens.clone(),
+            description: value.get_description().map(String::from),
+            baby_name: value.get_baby_name().cloned(),
+            caste_name: value.get_caste_name().cloned(),
+            child_name: value.get_child_name().cloned(),
+            clutch_size: value.get_clutch_size(),
+            litter_size: value.get_litter_size(),
+            max_age: value.get_max_age(),
+            baby: value.get_baby_age(),
+            child: value.get_child_age(),
+            difficulty: value.get_difficulty(),
+            egg_size: value.get_egg_size(),
+            grass_trample: value.get_grass_trample(),
+            grazer: value.get_grazer(),
+            low_light_vision: value.get_low_light_vision(),
+            pet_value: value.get_pet_value(),
+            pop_ratio: value.get_pop_ratio(),
+            change_body_size_percentage: value.get_change_body_size_percentage(),
+            // Convert empty Vec to None for Option<Vec> fields
+            creature_class: {
+                let classes = value.get_creature_classes();
+                if classes.is_empty() {
+                    None
+                } else {
+                    Some(classes)
+                }
+            },
+            body_size: {
+                let sizes = value.get_body_sizes();
+                if sizes.is_empty() { None } else { Some(sizes) }
+            },
+            // Manually extract milkable since there is no direct getter for the tuple
+            milkable: value.get_milkable(),
+            tile: Some(value.tile.clone()),
+            gaits: if value.gaits.is_empty() {
+                None
+            } else {
+                Some(value.gaits.clone())
+            },
+        }
+    }
 }

@@ -103,6 +103,8 @@ pub fn generate_bindings(output_path: &Path) -> Result<(), ExportError> {
         .register::<dfraw_parser::Syndrome>()
         .register::<dfraw_parser::TilePage>()
         .register::<dfraw_parser::Tree>()
+        .register::<dfraw_parser::views::CasteView>()
+        .register::<dfraw_parser::views::CreatureView>()
         .register::<dfraw_parser::metadata::LocationHelper>()
         .register::<dfraw_parser::metadata::NumericToken>()
         .register::<dfraw_parser::metadata::ParserOptions>()

@@ -2,6 +2,7 @@ use dfraw_parser_proc_macros::IsEmpty;
 use uuid::Uuid;
 
 use crate::{
+    Creature,
     custom_types::{Name, Tile},
     metadata::RawMetadata,
     tokens::{BiomeToken, CreatureToken},
@@ -125,4 +126,27 @@ pub struct CreatureView {
     /// The generic name for any creature of this type - will be used when distinctions between caste are unimportant. For names for specific castes,
     /// use `[CASTE_NAME]` instead. If left undefined, the creature will be labeled as "nothing" by the game.
     pub name: Name,
+}
+
+impl From<Creature> for CreatureView {
+    fn from(value: Creature) -> Self {
+        Self {
+            metadata: value.metadata.clone(),
+            identifier: value.identifier.clone(),
+            object_id: value.object_id,
+            tags: value.tokens.clone(),
+            biomes: value.get_biomes().clone(),
+            pref_strings: value.get_pref_strings(),
+            // todo: handle Tile value better
+            tile: None,
+            frequency: value.get_frequency(),
+            cluster_number: value.get_cluster_number(),
+            population_number: value.get_population_number(),
+            underground_depth: value.get_underground_depth(),
+            general_baby_name: value.get_general_baby_name(),
+            general_child_name: value.get_general_child_name(),
+            name: value.get_name(),
+            castes: value.castes.into_iter().map(CasteView::from).collect(),
+        }
+    }
 }

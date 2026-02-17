@@ -2,7 +2,7 @@
 //! that can be set in the raws. Not all the raws are represented here, only the ones that
 //! are currently supported by the library.
 
-use std::mem::discriminant;
+use std::{mem::discriminant, str::FromStr};
 
 use dfraw_parser_proc_macros::{Cleanable, IsEmpty};
 use itertools::Itertools;
@@ -11,9 +11,10 @@ use uuid::Uuid;
 
 use crate::{
     Caste, SelectCreature,
+    custom_types::Name,
     metadata::RawMetadata,
     tokens::{
-        CasteToken, CreatureToken, ObjectType,
+        BiomeToken, CasteToken, CreatureToken, ObjectType,
         raw_definitions::{CASTE_TOKENS, CREATURE_TOKENS},
     },
     traits::{Cleanable, CreatureVariationRequirements, RawObject},
@@ -480,6 +481,96 @@ impl Creature {
             }
         }
         false
+    }
+
+    /// Returns a list of biomes this creature inhabits.
+    #[must_use]
+    pub fn get_biomes(&self) -> Vec<BiomeToken> {
+        self.tokens
+            .iter()
+            .filter_map(|token| match token {
+                CreatureToken::Biome { id } => BiomeToken::from_str(id).ok(),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// Returns a list of preference strings (what dwarves like/dislike about this creature).
+    #[must_use]
+    pub fn get_pref_strings(&self) -> Vec<String> {
+        self.tokens
+            .iter()
+            .filter_map(|token| match token {
+                CreatureToken::PrefString { pref_string } => Some(pref_string.clone()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// Returns the frequency of this creature.
+    #[must_use]
+    pub fn get_frequency(&self) -> Option<u32> {
+        self.tokens.iter().find_map(|token| match token {
+            CreatureToken::Frequency { frequency } => Some(*frequency),
+            _ => None,
+        })
+    }
+
+    /// Returns the cluster number range [min, max].
+    #[must_use]
+    pub fn get_cluster_number(&self) -> Option<[u32; 2]> {
+        self.tokens.iter().find_map(|token| match token {
+            CreatureToken::ClusterNumber { min, max } => Some([*min, *max]),
+            _ => None,
+        })
+    }
+
+    /// Returns the population number range [min, max].
+    #[must_use]
+    pub fn get_population_number(&self) -> Option<[u32; 2]> {
+        self.tokens.iter().find_map(|token| match token {
+            CreatureToken::PopulationNumber { min, max } => Some([*min, *max]),
+            _ => None,
+        })
+    }
+
+    /// Returns the underground depth range [min, max].
+    #[must_use]
+    pub fn get_underground_depth(&self) -> Option<[u32; 2]> {
+        self.tokens.iter().find_map(|token| match token {
+            CreatureToken::UndergroundDepth { min, max } => Some([*min, *max]),
+            _ => None,
+        })
+    }
+
+    /// Returns the general baby name (applicable to all castes).
+    #[must_use]
+    pub fn get_general_baby_name(&self) -> Option<Name> {
+        self.tokens.iter().find_map(|token| match token {
+            CreatureToken::GeneralBabyName { name } => Some(name.clone()),
+            _ => None,
+        })
+    }
+
+    /// Returns the general child name (applicable to all castes).
+    #[must_use]
+    pub fn get_general_child_name(&self) -> Option<Name> {
+        self.tokens.iter().find_map(|token| match token {
+            CreatureToken::GeneralChildName { name } => Some(name.clone()),
+            _ => None,
+        })
+    }
+
+    /// Returns the creature's generic name.
+    #[must_use]
+    pub fn get_name(&self) -> Name {
+        self.tokens
+            .iter()
+            .find_map(|token| match token {
+                CreatureToken::Name { name } => Some(name.clone()),
+                _ => None,
+            })
+            .unwrap_or_default()
     }
 
     /// Get all names defined for this creature

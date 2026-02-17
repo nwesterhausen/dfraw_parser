@@ -267,6 +267,18 @@ impl Caste {
         })
     }
 
+    /// Returns the material and frequency for milking
+    #[must_use]
+    pub fn get_milkable(&self) -> Option<(String, u32)> {
+        self.tokens.iter().find_map(|t| match t {
+            CasteToken::Milkable {
+                material,
+                frequency,
+            } => Some((material.join(":"), *frequency)),
+            _ => None,
+        })
+    }
+
     /// Returns the maximum age range for this caste.
     ///
     /// Returns a tuple of `[min, max]` age in game ticks. Creatures die of old age
