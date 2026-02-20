@@ -1,24 +1,19 @@
+use std::collections::HashSet;
+
 use dfraw_parser_proc_macros::IsEmpty;
 use uuid::Uuid;
 
 use crate::{
-    Creature,
+    Creature, SelectCreature,
     custom_types::{Name, Tile},
-    metadata::RawMetadata,
-    tokens::{BiomeToken, CreatureToken},
+    metadata::{NumericToken, RawMetadata},
+    tokens::{BiomeToken, CasteToken, CreatureToken, ObjectType},
+    traits::{NumericTokenTransform as _, RawObjectView, RawToken},
     views::CasteView,
 };
 
-/// The `Creature` struct represents a creature in a Dwarf Fortress, with the properties
-/// that can be set in the raws. Not all the raws are represented here, only the ones that
-/// are currently supported by the library.
-///
-/// Some items like `CREATURE_VARIATION` and `CREATURE_VARIATION_CASTE` are saved in their raw
-/// format. `SELECT_CREATURE` is saved here as a sub-creature object with all the properties
-/// from that raw. This is because the `SELECT_CREATURE` raws are used to create new creatures
-/// based on the properties of the creature they are applied to. But right now the application
-/// of those changes is not applied, in order to preserve the original creature. So instead,
-/// they are saved and can be applied later (at the consumer's discretion).
+/// A view for the Creature raw object. This includes all fields from Creature plus some
+/// additional fields for ease-of-use when displaying information to users.
 #[derive(
     serde::Serialize,
     serde::Deserialize,
@@ -126,6 +121,27 @@ pub struct CreatureView {
     /// The generic name for any creature of this type - will be used when distinctions between caste are unimportant. For names for specific castes,
     /// use `[CASTE_NAME]` instead. If left undefined, the creature will be labeled as "nothing" by the game.
     pub name: Name,
+
+    /// Trait passed-thru from `Creature`,
+    /// Copies another specified creature. This will override any definitions made before it; essentially, it makes this creature identical to the other one,
+    /// which can then be modified. Often used in combination with `[APPLY_CREATURE_VARIATION]` to import standard variations from a file.
+    ///
+    /// The vanilla giant animals and animal peoples are examples of this token combination.
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
+    pub copy_tokens_from: Option<String>,
+    /// Trait passed-thru from `Creature`,
+    /// Applies the specified creature variation.
+    ///
+    /// These are stored "in the raw", i.e. how they appear in the raws. They are not handled until the end of the parsing process.
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
+    pub apply_creature_variation: Option<Vec<String>>,
+    /// Trait passed-thru from `Creature`,
+    /// Various `SELECT_CREATURE` modifications.
+    #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
+    #[serde(default)]
+    pub select_creature_variation: Option<Vec<SelectCreature>>,
 }
 
 impl From<Creature> for CreatureView {
@@ -147,6 +163,71 @@ impl From<Creature> for CreatureView {
             general_child_name: value.get_general_child_name(),
             name: value.get_name(),
             castes: value.castes.into_iter().map(CasteView::from).collect(),
+            apply_creature_variation: value.apply_creature_variation.clone(),
+            copy_tokens_from: value.copy_tokens_from.clone(),
+            select_creature_variation: value.select_creature_variation.clone(),
         }
+    }
+}
+
+#[typetag::serde]
+impl RawObjectView for Creature {
+    fn get_metadata(&self) -> RawMetadata {
+        self.metadata.clone()
+    }
+    fn get_identifier(&self) -> &str {
+        &self.identifier
+    }
+    fn get_type(&self) -> ObjectType {
+        ObjectType::Creature
+    }
+    fn get_object_id(&self) -> Uuid {
+        self.object_id
+    }
+    fn get_name(&self) -> &str {
+        self.tokens
+            .iter()
+            .find_map(|token| match token {
+                CreatureToken::Name { name } => Some(name.get_singular()),
+                _ => None,
+            })
+            // If find_map returns None, return the identifier instead
+            .unwrap_or(&self.identifier)
+    }
+    fn get_searchable_tokens(&self) -> Vec<&str> {
+        let mut tokens = HashSet::new();
+
+        for token in CreatureToken::FLAG_TOKENS {
+            if self.has_token(token) {
+                tokens.insert(RawToken::get_key(token).unwrap_or_default());
+            }
+        }
+
+        for caste in &self.castes {
+            for token in CasteToken::FLAG_TOKENS {
+                if caste.has_token(token) {
+                    tokens.insert(RawToken::get_key(token).unwrap_or_default());
+                }
+            }
+        }
+
+        tokens.into_iter().collect()
+    }
+    fn get_numeric_flags(&self) -> Vec<NumericToken> {
+        let mut tokens = Vec::new();
+
+        // Collect from Creature Tags
+        for token in &self.tokens {
+            tokens.extend(token.as_numeric_tokens());
+        }
+
+        // Collect from Caste Tags
+        for caste in &self.castes {
+            for tag in caste.get_tokens() {
+                tokens.extend(tag.as_numeric_tokens());
+            }
+        }
+
+        tokens
     }
 }

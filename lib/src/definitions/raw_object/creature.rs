@@ -86,12 +86,12 @@ impl RawObject for Creature {
     fn get_numeric_flags(&self) -> Vec<NumericToken> {
         let mut tokens = Vec::new();
 
-        // 1. Collect from Creature Tags
+        // Collect from Creature Tags
         for token in &self.tokens {
             tokens.extend(token.as_numeric_tokens());
         }
 
-        // 2. Collect from Caste Tags
+        // Collect from Caste Tags
         for caste in &self.castes {
             for tag in caste.get_tokens() {
                 tokens.extend(tag.as_numeric_tokens());

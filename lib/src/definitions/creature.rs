@@ -87,7 +87,7 @@ pub struct Creature {
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
     pub apply_creature_variation: Option<Vec<String>>,
-    /// Various `SELECT_CREATUR` modifications.
+    /// Various `SELECT_CREATURE` modifications.
     #[serde(skip_serializing_if = "crate::traits::IsEmpty::is_empty")]
     #[serde(default)]
     pub select_creature_variation: Option<Vec<SelectCreature>>,
